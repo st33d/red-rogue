@@ -6,7 +6,7 @@
 	
 	/**
 	 * ...
-	 * @author Aaron Steed, nitrome.com
+	 * @author Aaron Steed, robotacid.com
 	 */
 	public class Camera {
 		

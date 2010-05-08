@@ -3,7 +3,7 @@
 	/**
 	* A wrapper for Numbers to protect them from tools like CheatEngine
 	*
-	* @author Aaron Steed, nitrome.com
+	* @author Aaron Steed, robotacid.com
 	*/
 	public class HiddenNumber {
 		

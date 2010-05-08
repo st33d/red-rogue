@@ -36,7 +36,7 @@
 	/**
 	* Platform game character
 	*
-	* @author Aaron Steed, nitrome.com
+	* @author Aaron Steed, robotacid.com
 	*/
 	public class Player extends Character{
 		

@@ -140,9 +140,6 @@
 		public var paused:Boolean;
 		public var shake_dir_x:int;
 		public var shake_dir_y:int;
-		public var rumble_count:int;
-		public var rumble_x:int;
-		public var rumble_y:int;
 		public var konami_code:Boolean = false;
 		public var colossal_cave_code:Boolean = false;
 		public var force_focus:Boolean = true;
@@ -447,9 +444,6 @@
 		}
 		
 		private function initPlayer():void{
-			/*var num:String = NitromeGame.selected_level < 10 ? "0" : "";
-			num = num + NitromeGame.selected_level;
-			NitromeGame.timeline.msg_panel.setMsg("level " + num);*/
 			var temp:MovieClip = new library.PlayerMC();
 			player_holder.addChild(temp);
 			temp.x = (SCALE >> 1) + dungeon.start.x * SCALE;
@@ -581,12 +575,6 @@
 			shake_dir_x = x > 0 ? 1 : -1;
 			shake_dir_y = y > 0 ? 1 : -1;
 		}
-		/* Continually shake the screen for a number of frames determined by "duration" */
-		public function rumble(x:int, y:int, duration:int):void{
-			rumble_count = duration;
-			rumble_x = x;
-			rumble_y = y;
-		}
 		/* resolve the shake */
 		private function updateShaker():void {
 			// shake first
@@ -599,23 +587,6 @@
 				shaker.x = -shaker.x;
 				if(shake_dir_x == 1 && shaker.x > 0) shaker.x--;
 				if(shake_dir_x == -1 && shaker.x < 0) shaker.x++;
-			}
-			// now rumble
-			if(rumble_count > 0){
-				//NitromeGame.sound_manager.playLoopFadeIn(SoundManager.RUMBLE);
-				rumble_count--;
-				if(rumble_x != 0 && shaker.x == 0){
-					shake(rumble_x, 0);
-				}
-				if(rumble_y != 0 && shaker.y == 0){
-					shake(0, rumble_y);
-				}
-			} else if(rumble_x != 0){
-				rumble_x = 0;
-			} else if(rumble_y != 0){
-				rumble_y = 0;
-			} else {
-				//NitromeGame.sound_manager.stopLoopFadeOut(SoundManager.RUMBLE);
 			}
 		}
 		/* Maintain FX */

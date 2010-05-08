@@ -5,7 +5,7 @@
 	 *
 	 * This method of compression cuts file size down to up to 10% of the original size
 	 *
-	 * @author Aaron Steed (but Chris Burt-Brown came up with it first), nitrome.com
+	 * @author Aaron Steed robotacid.com
 	 */
 	public class RLE {
 		

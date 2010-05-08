@@ -503,7 +503,6 @@
 				var head:Head = new Head(mc as MovieClip, total_health * 0.5, g);
 			}
 			g.console.print(CharacterAttributes.NAME_STRINGS[name] + " " + method + " by " + cause);
-			//NitromeGame.sound_manager.playSound("aiiee");
 			g.shake(0, 3);
 			SoundManager.playSound(g.library.KillSound);
 			if(type == MONSTER) g.player.addXP(xp_reward);

@@ -1,6 +1,6 @@
 /**
 * MD5 encryption, ported from AS2 to AS3
-* @author Aaron Steed, nitrome.com
+* @author Aaron Steed, robotacid.com
 * @version 2.1
 * 
 * original comments from AS2 version follow...

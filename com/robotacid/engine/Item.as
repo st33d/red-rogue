@@ -18,7 +18,7 @@
 	* These are equippable, and usable in numerous ways.
 	* This objects serves to bring all items in the game under one roof.
 	*
-	* @author Aaron Steed, nitrome.com
+	* @author Aaron Steed, robotacid.com
 	*/
 	public class Item extends Entity{
 		

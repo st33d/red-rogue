@@ -12,7 +12,7 @@
 	/**
 	* Basic missile class - only moves in straight lines for now
 	*
-	* @author Aaron Steed, nitrome.com
+	* @author Aaron Steed, robotacid.com
 	*/
 	public class Missile extends Entity{
 		
