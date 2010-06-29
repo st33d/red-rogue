@@ -38,7 +38,7 @@
 		 * by using the same separator in parts of the compressed string I wanted to protect before I'd made 30 levels
 		 * then I'd be using a different bloody separator
 		 */
-		public static function uncompress(string:String, index:String = ":", separator:String = ",", match:RegExp = null, marker:String = ""):Array{
+		public static function uncompress(string:String, index:String = ":", separator:String = ",", match:RegExp = null, marker:String = "*"):Array{
 			var protect:Array;
 			if(match){
 				protect = string.match(match);

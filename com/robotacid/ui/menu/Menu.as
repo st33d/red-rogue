@@ -39,43 +39,43 @@
 	public class Menu extends Sprite{
 		
 		public var holder:DisplayObjectContainer;
-		public var text_holder:Sprite;
+		public var textHolder:Sprite;
 		public var help:TextBox;
 		public var _selection:int;
-		public var selection_window:Bitmap;
-		public var selection_window_taper_previous:Bitmap;
-		public var selection_window_taper_next:Bitmap;
-		public var line_height:Number;
+		public var selectionWindow:Bitmap;
+		public var selectionWindowTaperPrevious:Bitmap;
+		public var selectionWindowTaperNext:Bitmap;
+		public var lineHeight:Number;
 		
 		public var branch:Vector.<MenuList>;
-		public var branch_string_current_option:String;
-		public var branch_string_history:String;
-		public var branch_string_separator:String = "/";
+		public var branchStringCurrentOption:String;
+		public var branchStringHistory:String;
+		public var branchStringSeparator:String = "/";
 		
-		public var hot_key_maps:Vector.<HotKeyMap>;
-		public var hot_key_map_record:HotKeyMap;
+		public var hotKeyMaps:Vector.<HotKeyMap>;
+		public var hotKeyMapRecord:HotKeyMap;
 		
-		public var previous_text_box:TextBox;
-		public var current_text_box:TextBox;
-		public var next_text_box:TextBox;
+		public var previousTextBox:TextBox;
+		public var currentTextBox:TextBox;
+		public var nextTextBox:TextBox;
 		
-		public var previous_menu_list:MenuList;
-		public var current_menu_list:MenuList;
-		public var next_menu_list:MenuList;
+		public var previousMenuList:MenuList;
+		public var currentMenuList:MenuList;
+		public var nextMenuList:MenuList;
 		
-		public static var key_changer:MenuList;
+		public static var keyChanger:MenuList;
 		
-		public var selection_window_col:uint = 0xFFEEEEEE;
+		public var selectionWindowCol:uint = 0xFFEEEEEE;
 		
 		// display area that the menu takes up
-		public var _width:Number;
-		public var _height:Number;
+		public var Width:Number;
+		public var Height:Number;
 		
-		public var mask_shape:Shape;
+		public var maskShape:Shape;
 		
-		public var key_count:int;
-		public var key_reset:int;
-		public var key_lock:Boolean;
+		public var keyCount:int;
+		public var keyReset:int;
+		public var keyLock:Boolean;
 		
 		public static const LIST_WIDTH:Number = 100;
 		public static const SELECTION_WINDOW_TAPER_WIDTH:Number = 50;
@@ -91,65 +91,65 @@
 		public static const HOT_KEY_OFFSET:int = 5;
 		
 		public function Menu(width:Number, height:Number, trunk:MenuList = null):void{
-			_width = width;
-			_height = height;
+			Width = width;
+			Height = height;
 			
 			// initialise the branch recorders - these will help examine the history of
 			// menu usage
 			branch = new Vector.<MenuList>();
-			hot_key_maps = new Vector.<HotKeyMap>();
-			for(var i:int = 0; i < Key.hot_key_total; i++){
-				hot_key_maps.push(null);
+			hotKeyMaps = new Vector.<HotKeyMap>();
+			for(var i:int = 0; i < Key.hotKeyTotal; i++){
+				hotKeyMaps.push(null);
 			}
 			
 			// create a mask to contain the menu
-			mask_shape = new Shape();
-			addChild(mask_shape);
-			mask_shape.graphics.beginFill(0xFF0000);
-			mask_shape.graphics.drawRect(0, 0, width, height);
-			mask_shape.graphics.endFill();
-			mask = mask_shape;
+			maskShape = new Shape();
+			addChild(maskShape);
+			maskShape.graphics.beginFill(0xFF0000);
+			maskShape.graphics.drawRect(0, 0, width, height);
+			maskShape.graphics.endFill();
+			mask = maskShape;
 			
-			line_height = new TextBox(10, 1).line_metrics.height;
+			lineHeight = new TextBox(10, 1).lineMetrics.height;
 			
 			help = new TextBox(320, 3, 0x111111, 0x999999, 0xDDDDDD, 0.6);
-			help.max_lines = 3;
-			help.fixed_height = true;
+			help.maxLines = 3;
+			help.fixedHeight = true;
 			
 			// create TextBoxes to render the current state of the menu
-			text_holder = new Sprite();
-			addChild(text_holder);
-			text_holder.x = -LIST_WIDTH * 0.5 + _width * 0.5;
-			text_holder.y = (line_height * 3) + (_height - (line_height * 3)) * 0.5 - line_height * 0.5;
+			textHolder = new Sprite();
+			addChild(textHolder);
+			textHolder.x = -LIST_WIDTH * 0.5 + Width * 0.5;
+			textHolder.y = (lineHeight * 3) + (Height - (lineHeight * 3)) * 0.5 - lineHeight * 0.5;
 			
-			previous_text_box = new TextBox(LIST_WIDTH, 1, 0x010101, 0x666666, 0x999999, 0.6);
-			current_text_box = new TextBox(LIST_WIDTH, 1, 0x111111, 0x999999, 0xDDDDDD, 0.6);
-			next_text_box = new TextBox(LIST_WIDTH, 1, 0x010101, 0x666666, 0x999999, 0.6);
+			previousTextBox = new TextBox(LIST_WIDTH, 1, 0x010101, 0x666666, 0x999999, 0.6);
+			currentTextBox = new TextBox(LIST_WIDTH, 1, 0x111111, 0x999999, 0xDDDDDD, 0.6);
+			nextTextBox = new TextBox(LIST_WIDTH, 1, 0x010101, 0x666666, 0x999999, 0.6);
 			
-			previous_text_box.x = -LIST_WIDTH;
-			next_text_box.x = LIST_WIDTH;
+			previousTextBox.x = -LIST_WIDTH;
+			nextTextBox.x = LIST_WIDTH;
 			
-			text_holder.addChild(previous_text_box);
-			text_holder.addChild(current_text_box);
-			text_holder.addChild(next_text_box);
+			textHolder.addChild(previousTextBox);
+			textHolder.addChild(currentTextBox);
+			textHolder.addChild(nextTextBox);
 			
-			previous_text_box.visible = false;
-			next_text_box.visible = false;
+			previousTextBox.visible = false;
+			nextTextBox.visible = false;
 			
 			// the selection window shows what option we are currently on
-			selection_window = new Bitmap(new BitmapData(LIST_WIDTH, line_height));
-			selection_window.x = -LIST_WIDTH * 0.5 + _width * 0.5;
-			selection_window.y = (line_height * 3) + (_height - (line_height * 3)) * 0.5 - line_height * 0.5;
-			selection_window_taper_next = new Bitmap(new BitmapData(SELECTION_WINDOW_TAPER_WIDTH, line_height, true, 0x00000000));
-			selection_window_taper_next.x = selection_window.x + selection_window.width;
-			selection_window_taper_next.y = selection_window.y;
-			selection_window_taper_previous = new Bitmap(new BitmapData(SELECTION_WINDOW_TAPER_WIDTH, line_height, true, 0x00000000));
-			selection_window_taper_previous.x = selection_window.x - selection_window_taper_previous.width;
-			selection_window_taper_previous.y = selection_window.y;
+			selectionWindow = new Bitmap(new BitmapData(LIST_WIDTH, lineHeight));
+			selectionWindow.x = -LIST_WIDTH * 0.5 + Width * 0.5;
+			selectionWindow.y = (lineHeight * 3) + (Height - (lineHeight * 3)) * 0.5 - lineHeight * 0.5;
+			selectionWindowTaperNext = new Bitmap(new BitmapData(SELECTION_WINDOW_TAPER_WIDTH, lineHeight, true, 0x00000000));
+			selectionWindowTaperNext.x = selectionWindow.x + selectionWindow.width;
+			selectionWindowTaperNext.y = selectionWindow.y;
+			selectionWindowTaperPrevious = new Bitmap(new BitmapData(SELECTION_WINDOW_TAPER_WIDTH, lineHeight, true, 0x00000000));
+			selectionWindowTaperPrevious.x = selectionWindow.x - selectionWindowTaperPrevious.width;
+			selectionWindowTaperPrevious.y = selectionWindow.y;
 			drawSelectionWindow();
-			addChild(selection_window);
-			addChild(selection_window_taper_next);
-			addChild(selection_window_taper_previous);
+			addChild(selectionWindow);
+			addChild(selectionWindowTaperNext);
+			addChild(selectionWindowTaperPrevious);
 			
 			addChild(help);
 			
@@ -164,23 +164,23 @@
 		 * from this list. Calling this method also moves the menu to the trunk and
 		 * renders the current state
 		 */
-		public function setTrunk(menu_list:MenuList):void{
-			current_menu_list = menu_list;
-			previous_menu_list = null;
+		public function setTrunk(menuList:MenuList):void{
+			currentMenuList = menuList;
+			previousMenuList = null;
 			branch = new Vector.<MenuList>();
-			branch.push(menu_list);
-			branch_string_history = "";
-			key_count = KEY_DELAY;
-			key_reset = 0
-			key_lock = true;
-			selection = menu_list.selection;
+			branch.push(menuList);
+			branchStringHistory = "";
+			keyCount = KEY_DELAY;
+			keyReset = 0
+			keyLock = true;
+			selection = menuList.selection;
 		}
 		
 		/* Returns a string representation of the current menu history.
 		 * Use this to debug the menu and to quickly identify traversed menu paths
 		 */
 		public function branchString():String{
-			return branch_string_history + (branch_string_history.length > 0 ? branch_string_separator : "") + branch_string_current_option;
+			return branchStringHistory + (branchStringHistory.length > 0 ? branchStringSeparator : "") + branchStringCurrentOption;
 		}
 		
 		/* Returns the current MenuList selection */
@@ -193,12 +193,12 @@
 		 */
 		public function set selection(n:int):void{
 			_selection = n;
-			current_menu_list.selection = n;
-			branch_string_current_option = current_menu_list.options[n].name;
-			if(current_menu_list.options[n].next){
-				next_menu_list = current_menu_list.options[n].next;
+			currentMenuList.selection = n;
+			branchStringCurrentOption = currentMenuList.options[n].name;
+			if(currentMenuList.options[n].next){
+				nextMenuList = currentMenuList.options[n].next;
 			} else {
-				next_menu_list = null;
+				nextMenuList = null;
 			}
 			renderMenu();
 			dispatchEvent(new Event(Event.CHANGE));
@@ -209,49 +209,49 @@
 		 * jumps the menu back to the trunk.
 		 */
 		public function stepForward():void{
-			if(current_menu_list.options[current_menu_list.selection].active){
+			if(currentMenuList.options[currentMenuList.selection].active){
 				// walk forward
-				if(next_menu_list){
+				if(nextMenuList){
 					// recording?
-					if(hot_key_map_record){
-						hot_key_map_record.push(current_menu_list, current_menu_list.options[current_menu_list.selection], current_menu_list.selection);
+					if(hotKeyMapRecord){
+						hotKeyMapRecord.push(currentMenuList, currentMenuList.options[currentMenuList.selection], currentMenuList.selection);
 					}
 					
 					// options that are deactivated by walking this option are disabled here
 					// such as setting hot keys allowing recursive walks
-					if(current_menu_list.options[current_menu_list.selection].deactivates){
-						var list:Vector.<MenuOption> = current_menu_list.options[current_menu_list.selection].deactivates;
+					if(currentMenuList.options[currentMenuList.selection].deactivates){
+						var list:Vector.<MenuOption> = currentMenuList.options[currentMenuList.selection].deactivates;
 						for(var i:int = 0; i < list.length; i++){
 							list[i].active = false;
 						}
 					}
 					
 					// hot key? initialise a HotKeyMap
-					if(current_menu_list.options[current_menu_list.selection].hot_key_option){
-						hot_key_map_record = new HotKeyMap(current_menu_list.selection, this);
-						hot_key_map_record.init();
+					if(currentMenuList.options[currentMenuList.selection].hotKeyOption){
+						hotKeyMapRecord = new HotKeyMap(currentMenuList.selection, this);
+						hotKeyMapRecord.init();
 					}
 					
-					branch_string_history += (branch_string_history.length > 0 ? branch_string_separator : "") + current_menu_list.options[_selection].name;
+					branchStringHistory += (branchStringHistory.length > 0 ? branchStringSeparator : "") + currentMenuList.options[_selection].name;
 					
-					branch.push(next_menu_list);
+					branch.push(nextMenuList);
 					
-					previous_menu_list = current_menu_list;
-					current_menu_list = next_menu_list;
-					if(current_menu_list == key_changer) key_lock = true;
+					previousMenuList = currentMenuList;
+					currentMenuList = nextMenuList;
+					if(currentMenuList == keyChanger) keyLock = true;
 					// re-render using the selection getter/setter
-					selection = current_menu_list.selection;
+					selection = currentMenuList.selection;
 					
 				// nothing to walk forward to - call the SELECT event
 				} else {
 					// if the Menu is recording a path for a hot key, then we store that
 					// hot key here:
-					if(hot_key_map_record){
-						hot_key_map_record.push(current_menu_list, current_menu_list.options[current_menu_list.selection], current_menu_list.selection);
+					if(hotKeyMapRecord){
+						hotKeyMapRecord.push(currentMenuList, currentMenuList.options[currentMenuList.selection], currentMenuList.selection);
 						
-						hot_key_maps[hot_key_map_record.key] = hot_key_map_record;
+						hotKeyMaps[hotKeyMapRecord.key] = hotKeyMapRecord;
 						
-						hot_key_map_record = null;
+						hotKeyMapRecord = null;
 						// because recording a hot key involves deactivating recursive MenuOptions
 						// we have to return to the trunk by foot. It's on my todo list to
 						// deactivate all the CHANGE events fired when doing this
@@ -265,30 +265,30 @@
 		}
 		
 		/* Walk back to the previous MenuList. MenuLists and MenuOptions have no memory
-		 * of their forebears, so the branch history and previous_menu_list is used
+		 * of their forebears, so the branch history and previousMenuList is used
 		 */
 		public function stepBack():void{
-			if(previous_menu_list){
+			if(previousMenuList){
 				// are we recording?
-				if(hot_key_map_record){
-					hot_key_map_record.pop();
-					if(hot_key_map_record.length == 0){
-						hot_key_map_record = null;
+				if(hotKeyMapRecord){
+					hotKeyMapRecord.pop();
+					if(hotKeyMapRecord.length == 0){
+						hotKeyMapRecord = null;
 					}
 				}
 				branch.pop();
 				if(branch.length > 1){
-					branch_string_history = branch_string_history.substr(0, branch_string_history.lastIndexOf(branch_string_separator));
+					branchStringHistory = branchStringHistory.substr(0, branchStringHistory.lastIndexOf(branchStringSeparator));
 				} else {
-					branch_string_history = "";
+					branchStringHistory = "";
 				}
-				next_menu_list = current_menu_list;
-				current_menu_list = previous_menu_list;
-				previous_menu_list = branch.length > 1 ? branch[branch.length - 2] : null;
+				nextMenuList = currentMenuList;
+				currentMenuList = previousMenuList;
+				previousMenuList = branch.length > 1 ? branch[branch.length - 2] : null;
 				
 				// reactivate an option that recursively lead to the trunk
-				if(current_menu_list.options[current_menu_list.selection].deactivates){
-					var list:Vector.<MenuOption> = current_menu_list.options[current_menu_list.selection].deactivates;
+				if(currentMenuList.options[currentMenuList.selection].deactivates){
+					var list:Vector.<MenuOption> = currentMenuList.options[currentMenuList.selection].deactivates;
 					for(var i:int = 0; i < list.length; i++){
 						list[i].active = true;
 					}
@@ -296,91 +296,91 @@
 				
 
 				// re-render using the selection getter/setter
-				selection = current_menu_list.selection;
+				selection = currentMenuList.selection;
 			}
 		}
 		
 		/* This renders the current menu state, though it is better to use the selection
-		 * getter setter, as it will also update the branch_string property and update
+		 * getter setter, as it will also update the branchString property and update
 		 * what MenuList leads from the currently selected MenuOption.
 		 */
 		public function renderMenu():void{
-			if(previous_menu_list){
-				previous_text_box.text = previous_menu_list.optionsToString();
-				previous_text_box.y = -previous_menu_list.selection * line_height;
-				setDisabledLines(previous_menu_list, previous_text_box);
-				previous_text_box.visible = true;
-				selection_window_taper_previous.visible = true;
+			if(previousMenuList){
+				previousTextBox.text = previousMenuList.optionsToString();
+				previousTextBox.y = -previousMenuList.selection * lineHeight;
+				setDisabledLines(previousMenuList, previousTextBox);
+				previousTextBox.visible = true;
+				selectionWindowTaperPrevious.visible = true;
 			} else {
-				previous_text_box.visible = false;
-				selection_window_taper_previous.visible = false;
+				previousTextBox.visible = false;
+				selectionWindowTaperPrevious.visible = false;
 			}
-			if(current_menu_list){
-				if(current_menu_list == key_changer){
-					key_changer.options[0].name = "press a key";
+			if(currentMenuList){
+				if(currentMenuList == keyChanger){
+					keyChanger.options[0].name = "press a key";
 				}
-				current_text_box.text = current_menu_list.optionsToString();
-				current_text_box.y = -current_menu_list.selection * line_height;
-				setDisabledLines(current_menu_list, current_text_box);
+				currentTextBox.text = currentMenuList.optionsToString();
+				currentTextBox.y = -currentMenuList.selection * lineHeight;
+				setDisabledLines(currentMenuList, currentTextBox);
 			}
-			if(current_menu_list.options[_selection].active && next_menu_list){
-				if(next_menu_list == key_changer){
-					key_changer.options[0].name = Key.keyString(Key.custom[_selection]);
+			if(currentMenuList.options[_selection].active && nextMenuList){
+				if(nextMenuList == keyChanger){
+					keyChanger.options[0].name = Key.keyString(Key.custom[_selection]);
 				}
-				next_text_box.text = next_menu_list.optionsToString();
-				next_text_box.y = -next_menu_list.selection * line_height;
-				setDisabledLines(next_menu_list, next_text_box);
-				next_text_box.visible = true;
-				selection_window_taper_next.visible = true;
+				nextTextBox.text = nextMenuList.optionsToString();
+				nextTextBox.y = -nextMenuList.selection * lineHeight;
+				setDisabledLines(nextMenuList, nextTextBox);
+				nextTextBox.visible = true;
+				selectionWindowTaperNext.visible = true;
 			} else {
-				next_text_box.visible = false;
-				selection_window_taper_next.visible = false;
+				nextTextBox.visible = false;
+				selectionWindowTaperNext.visible = false;
 			}
 		}
 		
 		/* Updates the rendering of disabled MenuOptions */
-		public function setDisabledLines(menu_list:MenuList, text_box:TextBox):void{
-			text_box.disabled_shape.graphics.clear();
-			for(var i:int = 0; i < menu_list.options.length; i++){
-				if(!menu_list.options[i].active) text_box.setDisabledLine(i);
+		public function setDisabledLines(menuList:MenuList, textBox:TextBox):void{
+			textBox.disabledShape.graphics.clear();
+			for(var i:int = 0; i < menuList.options.length; i++){
+				if(!menuList.options[i].active) textBox.setDisabledLine(i);
 			}
 		}
 		
-		/* We listen for key input here, the key_lock property is used to stop the menu
+		/* We listen for key input here, the keyLock property is used to stop the menu
 		 * endlessly firing the same selection */
 		public function onEnterFrame(e:Event = null):void{
 			var i:int, j:int;
-			// if the key_changer is active, listen for keys to change the current key set
-			if(!key_lock && key_changer && current_menu_list == key_changer){
-				if(Key.keys_pressed){
-					var key_reserved:Boolean = Key.isDown(Keyboard.UP) || Key.isDown(Keyboard.DOWN) || Key.isDown(Keyboard.LEFT) || Key.isDown(Keyboard.RIGHT);
+			// if the keyChanger is active, listen for keys to change the current key set
+			if(!keyLock && keyChanger && currentMenuList == keyChanger){
+				if(Key.keysPressed){
+					var keyReserved:Boolean = Key.isDown(Keyboard.UP) || Key.isDown(Keyboard.DOWN) || Key.isDown(Keyboard.LEFT) || Key.isDown(Keyboard.RIGHT);
 					for(i = 0; i < Key.custom.length; i++){
 						if(Key.customDown(i)){
-							key_reserved = true;
+							keyReserved = true;
 						}
 					}
-					if(!key_reserved){
-						Key.custom[previous_menu_list.selection] = Key.key_log[Key.KEY_LOG_LENGTH - 1];
+					if(!keyReserved){
+						Key.custom[previousMenuList.selection] = Key.keyLog[Key.KEY_LOG_LENGTH - 1];
 					}
-					key_lock = true;
+					keyLock = true;
 					stepBack();
 				}
 			}
 			// track hot keys so they can instantly perform menu actions
-			if(!key_lock && Key.keys_pressed){
-				for(i = 0; i < Key.hot_key_total; i++){
-					if(hot_key_maps[i] && Key.customDown(HOT_KEY_OFFSET + i)){
-						hot_key_maps[i].execute();
-						key_lock = true;
+			if(!keyLock && Key.keysPressed){
+				for(i = 0; i < Key.hotKeyTotal; i++){
+					if(hotKeyMaps[i] && Key.customDown(HOT_KEY_OFFSET + i)){
+						hotKeyMaps[i].execute();
+						keyLock = true;
 						break;
 					}
 				}
 			}
-			if(Key.keys_pressed){
+			if(Key.keysPressed){
 				// bypass reading keys if the menu is not on the display list
 				if(parent){
-					if(!key_lock){
-						if(key_count == KEY_DELAY){
+					if(!keyLock){
+						if(keyCount == KEY_DELAY){
 							if(selection > 0 && (Key.isDown(Keyboard.UP) || Key.customDown(UP_KEY)) && !(Key.isDown(Keyboard.DOWN) || Key.customDown(DOWN_KEY))){
 								selection--;
 							}
@@ -390,69 +390,69 @@
 							if((Key.isDown(Keyboard.RIGHT) || Key.customDown(RIGHT_KEY)) && !(Key.isDown(Keyboard.LEFT) || Key.customDown(LEFT_KEY))){
 								stepForward();
 							}
-							if (selection < current_menu_list.options.length - 1 && (Key.isDown(Keyboard.DOWN) || Key.customDown(DOWN_KEY)) && !(Key.isDown(Keyboard.UP) || Key.customDown(UP_KEY))){
+							if (selection < currentMenuList.options.length - 1 && (Key.isDown(Keyboard.DOWN) || Key.customDown(DOWN_KEY)) && !(Key.isDown(Keyboard.UP) || Key.customDown(UP_KEY))){
 								selection++;
 							}
 						}
-						key_count--;
-						if(key_count <= key_reset){
-							key_count = KEY_DELAY;
-							if(key_reset < KEY_DELAY) key_reset++;
+						keyCount--;
+						if(keyCount <= keyReset){
+							keyCount = KEY_DELAY;
+							if(keyReset < KEY_DELAY) keyReset++;
 						}
 					}
 				}
 			} else {
-				key_count = KEY_DELAY;
-				key_reset = 0;
-				key_lock = false;
+				keyCount = KEY_DELAY;
+				keyReset = 0;
+				keyLock = false;
 			}
 		}
 		
 		/* Update the bitmapdata for the selection window */
 		public function drawSelectionWindow():void{
-			selection_window.bitmapData.fillRect(
+			selectionWindow.bitmapData.fillRect(
 				new Rectangle(
-					selection_window.bitmapData.rect.x,
-					selection_window.bitmapData.rect.y,
-					selection_window.bitmapData.rect.width,
-					selection_window.bitmapData.rect.height
-				), selection_window_col);
-			selection_window.bitmapData.fillRect(
+					selectionWindow.bitmapData.rect.x,
+					selectionWindow.bitmapData.rect.y,
+					selectionWindow.bitmapData.rect.width,
+					selectionWindow.bitmapData.rect.height
+				), selectionWindowCol);
+			selectionWindow.bitmapData.fillRect(
 				new Rectangle(
-					selection_window.bitmapData.rect.x + 1,
-					selection_window.bitmapData.rect.y + 1,
-					selection_window.bitmapData.rect.width - 2,
-					selection_window.bitmapData.rect.height- 2
+					selectionWindow.bitmapData.rect.x + 1,
+					selectionWindow.bitmapData.rect.y + 1,
+					selectionWindow.bitmapData.rect.width - 2,
+					selectionWindow.bitmapData.rect.height- 2
 				), 0x00000000);
 				var step:int = 255 / SELECTION_WINDOW_TAPER_WIDTH;
-			for(var c:uint = selection_window_col, n:int = 0; n < SELECTION_WINDOW_TAPER_WIDTH; c -= 0x01000000 * step, n++){
-				selection_window_taper_next.bitmapData.setPixel32(n, 0, c);
-				selection_window_taper_next.bitmapData.setPixel32(n, selection_window.height-1, c);
-				selection_window_taper_previous.bitmapData.setPixel32(SELECTION_WINDOW_TAPER_WIDTH - n, 0, c);
-				selection_window_taper_previous.bitmapData.setPixel32(SELECTION_WINDOW_TAPER_WIDTH - n, selection_window.height - 1, c);
+			for(var c:uint = selectionWindowCol, n:int = 0; n < SELECTION_WINDOW_TAPER_WIDTH; c -= 0x01000000 * step, n++){
+				selectionWindowTaperNext.bitmapData.setPixel32(n, 0, c);
+				selectionWindowTaperNext.bitmapData.setPixel32(n, selectionWindow.height-1, c);
+				selectionWindowTaperPrevious.bitmapData.setPixel32(SELECTION_WINDOW_TAPER_WIDTH - n, 0, c);
+				selectionWindowTaperPrevious.bitmapData.setPixel32(SELECTION_WINDOW_TAPER_WIDTH - n, selectionWindow.height - 1, c);
 			}
 		}
 		
 		/* Returns a MenuOption that leads to a MenuList offering the ability to redefine keys. */
 		public static function createChangeKeysMenuOption():MenuOption{
-			var key_changer_option:MenuOption = new MenuOption("no key data");
-			var key_changer_options:Vector.<MenuOption> = new Vector.<MenuOption>();
-			key_changer_options.push(key_changer_option);
-			key_changer = new MenuList(key_changer_options);
+			var keyChangerOption:MenuOption = new MenuOption("no key data");
+			var keyChangerOptions:Vector.<MenuOption> = new Vector.<MenuOption>();
+			keyChangerOptions.push(keyChangerOption);
+			keyChanger = new MenuList(keyChangerOptions);
 			
-			var change_keys_menu_options:Vector.<MenuOption> = new Vector.<MenuOption>();
-			change_keys_menu_options.push(new MenuOption("up", key_changer));
-			change_keys_menu_options.push(new MenuOption("down", key_changer));
-			change_keys_menu_options.push(new MenuOption("left", key_changer));
-			change_keys_menu_options.push(new MenuOption("right", key_changer));
-			change_keys_menu_options.push(new MenuOption("menu", key_changer));
+			var changeKeysMenuOptions:Vector.<MenuOption> = new Vector.<MenuOption>();
+			changeKeysMenuOptions.push(new MenuOption("up", keyChanger));
+			changeKeysMenuOptions.push(new MenuOption("down", keyChanger));
+			changeKeysMenuOptions.push(new MenuOption("left", keyChanger));
+			changeKeysMenuOptions.push(new MenuOption("right", keyChanger));
+			changeKeysMenuOptions.push(new MenuOption("menu", keyChanger));
 			
-			var change_keys_menu_list:MenuList = new MenuList(change_keys_menu_options);
+			var changeKeysMenuList:MenuList = new MenuList(changeKeysMenuOptions);
 			
-			for(var i:int = 0; i < Key.hot_key_total; i++){
-				change_keys_menu_list.options.push(new MenuOption("hot key " + (i + 1), key_changer));
+			for(var i:int = 0; i < Key.hotKeyTotal; i++){
+				changeKeysMenuList.options.push(new MenuOption("hot key " + (i + 1), keyChanger));
 			}
-			return new MenuOption("change keys", change_keys_menu_list);
+			return new MenuOption("change keys", changeKeysMenuList);
 		}
 		
 		/* Returns a MenuOption that leads to a MenuList offering the ability to create "hot keys"
@@ -468,24 +468,24 @@
 		 * reference to an array at a later date.
 		 */
 		public static function createHotKeyMenuOption(trunk:MenuList, deactivates:Vector.<MenuOption> = null):MenuOption{
-			var hot_key_menu_list:MenuList = new MenuList();
+			var hotKeyMenuList:MenuList = new MenuList();
 			var option:MenuOption;
-			var hot_key_option:MenuOption = new MenuOption("set hot key");
+			var hotKeyOption:MenuOption = new MenuOption("set hot key");
 			if(!deactivates){
 				deactivates = new Vector.<MenuOption>();
 			}
-			deactivates.push(hot_key_option);
-			for(var i:int = 0; i < Key.hot_key_total; i++){
+			deactivates.push(hotKeyOption);
+			for(var i:int = 0; i < Key.hotKeyTotal; i++){
 				option = new MenuOption("");
 				option.name = "hot key " + (i + 1);
 				option.help = "stepping right on the menu will begin recording\nexecute a menu option to bind it to this key\nthis will not actually execute the option"
 				option.next = trunk;
 				option.deactivates = deactivates;
-				option.hot_key_option = true;
-				hot_key_menu_list.options.push(option);
+				option.hotKeyOption = true;
+				hotKeyMenuList.options.push(option);
 			}
-			hot_key_option.next = hot_key_menu_list
-			return hot_key_option;
+			hotKeyOption.next = hotKeyMenuList
+			return hotKeyOption;
 		}
 		
 		

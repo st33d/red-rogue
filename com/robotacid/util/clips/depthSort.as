@@ -2,15 +2,15 @@
 	
 	/* Depth sort all items in "clip" */
 	public function depthSort(clip:DisplayObjectContainer, sort_on:String = "y"):void{
-		var depth_array:Array = new Array();
+		var depthArray:Array = new Array();
 		for(var i:int = 0; i < clip.numChildren; i++){
-			depth_array.push(clip.getChildAt(i));
+			depthArray.push(clip.getChildAt(i));
 		}
-		depth_array.sortOn(sort_on, Array.NUMERIC);
-		i = depth_array.length;
+		depthArray.sortOn(sort_on, Array.NUMERIC);
+		i = depthArray.length;
 		while(i--){
-			if (clip.getChildIndex(depth_array[i]) != i) {
-				clip.setChildIndex(depth_array[i], i);
+			if (clip.getChildIndex(depthArray[i]) != i) {
+				clip.setChildIndex(depthArray[i], i);
 			}
 		}
 	}

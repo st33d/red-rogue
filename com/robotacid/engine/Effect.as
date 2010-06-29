@@ -22,8 +22,8 @@
 		public var target:Character;
 		public var source:int;
 		
-		public var health_step:Number;
-		public var target_total_health:Number;
+		public var healthStep:Number;
+		public var targetTotalHealth:Number;
 		
 		public static const NAMES:Array = Item.RUNE_NAMES;
 		
@@ -68,7 +68,7 @@
 						var current_radius:int = Math.ceil(level * 0.5);
 						var new_radius:int = Math.ceil((level - 1) * 0.5);
 						if(new_radius < current_radius){
-							g.light_map.setLight(target, (target.light - current_radius) + new_radius, target is Player ? 255 : 150);
+							g.lightMap.setLight(target, (target.light - current_radius) + new_radius, target is Player ? 255 : 150);
 						}
 						level--;
 						count = DECAY_DELAY_PER_LEVEL;
@@ -81,22 +81,22 @@
 				if(source == EATEN || source == THROWN || source == WEAPON){
 					if(count){
 						count--;
-						target.applyHealth(health_step);
+						target.applyHealth(healthStep);
 					} else {
 						dismiss();
 					}
 				} else if(source == ARMOUR){
-					target.applyHealth(health_step);
-					// track the target's total_health, so when they level up we boost the heal
-					if(target_total_health != target.total_health){
-						target_total_health = target.total_health;
-						health_step = target_total_health / (2 * DECAY_DELAY_PER_LEVEL * (1 + Game.MAX_LEVEL - level));
+					target.applyHealth(healthStep);
+					// track the target's totalHealth, so when they level up we boost the heal
+					if(targetTotalHealth != target.totalHealth){
+						targetTotalHealth = target.totalHealth;
+						healthStep = targetTotalHealth / (2 * DECAY_DELAY_PER_LEVEL * (1 + Game.MAX_LEVEL - level));
 					}
 				}
 			} else if(name == POISON){
 				if(count){
 					count--;
-					target.applyDamage(health_step, nameToString());
+					target.applyDamage(healthStep, nameToString());
 				} else {
 					if(source == ARMOUR){
 						active = false;
@@ -111,14 +111,14 @@
 					g.createTeleportSparkRect(target.rect, 20);
 					SoundManager.playSound(g.library.TeleportSound);
 					target.divorce();
-					var dest:Pixel = getTeleportTarget(target.map_x, target.map_y, g.block_map);
+					var dest:Pixel = getTeleportTarget(target.mapX, target.mapY, g.blockMap);
 					target.x = (dest.x + 0.5) * Game.SCALE;
 					target.y = (dest.y + 0.5) * Game.SCALE;
 					target.updateRect();
 					target.updateMC();
 					target.awake = Collider.AWAKE_DELAY;
 					if(target is Player){
-						g.light_map.blackOut();
+						g.lightMap.blackOut();
 						g.camera.main();
 						g.camera.skipScroll();
 					}
@@ -129,47 +129,46 @@
 		}
 		
 		/* Used to embed an effect in an item, or apply an instant effect to said item
-		 * 
-		 * Since only the player can enchant items, and those items are in the inventory,
+		 *
+		 * When items are in the inventory,
 		 * there's some direct fiddling with the inventory list
 		 */
-		public function enchant(item:Item, inventory_list:InventoryMenuList):Item{
+		public function enchant(item:Item, inventoryList:InventoryMenuList = null):Item{
 			
 			source = item.type;
-			
 			
 			if(name == POLYMORPH){
 				// here we randomise the item
 				// first we pull it out of the menu - randomising its skin is a messy business
-				item = inventory_list.removeItem(item);
+				if(inventoryList) item = inventoryList.removeItem(item);
 				var new_name:int = item.name;
-				var new_mc_class:Class;
-				var new_mc:Sprite;
+				var newMcClass:Class;
+				var newMc:Sprite;
 				if(item.type == Item.WEAPON){
 					while(new_name == item.name || new_name == Item.BOW) new_name = Math.random() * 6;
-					new_mc_class = g.library.weaponIndexToMCClass(new_name);
-					new_mc = new new_mc_class();
+					newMcClass = g.library.weaponNameToMCClass(new_name);
+					newMc = new newMcClass();
 				} else if(item.type == Item.ARMOUR){
 					while(new_name == item.name) new_name = Math.random() * 6;
-					new_mc_class = g.library.armourIndexToMCClass(new_name);
-					new_mc = new new_mc_class();
+					newMcClass = g.library.armourNameToMCClass(new_name);
+					newMc = new newMcClass();
 				}
 				var holder:DisplayObjectContainer = item.mc.parent;
 				if(holder){
 					holder.removeChild(item.mc);
-					holder.addChild(new_mc);
-					new_mc.x = item.mc.x;
-					new_mc.y = item.mc.y;
+					holder.addChild(newMc);
+					newMc.x = item.mc.x;
+					newMc.y = item.mc.y;
 				}
-				item.mc = new_mc;
+				item.mc = newMc;
 				item.name = new_name;
 				// now we try putting it back in
-				inventory_list.addItem(item);
+				if(inventoryList) inventoryList.addItem(item);
 				return item;
 			} else if(name == XP){
 				// just raises the level of the item
-				item.levelUp();
-				inventory_list.updateItem(item);
+				while(level--) item.levelUp();
+				inventoryList.updateItem(item);
 				return item;
 			}
 			
@@ -181,8 +180,10 @@
 					if(item.effects[i].name == name){
 						if(item.effects[i].level < Game.MAX_LEVEL){
 							upgrade = true;
-							if((item.state == Item.EQUIPPED || Item.MINION_EQUIPPED) && item.type == Item.ARMOUR) item.effects[i].levelUp();
-							else item.effects[i].level++;
+							while(level-- && item.effects[i].level < Game.MAX_LEVEL){
+								if((item.state == Item.EQUIPPED || Item.MINION_EQUIPPED) && item.type == Item.ARMOUR) item.effects[i].levelUp();
+								else item.effects[i].level++;
+							}
 							break;
 						}
 					}
@@ -194,22 +195,22 @@
 				}
 			} else {
 				// upon enchanting this item, there is a chance it may become cursed
-				if(Math.random() < Item.CURSE_CHANCE) item.curse_state = Item.CURSE_HIDDEN;
+				if(Math.random() < Item.CURSE_CHANCE) item.curseState = Item.CURSE_HIDDEN;
 				item.effects = new Vector.<Effect>();
 				item.effects.push(this);
 				if(item.state == Item.EQUIPPED){
 					if(item.type == Item.ARMOUR) apply(g.player);
-					if(item.curse_state == Item.CURSE_HIDDEN) item.revealCurse();
+					if(item.curseState == Item.CURSE_HIDDEN) item.revealCurse();
 				} else if(item.state == Item.MINION_EQUIPPED){
 					if(item.type == Item.ARMOUR) apply(g.minion);
-					if(item.curse_state == Item.CURSE_HIDDEN){
+					if(item.curseState == Item.CURSE_HIDDEN){
 						item.revealCurse();
 						g.console.print("but the minion is unaffected...");
 					}
 				}
 			}
 			
-			inventory_list.updateItem(item);
+			if(inventoryList) inventoryList.updateItem(item);
 			
 			if(name == TELEPORT){
 				// this is possibly the biggest pisstake of all the spells, casting teleport on an item
@@ -217,8 +218,8 @@
 				if(item.state & Item.EQUIPPED){
 					item = g.player.unequip(item);
 				}
-				item = inventory_list.removeItem(item);
-				var dest:Pixel = getTeleportTarget(g.player.map_x, g.player.map_y, g.block_map);
+				item = inventoryList.removeItem(item);
+				var dest:Pixel = getTeleportTarget(g.player.mapX, g.player.mapY, g.blockMap);
 				item.dropToMap(dest.x, dest.y);
 				g.entities.push(item);
 				g.createTeleportSparkRect(g.player.rect, 10);
@@ -229,65 +230,65 @@
 		}
 		
 		/* Activates this effect on the target
-		 * 
+		 *
 		 * if the block that implements the effect has a return statement in it then that
 		 * means that the effect is once only and is not to be stored in the character's
 		 * effect buffer
 		 */
 		public function apply(target:Character):void{
 			
-			var call_main:Boolean = false;
+			var callMain:Boolean = false;
 			
 			this.target = target;
 			if(name == LIGHT){
 				// the light effect simply adds to the current radius of light on an object
 				var radius:int = Math.ceil(level * 0.5);
 				// the player is always lit at top strength - other things less so, for now.
-				g.light_map.setLight(target, target.light + radius, target is Player ? 255 : 150);
+				g.lightMap.setLight(target, target.light + radius, target is Player ? 255 : 150);
 				if(source == WEAPON || source == THROWN || source == EATEN){
 					count = DECAY_DELAY_PER_LEVEL;
-					call_main = true;
+					callMain = true;
 				}
 			} else if(name == POISON){
 				// poison affects a percentage of the victim's health over the decay delay period
 				// making poison armour pinch some of your health for putting it on, thrown runes and
 				// eaten runes take half health (unless you replenish health) and weapons steal a
 				// percentage of health per hit
-				health_step = (target.total_health * 0.5) / (1 + Game.MAX_LEVEL - level);
-				health_step /= DECAY_DELAY_PER_LEVEL;
+				healthStep = (target.totalHealth * 0.5) / (1 + Game.MAX_LEVEL - level);
+				healthStep /= DECAY_DELAY_PER_LEVEL;
 				count = DECAY_DELAY_PER_LEVEL;
-				call_main = true;
+				callMain = true;
 			} else if(name == HEAL){
 				// heal is the inverse of poison, but will restore twice all health
 				// except on armour - where it affects the amount of time it will take for the player
 				// to reach full health whilst wearing
 				if(source == WEAPON || source == EATEN || source == THROWN){
-					health_step = (target.total_health * 2) / (1 + Game.MAX_LEVEL - level);
-					health_step /= (DECAY_DELAY_PER_LEVEL * 2);
+					healthStep = (target.totalHealth * 2) / (1 + Game.MAX_LEVEL - level);
+					healthStep /= (DECAY_DELAY_PER_LEVEL * 2);
 					count = DECAY_DELAY_PER_LEVEL * 2;
 				} else if(source == ARMOUR){
-					target_total_health = target.total_health;
-					health_step = target_total_health / (2 * DECAY_DELAY_PER_LEVEL * (1 + Game.MAX_LEVEL - level));
+					targetTotalHealth = target.totalHealth;
+					healthStep = targetTotalHealth / (2 * DECAY_DELAY_PER_LEVEL * (1 + Game.MAX_LEVEL - level));
 				}
-				call_main = true;
+				callMain = true;
 			} else if(name == TELEPORT){
 				// teleport enchanted armour will randomly hop the wearer around the map, the stronger
 				// the effect, the more frequent the jumps
 				if(source == ARMOUR){
 					count = (21 - level) * TELEPORT_COUNTDOWN_STEP;
-					call_main = true;
+					callMain = true;
 				} else {
 					if(Math.random() < 0.05 * level){
 						g.createTeleportSparkRect(target.rect, 20);
 						target.divorce();
-						var dest:Pixel = getTeleportTarget(target.map_x, target.map_y, g.block_map);
+						var dest:Pixel = getTeleportTarget(target.mapX, target.mapY, g.blockMap);
 						target.x = (dest.x + 0.5) * Game.SCALE;
 						target.y = (dest.y + 0.5) * Game.SCALE;
 						target.updateRect();
 						target.updateMC();
 						target.awake = Collider.AWAKE_DELAY;
 						if(target is Player){
-							g.light_map.blackOut();
+							g.lightMap.blackOut();
 							g.camera.main();
 							g.camera.skipScroll();
 						}
@@ -307,8 +308,8 @@
 						if(new_skin != Object(target.mc).constructor) break;
 					}
 					target.undead = new_skin_name == Character.SKELETON;
-					var new_skin_mc:MovieClip = new new_skin();
-					target.reskin(new_skin_mc, new_skin_name, new_skin_mc.width, new_skin_mc.height);
+					var new_skinMc:MovieClip = new new_skin();
+					target.reskin(new_skinMc, new_skin_name, new_skinMc.width, new_skinMc.height);
 					return;
 				}
 			} else if(name == XP){
@@ -324,17 +325,17 @@
 			target.effects.push(this);
 			active = true;
 			
-			if(call_main) g.effects.push(this);
+			if(callMain) g.effects.push(this);
 		}
 		
 		/* Used when upgrading an existing effect */
 		public function levelUp(n:int = 1):void{
-			var temp_target:Character = target;
-			if(temp_target) dismiss();
+			var tempTarget:Character = target;
+			if(tempTarget) dismiss();
 			if(level + n < Game.MAX_LEVEL){
 				level += 1;
 			}
-			if(temp_target) apply(temp_target);
+			if(tempTarget) apply(tempTarget);
 		}
 		
 		/* Removes the effect from the target */
@@ -342,11 +343,11 @@
 			
 			var i:int;
 			
-			var call_main:Boolean = false;
+			var callMain:Boolean = false;
 			
 			if(name == LIGHT){
 				var radius:int = Math.ceil(level * 0.5);
-				g.light_map.setLight(target, target.light - radius, target is Player ? 255 : 150);
+				g.lightMap.setLight(target, target.light - radius, target is Player ? 255 : 150);
 			} else if(name == UNDEAD){
 				// this rune's effect comes in to play when the target is killed and is not undead
 				if(!target.active && !buffer && !target.undead){
@@ -355,20 +356,21 @@
 						if(source == THROWN || source == WEAPON){
 							// replenish the health of an exisiting minion
 							if(g.minion){
-								g.minion.applyHealth(g.minion.total_health);
+								g.minion.applyHealth(g.minion.totalHealth);
 								g.console.print("minion is repaired");
 								g.createTeleportSparkRect(g.minion.rect, 20);
 							} else {
 								mc = new g.library.SkeletonMC();
 								mc.x = target.x;
-								mc.y =  -mc.height * 0.5 + (target.map_y + 1) * Game.SCALE;
-								g.entities_holder.addChild(mc);
+								mc.y =  -mc.height * 0.5 + (target.mapY + 1) * Game.SCALE;
+								g.entitiesHolder.addChild(mc);
 								g.minion = new Minion(mc, Character.SKELETON, mc.width, mc.height, g);
+								g.console.print("undead minion summoned");
 							}
 						} else if(source == ARMOUR || source == EATEN){
 							mc = new g.library.SkeletonMC();
 							target.active = true;
-							target.applyHealth(target.total_health);
+							target.applyHealth(target.totalHealth);
 							g.console.print(target.nameToString()+" returns as undead");
 							target.reskin(mc, Character.SKELETON, mc.width, mc.height);
 							target.undead = true;
@@ -383,8 +385,8 @@
 			if(target.effects.length == 0) target.effects = null;
 			
 			if(buffer){
-				if(!target.effects_buffer) target.effects_buffer = new Vector.<Effect>()
-				target.effects_buffer.push(this);
+				if(!target.effectsBuffer) target.effectsBuffer = new Vector.<Effect>()
+				target.effectsBuffer.push(this);
 			}
 			
 			n = g.effects.indexOf(this);

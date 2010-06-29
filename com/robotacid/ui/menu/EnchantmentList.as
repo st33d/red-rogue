@@ -17,14 +17,14 @@
 			var i:int;
 			if(pointers){
 				for(i = 0; i < pointers.length; i++){
-					pointers[i].active = Boolean(item.effects || item.curse_state == Item.CURSE_REVEALED);
+					pointers[i].active = Boolean(item.effects || item.curseState == Item.CURSE_REVEALED);
 				}
 			}
 			
-			if(!item.effects && item.curse_state != Item.CURSE_REVEALED) return;
+			if(!item.effects && item.curseState != Item.CURSE_REVEALED) return;
 			
 			options = new Vector.<MenuOption>();
-			if(item.curse_state == Item.CURSE_REVEALED) options.push(new MenuOption("cursed", null, false));
+			if(item.curseState == Item.CURSE_REVEALED) options.push(new MenuOption("cursed", null, false));
 			var str:String;
 			for(i = 0; i < item.effects.length; i++){
 				str = item.effects[i].nameToString() + " " + item.effects[i].level;

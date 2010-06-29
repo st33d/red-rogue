@@ -9,9 +9,9 @@
 	 */
 	public class ProgressBar extends Shape{
 		
-		public var _border_col:uint = 0xFFFFFF;
-		public var _back_col:uint = 0x000000;
-		public var _bar_col:uint = 0xFFFFFF;
+		private var _borderCol:uint = 0xFFFFFF;
+		private var _backCol:uint = 0x000000;
+		private var _barCol:uint = 0xFFFFFF;
 		
 		private var _width:Number;
 		private var _height:Number;
@@ -44,42 +44,42 @@
 			return _value;
 		}
 		
-		public function set border_col(n:uint):void{
-			_border_col = n;
+		public function set borderCol(n:uint):void{
+			_borderCol = n;
 			update();
 		}
 		
-		public function get border_col():uint{
-			return _border_col;
+		public function get borderCol():uint{
+			return _borderCol;
 		}
 		
-		public function set bar_col(n:uint):void{
-			_bar_col = n;
+		public function set barCol(n:uint):void{
+			_barCol = n;
 			update();
 		}
 		
-		public function get bar_col():uint{
-			return _bar_col;
+		public function get barCol():uint{
+			return _barCol;
 		}
 		
-		public function set back_col(n:uint):void{
-			_back_col = n;
+		public function set backCol(n:uint):void{
+			_backCol = n;
 			update();
 		}
 		
-		public function get back_col():uint{
-			return _back_col;
+		public function get backCol():uint{
+			return _backCol;
 		}
 		
 		private function update():void{
 			graphics.clear();
-			graphics.beginFill(_border_col);
+			graphics.beginFill(_borderCol);
 			graphics.drawRect(0, 0, _width, _height);
 			graphics.endFill();
-			graphics.beginFill(_back_col);
+			graphics.beginFill(_backCol);
 			graphics.drawRect(1, 1, _width-2, _height-2);
 			graphics.endFill();
-			graphics.beginFill(_bar_col);
+			graphics.beginFill(barCol);
 			graphics.drawRect(1, 1, (_width-2) * _value, _height-2);
 			graphics.endFill();
 		}

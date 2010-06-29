@@ -14,15 +14,15 @@
 	 * A decapitated head that bounces along spewing blood when
 	 * kicked by the player and inflicts damage upon
 	 * monsters
-	 * 
+	 *
 	 * :D
-	 * 
+	 *
 	 * @author Aaron Steed, robotacid.com
 	 */
 	public class Head extends Collider{
 		
 		public var damage:Number;
-		public var blood_count:int;
+		public var bloodCount:int;
 		
 		public static const GRAVITY:Number = 0.8;
 		public static const DAMPING_Y:Number = 0.99;
@@ -46,34 +46,34 @@
 			var bitmap:Bitmap = new Bitmap(data);
 			bitmap.x = bounds.left;
 			holder.addChild(bitmap);
-			g.fx_holder.addChild(holder);
+			g.fxHolder.addChild(holder);
 			holder.x = victim.x;
 			holder.y = victim.y + neck_y;
 			// now we've got a head, but the width of the actual graphic may be lying
-			var colour_bounds:Rectangle = data.getColorBoundsRect(0xFFFFFFFF, 0x00000000, false);
-			bitmap.y = -colour_bounds.bottom;
-			super(holder, colour_bounds.width, colour_bounds.height, g);
-			call_main = true;
+			var colourBounds:Rectangle = data.getColorBoundsRect(0xFFFFFFFF, 0x00000000, false);
+			bitmap.y = -colourBounds.bottom;
+			super(holder, colourBounds.width, colourBounds.height, g, true);
+			callMain = true;
 			weight = 0;
-			blood_count = BLOOD_DELAY;
+			bloodCount = BLOOD_DELAY;
 			block.type |= Block.HEAD;
 			this.damage = damage;
-			inflicts_crush = false;
+			inflictsCrush = false;
 		}
 		
 		override public function main():void{
-			if(left_collider is Character) punt(left_collider as Character);
-			else if(right_collider is Character) punt(right_collider as Character);
+			if(leftCollider is Character) punt(leftCollider as Character);
+			else if(rightCollider is Character) punt(rightCollider as Character);
 			if(Math.abs(vx) > Collider.TOLERANCE || Math.abs(vy) > Collider.TOLERANCE){
-				if(blood_count > 0){
-					blood_count--;
+				if(bloodCount > 0){
+					bloodCount--;
 					var blit:BlitRect, print:BlitRect;
 					if(Math.random() > 0.5){
-						blit = g.small_debris_brs[Game.BLOOD];
-						print = g.small_fade_fbrs[Game.BLOOD];
+						blit = g.smallDebrisBrs[Game.BLOOD];
+						print = g.smallFadeFbrs[Game.BLOOD];
 					} else {
-						blit = g.big_debris_brs[Game.BLOOD];
-						print = g.big_fade_fbrs[Game.BLOOD];
+						blit = g.bigDebrisBrs[Game.BLOOD];
+						print = g.bigFadeFbrs[Game.BLOOD];
 					}
 					g.addDebris(x, y, blit, -1 + vx + Math.random(), -Math.random(), print, true);
 				}
@@ -83,38 +83,38 @@
 			if(((collisions & RIGHT) && (collisions & LEFT)) || ((collisions & UP) && (collisions & DOWN))){
 				kill();
 			}
-			up_collider = right_collider = down_collider = left_collider = null;
+			upCollider = rightCollider = downCollider = leftCollider = null;
 			collisions = 0;
 			updateMC();
 		}
 		
 		/* Apply damage to monsters that collide with the Head object */
 		public function soccerCheck():void{
-			if(up_collider && up_collider is Monster) (up_collider as Character).applyDamage(damage, nameToString())
-			if(right_collider && right_collider is Monster) (right_collider as Character).applyDamage(damage, nameToString())
-			if(left_collider && left_collider is Monster) (left_collider as Character).applyDamage(damage, nameToString())
-			if(down_collider && down_collider is Monster) (down_collider as Character).applyDamage(damage, nameToString())
+			if(upCollider && upCollider is Monster) (upCollider as Character).applyDamage(damage, nameToString())
+			if(rightCollider && rightCollider is Monster) (rightCollider as Character).applyDamage(damage, nameToString())
+			if(leftCollider && leftCollider is Monster) (leftCollider as Character).applyDamage(damage, nameToString())
+			if(downCollider && downCollider is Monster) (downCollider as Character).applyDamage(damage, nameToString())
 		}
 		
 		/* Movement is handled separately to keep all colliders synchronized */
 		override public function move():void {
 			vx *= DAMPING_X;
 			moveX(vx, this);
-			if (parent_block){
+			if (parentBlock){
 				checkFloor();
 			}
-			if(!parent_block){
+			if(!parentBlock){
 				vy = DAMPING_Y * vy + GRAVITY;
 				moveY(vy, this);
 			}
 			
-			map_x = (rect.x + rect.width * 0.5) * INV_SCALE;
-			map_y = (rect.y + rect.height * 0.5) * INV_SCALE;
+			mapX = (rect.x + rect.width * 0.5) * INV_SCALE;
+			mapY = (rect.y + rect.height * 0.5) * INV_SCALE;
 		}
 		
 		public function punt(character:Character):void{
-			parent_block = null;
-			blood_count = BLOOD_DELAY;
+			parentBlock = null;
+			bloodCount = BLOOD_DELAY;
 			if(parent) parent.removeChild(this);
 			vy -= Math.abs(character.vx * 0.5);
 			vx += character.vx * 0.5;

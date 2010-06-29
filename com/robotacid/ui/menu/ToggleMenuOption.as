@@ -7,22 +7,22 @@
 	 */
 	public class ToggleMenuOption extends MenuOption{
 		
-		private var _state:int;
+		private var State:int;
 		public var names:Array;
 		
 		public function ToggleMenuOption(names:Array, next:MenuList = null, active:Boolean = true) {
 			this.names = names;
 			super(names[0], next, active);
-			_state = 0;
+			State = 0;
 			
 		}
 		
 		public function get state():int{
-			return _state;
+			return State;
 		}
 		
 		public function set state(n:int):void{
-			_state = n;
+			State = n;
 			name = names[n];
 		}
 		

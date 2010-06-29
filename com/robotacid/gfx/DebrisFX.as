@@ -13,25 +13,25 @@
 	*/
 	public class DebrisFX extends FX{
 		
-		public var map_x:int, map_y:int;
+		public var mapX:int, mapY:int;
 		public var dx:Number, dy:Number;
 		public var length:Number;
 		public var ignore:int;
 		public var px:Number;
 		public var py:Number;
-		public var temp_x:Number;
-		public var temp_y:Number;
+		public var tempX:Number;
+		public var tempY:Number;
 		public var print:BlitRect;
 		public var smear:Boolean;
 		
 		public static var cast:Cast;
 		
-		public function DebrisFX(x:Number, y:Number, blit:BlitRect, image:BitmapData, image_holder:Bitmap, g:Game, print:BlitRect = null, smear:Boolean = false) {
-			super(x, y, blit, image, image_holder, g);
+		public function DebrisFX(x:Number, y:Number, blit:BlitRect, image:BitmapData, imageHolder:Bitmap, g:Game, print:BlitRect = null, smear:Boolean = false) {
+			super(x, y, blit, image, imageHolder, g);
 			this.print = print;
 			this.smear = smear;
-			map_x = x * Game.INV_SCALE;
-			map_y = y * Game.INV_SCALE;
+			mapX = x * Game.INV_SCALE;
+			mapY = y * Game.INV_SCALE;
 			px = x;
 			py = y;
 			ignore = Block.CHARACTER | Block.LEDGE | Block.LADDER | Block.HEAD;
@@ -39,14 +39,14 @@
 	
 		override public function main():void{
 			// inlined verlet routine
-			temp_x = x;
-			temp_y = y;
+			tempX = x;
+			tempY = y;
 			x += (x-px)*0.95;
 			y += (y-py)+1.0;
-			px = temp_x;
-			py = temp_y;
-			map_x = x * Game.INV_SCALE;
-			map_y = y * Game.INV_SCALE;
+			px = tempX;
+			py = tempY;
+			mapX = x * Game.INV_SCALE;
+			mapY = y * Game.INV_SCALE;
 			// react to scenery
 			// off scroller?
 			if(!g.renderer.contains(x, y)){
@@ -54,23 +54,12 @@
 				return;
 			}
 			// block collision
-			if(g.block_map[map_y][map_x] > Block.EMPTY && !(g.block_map[map_y][map_x] & ignore)){
+			if(g.blockMap[mapY][mapX] > Block.EMPTY && !(g.blockMap[mapY][mapX] & ignore)){
 				// resolve and kill
 				getVector();
-				cast = Cast.ray(px, py, dx, dy, g.block_map, ignore, g);
+				cast = Cast.ray(px, py, dx, dy, g.blockMap, ignore, g);
 				x = px + cast.distance * dx;
 				y = py + cast.distance * dy;
-				// for oriented hit FX
-				//if(cast.side == Cast.UP){
-					//y += blit.dy;
-				//} else if(cast.side == Cast.RIGHT){
-					//x -= blit.dx;
-				//} else if(cast.side == Cast.DOWN){
-					//y -= blit.dy;
-				//} else if(cast.side == Cast.LEFT){
-					//x += blit.dx;
-				//}
-				//var side:int = cast.block.sideOf(x, y);
 				if(print) printFade();
 				if(!smear || cast.side == Rect.UP || cast.side == 0) kill();
 			}
@@ -79,11 +68,9 @@
 				if (g.colliders[i].contains(x, y) && !(g.colliders[i].block.type & ignore)){
 					// resolve and kill
 					getVector();
-					cast = Cast.ray(px, py, dx, dy, g.block_map, ignore, g);
+					cast = Cast.ray(px, py, dx, dy, g.blockMap, ignore, g);
 					x = px + cast.distance * dx;
 					y = py + cast.distance * dy;
-					// for oriented hit FX
-					//var side:int = cast.block.sideOf(x, y);
 					kill();
 				}
 			}
@@ -105,13 +92,7 @@
 			active = false;
 		}
 		public function printFade():void{
-			g.addFX(x, y, print, g.back_fx_image, g.back_fx_image_holder);
-			//blit.x = x;
-			//blit.y = y;
-			//blit.multiRender(g.debris_map);
-			//g.blood_small_bs.x = x;
-			//g.blood_small_bs.y = y;
-			//g.blood_small_bs.multiRender(g.debris_map);
+			g.addFX(x, y, print, g.backFxImage, g.backFxImageHolder);
 		}
 		
 		public function addVelocity(x:Number, y:Number):void{

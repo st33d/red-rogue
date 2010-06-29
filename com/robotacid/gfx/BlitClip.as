@@ -3,6 +3,7 @@
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
 	import flash.display.MovieClip;
+	import flash.filters.BitmapFilter;
 	import flash.geom.ColorTransform;
 	import flash.geom.Matrix;
 	import flash.geom.Point;
@@ -18,18 +19,18 @@
 	public class BlitClip extends BlitSprite{
 		
 		public var frames:Vector.<BitmapData>;
-		public var total_frames:int;
+		public var totalFrames:int;
 		
-		public function BlitClip(mc:MovieClip, color_transform:ColorTransform = null) {
+		public function BlitClip(mc:MovieClip, colorTransform:ColorTransform = null) {
 			super(mc);
 			frames = new Vector.<BitmapData>();
 			frames[0] = data;
 			for (var i:int = 2; i < mc.totalFrames + 1; i++){
 				mc.gotoAndStop(i);
 				frames[i-1] = new BitmapData(Math.ceil(bounds.width), Math.ceil(bounds.height), true, 0x00000000);
-				frames[i-1].draw(mc, new Matrix(1, 0, 0, 1, -bounds.left, -bounds.top), color_transform);
+				frames[i-1].draw(mc, new Matrix(1, 0, 0, 1, -bounds.left, -bounds.top), colorTransform);
 			}
-			total_frames = mc.totalFrames;
+			totalFrames = mc.totalFrames;
 		}
 		override public function render(destination:BitmapData, frame:int = 0):void{
 			p.x = x + dx;
@@ -52,6 +53,14 @@
 					if(i == j) continue;
 					if(frames[i].compare(frames[j]) == 0) frames[i] = frames[j];
 				}
+			}
+		}
+		/* Applies a filter to a range of frames */
+		override public function applyFilter(filter:BitmapFilter, start:int = 0, finish:int = int.MAX_VALUE):void {
+			p = new Point();
+			if(finish > totalFrames) finish = totalFrames - 1;
+			for(var i:int = start; i <= finish; i++) {
+				frames[i].applyFilter(frames[i], frames[i].rect, p, filter);
 			}
 		}
 		

@@ -95,12 +95,16 @@
 		[Embed(source = 'assets/midground/walls/wall_left_top_right.png')] public var WallLeftTopRightB:Class;
 		
 		
-		public function armourIndexToMCClass(n:int):Class{
+		public function armourNameToMCClass(n:int):Class{
 			var list:Array = [FliesMC, FedoraMC, VikingHelmMC, SkullMC, BloodClip, BlitBackgroundClip];
 			return list[n];
 		}
-		public function weaponIndexToMCClass(n:int):Class{
+		public function weaponNameToMCClass(n:int):Class{
 			var list:Array = [DaggerMC, MaceMC, SwordMC, StaffMC, BowMC, HammerMC];
+			return list[n];
+		}
+		public function characterNameToMcClass(n:int):Class{
+			var list:Array = [PlayerMC, SkeletonMC, GoblinMC, OrcMC];
 			return list[n];
 		}
 	}

@@ -14,7 +14,7 @@
 	
 	/**
 	* The usable item object -
-	* 
+	*
 	* These are equippable, and usable in numerous ways.
 	* This objects serves to bring all items in the game under one roof.
 	*
@@ -29,11 +29,11 @@
 		public var state:int;
 		public var dropped:Boolean;
 		public var stacked:Boolean;
-		public var curse_state:int;
-		public var temp_y:Number;
+		public var curseState:int;
+		public var tempY:Number;
 		public var py:Number;
-		public var floor_y:Number;
-		public var twinkle_count:int;
+		public var floorY:Number;
+		public var twinkleCount:int;
 		
 		// attributes
 		public var damage:Number;
@@ -202,40 +202,40 @@
 			}
 			this.name = name;
 			this.level = level;
-			curse_state = NO_CURSE;
-			holder = g.items_holder;
+			curseState = NO_CURSE;
+			holder = g.itemsHolder;
 			state = 0;
 			stacked = false;
 			collision = true;
-			call_main = true;
-			twinkle_count = TWINKLE_DELAY + Math.random() * TWINKLE_DELAY;
+			callMain = true;
+			twinkleCount = TWINKLE_DELAY + Math.random() * TWINKLE_DELAY;
 		}
 		override public function main():void {
 			// drop to the floor if hanging in the air
-			if(y < floor_y){
-				temp_y = y;
+			if(y < floorY){
+				tempY = y;
 				y += 0.98 * (y - py) + 1.0;
-				py = temp_y;
-				if(y > floor_y) y = floor_y;
+				py = tempY;
+				if(y > floorY) y = floorY;
 				mc.y = y >> 0;
 				updateRect();
-				map_y = y * Game.INV_SCALE;
-				if(y == floor_y){
+				mapY = y * Game.INV_SCALE;
+				if(y == floorY){
 					// if on the renderer we need to add this to the scroller, otherwise we take it off
 					// the map to reduce the load
-					if(g.renderer.contains(x, y)) g.renderer.addToRenderedArray(map_x, map_y, layer, this);
+					if(g.renderer.contains(x, y)) g.renderer.addToRenderedArray(mapX, mapY, layer, this);
 					else remove();
 				}
 			}
 			// concealing the item in the dark will help avoid showing a clipped effect on the edge
 			// of the light map
-			if(g.light_map.dark_image.getPixel32(map_x, map_y) != 0xFF000000) mc.visible = true;
+			if(g.lightMap.darkImage.getPixel32(mapX, mapY) != 0xFF000000) mc.visible = true;
 			else mc.visible = false;
 			if(mc.visible){
 				// create a twinkle twinkle effect when the item is on the map to collect
-				if(twinkle_count-- <= 0){
-					g.addFX(rect.x + Math.random() * rect.width, rect.y + Math.random() * rect.height, g.twinkle_bc, g.back_fx_image, g.back_fx_image_holder);
-					twinkle_count = TWINKLE_DELAY + Math.random() * TWINKLE_DELAY;
+				if(twinkleCount-- <= 0){
+					g.addFX(rect.x + Math.random() * rect.width, rect.y + Math.random() * rect.height, g.twinkleBc, g.backFxImage, g.backFxImageHolder);
+					twinkleCount = TWINKLE_DELAY + Math.random() * TWINKLE_DELAY;
 				}
 			}
 			
@@ -246,7 +246,7 @@
 			}
 			state = INVENTORY;
 			if(character is Player){
-				g.menu.inventory_list.addItem(this);
+				g.menu.inventoryList.addItem(this);
 			} else character.loot.push(this);
 			mc.filters = [];
 			mc.visible = true;
@@ -255,27 +255,27 @@
 		public function dropToMap(mx:int, my:int):void{
 			active = true;
 			state = 0;
-			map_x = mx;
-			map_y = my;
+			mapX = mx;
+			mapY = my;
 			mc.x = -((mc.width * 0.5) >> 0) + (mx + 0.5) * Game.SCALE;
 			mc.y = - ((mc.height * 0.5) >> 0) + (my + 0.5) * Game.SCALE;
 			var bounds:Rectangle = mc.getBounds(mc);
 			mc.x += -bounds.left;
 			mc.y += -bounds.top;
 			x = mc.x;
-			y = py = floor_y = mc.y;
+			y = py = floorY = mc.y;
 			layer = MapRenderer.GAME_OBJECT_LAYER;
-			g.items_holder.addChild(mc);
+			g.itemsHolder.addChild(mc);
 			updateRect();
 			g.items.push(this);
 			dropGlow();
 			
 			// drop to the floor if hanging in the air - we pre raycast to find floor below
-			if(!(g.block_map[map_y + 1][map_x] & Rect.UP)){
-				var cast:Cast = Cast.vert(x, y, 1, g.block_map.length, g.block_map, Block.CHARACTER | Block.HEAD, g);
-				floor_y = (cast.block.y - Game.SCALE) + (y - (map_y * Game.SCALE));
+			if(!(g.blockMap[mapY + 1][mapX] & Rect.UP)){
+				var cast:Cast = Cast.vert(x, y, 1, g.blockMap.length, g.blockMap, Block.CHARACTER | Block.HEAD, g);
+				floorY = (cast.block.y - Game.SCALE) + (y - (mapY * Game.SCALE));
 			} else {
-				g.renderer.addToRenderedArray(map_x, map_y, layer, this);
+				g.renderer.addToRenderedArray(mapX, mapY, layer, this);
 			}
 		}
 		public function kill():void{
@@ -286,9 +286,9 @@
 			if(g.items.indexOf(this) > -1) throw new Error("item has double entry on the map-items list");
 			
 			// is this item on the map?
-			if(mc.parent == g.items_holder){
-				g.renderer.map_array_layers[layer][map_y][map_x] = null;
-				g.renderer.removeFromRenderedArray(map_x, map_y, layer, this);
+			if(mc.parent == g.itemsHolder){
+				g.renderer.mapArrayLayers[layer][mapY][mapX] = null;
+				g.renderer.removeFromRenderedArray(mapX, mapY, layer, this);
 			}
 			active = false;
 		}
@@ -313,18 +313,18 @@
 			mc.filters = [glow];
 		}
 		
-		public function enchantable(rune_name:int):Boolean{
-			if(rune_name == XP && level == Game.MAX_LEVEL) return false;
+		public function enchantable(runeName:int):Boolean{
+			if(runeName == XP && level == Game.MAX_LEVEL) return false;
 			if(!effects) return true;
 			for(var i:int = 0; i < effects.length; i++){
-				if(effects[i].name == rune_name && effects[i].level >= Game.MAX_LEVEL) return false;
+				if(effects[i].name == runeName && effects[i].level >= Game.MAX_LEVEL) return false;
 			}
 			return true;
 		}
 		
 		public function revealCurse():void{
-			g.console.print("the " + nameToString() + " is cursed!");
-			curse_state = CURSE_REVEALED;
+			if(state == INVENTORY) g.console.print("the " + nameToString() + " is cursed!");
+			curseState = CURSE_REVEALED;
 		}
 		
 		override public function toString():String {
@@ -338,7 +338,7 @@
 			//if(stack > 0) str += stack + "x ";
 			//if(level > 0) str += "+" + level + " ";
 			
-			if(curse_state == CURSE_REVEALED) str += "- ";
+			if(curseState == CURSE_REVEALED) str += "- ";
 			else if(effects) str += "+ ";
 			
 			if(type == RUNE) return str + "rune of "+rune_names[name];
@@ -358,13 +358,13 @@
 				rect.width = rect.height = 10;
 			}
 		}
-		public static function revealName(n:int, inventory_list:InventoryMenuList):void{
+		public static function revealName(n:int, inventoryList:InventoryMenuList):void{
 			if(rune_names[n] != "?") return;
 			rune_names[n] = RUNE_NAMES[n];
-			for(var i:int = 0; i < inventory_list.options.length; i++){
-				if((inventory_list.options[i].target as Item).type == RUNE && (inventory_list.options[i].target as Item).name == n){
-					(inventory_list.options[i] as MenuOptionStack).single_name = (inventory_list.options[i].target as Item).nameToString();
-					(inventory_list.options[i] as MenuOptionStack).total = (inventory_list.options[i] as MenuOptionStack).total;
+			for(var i:int = 0; i < inventoryList.options.length; i++){
+				if((inventoryList.options[i].target as Item).type == RUNE && (inventoryList.options[i].target as Item).name == n){
+					(inventoryList.options[i] as MenuOptionStack).singleName = (inventoryList.options[i].target as Item).nameToString();
+					(inventoryList.options[i] as MenuOptionStack).total = (inventoryList.options[i] as MenuOptionStack).total;
 				}
 			}
 		}
@@ -394,12 +394,12 @@
 				str += "\nrunes can be cast on items, monsters and yourself"
 			} else if(type == ARMOUR){
 				str += "this armour is a \nlevel " + level + " ";
-				if(curse_state == CURSE_REVEALED) str += "cursed ";
+				if(curseState == CURSE_REVEALED) str += "cursed ";
 				else if(effects) str += "enchanted ";
 				str += ARMOUR_NAMES[name];
 			} else if(type == WEAPON){
 				str += "this weapon is a \nlevel " + level + " ";
-				if(curse_state == CURSE_REVEALED) str += "cursed ";
+				if(curseState == CURSE_REVEALED) str += "cursed ";
 				else if(effects) str += "enchanted ";
 				str += WEAPON_NAMES[name];
 			} else if(type == HEART){

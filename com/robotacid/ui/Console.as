@@ -8,12 +8,18 @@
 	 */
 	public class Console extends TextBox{
 		
-		public function Console(_width:Number, line_height:int, background_col:uint = 0x111111, border_col:uint = 0x999999, font_col:uint = 0xDDDDDD) {
-			super(_width, line_height, background_col, border_col, font_col);
+		public function Console(_width:Number, line_height:int, backgroundCol:uint = 0x111111, borderCol:uint = 0x999999, fontCol:uint = 0xDDDDDD) {
+			super(_width, line_height, backgroundCol, borderCol, fontCol);
 		}
 		
 		public function print(str:String):void{
-			if(lines >= max_lines){
+			// catch multiple lines here, split and recurse
+			if(str.indexOf("\n") > -1){
+				var printList:Array = str.split("\n");
+				while(printList.length) print(printList.shift());
+				return;
+			}
+			if(lines >= maxLines){
 				_text = _text.substr(_text.indexOf("\n") + 1);
 				lines--;
 			}

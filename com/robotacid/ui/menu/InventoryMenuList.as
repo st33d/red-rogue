@@ -13,26 +13,26 @@
 		public var g:Game;
 		public var menu:Menu;
 		
-		public var equipment_list:MenuList;
+		public var equipmentList:MenuList;
 		
-		public var item_list:MenuList;
-		public var bow_list:MenuList;
-		public var rune_list:MenuList;
-		public var heart_list:MenuList;
-		public var enchantment_list:EnchantmentList;
+		public var itemList:MenuList;
+		public var bowList:MenuList;
+		public var runeList:MenuList;
+		public var heartList:MenuList;
+		public var enchantmentList:EnchantmentList;
 		
-		public var equip_option:ToggleMenuOption;
-		public var equip_minion_option:ToggleMenuOption;
-		public var drop_option:MenuOption;
-		public var eat_option:MenuOption;
-		public var feed_minion_option:MenuOption;
-		public var enchant_option:MenuOption
-		public var throw_option:MenuOption;
-		public var shoot_option:MenuOption;
-		public var enchantments_option:MenuOption;
+		public var equipOption:ToggleMenuOption;
+		public var equipMinionOption:ToggleMenuOption;
+		public var dropOption:MenuOption;
+		public var eatOption:MenuOption;
+		public var feedMinionOption:MenuOption;
+		public var enchantOption:MenuOption
+		public var throwOption:MenuOption;
+		public var shootOption:MenuOption;
+		public var enchantmentsOption:MenuOption;
 		
-		public var item_to_option:Dictionary;
-		public var equipment_to_option:Dictionary;
+		public var itemToOption:Dictionary;
+		public var equipmentToOption:Dictionary;
 		
 		public function InventoryMenuList(menu:Menu, g:Game) {
 			super();
@@ -40,118 +40,118 @@
 			this.g = g;
 			// MENU LISTS
 			
-			equipment_list = new MenuList();
+			equipmentList = new MenuList();
 			
-			item_list = new MenuList();
-			bow_list = new MenuList();
-			rune_list = new MenuList();
-			heart_list = new MenuList();
-			enchantment_list = new EnchantmentList();
+			itemList = new MenuList();
+			bowList = new MenuList();
+			runeList = new MenuList();
+			heartList = new MenuList();
+			enchantmentList = new EnchantmentList();
 			
 			// MENU OPTIONS
 			
-			enchant_option = new MenuOption("enchant", equipment_list, false);
+			enchantOption = new MenuOption("enchant", equipmentList, false);
 			
-			equip_option = new ToggleMenuOption(["equip", "unequip"]);
-			equip_minion_option = new ToggleMenuOption(["equip minion", "unequip minion"]);
-			drop_option = new MenuOption("drop");
-			eat_option = new MenuOption("eat");
-			feed_minion_option = new MenuOption("feed minion");
-			throw_option = new MenuOption("throw");
-			shoot_option = new MenuOption("shoot");
-			enchantments_option = new MenuOption("enchantments", enchantment_list);
+			equipOption = new ToggleMenuOption(["equip", "unequip"]);
+			equipMinionOption = new ToggleMenuOption(["equip minion", "unequip minion"]);
+			dropOption = new MenuOption("drop");
+			eatOption = new MenuOption("eat");
+			feedMinionOption = new MenuOption("feed minion");
+			throwOption = new MenuOption("throw");
+			shootOption = new MenuOption("shoot");
+			enchantmentsOption = new MenuOption("enchantments", enchantmentList);
 			
-			enchantment_list.pointers = new Vector.<MenuOption>();
-			enchantment_list.pointers.push(enchantments_option);
+			enchantmentList.pointers = new Vector.<MenuOption>();
+			enchantmentList.pointers.push(enchantmentsOption);
 			
 			// OPTION ARRAYS
 			
-			item_list.options.push(equip_option);
-			item_list.options.push(drop_option);
-			item_list.options.push(equip_minion_option);
-			item_list.options.push(enchantments_option);
+			itemList.options.push(equipOption);
+			itemList.options.push(dropOption);
+			itemList.options.push(equipMinionOption);
+			itemList.options.push(enchantmentsOption);
 			
-			bow_list.options.push(equip_option);
-			bow_list.options.push(shoot_option);
-			bow_list.options.push(drop_option);
-			bow_list.options.push(equip_minion_option);
-			bow_list.options.push(enchantments_option);
+			bowList.options.push(equipOption);
+			bowList.options.push(shootOption);
+			bowList.options.push(dropOption);
+			bowList.options.push(equipMinionOption);
+			bowList.options.push(enchantmentsOption);
 			
-			rune_list.options.push(enchant_option);
-			rune_list.options.push(eat_option);
-			rune_list.options.push(throw_option);
-			rune_list.options.push(feed_minion_option);
-			rune_list.options.push(drop_option);
+			runeList.options.push(enchantOption);
+			runeList.options.push(eatOption);
+			runeList.options.push(throwOption);
+			runeList.options.push(feedMinionOption);
+			runeList.options.push(dropOption);
 			
-			heart_list.options.push(eat_option);
-			heart_list.options.push(drop_option);
+			heartList.options.push(eatOption);
+			heartList.options.push(dropOption);
 			
-			item_to_option = new Dictionary(true);
-			equipment_to_option = new Dictionary(true);
+			itemToOption = new Dictionary(true);
+			equipmentToOption = new Dictionary(true);
 		}
 		
 		public function reset():void{
 			selection = 0;
 			options = new Vector.<MenuOption>();
-			equipment_list.options = new Vector.<MenuOption>();
-			item_to_option = new Dictionary(true);
-			equipment_to_option = new Dictionary(true);
-			enchant_option.active = false;
+			equipmentList.options = new Vector.<MenuOption>();
+			itemToOption = new Dictionary(true);
+			equipmentToOption = new Dictionary(true);
+			enchantOption.active = false;
 		}
 		
 		/* Adds a new menu item and selects that item on the MenuList */
 		public function addItem(item:Item, stack:Boolean = true):Item{
-			var equipment_option:MenuOptionStack, item_option:MenuOptionStack, usage_options:MenuList, i:int, context:String;
+			var equipmentOption:MenuOptionStack, itemOption:MenuOptionStack, usageOptions:MenuList, i:int, context:String;
 			
 			if(stack){
 				// first see if this item can go into an existing stack
-				var item_stack:Item;
+				var itemStack:Item;
 				for(i = 0; i < options.length; i++){
-					item_stack = options[i].target as Item;
-					if(item.stackable(item_stack)){
-						item_stack.stacked = true;
+					itemStack = options[i].target as Item;
+					if(item.stackable(itemStack)){
+						itemStack.stacked = true;
 						(options[i] as MenuOptionStack).total++;
 						
 						// since the new item was copyable - it now goes into the garbage
 						// collector, preserving memory
 						
 						// update the menu and return
-						menu.selection = menu.current_menu_list.selection;
-						return item_stack;
+						menu.selection = menu.currentMenuList.selection;
+						return itemStack;
 					}
 				}
 			}
 			
 			// set up what can be done with this item
 			if(item.type == Item.ARMOUR || item.type == Item.WEAPON){
-				if(item.type == Item.WEAPON && item.name == Item.BOW) usage_options = bow_list;
-				else usage_options = item_list;
+				if(item.type == Item.WEAPON && item.name == Item.BOW) usageOptions = bowList;
+				else usageOptions = itemList;
 			} else if(item.type == Item.HEART){
 				// health items should be targetable under the same context
 				context = "heart";
-				usage_options = heart_list;
+				usageOptions = heartList;
 			} else if(item.type == Item.RUNE){
-				usage_options = rune_list;
+				usageOptions = runeList;
 			}
 			
-			item_option = new MenuOptionStack(item.toString(), usage_options);
-			item_option.context = context;
-			item_option.target = item;
-			item_option.help = item.getHelpText();
-			options.push(item_option);
+			itemOption = new MenuOptionStack(item.toString(), usageOptions);
+			itemOption.context = context;
+			itemOption.target = item;
+			itemOption.help = item.getHelpText();
+			options.push(itemOption);
 			selection = options.length - 1;
-			item_to_option[item] = item_option
+			itemToOption[item] = itemOption
 			
 			// equipment needs to be targetable by runes and so gets added to the equipment list
 			if(item.type == Item.ARMOUR || item.type == Item.WEAPON){
-				equipment_option = new MenuOptionStack(item.toString());
-				equipment_option.target = item;
-				equipment_option.help = item.getHelpText() + "\nstep right to enchant this item";
-				equipment_list.options.push(equipment_option);
-				equipment_list.selection = equipment_list.options.length - 1;
-				equipment_to_option[item] = equipment_option;
+				equipmentOption = new MenuOptionStack(item.toString());
+				equipmentOption.target = item;
+				equipmentOption.help = item.getHelpText() + "\nstep right to enchant this item";
+				equipmentList.options.push(equipmentOption);
+				equipmentList.selection = equipmentList.options.length - 1;
+				equipmentToOption[item] = equipmentOption;
 				// make sure the enchant option is active
-				enchant_option.active = true;
+				enchantOption.active = true;
 			}
 			
 			if(options.length == 1){
@@ -161,7 +161,7 @@
 				}
 			}
 			// update the menu
-			menu.selection = menu.current_menu_list.selection;
+			menu.selection = menu.currentMenuList.selection;
 			return item;
 		}
 		
@@ -169,32 +169,32 @@
 		public function removeItem(item:Item):Item{
 			
 			// first see if this item is in a stack
-			if(item_to_option[item].total > 1){
-				item_to_option[item].total--;
-				if(item_to_option[item].total == 1) item.stacked = false;
+			if(itemToOption[item].total > 1){
+				itemToOption[item].total--;
+				if(itemToOption[item].total == 1) item.stacked = false;
 				return item.copy();
 			}
 			
-			var item_index:int = options.indexOf(item_to_option[item]);
-			if(item_index == options.length - 1) selection = 0;
-			options.splice(item_index, 1);
+			var itemIndex:int = options.indexOf(itemToOption[item]);
+			if(itemIndex == options.length - 1) selection = 0;
+			options.splice(itemIndex, 1);
 			// a reference to this item may still exist in a hot key map - we need to neutralise it
-			item_to_option[item].active = false;
-			item_to_option[item] = null;
+			itemToOption[item].active = false;
+			itemToOption[item] = null;
 			
 			if(item.type == Item.ARMOUR || item.type == Item.WEAPON){
-				var equipment_index:int = equipment_list.options.indexOf(equipment_to_option[item]);
-				if(equipment_index == equipment_list.options.length - 1) equipment_list.selection = 0;
-				equipment_list.options.splice(equipment_index, 1);
+				var equipmentIndex:int = equipmentList.options.indexOf(equipmentToOption[item]);
+				if(equipmentIndex == equipmentList.options.length - 1) equipmentList.selection = 0;
+				equipmentList.options.splice(equipmentIndex, 1);
 				// a reference to this item may still exist in a hot key map - we need to neutralise it
-				equipment_to_option[item].active = false;
-				equipment_to_option[item] = null;
+				equipmentToOption[item].active = false;
+				equipmentToOption[item] = null;
 				// if there is no equipment, there is nothing to enchant
-				if(equipment_list.options.length == 0){
-					enchant_option.active = false;
+				if(equipmentList.options.length == 0){
+					enchantOption.active = false;
 				// don't let the equipment option point to a blank space
-				} else if(equipment_list.selection >= equipment_list.options.length){
-					equipment_list.selection = equipment_list.options.length - 1;
+				} else if(equipmentList.selection >= equipmentList.options.length){
+					equipmentList.selection = equipmentList.options.length - 1;
 				}
 			}
 			if(options.length == 0){
@@ -208,7 +208,7 @@
 			}
 			
 			// update the menu
-			if(menu.current_menu_list.options.length) menu.selection = menu.current_menu_list.selection;
+			if(menu.currentMenuList.options.length) menu.selection = menu.currentMenuList.selection;
 			return item;
 		}
 		
@@ -216,13 +216,13 @@
 		 * or otherwise returns the object provided */
 		public function unstack(item:Item):Item{
 			if(item.stacked){
-				item_to_option[item].total--;
-				if(item_to_option[item].total == 1){
+				itemToOption[item].total--;
+				if(itemToOption[item].total == 1){
 					item.stacked = false;
 				}
-				var item_copy:Item = item.copy();
-				addItem(item_copy, false);
-				return item_copy;
+				var itemCopy:Item = item.copy();
+				addItem(itemCopy, false);
+				return itemCopy;
 			}
 			return item;
 		}
@@ -233,22 +233,22 @@
 			
 			//trace("\nstack attempt");
 			
-			var item_stack:Item;
+			var itemStack:Item;
 			for(var i:int = 0; i < options.length; i++){
-				item_stack = options[i].target as Item;
+				itemStack = options[i].target as Item;
 				
-				//trace(item + " to " + item_stack);
+				//trace(item + " to " + itemStack);
 				
-				if(item.stackable(item_stack)){
+				if(item.stackable(itemStack)){
 					
 					//trace("stacked");
 					
-					item_stack.stacked = true;
+					itemStack.stacked = true;
 					(options[i] as MenuOptionStack).total++;
 					// given that the item is still in the options list, it needs removing
 					removeItem(item);
 					
-					return item_stack;
+					return itemStack;
 				}
 			}
 			return item;
@@ -256,13 +256,13 @@
 		
 		/* Resets the name of an option linked to this item - called when equipping items */
 		public function updateItem(item:Item):void{
-			item_to_option[item].name = item.toString();
-			item_to_option[item].help = item.getHelpText();
+			itemToOption[item].name = item.toString();
+			itemToOption[item].help = item.getHelpText();
 			if(item.type == Item.ARMOUR || item.type == Item.WEAPON){
-				equipment_to_option[item].name = item.toString();
-				equipment_to_option[item].help = item.getHelpText() + "\nstep right to enchant this item";
+				equipmentToOption[item].name = item.toString();
+				equipmentToOption[item].help = item.getHelpText() + "\nstep right to enchant this item";
 			}
-			menu.selection = menu.current_menu_list.selection;
+			menu.selection = menu.currentMenuList.selection;
 		}
 	}
 

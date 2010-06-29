@@ -18,10 +18,10 @@
 	
 	/**
 	 * This is the base class for all creatures in the game - including the player.
-	 * 
+	 *
 	 * By levelling the playing field we get creatures that behave like the player -
 	 * and as a bonus the player can transform into them with magic
-	 * 
+	 *
 	 * @author Aaron Steed, robotacid.com
 	 */
 	public class Character extends Collider{
@@ -35,38 +35,38 @@
 		public var looking:int;
 		public var actions:int;
 		public var moving:Boolean;
-		public var attack_speed:Number;
-		public var attack_count:Number;
-		public var block_map_type:int;
-		public var move_frame:int;
-		public var move_count:int;
-		public var quickening_count:int;
-		public var tile_center:Number;
+		public var attackSpeed:Number;
+		public var attackCount:Number;
+		public var blockMapType:int;
+		public var moveFrame:int;
+		public var moveCount:int;
+		public var quickeningCount:int;
+		public var tileCenter:Number;
 		public var victim:Character;
-		public var step_noise:Boolean;
+		public var stepNoise:Boolean;
 		public var crushed:Boolean;
 		public var undead:Boolean;
-		public var in_the_dark:Boolean;
-		public var debris_type:int;
-		public var missile_ignore:int;
+		public var inTheDark:Boolean;
+		public var debrisType:int;
+		public var missileIgnore:int;
 		
 		// attributes
 		public var speed:Number;
 		public var health:Number;
-		public var total_health:Number;
+		public var totalHealth:Number;
 		public var damage:Number;
-		public var xp_reward:Number;
+		public var xpReward:Number;
 		public var attack:Number;
 		public var defense:Number;
 		
 		public var loot:Vector.<Item>;
 		public var effects:Vector.<Effect>;
-		public var effects_buffer:Vector.<Effect>;
+		public var effectsBuffer:Vector.<Effect>;
 		public var stairs:Stairs;
 		public var weapon:Item;
 		public var armour:Item;
 		
-		private var hit_result:Number;
+		private var hitResult:Number;
 		
 		// type flags
 		public static const PLAYER:int = 1;
@@ -117,40 +117,40 @@
 		
 		public static var p:Point = new Point();
 		
-		public function Character(mc:DisplayObject, name:int, type:int, level:int, width:int, height:int, g:Game) {
-			super(mc, width, height, g);
+		public function Character(mc:DisplayObject, name:int, type:int, level:int, width:int, height:int, g:Game, active:Boolean = false) {
+			super(mc, width, height, g, active);
 			
 			this.name = name;
 			this.level = level;
 			this.type = type;
 			
 			health = CharacterAttributes.NAME_HEALTHS[name] + CharacterAttributes.NAME_HEALTH_LEVELS[name] * level;
-			total_health = health;
+			totalHealth = health;
 			attack = CharacterAttributes.NAME_ATTACKS[name] + CharacterAttributes.NAME_ATTACK_LEVELS[name] * level;
 			defense = CharacterAttributes.NAME_DEFENCES[name] + CharacterAttributes.NAME_DEFENCE_LEVELS[name] * level;
-			attack_speed = CharacterAttributes.NAME_ATTACK_SPEEDS[name] + CharacterAttributes.NAME_ATTACK_SPEED_LEVELS[name] * level;
+			attackSpeed = CharacterAttributes.NAME_ATTACK_SPEEDS[name] + CharacterAttributes.NAME_ATTACK_SPEED_LEVELS[name] * level;
 			damage = CharacterAttributes.NAME_DAMAGES[name] + CharacterAttributes.NAME_DAMAGE_LEVELS[name] * level;
 			speed = CharacterAttributes.NAME_SPEEDS[name] + CharacterAttributes.NAME_SPEED_LEVELS[name] * level;
-			xp_reward = CharacterAttributes.NAME_XP_REWARDS[name] + CharacterAttributes.NAME_XP_REWARD_LEVELS[name] * level;
+			xpReward = CharacterAttributes.NAME_XP_REWARDS[name] + CharacterAttributes.NAME_XP_REWARD_LEVELS[name] * level;
 			
 			state = FALLING;
-			step_noise = false;
-			attack_count = 1;
+			stepNoise = false;
+			attackCount = 1;
 			vx = vy = 0;
 			moving = false;
-			move_count = 0;
-			move_frame = 0;
+			moveCount = 0;
+			moveFrame = 0;
 			block.type |= Block.CHARACTER;
-			block_map_type = g.block_map[map_y][map_x];
-			call_main = true;
+			blockMapType = 0;// g.blockMap[mapY][mapX];
+			callMain = true;
 			crushed = false;
 			undead = name == SKELETON;
-			debris_type = name == SKELETON ? Game.BONE : Game.BLOOD;
-			in_the_dark = false;
-			missile_ignore = Block.LADDER | Block.LEDGE;
-			missile_ignore = Block.LADDER | Block.LEDGE;
+			debrisType = name == SKELETON ? Game.BONE : Game.BLOOD;
+			inTheDark = false;
+			missileIgnore = Block.LADDER | Block.LEDGE;
+			missileIgnore = Block.LADDER | Block.LEDGE;
 			crushable = true;
-			inflicts_crush = true;
+			inflictsCrush = true;
 			
 			loot = new Vector.<Item>();
 		}
@@ -166,17 +166,17 @@
 				y += vy;
 			}
 			if(state == FALLING || state == WALKING){
-				if (parent_block){
+				if (parentBlock){
 					checkFloor();
 				}
-				if(!parent_block){
+				if(!parentBlock){
 					vy = DAMPING_Y * vy + GRAVITY;
 					moveY(vy, this);
 				}
-				if(!parent_block){
+				if(!parentBlock){
 					state = FALLING;
 				} else {
-					if(state == FALLING && step_noise) SoundManager.playSound(g.library.ThudSound);
+					if(state == FALLING && stepNoise) SoundManager.playSound(g.library.ThudSound);
 					state = WALKING;
 				}
 			} else if(state == CLIMBING){
@@ -184,37 +184,37 @@
 			} else if(state == QUICKENING){
 				moveY(vy);
 			} else if(state == ATTACK){
-				if (parent_block){
+				if (parentBlock){
 					checkFloor();
 				}
-				if(!parent_block){
+				if(!parentBlock){
 					vy = DAMPING_Y * vy + GRAVITY;
 					moveY(vy, this);
 				}
 			}
 			// pace movement
 			if(state == WALKING || state == CLIMBING || state == EXIT || state == ENTER){
-				if(!moving) move_count = 0;
+				if(!moving) moveCount = 0;
 				else {
-					if(step_noise && moving && move_count == 0 && move_frame == 0) SoundManager.playSound(g.library.StepsSound);
-					move_count = (move_count + 1) % MOVE_DELAY;
+					if(stepNoise && moving && moveCount == 0 && moveFrame == 0) SoundManager.playSound(g.library.StepsSound);
+					moveCount = (moveCount + 1) % MOVE_DELAY;
 					// flip between climb frames as we move
-					if(move_count == 0) move_frame ^= 1;
+					if(moveCount == 0) moveFrame ^= 1;
 				}
 			}
 			
-			map_x = (rect.x + rect.width * 0.5) * INV_SCALE;
-			map_y = (rect.y + rect.height * 0.5) * INV_SCALE;
+			mapX = (rect.x + rect.width * 0.5) * INV_SCALE;
+			mapY = (rect.y + rect.height * 0.5) * INV_SCALE;
 			
 			
 			
-			if(map_y > g.block_map.length-1) throw new Error(nameToString()+" mapx:" + map_x + "mapy:" + map_y + " map dimensions:" + g.renderer.width + " " + g.renderer.height + " block map height:" + g.block_map.length);
-			if(map_x > g.block_map[0].length-1) throw new Error(nameToString()+" mapx:" + map_x + "mapy:" + map_y + " map dimensions:" + g.renderer.width + " " + g.renderer.height + " block map height:" + g.block_map.length);
+			if(mapY > g.blockMap.length-1) throw new Error(nameToString()+" mapx:" + mapX + "mapy:" + mapY + " map dimensions:" + g.renderer.width + " " + g.renderer.height + " block map height:" + g.blockMap.length);
+			if(mapX > g.blockMap[0].length-1) throw new Error(nameToString()+" mapx:" + mapX + "mapy:" + mapY + " map dimensions:" + g.renderer.width + " " + g.renderer.height + " block map height:" + g.blockMap.length);
 			
 			
 			
 			
-			block_map_type = g.block_map[map_y][map_x];
+			blockMapType = g.blockMap[mapY][mapX];
 			
 			// will put the collider to sleep if it doesn't move
 			if((vx > 0 ? vx : -vx) < TOLERANCE && (vy > 0 ? vy : -vy) < TOLERANCE && (awake)) awake--;
@@ -226,35 +226,35 @@
 			// and making them invisible will help the lighting engine conceal their presence.
 			// however - if they are moving, they may "pop" in and out of darkness, so we check around them
 			// for light
-			if(light) in_the_dark = false;
+			if(light) inTheDark = false;
 			else{
 				if(dir == 0){
-					if(g.light_map.dark_image.getPixel32(map_x, map_y) != 0xFF000000) in_the_dark = false;
-					else in_the_dark = true;
+					if(g.lightMap.darkImage.getPixel32(mapX, mapY) != 0xFF000000) inTheDark = false;
+					else inTheDark = true;
 				} else if(dir & (RIGHT | LEFT)){
-					if(g.light_map.dark_image.getPixel32(map_x, map_y) != 0xFF000000 || g.light_map.dark_image.getPixel32(map_x + 1, map_y) != 0xFF000000 || g.light_map.dark_image.getPixel32(map_x - 1, map_y) != 0xFF000000) in_the_dark = false;
-					else in_the_dark = true;
+					if(g.lightMap.darkImage.getPixel32(mapX, mapY) != 0xFF000000 || g.lightMap.darkImage.getPixel32(mapX + 1, mapY) != 0xFF000000 || g.lightMap.darkImage.getPixel32(mapX - 1, mapY) != 0xFF000000) inTheDark = false;
+					else inTheDark = true;
 				} else if(dir & (UP | DOWN)){
-					if(g.light_map.dark_image.getPixel32(map_x, map_y) != 0xFF000000 || g.light_map.dark_image.getPixel32(map_x, map_y + 1) != 0xFF000000 || g.light_map.dark_image.getPixel32(map_x, map_y - 1) != 0xFF000000) in_the_dark = false;
-					else in_the_dark = true;
+					if(g.lightMap.darkImage.getPixel32(mapX, mapY) != 0xFF000000 || g.lightMap.darkImage.getPixel32(mapX, mapY + 1) != 0xFF000000 || g.lightMap.darkImage.getPixel32(mapX, mapY - 1) != 0xFF000000) inTheDark = false;
+					else inTheDark = true;
 				}
 			}
 			
-			if(!in_the_dark){
+			if(!inTheDark){
 				mc.visible = true;
 				updateAnimState(mc as MovieClip);
 				updateMC();
 			} else {
 				mc.visible = false;
 			}
-			up_collider = right_collider = down_collider = left_collider = null;
+			upCollider = rightCollider = downCollider = leftCollider = null;
 			collisions = 0;
 		}
 		
 		// This chunk is the core state machine for all Characters
 		public function processActions():void{
-			if(parent_block != null) collisions |= Rect.DOWN;
-			tile_center = (map_x + 0.5) * SCALE
+			if(parentBlock != null) collisions |= Rect.DOWN;
+			tileCenter = (mapX + 0.5) * SCALE
 			// react to direction state
 			if(state == WALKING) moving = Boolean(dir & (LEFT | RIGHT));
 			else if(state == CLIMBING) moving = Boolean(dir & (UP | DOWN));
@@ -264,25 +264,25 @@
 				else if(dir & LEFT) vx -= speed;
 				// climbing
 				if(dir & UP){
-					if(canClimb() && !(parent_block && (parent_block.type & Block.LEDGE) && !(block_map_type & Block.LADDER))){
+					if(canClimb() && !(parentBlock && (parentBlock.type & Block.LEDGE) && !(blockMapType & Block.LADDER))){
 						state = CLIMBING;
 						if (parent != null){
 							parent.removeChild(this);
 						}
 						parent = null;
-						parent_block = null;
+						parentBlock = null;
 					}
 				}
 				// dropping through ledges and climbing down
 				if(dir & DOWN){
-					if(parent_block && (parent_block.type & Block.LEDGE)){
+					if(parentBlock && (parentBlock.type & Block.LEDGE)){
 						awake = AWAKE_DELAY;
 						ignore |= Block.LEDGE;
 						if (parent != null){
 							parent.removeChild(this);
 						}
 						parent = null;
-						parent_block = null;
+						parentBlock = null;
 						if(canClimb()) state = CLIMBING;
 					}
 				} else if(ignore & Block.LEDGE){
@@ -291,27 +291,27 @@
 			}
 			// attacking
 			if(state == WALKING){
-				if(left_collider || right_collider){
+				if(leftCollider || rightCollider){
 					var target:Character = null;
-					if((dir & LEFT) && left_collider && left_collider is Character && enemy(left_collider as Character)){
-						target = left_collider as Character;
-					} else if((dir & RIGHT) && right_collider && right_collider is Character && enemy(right_collider as Character)){
-						target = right_collider as Character;
+					if((dir & LEFT) && leftCollider && leftCollider is Character && enemy(leftCollider as Character)){
+						target = leftCollider as Character;
+					} else if((dir & RIGHT) && rightCollider && rightCollider is Character && enemy(rightCollider as Character)){
+						target = rightCollider as Character;
 					}
 					if(target){
 						moving = false;
-						if(attack_count >= 1 && (((dir & LEFT) && vx < 0) ||((dir & RIGHT) && vx > 0))){
+						if(attackCount >= 1 && (((dir & LEFT) && vx < 0) ||((dir & RIGHT) && vx > 0))){
 							state = ATTACK;
-							hit_result = hit(target);
-							if(hit_result){
+							hitResult = hit(target);
+							if(hitResult){
 								if(!(target.type & STONE)) target.weight = 0;
 								if(weapon && weapon.effects && target.active && !(target.type & STONE)){
 									target.applyWeaponEffects(weapon);
 								}
-								target.applyDamage((damage + damage_bonus) * hit_result, nameToString(), hit_result > 1, type);
+								target.applyDamage((damage + damageBonus) * hitResult, nameToString(), hitResult > 1, type);
 								SoundManager.playSound(g.library.HitSound);
 								p = localToLocal(p, (mc as MovieClip).weapon, g.canvas);
-								g.createDebrisSpurt(p.x, p.y, (dir & LEFT) ? -5 : 5, 5, target.debris_type);
+								g.createDebrisSpurt(p.x, p.y, (dir & LEFT) ? -5 : 5, 5, target.debrisType);
 							} else {
 								SoundManager.playSound(g.library.MissSound);
 							}
@@ -320,7 +320,7 @@
 					}
 				}
 			} else if(state == ATTACK){
-				if(attack_count > 0.5){
+				if(attackCount > 0.5){
 					state = WALKING;
 				}
 			} else if(state == THROWN){
@@ -353,7 +353,7 @@
 					} else {
 						vy = 0;
 					}
-					if(parent_block){
+					if(parentBlock){
 						state = WALKING;
 						dir &= ~(UP | DOWN);
 					}
@@ -364,24 +364,24 @@
 				}
 			} else if(state == QUICKENING){
 				vy = -0.5;
-				var col_trans:ColorTransform = mc.transform.colorTransform;
-				col_trans.redOffset+=4;
-				col_trans.greenOffset+=4;
-				col_trans.blueOffset+=4;
-				mc.transform.colorTransform = col_trans;
+				var colTrans:ColorTransform = mc.transform.colorTransform;
+				colTrans.redOffset+=4;
+				colTrans.greenOffset+=4;
+				colTrans.blueOffset+=4;
+				mc.transform.colorTransform = colTrans;
 				var node:Character;
 				var tx:Number, ty:Number;
 				// lightning from the right hand
-				if((mc as MovieClip).weapon && (mc as MovieClip).left_hand){
-					p = localToLocal(p, mc.scaleX == 1 ? (mc as MovieClip).weapon : (mc as MovieClip).left_hand, g.canvas);
+				if((mc as MovieClip).weapon && (mc as MovieClip).leftHand){
+					p = localToLocal(p, mc.scaleX == 1 ? (mc as MovieClip).weapon : (mc as MovieClip).leftHand, g.canvas);
 					node = null;
 					if(type == MINION || type == PLAYER){
-						if(Brain.monster_characters.length){
-							node = Brain.monster_characters[(Math.random() * Brain.monster_characters.length) >> 0];
+						if(Brain.monsterCharacters.length){
+							node = Brain.monsterCharacters[(Math.random() * Brain.monsterCharacters.length) >> 0];
 						}
 					} else if(type == MONSTER){
-						if(Brain.player_characters.length){
-							node = Brain.player_characters[(Math.random() * Brain.player_characters.length) >> 0];
+						if(Brain.playerCharacters.length){
+							node = Brain.playerCharacters[(Math.random() * Brain.playerCharacters.length) >> 0];
 						}
 					}
 					if(!node || !node.active || node.x < rect.x + rect.width * 0.5){
@@ -392,20 +392,20 @@
 						tx = node.rect.x + node.rect.width * 0.5;
 						ty = node.rect.y + node.rect.height * 0.5;
 					}
-					if(g.lightning.strike(g.fx_holder.graphics, g.block_map, p.x, p.y, tx, ty) && node && enemy(node)){
+					if(g.lightning.strike(g.fxHolder.graphics, g.blockMap, p.x, p.y, tx, ty) && node && enemy(node)){
 						node.applyDamage(Math.random(), "quickening");
-						g.createDebrisSpurt(tx, ty, 5, 5, node.debris_type);
+						g.createDebrisSpurt(tx, ty, 5, 5, node.debrisType);
 					}
 					// lightning from the left hand
-					p = localToLocal(p, mc.scaleX == 1 ? (mc as MovieClip).left_hand : (mc as MovieClip).weapon, g.canvas);
+					p = localToLocal(p, mc.scaleX == 1 ? (mc as MovieClip).leftHand : (mc as MovieClip).weapon, g.canvas);
 					node = null;
 					if(type == MINION || type == PLAYER){
-						if(Brain.monster_characters.length){
-							node = Brain.monster_characters[(Math.random() * Brain.monster_characters.length) >> 0];
+						if(Brain.monsterCharacters.length){
+							node = Brain.monsterCharacters[(Math.random() * Brain.monsterCharacters.length) >> 0];
 						}
 					} else if(type == MONSTER){
-						if(Brain.player_characters.length){
-							node = Brain.player_characters[(Math.random() * Brain.player_characters.length) >> 0];
+						if(Brain.playerCharacters.length){
+							node = Brain.playerCharacters[(Math.random() * Brain.playerCharacters.length) >> 0];
 						}
 					}
 					if(!node || !node.active || node.x > rect.x + rect.width * 0.5){
@@ -416,12 +416,12 @@
 						tx = node.rect.x + node.rect.width * 0.5;
 						ty = node.rect.y + node.rect.height * 0.5;
 					}
-					if(g.lightning.strike(g.fx_holder.graphics, g.block_map, p.x, p.y, tx, ty) && node && enemy(node)){
+					if(g.lightning.strike(g.fxHolder.graphics, g.blockMap, p.x, p.y, tx, ty) && node && enemy(node)){
 						node.applyDamage(Math.random(), "quickening");
-						g.createDebrisSpurt(tx, ty, -5, 5, node.debris_type);
+						g.createDebrisSpurt(tx, ty, -5, 5, node.debrisType);
 					}
 				}
-				if(quickening_count-- <= 0){
+				if(quickeningCount-- <= 0){
 					state = FALLING;
 					// getting some weird bug where the character is fabricating invisible floor after quickening
 					// am trying to force this not to happen
@@ -433,14 +433,14 @@
 				moving = true;
 				if(stairs.type == Stairs.UP){
 					dir = looking = LEFT;
-					if(move_count == 0) vx = vy = 0;
+					if(moveCount == 0) vx = vy = 0;
 					else{
 						vx = -2;
 						vy = -2;
 					}
 				} else if(stairs.type == Stairs.DOWN){
 					dir = looking = RIGHT;
-					if(move_count == 0) vx = vy = 0;
+					if(moveCount == 0) vx = vy = 0;
 					else{
 						vx = 2;
 						vy = 2;
@@ -451,7 +451,7 @@
 				moving = true;
 				if(stairs.type == Stairs.UP){
 					dir = looking = RIGHT;
-					if(move_count == 0) vx = vy = 0;
+					if(moveCount == 0) vx = vy = 0;
 					else{
 						vx = 2;
 						vy = 2;
@@ -465,7 +465,7 @@
 					}
 				} else if(stairs.type == Stairs.DOWN){
 					dir = looking = LEFT;
-					if(move_count == 0) vx = vy = 0;
+					if(moveCount == 0) vx = vy = 0;
 					else{
 						vx = -2;
 						vy = -2;
@@ -479,11 +479,11 @@
 					}
 				}
 			}
-			//trace(g.block_map[((rect.y + rect.height - 1) * INV_SCALE) >> 0][map_x] & Block.LADDER);
-			//trace(map_x);
+			//trace(g.blockMap[((rect.y + rect.height - 1) * INV_SCALE) >> 0][mapX] & Block.LADDER);
+			//trace(mapX);
 			
-			if(attack_count < 1){
-				attack_count += attack_speed;
+			if(attackCount < 1){
+				attackCount += attackSpeed;
 			}
 			if(crushed){
 				death("crushing");
@@ -497,29 +497,29 @@
 		 * on decapitation. Decapitation is meant to occur only via hand to hand combat */
 		public function death(cause:String, decapitation:Boolean = false, aggressor:int = 0):void{
 			active = false;
-			g.createDebrisRect(rect, 0, 20, debris_type);
+			g.createDebrisRect(rect, 0, 20, debrisType);
 			var method:String = decapitation ? "decapitated" : CharacterAttributes.NAME_DEATH_STRINGS[name];
 			if(decapitation){
-				var head:Head = new Head(mc as MovieClip, total_health * 0.5, g);
+				var head:Head = new Head(mc as MovieClip, totalHealth * 0.5, g);
 			}
 			g.console.print(CharacterAttributes.NAME_STRINGS[name] + " " + method + " by " + cause);
 			g.shake(0, 3);
 			SoundManager.playSound(g.library.KillSound);
-			if(type == MONSTER) g.player.addXP(xp_reward);
+			if(type == MONSTER) g.player.addXP(xpReward);
 			if(effects) removeEffects();
 		}
 		/* Advances the character to the next level */
 		public function levelUp():void{
 			level++;
 			health = CharacterAttributes.NAME_HEALTHS[name] + CharacterAttributes.NAME_HEALTH_LEVELS[name] * level;
-			total_health = health;
+			totalHealth = health;
 			attack = CharacterAttributes.NAME_ATTACKS[name] + CharacterAttributes.NAME_ATTACK_LEVELS[name] * level;
 			defense = CharacterAttributes.NAME_DEFENCES[name] + CharacterAttributes.NAME_DEFENCE_LEVELS[name] * level;
-			attack_speed = CharacterAttributes.NAME_ATTACK_SPEEDS[name] + CharacterAttributes.NAME_ATTACK_SPEED_LEVELS[name] * level;
+			attackSpeed = CharacterAttributes.NAME_ATTACK_SPEEDS[name] + CharacterAttributes.NAME_ATTACK_SPEED_LEVELS[name] * level;
 			damage = CharacterAttributes.NAME_DAMAGES[name] + CharacterAttributes.NAME_DAMAGE_LEVELS[name] * level;
 			speed = CharacterAttributes.NAME_SPEEDS[name] + CharacterAttributes.NAME_SPEED_LEVELS[name] * level;
-			xp_reward = CharacterAttributes.NAME_XP_REWARDS[name] + CharacterAttributes.NAME_XP_REWARD_LEVELS[name] * level;
-			applyHealth(total_health);
+			xpReward = CharacterAttributes.NAME_XP_REWARDS[name] + CharacterAttributes.NAME_XP_REWARD_LEVELS[name] * level;
+			applyHealth(totalHealth);
 			quicken();
 		}
 		/* This method kicks off a character's quickening state. Whilst a character quickens, they
@@ -528,13 +528,13 @@
 			state = QUICKENING;
 			dir = RIGHT;
 			divorce();
-			quickening_count = QUICKENING_DELAY;
+			quickeningCount = QUICKENING_DELAY;
 		}
 		
 		/* Used to auto-center when climbing */
 		public function centerOnTile():void{
-			if(x > tile_center) vx = x - speed > tile_center ? -speed : tile_center - x;
-			else if(x < tile_center) vx = x + speed < tile_center ? speed : tile_center - x;
+			if(x > tileCenter) vx = x - speed > tileCenter ? -speed : tileCenter - x;
+			else if(x < tileCenter) vx = x + speed < tileCenter ? speed : tileCenter - x;
 		}
 		
 		/* Used for launching Characters across the screen when they've been hit a magic effect */
@@ -549,7 +549,7 @@
 				dir |= LEFT;
 			}
 			state = ATTACK;
-			attack_count = 0;
+			attackCount = 0;
 		}
 		
 		
@@ -557,19 +557,19 @@
 		 * this goes against all my normal programming style, but I can still inline this
 		 * shit if I'm in a pinch */
 		public function canClimb():Boolean{
-			return ((block_map_type & Block.LADDER) ||
-			(g.block_map[((rect.y + rect.height) * INV_SCALE) >> 0][map_x] & Block.LADDER)) &&
-			rect.x + rect.width >= LADDER_LEFT + map_x * SCALE &&
-			rect.x <= LADDER_RIGHT + map_x * SCALE;
+			return ((blockMapType & Block.LADDER) ||
+			(g.blockMap[((rect.y + rect.height) * INV_SCALE) >> 0][mapX] & Block.LADDER)) &&
+			rect.x + rect.width >= LADDER_LEFT + mapX * SCALE &&
+			rect.x <= LADDER_RIGHT + mapX * SCALE;
 		}
 		
 		/* This reactivates any buffered effects  */
 		public function restoreEffects(): void{
-			if(effects_buffer){
-				for(var i:int = 0; i < effects_buffer.length; i++){
-					effects_buffer[i].apply(this);
+			if(effectsBuffer){
+				for(var i:int = 0; i < effectsBuffer.length; i++){
+					effectsBuffer[i].apply(this);
 				}
-				effects_buffer = null;
+				effectsBuffer = null;
 			}
 		}
 		
@@ -652,7 +652,7 @@
 			}
 				
 			if(state == WALKING && moving){
-				if(move_frame){
+				if(moveFrame){
 					if(mc.currentLabel != "walk_1") mc.gotoAndStop("walk_1");
 				} else {
 					if(mc.currentLabel != "walk_0") mc.gotoAndStop("walk_0");
@@ -660,7 +660,7 @@
 			} else if(state == WALKING && !moving){
 				if(mc.currentLabel != "idle") mc.gotoAndStop("idle");
 			} else if(state == CLIMBING){
-				if(move_frame){
+				if(moveFrame){
 					if(mc.currentLabel != "climb_1") mc.gotoAndStop("climb_1");
 				} else {
 					if(mc.currentLabel != "climb_0") mc.gotoAndStop("climb_0");
@@ -678,7 +678,7 @@
 			} else if(state == QUICKENING){
 				if(mc.currentLabel != "quickening") mc.gotoAndStop("quickening");
 			} else if(state == EXIT || state == ENTER){
-				if(move_frame){
+				if(moveFrame){
 					if(mc.currentLabel != "walk_1") mc.gotoAndStop("walk_1");
 				} else {
 					if(mc.currentLabel != "walk_0") mc.gotoAndStop("walk_0");
@@ -731,13 +731,13 @@
 		
 		/* Determine if we have hit another character */
 		public function hit(character:Character):int{
-			attack_count = 0;
-			var attack_roll:Number = Math.random();
-			if(attack_roll >= CRITICAL_HIT)
+			attackCount = 0;
+			var attackRoll:Number = Math.random();
+			if(attackRoll >= CRITICAL_HIT)
 				return CRITICAL;
-			else if(attack_roll <= CRITICAL_MISS)
+			else if(attackRoll <= CRITICAL_MISS)
 				return MISS
-			else if(attack + attack_roll + (weapon ? weapon.attack : 0) > character.defense + (character.armour ? character.armour.defense : 0))
+			else if(attack + attackRoll + (weapon ? weapon.attack : 0) > character.defense + (character.armour ? character.armour.defense : 0))
 				return HIT;
 				
 			return MISS;
@@ -745,24 +745,24 @@
 		
 		/* Loose a missile, could be an arrow or a rune */
 		public function shoot(name:int, effect:Effect = null):void{
-			if(attack_count < 1) return;
+			if(attackCount < 1) return;
 			state = ATTACK;
-			attack_count = 0;
-			var missile_mc:DisplayObject;
+			attackCount = 0;
+			var missileMc:DisplayObject;
 			if(name == Missile.ARROW){
-				missile_mc = new g.library.ArrowMC();
+				missileMc = new g.library.ArrowMC();
 			} else if(name == Missile.RUNE){
-				missile_mc = new g.library.ThrownRuneMC();
+				missileMc = new g.library.ThrownRuneMC();
 			}
-			missile_mc.x = rect.x + rect.width * 0.5;
-			missile_mc.y = rect.y + rect.height * 0.5;
-			g.entities_holder.addChild(missile_mc);
+			missileMc.x = rect.x + rect.width * 0.5;
+			missileMc.y = rect.y + rect.height * 0.5;
+			g.entitiesHolder.addChild(missileMc);
 			if(name == Missile.ARROW){
 				SoundManager.playSound(g.library.BowShootSound);
 			} else if(name == Missile.RUNE){
 				SoundManager.playSound(g.library.ThrowSound);
 			}
-			var missile:Missile = new Missile(missile_mc, name, this, (looking & RIGHT) ? 1 : -1, 0, 5, g, missile_ignore, effect, weapon);
+			var missile:Missile = new Missile(missileMc, name, this, (looking & RIGHT) ? 1 : -1, 0, 5, g, missileIgnore, effect, weapon);
 		}
 		
 		/* Adds damage to the Character */
@@ -778,7 +778,7 @@
 		
 		public function applyHealth(n:Number):void{
 			health += n;
-			if(health > total_health) health = total_health;
+			if(health > totalHealth) health = totalHealth;
 		}
 		
 		public function applyWeaponEffects(item:Item):void{
@@ -795,7 +795,7 @@
 			return false;
 		}
 		
-		public function get damage_bonus():Number{
+		public function get damageBonus():Number{
 			return 0;
 		}
 		
@@ -815,16 +815,16 @@
 			updateAnimState(mc as MovieClip);
 			updateMC();
 			(mc as MovieClip).gotoAndStop(str);
-			debris_type = undead ? Game.BONE : Game.BLOOD;
+			debrisType = undead ? Game.BONE : Game.BLOOD;
 			health = CharacterAttributes.NAME_HEALTHS[name] + CharacterAttributes.NAME_HEALTH_LEVELS[name] * level;
-			total_health = health;
+			totalHealth = health;
 			attack = CharacterAttributes.NAME_ATTACKS[name] + CharacterAttributes.NAME_ATTACK_LEVELS[name] * level;
 			defense = CharacterAttributes.NAME_DEFENCES[name] + CharacterAttributes.NAME_DEFENCE_LEVELS[name] * level;
-			attack_speed = CharacterAttributes.NAME_ATTACK_SPEEDS[name] + CharacterAttributes.NAME_ATTACK_SPEED_LEVELS[name] * level;
+			attackSpeed = CharacterAttributes.NAME_ATTACK_SPEEDS[name] + CharacterAttributes.NAME_ATTACK_SPEED_LEVELS[name] * level;
 			damage = CharacterAttributes.NAME_DAMAGES[name] + CharacterAttributes.NAME_DAMAGE_LEVELS[name] * level;
 			speed = CharacterAttributes.NAME_SPEEDS[name] + CharacterAttributes.NAME_SPEED_LEVELS[name] * level;
-			xp_reward = CharacterAttributes.NAME_XP_REWARDS[name] + CharacterAttributes.NAME_XP_REWARD_LEVELS[name] * level;
-			applyHealth(total_health);
+			xpReward = CharacterAttributes.NAME_XP_REWARDS[name] + CharacterAttributes.NAME_XP_REWARD_LEVELS[name] * level;
+			applyHealth(totalHealth);
 		}
 		
 		override public function nameToString():String {
@@ -833,7 +833,7 @@
 		
 		override public function addChild(collider:Collider):void {
 			super.addChild(collider);
-			if(crushable && collider.inflicts_crush){
+			if(crushable && collider.inflictsCrush){
 				if(collider.rect.x < rect.x + rect.width * 0.5 && collider.rect.x + collider.rect.width > rect.x + rect.width * 0.5){
 					crushed = true;
 				} else {

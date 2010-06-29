@@ -29,15 +29,15 @@
 		}
 		
 		public function render():void{
-			if(g.frame_count % 4 == 0){
+			if(g.frameCount % 4 == 0){
 				vx = Math.random() >= 0.5 ? 5 : -5;
 				var blit:BlitRect, print:BlitRect;
 				if(Math.random() > 0.5){
-					blit = g.small_debris_brs[Game.BLOOD];
-					print = g.small_fade_fbrs[Game.BLOOD];
+					blit = g.smallDebrisBrs[Game.BLOOD];
+					print = g.smallFadeFbrs[Game.BLOOD];
 				} else {
-					blit = g.big_debris_brs[Game.BLOOD];
-					print = g.big_fade_fbrs[Game.BLOOD];
+					blit = g.bigDebrisBrs[Game.BLOOD];
+					print = g.bigFadeFbrs[Game.BLOOD];
 				}
 				g.addDebris(parent.x, parent.y - Math.random() * h, blit, vx + (-5 + 10 * Math.random()) , 0, print, true);
 				count = DELAY + Math.random() * DELAY;

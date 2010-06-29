@@ -45,17 +45,17 @@
 		 * bitmaps is a 2d Vector of tiled bitmapdatas
 		 */
 		public function multiRender(bitmaps:Vector.<Vector.<Bitmap>>, scale:int = 2880, frame:int = 0):void{
-			var inv_scale:Number = 1.0 / scale;
+			var invScale:Number = 1.0 / scale;
 			var h:int = bitmaps.length;
 			var w:int = bitmaps[0].length;
 			// take point position
 			p.x = x + dx;
 			p.y = y + dy;
 			// find bitmap boundaries in tiles
-			var left_tile_x:int = (p.x * inv_scale) >> 0;
-			var top_tile_y:int = (p.y * inv_scale) >> 0;
-			var right_tile_x:int = ((p.x + width) * inv_scale) >> 0;
-			var bottom_tile_y:int = ((p.y + height) * inv_scale) >> 0;
+			var leftTileX:int = (p.x * invScale) >> 0;
+			var topTileY:int = (p.y * invScale) >> 0;
+			var rightTileX:int = ((p.x + width) * invScale) >> 0;
+			var bottomTileY:int = ((p.y + height) * invScale) >> 0;
 			
 			// logically the bitmap will only be painted onto 1, 2 or 4 tiles, we can use conditionals for this
 			// to speed things up
@@ -63,58 +63,58 @@
 			// task can fuck right off for the time being
 			
 			// only one tile to paint to
-			if(left_tile_x == right_tile_x && top_tile_y == bottom_tile_y){
-				if(left_tile_x > -1 && left_tile_x < w && top_tile_y > -1 && top_tile_y < h){
-					rect.x = p.x - (scale * left_tile_x);
-					rect.y = p.y - (scale * top_tile_y);
-					bitmaps[top_tile_y][left_tile_x].bitmapData.fillRect(rect, col);
+			if(leftTileX == rightTileX && topTileY == bottomTileY){
+				if(leftTileX > -1 && leftTileX < w && topTileY > -1 && topTileY < h){
+					rect.x = p.x - (scale * leftTileX);
+					rect.y = p.y - (scale * topTileY);
+					bitmaps[topTileY][leftTileX].bitmapData.fillRect(rect, col);
 				}
 			}
 			// two tiles to paint to
-			else if(left_tile_x == right_tile_x && top_tile_y != bottom_tile_y){
-				if(left_tile_x > -1 && left_tile_x < w && top_tile_y > -1 && top_tile_y < h){
-					rect.x = p.x - (scale * left_tile_x);
-					rect.y = p.y - (scale * top_tile_y);
-					bitmaps[top_tile_y][left_tile_x].bitmapData.fillRect(rect, col);
+			else if(leftTileX == rightTileX && topTileY != bottomTileY){
+				if(leftTileX > -1 && leftTileX < w && topTileY > -1 && topTileY < h){
+					rect.x = p.x - (scale * leftTileX);
+					rect.y = p.y - (scale * topTileY);
+					bitmaps[topTileY][leftTileX].bitmapData.fillRect(rect, col);
 				}
-				if(left_tile_x > -1 && left_tile_x < w && bottom_tile_y > -1 && bottom_tile_y < h){
-					rect.x = p.x - (scale * left_tile_x);
-					rect.y = p.y - (scale * bottom_tile_y);
-					bitmaps[bottom_tile_y][left_tile_x].bitmapData.fillRect(rect, col);
+				if(leftTileX > -1 && leftTileX < w && bottomTileY > -1 && bottomTileY < h){
+					rect.x = p.x - (scale * leftTileX);
+					rect.y = p.y - (scale * bottomTileY);
+					bitmaps[bottomTileY][leftTileX].bitmapData.fillRect(rect, col);
 				}
-			} else if(left_tile_x != right_tile_x && top_tile_y == bottom_tile_y){
-				if(left_tile_x > -1 && left_tile_x < w && top_tile_y > -1 && top_tile_y < h){
-					rect.x = p.x - (scale * left_tile_x);
-					rect.y = p.y - (scale * top_tile_y);
-					bitmaps[top_tile_y][left_tile_x].bitmapData.fillRect(rect, col);
+			} else if(leftTileX != rightTileX && topTileY == bottomTileY){
+				if(leftTileX > -1 && leftTileX < w && topTileY > -1 && topTileY < h){
+					rect.x = p.x - (scale * leftTileX);
+					rect.y = p.y - (scale * topTileY);
+					bitmaps[topTileY][leftTileX].bitmapData.fillRect(rect, col);
 				}
-				if(right_tile_x > -1 && right_tile_x < w && top_tile_y > -1 && top_tile_y < h){
-					rect.x = p.x - (scale * right_tile_x);
-					rect.y = p.y - (scale * top_tile_y);
-					bitmaps[top_tile_y][right_tile_x].bitmapData.fillRect(rect, col);
+				if(rightTileX > -1 && rightTileX < w && topTileY > -1 && topTileY < h){
+					rect.x = p.x - (scale * rightTileX);
+					rect.y = p.y - (scale * topTileY);
+					bitmaps[topTileY][rightTileX].bitmapData.fillRect(rect, col);
 				}
 			}
 			// four tiles to paint to
-			else if(left_tile_x != right_tile_x && top_tile_y != bottom_tile_y){
-				if(left_tile_x > -1 && left_tile_x < w && top_tile_y > -1 && top_tile_y < h){
-					rect.x = p.x - (scale * left_tile_x);
-					rect.y = p.y - (scale * top_tile_y);
-					bitmaps[top_tile_y][left_tile_x].bitmapData.fillRect(rect, col);
+			else if(leftTileX != rightTileX && topTileY != bottomTileY){
+				if(leftTileX > -1 && leftTileX < w && topTileY > -1 && topTileY < h){
+					rect.x = p.x - (scale * leftTileX);
+					rect.y = p.y - (scale * topTileY);
+					bitmaps[topTileY][leftTileX].bitmapData.fillRect(rect, col);
 				}
-				if(right_tile_x > -1 && right_tile_x < w && top_tile_y > -1 && top_tile_y < h){
-					rect.x = p.x - (scale * right_tile_x);
-					rect.y = p.y - (scale * top_tile_y);
-					bitmaps[top_tile_y][right_tile_x].bitmapData.fillRect(rect, col);
+				if(rightTileX > -1 && rightTileX < w && topTileY > -1 && topTileY < h){
+					rect.x = p.x - (scale * rightTileX);
+					rect.y = p.y - (scale * topTileY);
+					bitmaps[topTileY][rightTileX].bitmapData.fillRect(rect, col);
 				}
-				if(left_tile_x > -1 && left_tile_x < w && bottom_tile_y > -1 && bottom_tile_y < h){
-					rect.x = p.x - (scale * left_tile_x);
-					rect.y = p.y - (scale * bottom_tile_y);
-					bitmaps[bottom_tile_y][left_tile_x].bitmapData.fillRect(rect, col);
+				if(leftTileX > -1 && leftTileX < w && bottomTileY > -1 && bottomTileY < h){
+					rect.x = p.x - (scale * leftTileX);
+					rect.y = p.y - (scale * bottomTileY);
+					bitmaps[bottomTileY][leftTileX].bitmapData.fillRect(rect, col);
 				}
-				if(right_tile_x > -1 && right_tile_x < w && bottom_tile_y > -1 && bottom_tile_y < h){
-					rect.x = p.x - (scale * right_tile_x);
-					rect.y = p.y - (scale * bottom_tile_y);
-					bitmaps[bottom_tile_y][right_tile_x].bitmapData.fillRect(rect, col);
+				if(rightTileX > -1 && rightTileX < w && bottomTileY > -1 && bottomTileY < h){
+					rect.x = p.x - (scale * rightTileX);
+					rect.y = p.y - (scale * bottomTileY);
+					bitmaps[bottomTileY][rightTileX].bitmapData.fillRect(rect, col);
 				}
 			}
 		}

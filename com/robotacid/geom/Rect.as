@@ -84,6 +84,34 @@
 			if(test_y > (y + height-1)) test_y = (y + height-1);
 			return ((cx - test_x) * (cx - test_x) + (cy - test_y) * (cy - test_y)) < r * r;
 		}
+		/* Does this rect intersect a line */
+		public function intersectsLine(line:Line):Boolean{
+			// test for a bounding box collision
+			if(x > Math.max(line.a.x, line.b.x) || x + width - 1 < Math.min(line.a.x, line.b.x) || y > Math.max(line.a.y, line.b.y) || y + height - 1 < Math.min(line.a.y, line.b.y)) return false;
+			// first test the end points of the lines for containment
+			if((line.a.x >= x && line.a.y >= y && line.a.x < x + width && line.a.y < y + height) || (line.b.x >= x && line.b.y >= y && line.b.x < x + width && line.b.y < y + height)) return true;
+			// now test to see if the line end points are either side of the rect, bisecting it
+			if(
+				(line.a.x >= x && line.a.x < x + width && line.b.x >= x && line.b.x < x + width && (line.a.y < y && line.b.y > y + height - 1 || line.b.y < y && line.a.y > y + height - 1)) ||
+				(line.a.y >= y && line.a.y < y + height && line.b.y >= y && line.b.y < y + height && (line.a.x < x && line.b.x > x + width - 1 || line.b.x < x && line.a.x > x + width - 1))
+			) return true;
+			// one last test: check for correspoding dot products from the corners
+			var vx:Number, vy:Number, dots:int;
+			vx = x - line.a.x;
+			vy = y - line.a.y;
+			if(vx * line.rx + vy * line.ry < 0) dots++;
+			vx = (x + width - 1) - line.a.x;
+			vy = y - line.a.y;
+			if(vx * line.rx + vy * line.ry < 0) dots++;
+			vx = x - line.a.x;
+			vy = (y + height - 1) - line.a.y;
+			if(vx * line.rx + vy * line.ry < 0) dots++;
+			vx = (x + width - 1) - line.a.x;
+			vy = (y + height - 1) - line.a.y;
+			if(vx * line.rx + vy * line.ry < 0) dots++;
+			if(dots == 0 || dots == 4) return false;
+			return true;
+		}
 		/* Returns a lazy check for what side of this rect is x,y
 		 * assumes Rect is a perfect square
 		 */

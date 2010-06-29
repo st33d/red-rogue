@@ -32,24 +32,24 @@
 		public var g:Game;
 		public var char:Character;
 		public var target:Character;
-		public var schedule_target:Character;
-		public var buddy_target:Character;
+		public var scheduleTarget:Character;
+		public var buddyTarget:Character;
 		public var ignore:int;
 		
 		
 		public var state:int;
 		public var count:int;
 		public var delay:int;
-		public var patrol_min_x:Number;
-		public var patrol_max_x:Number;
-		public var patrol_area_set:Boolean;
-		public var dont_run_into_the_wall_count:int;
-		public var shedule_index:int;
-		public var ally_index:int;
+		public var patrolMinX:Number;
+		public var patrolMaxX:Number;
+		public var patrolAreaSet:Boolean;
+		public var dontRunIntoTheWallCount:int;
+		public var sheduleIndex:int;
+		public var allyIndex:int;
 		public var allegiance:int;
 		
-		public static var player_characters:Vector.<Character>;
-		public static var monster_characters:Vector.<Character>;
+		public static var playerCharacters:Vector.<Character>;
+		public static var monsterCharacters:Vector.<Character>;
 		
 		// alliegances
 		public static const PLAYER:int = 0;
@@ -69,7 +69,7 @@
 		public static const SHOOT:int = 1 << 4;
 		
 		// scale constants
-		public static var scan_step:Number = Collider.scan_step;
+		public static var scanStep:Number = Collider.scanStep;
 		public static const SCALE:Number = Game.SCALE;
 		public static const INV_SCALE:Number = Game.INV_SCALE;
 		
@@ -86,22 +86,22 @@
 		public static const SNIPE_FLEE_EDGE_SQ:Number = SNIPE_FLEE_EDGE * SNIPE_FLEE_EDGE;
 		
 		public static function init():void{
-			player_characters = new Vector.<Character>();
-			monster_characters = new Vector.<Character>();
+			playerCharacters = new Vector.<Character>();
+			monsterCharacters = new Vector.<Character>();
 		}
 		
 		public function Brain(char:Character, allegiance:int, g:Game) {
 			this.g = g;
 			this.char = char;
 			this.allegiance = allegiance;
-			patrol_area_set = false;
+			patrolAreaSet = false;
 			state = PATROL;
 			delay = CharacterAttributes.NAME_PAUSES[char.name];
 			count = delay + Math.random() * delay;
 			char.looking = Math.random() > 0.5 ? LEFT : RIGHT;
-			dont_run_into_the_wall_count = 0;
-			shedule_index = 0;
-			ally_index = 0;
+			dontRunIntoTheWallCount = 0;
+			sheduleIndex = 0;
+			allyIndex = 0;
 			ignore = Block.LEDGE | Block.LADDER;
 			if(allegiance == PLAYER){
 				ignore |= Block.MINION | Block.PLAYER;
@@ -113,32 +113,32 @@
 		public function main():void{
 			
 			if(allegiance == PLAYER){
-				if(monster_characters.length){
-					shedule_index = (shedule_index + 1) % monster_characters.length;
-					schedule_target = monster_characters[shedule_index];
+				if(monsterCharacters.length){
+					sheduleIndex = (sheduleIndex + 1) % monsterCharacters.length;
+					scheduleTarget = monsterCharacters[sheduleIndex];
 				} else {
-					schedule_target = null;
+					scheduleTarget = null;
 				}
 			} else if(allegiance == MONSTER){
-				if(player_characters.length){
-					shedule_index = (shedule_index + 1) % player_characters.length;
-					schedule_target = player_characters[shedule_index];
+				if(playerCharacters.length){
+					sheduleIndex = (sheduleIndex + 1) % playerCharacters.length;
+					scheduleTarget = playerCharacters[sheduleIndex];
 				} else {
-					schedule_target = null;
+					scheduleTarget = null;
 				}
 			}
 			
 			if(state == PATROL || state == PAUSE){
 				if(state == PATROL){
 					if(allegiance == MONSTER){
-						if(patrol_area_set){
+						if(patrolAreaSet){
 							patrol();
 							//Game.debug.moveTo(char.x, char.y);
-							//Game.debug.lineTo(patrol_max_x, char.y);
+							//Game.debug.lineTo(patrolMaxX, char.y);
 							//Game.debug.moveTo(char.x, char.y);
-							//Game.debug.lineTo(patrol_min_x, char.y);
+							//Game.debug.lineTo(patrolMinX, char.y);
 						}
-						else (setPatrolArea(g.block_map));
+						else (setPatrolArea(g.blockMap));
 						if(count-- <= 0){
 							count = delay + Math.random() * delay;
 							state = PAUSE;
@@ -157,37 +157,37 @@
 				// here's where we look for targets
 				// any enemy touching us counts as a target, but we also look for targets
 				// rather than checking all enemy characters, we check one at a time each frame
-				if(schedule_target){
-					if(char.left_collider && (char.left_collider is Character) && char.enemy((char.left_collider as Character))){
-						target = (char.left_collider as Character);
+				if(scheduleTarget){
+					if(char.leftCollider && (char.leftCollider is Character) && char.enemy((char.leftCollider as Character))){
+						target = (char.leftCollider as Character);
 						state = ATTACK;
 						count = 0;
 					}
-					if(char.right_collider && (char.right_collider is Character) && char.enemy((char.right_collider as Character))){
-						target = (char.right_collider as Character);
+					if(char.rightCollider && (char.rightCollider is Character) && char.enemy((char.rightCollider as Character))){
+						target = (char.rightCollider as Character);
 						state = ATTACK;
 						count = 0;
 					}
 					// we test LOS when the player is within a square area near the monster - this is cheaper
 					// than doing a radial test and we don't want all monsters calling LOS all the time
 					// we also avoid suprise attacks by avoiding checks from monsters in the dark
-					if(!char.in_the_dark){
-						if(!(schedule_target.armour && schedule_target.armour.name == Item.INVISIBILITY)){
-							if((char.looking & RIGHT) && schedule_target.x > char.x && schedule_target.x < char.x + LOS_BORDER && schedule_target.y > char.y - LOS_BORDER && schedule_target.y < char.y + LOS_BORDER){
+					if(!char.inTheDark){
+						if(!(scheduleTarget.armour && scheduleTarget.armour.name == Item.INVISIBILITY)){
+							if((char.looking & RIGHT) && scheduleTarget.x > char.x && scheduleTarget.x < char.x + LOS_BORDER && scheduleTarget.y > char.y - LOS_BORDER && scheduleTarget.y < char.y + LOS_BORDER){
 								//Game.debug.moveTo(char.x, char.y);
-								//Game.debug.lineTo(schedule_target.x, schedule_target.y);
-								if(LOS(schedule_target, g.block_map, ignore)){
+								//Game.debug.lineTo(scheduleTarget.x, scheduleTarget.y);
+								if(LOS(scheduleTarget, g.blockMap, ignore)){
 									state = ATTACK;
-									target = schedule_target;
+									target = scheduleTarget;
 									count = 0;
 								}
 							}
-							if((char.looking & LEFT) && schedule_target.x < char.x && schedule_target.x > char.x - LOS_BORDER && schedule_target.y > char.y - LOS_BORDER && schedule_target.y < char.y + LOS_BORDER){
+							if((char.looking & LEFT) && scheduleTarget.x < char.x && scheduleTarget.x > char.x - LOS_BORDER && scheduleTarget.y > char.y - LOS_BORDER && scheduleTarget.y < char.y + LOS_BORDER){
 								//Game.debug.moveTo(char.x, char.y);
-								//Game.debug.lineTo(schedule_target.x, schedule_target.y);
-								if(LOS(schedule_target, g.block_map, ignore)){
+								//Game.debug.lineTo(scheduleTarget.x, scheduleTarget.y);
+								if(LOS(scheduleTarget, g.blockMap, ignore)){
 									state = ATTACK;
-									target = schedule_target;
+									target = scheduleTarget;
 									count = 0;
 								}
 							}
@@ -202,15 +202,15 @@
 					chase(target);
 				}
 				
-				// if a schedule_target is directly above, get the hell out of there
+				// if a scheduleTarget is directly above, get the hell out of there
 				
-				if(schedule_target){
+				if(scheduleTarget){
 					if(
-						char.y > schedule_target.rect.y + schedule_target.rect.height &&
-						char.map_x == schedule_target.map_x 
+						char.y > scheduleTarget.rect.y + scheduleTarget.rect.height &&
+						char.mapX == scheduleTarget.mapX 
 					){
 						state = FLEE;
-						target = schedule_target;
+						target = scheduleTarget;
 						count = delay + Math.random() * delay * 2;
 					}
 				}
@@ -218,29 +218,29 @@
 				// sometimes the target can be at the same height on a ladder
 				// when two characters are chasing each other, this causes a stalemate,
 				// an infinite loop, one of them must flee for a moment to break the cycle
-				if(char.map_x == target.map_x && char.map_y == target.map_y && char.state == Character.CLIMBING && target.state == Character.CLIMBING){
+				if(char.mapX == target.mapX && char.mapY == target.mapY && char.state == Character.CLIMBING && target.state == Character.CLIMBING){
 					state = FLEE;
-					target = schedule_target;
+					target = scheduleTarget;
 					count = 5 + Math.random() * delay;
 				}
 				
 				if(!target.active){
 					target = null;
-					patrol_area_set = false;
+					patrolAreaSet = false;
 					state = PATROL;
 				}
 			} else if(state == FLEE){
 				
 				flee(target);
 				if(count-- <= 0){
-					if(char.in_the_dark){
+					if(char.inTheDark){
 						// we want fleeing characters in the dark to go back to patrolling
 						// but not if they're on a fucking ladder
 						if(char.state == Character.CLIMBING){
 							count = 1 + delay * Math.random();
 						} else {
 							target = null;
-							patrol_area_set = false;
+							patrolAreaSet = false;
 							state = PATROL;
 						}
 					} else {
@@ -248,13 +248,13 @@
 						count = 0;
 					}
 				}
-				if(char.left_collider && (char.left_collider is Character) && char.enemy((char.left_collider as Character))){
-					target = (char.left_collider as Character);
+				if(char.leftCollider && (char.leftCollider is Character) && char.enemy((char.leftCollider as Character))){
+					target = (char.leftCollider as Character);
 					state = ATTACK;
 					count = 0;
 				}
-				if(char.right_collider && (char.right_collider is Character) && char.enemy((char.right_collider as Character))){
-					target = (char.right_collider as Character);
+				if(char.rightCollider && (char.rightCollider is Character) && char.enemy((char.rightCollider as Character))){
+					target = (char.rightCollider as Character);
 					state = ATTACK;
 					count = 0;
 				}
@@ -271,9 +271,9 @@
 			
 			if(char.state == Character.WALKING){
 				if(char.actions & RIGHT) {
-					if(char.x >= patrol_max_x || (char.collisions & RIGHT)) char.actions = LEFT;
+					if(char.x >= patrolMaxX || (char.collisions & RIGHT)) char.actions = LEFT;
 				} else if(char.actions & LEFT) {
-					if(char.x <= patrol_min_x || (char.collisions & LEFT)) char.actions = RIGHT;
+					if(char.x <= patrolMinX || (char.collisions & LEFT)) char.actions = RIGHT;
 				}
 				char.looking = char.actions & (LEFT | RIGHT);
 				char.dir |= char.actions & (LEFT | RIGHT);
@@ -287,9 +287,9 @@
 			if(target.x < char.x) char.actions |= LEFT;
 			else if(target.x > char.x) char.actions |= RIGHT;
 			
-			if(target.map_y > char.map_y) char.actions |= DOWN;
+			if(target.mapY > char.mapY) char.actions |= DOWN;
 			// you can't walk sideways and climb a ladder at the same time
-			else if(target.rect.y + target.rect.height < char.rect.y + char.rect.height && char.canClimb() && !(char.parent_block && (char.parent_block.type & Block.LEDGE) && !(char.block_map_type & Block.LADDER))){
+			else if(target.rect.y + target.rect.height < char.rect.y + char.rect.height && char.canClimb() && !(char.parentBlock && (char.parentBlock.type & Block.LEDGE) && !(char.blockMapType & Block.LADDER))){
 				char.actions = UP;
 			}
 			
@@ -300,30 +300,30 @@
 		/* Run away from a target */
 		public function flee(target:Character):void {
 			// if the character hits a wall, we make them run the other way for a period of time
-			if(dont_run_into_the_wall_count){
-				dont_run_into_the_wall_count--;
+			if(dontRunIntoTheWallCount){
+				dontRunIntoTheWallCount--;
 				if(char.collisions & RIGHT) {
 					char.actions = LEFT;
 				} else if(char.collisions & LEFT) {
 					char.actions = RIGHT;
 				}
-			} else if(dont_run_into_the_wall_count <= 0){
+			} else if(dontRunIntoTheWallCount <= 0){
 				// if the target is overhead, that may mean certain death - limit movement to left or right
 				if(
 					char.y > target.rect.y + target.rect.height &&
-					char.map_x == target.map_x
+					char.mapX == target.mapX
 				){
-					dont_run_into_the_wall_count = delay + Math.random();
+					dontRunIntoTheWallCount = delay + Math.random();
 					if(target.x > char.x) char.actions = RIGHT;
 					else char.actions = LEFT;
-				} else if(char.canClimb() && !(char.parent_block && (char.parent_block.type & Block.LEDGE) && !(char.block_map_type & Block.LADDER))){
+				} else if(char.canClimb() && !(char.parentBlock && (char.parentBlock.type & Block.LEDGE) && !(char.blockMapType & Block.LADDER))){
 					char.actions = UP;
 				} else if(char.collisions & RIGHT) {
 					char.actions = LEFT;
-					dont_run_into_the_wall_count = delay + Math.random();
+					dontRunIntoTheWallCount = delay + Math.random();
 				} else if(char.collisions & LEFT) {
 					char.actions = RIGHT;
-					dont_run_into_the_wall_count = delay + Math.random();
+					dontRunIntoTheWallCount = delay + Math.random();
 				} else {
 					if(char.x < target.x) char.actions = LEFT;
 					else char.actions = RIGHT;
@@ -343,10 +343,10 @@
 			// behaviour
 			var vx:Number = target.x - char.x;
 			var vy:Number = target.y - char.y;
-			var dist_sq:Number = vx * vx + vy * vy;
-			if(dist_sq > FOLLOW_CHASE_EDGE_SQ){
+			var distSq:Number = vx * vx + vy * vy;
+			if(distSq > FOLLOW_CHASE_EDGE_SQ){
 				chase(target);
-			} else if(dist_sq < FOLLOW_FLEE_EDGE_SQ){
+			} else if(distSq < FOLLOW_FLEE_EDGE_SQ){
 				flee(target);
 			} else {
 				// face the same direction as the leader - this sets up a charging tactic against
@@ -365,20 +365,20 @@
 			//Game.debug.drawCircle(char.x, char.y, SNIPE_FLEE_EDGE);
 			
 			// use melee combat when in contact with the enemy
-			if(char.left_collider && char.left_collider is Character && char.enemy(char.left_collider as Character)){
+			if(char.leftCollider && char.leftCollider is Character && char.enemy(char.leftCollider as Character)){
 				char.dir = char.looking = char.actions = LEFT;
-			} else if(char.right_collider && char.right_collider is Character && char.enemy(char.right_collider as Character)){
+			} else if(char.rightCollider && char.rightCollider is Character && char.enemy(char.rightCollider as Character)){
 				char.dir = char.looking = char.actions = RIGHT;
 			} else {
 				if(char.state == Character.CLIMBING){
 					flee(target);
-				} else if(char.map_y >= target.map_y){
+				} else if(char.mapY >= target.mapY){
 					var vx:Number = target.x - char.x;
 					var vy:Number = target.y - char.y;
-					var dist_sq:Number = vx * vx + vy * vy;
-					if(dist_sq < SNIPE_FLEE_EDGE_SQ){
+					var distSq:Number = vx * vx + vy * vy;
+					if(distSq < SNIPE_FLEE_EDGE_SQ){
 						flee(target);
-					} else if(dist_sq > SNIPE_CHASE_EDGE_SQ){
+					} else if(distSq > SNIPE_CHASE_EDGE_SQ){
 						chase(target);
 					} else {
 						// face towards the target and shoot when ready
@@ -388,11 +388,11 @@
 						} else if((char.looking & LEFT) && target.x > char.x){
 							char.looking = RIGHT;
 						} else {
-							shootWhenReady(target, g.block_map, 10, ignore);
+							shootWhenReady(target, g.blockMap, 10, ignore);
 						}
 					}
 				} else {
-					patrol_area_set = false;
+					patrolAreaSet = false;
 					state = PATROL;
 				}
 				
@@ -404,30 +404,30 @@
 		 */
 		public function setPatrolArea(map:Vector.<Vector.<int>>):void{
 			// setting your patrol area in mid air is a tad silly
-			if(!(map[char.map_y + 1][char.map_x] & UP)){
-				patrol_area_set = false;
+			if(!(map[char.mapY + 1][char.mapX] & UP)){
+				patrolAreaSet = false;
 				return;
 			}
-			patrol_max_x = patrol_min_x = (char.map_x + 0.5) * Game.SCALE;
+			patrolMaxX = patrolMinX = (char.mapX + 0.5) * Game.SCALE;
 			while(
-				patrol_min_x > Game.SCALE * 0.5 &&
-				!(map[char.map_y][((patrol_min_x - Game.SCALE) * Game.INV_SCALE) >> 0] & Block.WALL) &&
-				(map[char.map_y + 1][((patrol_min_x - Game.SCALE) * Game.INV_SCALE) >> 0] & UP)
+				patrolMinX > Game.SCALE * 0.5 &&
+				!(map[char.mapY][((patrolMinX - Game.SCALE) * Game.INV_SCALE) >> 0] & Block.WALL) &&
+				(map[char.mapY + 1][((patrolMinX - Game.SCALE) * Game.INV_SCALE) >> 0] & UP)
 			){
-				patrol_min_x -= Game.SCALE;
+				patrolMinX -= Game.SCALE;
 			}
 			while(
-				patrol_max_x < (map[0].length - 0.5) * Game.SCALE &&
-				!(map[char.map_y][((patrol_max_x + Game.SCALE) * Game.INV_SCALE) >> 0] & Block.WALL) &&
-				(map[char.map_y + 1][((patrol_max_x + Game.SCALE) * Game.INV_SCALE) >> 0] & UP)
+				patrolMaxX < (map[0].length - 0.5) * Game.SCALE &&
+				!(map[char.mapY][((patrolMaxX + Game.SCALE) * Game.INV_SCALE) >> 0] & Block.WALL) &&
+				(map[char.mapY + 1][((patrolMaxX + Game.SCALE) * Game.INV_SCALE) >> 0] & UP)
 			){
-				patrol_max_x += Game.SCALE;
+				patrolMaxX += Game.SCALE;
 			}
-			patrol_area_set = true;
+			patrolAreaSet = true;
 		}
 		/* This shoots at the target Character when it has a line of sight to it */
 		public function shootWhenReady(target:Character, map:Vector.<Vector.<int>>, length:int, ignore:int = 0):void {
-			if(char.attack_count >= 1 && horizLOS(target, map, length, ignore)) {
+			if(char.attackCount >= 1 && horizLOS(target, map, length, ignore)) {
 				char.shoot(Missile.ARROW);
 			}
 		}
@@ -444,7 +444,7 @@
 			if(length){
 				dy = vy / length;
 				// reject targets outside of the cone of vision
-				if(dy < -0.5 || dy > 0.5 || (char.weapon && char.weapon.name == Item.BOW && target.map_y > char.map_y)) return false;
+				if(dy < -0.5 || dy > 0.5 || (char.weapon && char.weapon.name == Item.BOW && target.mapY > char.mapY)) return false;
 				dx = vx / length;
 			}
 			
@@ -458,7 +458,7 @@
 		
 		/* Can we see the other character along a horizontal beam? */
 		public function horizLOS(target:Character, map:Vector.<Vector.<int>>, length:int, ignore:int = 0):Boolean {
-			if(target.map_y != char.map_y || !(char.looking & LEFT | RIGHT)) return false;
+			if(target.mapY != char.mapY || !(char.looking & LEFT | RIGHT)) return false;
 			var r:Number;
 			var test:Cast = null;
 			var rect:Rect = char.rect;

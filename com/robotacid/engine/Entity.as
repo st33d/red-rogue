@@ -13,25 +13,24 @@
 		public var mc:DisplayObject;
 		public var g:Game;
 		public var active:Boolean;
-		public var call_main:Boolean;
+		public var callMain:Boolean;
 		public var collision:Boolean;
 		public var rect:Rect;
 		
 		public var name:int;
 		public var light:int;
-		public var light_cols:Vector.<uint>;
-		public var tile_id:String;
+		public var lightCols:Vector.<uint>;
+		public var tileId:String;
 		public var free:Boolean = false;
-		public var map_x:int, map_y:int;
-		public var init_x:int, init_y:int;
+		public var mapX:int, mapY:int;
+		public var initX:int, initY:int;
 		public var layer:int;
-		public var id_tag:int = -1;
 		
 		public var holder:DisplayObjectContainer;
 		
 		// these are debug tools for differentiating between objects and their instantiation order
-		public static var object_count:int = 0;
-		public var object_num:int;
+		public static var objectCount:int = 0;
+		public var objectNum:int;
 		
 		public static const SCALE:Number = Game.SCALE;
 		public static const INV_SCALE:Number = Game.INV_SCALE;
@@ -43,11 +42,11 @@
 			this.free = free;
 			this.active = active;
 			collision = false;
-			call_main = false;
+			callMain = false;
 			light = 0;
-			map_x = x * INV_SCALE;
-			map_y = y * INV_SCALE;
-			object_num = object_count++;
+			mapX = x * INV_SCALE;
+			mapY = y * INV_SCALE;
+			objectNum = objectCount++;
 			if(active) g.entities.push(this);
 			
 		}
@@ -75,13 +74,13 @@
 			if(active){
 				active = false;
 				// if there is already content on the id map, then we convert that content into an array
-				if(g.renderer.map_array_layers[layer][map_y][map_x]){
-					if(g.renderer.map_array_layers[layer][map_y][map_x] is Array){
-						g.renderer.map_array_layers[layer][map_y][map_x].push(this);
+				if(g.renderer.mapArrayLayers[layer][mapY][mapX]){
+					if(g.renderer.mapArrayLayers[layer][mapY][mapX] is Array){
+						g.renderer.mapArrayLayers[layer][mapY][mapX].push(this);
 					} else {
-						g.renderer.map_array_layers[layer][map_y][map_x] = [g.renderer.map_array_layers[layer][map_y][map_x], this];
+						g.renderer.mapArrayLayers[layer][mapY][mapX] = [g.renderer.mapArrayLayers[layer][mapY][mapX], this];
 					}
-				} else g.renderer.map_array_layers[layer][map_y][map_x] = this;
+				} else g.renderer.mapArrayLayers[layer][mapY][mapX] = this;
 			}
 		}
 		

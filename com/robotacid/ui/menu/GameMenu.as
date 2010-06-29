@@ -10,10 +10,10 @@
 	
 	/**
 	 * This is a situ-specific menu specially for this game
-	 * 
+	 *
 	 * It has extra variables defining references to game menu options
 	 * and it sets up a majority of the core menu elements in the constructor
-	 * 
+	 *
 	 * @author Aaron Steed, robotacid.com
 	 */
 	public class GameMenu extends Menu{
@@ -24,22 +24,22 @@
 		// branch 0
 		
 		// tier 2
-		public var inventory_list:InventoryMenuList;
-		public var inventory_option:MenuOption;
-		public var options_list:MenuList;
-		public var stairs_option:MenuOption;
-		public var stairs_list:MenuList;
+		public var inventoryList:InventoryMenuList;
+		public var inventoryOption:MenuOption;
+		public var optionsList:MenuList;
+		public var stairsOption:MenuOption;
+		public var stairsList:MenuList;
 		
 		// tier 3
-		public var go_up_down_option:ToggleMenuOption;
-		public var reset_list:MenuList;
-		public var reset_option:MenuOption;
-		public var sure_list:MenuList;
-		public var sure_option:MenuOption;
+		public var goUpDownOption:ToggleMenuOption;
+		public var resetList:MenuList;
+		public var resetOption:MenuOption;
+		public var sureList:MenuList;
+		public var sureOption:MenuOption;
 		
 		// tier 4
-		public var on_off_list:MenuList;
-		public var on_off_option:ToggleMenuOption;
+		public var onOffList:MenuList;
+		public var onOffOption:ToggleMenuOption;
 		
 		public function GameMenu(width:Number, height:Number, g:Game) {
 			this.g = g;
@@ -56,77 +56,77 @@
 			// tier 1
 			var trunk:MenuList = new MenuList();
 			// tier 2
-			inventory_list = new InventoryMenuList(this, g);
-			options_list = new MenuList();
-			stairs_list = new MenuList();
+			inventoryList = new InventoryMenuList(this, g);
+			optionsList = new MenuList();
+			stairsList = new MenuList();
 			// tier 3
-			reset_list = new MenuList();
+			resetList = new MenuList();
 			
-			on_off_list = new MenuList();
-			sure_list = new MenuList();
+			onOffList = new MenuList();
+			sureList = new MenuList();
 			
 			// MENU OPTIONS
 			
 			// tier 1
-			inventory_option = new MenuOption("inventory", inventory_list, false);
-			inventory_option.help = "a list of items the rogue currently possesses in her\nhandbag of holding";
-			inventory_list.pointers = new Vector.<MenuOption>();
-			inventory_list.pointers.push(inventory_option);
-			var options_option:MenuOption = new MenuOption("options", options_list);
-			options_option.help = "change game settings";
-			stairs_option = new MenuOption("stairs", stairs_list, false);
+			inventoryOption = new MenuOption("inventory", inventoryList, false);
+			inventoryOption.help = "a list of items the rogue currently possesses in her\nhandbag of holding";
+			inventoryList.pointers = new Vector.<MenuOption>();
+			inventoryList.pointers.push(inventoryOption);
+			var optionsOption:MenuOption = new MenuOption("options", optionsList);
+			optionsOption.help = "change game settings";
+			stairsOption = new MenuOption("stairs", stairsList, false);
 			
 			// tier 2
-			var change_keys_option:MenuOption = Menu.createChangeKeysMenuOption();
-			change_keys_option.help = "change the movement keys, menu key and hot keys"
-			var hot_key_deactivates:Vector.<MenuOption> = new Vector.<MenuOption>();
-			hot_key_deactivates.push(change_keys_option);
-			var hot_key_option:MenuOption = Menu.createHotKeyMenuOption(trunk, hot_key_deactivates);
-			hot_key_option.help = "set up a key to perform a menu action\nthe hot key will work even if the menu is hidden\nthe hot key will also adapt to menu changes";
+			var changeKeysOption:MenuOption = Menu.createChangeKeysMenuOption();
+			changeKeysOption.help = "change the movement keys, menu key and hot keys"
+			var hotKeyDeactivates:Vector.<MenuOption> = new Vector.<MenuOption>();
+			hotKeyDeactivates.push(changeKeysOption);
+			var hotKeyOption:MenuOption = Menu.createHotKeyMenuOption(trunk, hotKeyDeactivates);
+			hotKeyOption.help = "set up a key to perform a menu action\nthe hot key will work even if the menu is hidden\nthe hot key will also adapt to menu changes";
 			
-			var sound_option:MenuOption = new MenuOption("sound", on_off_list);
-			sound_option.help = "toggle sound";
-			reset_option = new MenuOption("reset", sure_list);
-			reset_option.help = "start a new game";
+			var soundOption:MenuOption = new MenuOption("sound", onOffList);
+			soundOption.help = "toggle sound";
+			resetOption = new MenuOption("reset", sureList);
+			resetOption.help = "start a new game";
 			
-			go_up_down_option = new ToggleMenuOption(["go up", "go down"]);
+			goUpDownOption = new ToggleMenuOption(["go up", "go down"]);
 			
 			// tier 3
-			on_off_option = new ToggleMenuOption(["off", "on"]);
-			sure_option = new MenuOption("sure?");
+			onOffOption = new ToggleMenuOption(["off", "on"]);
+			sureOption = new MenuOption("sure?");
 			
 			// OPTION ARRAYS
 			
-			trunk.options.push(inventory_option);
-			trunk.options.push(options_option);
-			trunk.options.push(stairs_option);
+			trunk.options.push(inventoryOption);
+			trunk.options.push(optionsOption);
+			trunk.options.push(stairsOption);
 			
-			options_list.options.push(sound_option);
-			options_list.options.push(change_keys_option);
-			options_list.options.push(hot_key_option);
-			options_list.options.push(reset_option);
+			optionsList.options.push(soundOption);
+			optionsList.options.push(changeKeysOption);
+			optionsList.options.push(hotKeyOption);
+			optionsList.options.push(resetOption);
 			
-			stairs_list.options.push(go_up_down_option);
+			stairsList.options.push(goUpDownOption);
 			
-			reset_list.options.push(reset_option);
+			resetList.options.push(resetOption);
 			
-			sure_list.options.push(sure_option);
+			sureList.options.push(sureOption);
 			
-			on_off_list.options.push(on_off_option);
+			onOffList.options.push(onOffOption);
 			
 			setTrunk(trunk);
 			
 			addEventListener(Event.CHANGE, change);
 			addEventListener(Event.SELECT, select);
 			
-			var option:MenuOption = current_menu_list.options[_selection];
+			var option:MenuOption = currentMenuList.options[_selection];
 			help.text = option.help;
 			
 		}
 		
 		public function change(e:Event = null):void{
 			
-			var option:MenuOption = current_menu_list.options[_selection];
+			var option:MenuOption = currentMenuList.options[_selection];
 			
 			if(parent && option.help){
 				help.text = option.help;
@@ -136,53 +136,53 @@
 				var item:Item = option.target;
 				if(item.type == Item.WEAPON || item.type == Item.ARMOUR){
 					if(item.type == Item.WEAPON && item.name == Item.BOW){
-						inventory_list.shoot_option.active = (item.state == Item.EQUIPPED);
+						inventoryList.shootOption.active = (item.state == Item.EQUIPPED);
 					}
-					inventory_list.equip_option.state = item.state == Item.EQUIPPED ? 1 : 0;
-					inventory_list.equip_minion_option.state = (g.minion && item.state == Item.MINION_EQUIPPED) ? 1 : 0;
-					inventory_list.equip_minion_option.active = Boolean(g.minion);
-					inventory_list.enchantment_list.update(item);
+					inventoryList.equipOption.state = item.state == Item.EQUIPPED ? 1 : 0;
+					inventoryList.equipMinionOption.state = (g.minion && item.state == Item.MINION_EQUIPPED) ? 1 : 0;
+					inventoryList.equipMinionOption.active = Boolean(g.minion);
+					inventoryList.enchantmentList.update(item);
 					// cursed items disable equipping items of that type, they cannot be dropped either
-					if(item.type == Item.WEAPON && g.player.weapon && g.player.weapon.curse_state == Item.CURSE_REVEALED){
-						inventory_list.equip_option.active = false;
-						inventory_list.equip_minion_option.active = false;
-					} else if(item.type == Item.ARMOUR && g.player.armour && g.player.armour.curse_state == Item.CURSE_REVEALED){
-						inventory_list.equip_option.active = false;
-						inventory_list.equip_minion_option.active = false;
+					if(item.type == Item.WEAPON && g.player.weapon && g.player.weapon.curseState == Item.CURSE_REVEALED){
+						inventoryList.equipOption.active = false;
+						inventoryList.equipMinionOption.active = false;
+					} else if(item.type == Item.ARMOUR && g.player.armour && g.player.armour.curseState == Item.CURSE_REVEALED){
+						inventoryList.equipOption.active = false;
+						inventoryList.equipMinionOption.active = false;
 					} else {
-						inventory_list.equip_option.active = true;
+						inventoryList.equipOption.active = true;
 					}
-					inventory_list.drop_option.active = item.curse_state != Item.CURSE_REVEALED
+					inventoryList.dropOption.active = item.curseState != Item.CURSE_REVEALED
 				} else if(item.type == Item.HEART){
-					if(!hot_key_map_record) inventory_list.eat_option.active = g.player.health < g.player.total_health;
-					else inventory_list.eat_option.active = true;
+					if(!hotKeyMapRecord) inventoryList.eatOption.active = g.player.health < g.player.totalHealth;
+					else inventoryList.eatOption.active = true;
 				} else if(item.type == Item.RUNE){
-					inventory_list.eat_option.active = true;
-					inventory_list.feed_minion_option.active = Boolean(g.minion);
+					inventoryList.eatOption.active = true;
+					inventoryList.feedMinionOption.active = Boolean(g.minion);
 					if(item.name == Item.XP){
-						if(g.minion) inventory_list.feed_minion_option.active = g.minion.level < Game.MAX_LEVEL;
-						inventory_list.eat_option.active = g.player.level < Game.MAX_LEVEL;
+						if(g.minion) inventoryList.feedMinionOption.active = g.minion.level < Game.MAX_LEVEL;
+						inventoryList.eatOption.active = g.player.level < Game.MAX_LEVEL;
 					}
 				}
 				renderMenu();
 			} else if(option.name == "sound"){
-				on_off_option.state = SoundManager.sfx ? 0 : 1;
+				onOffOption.state = SoundManager.sfx ? 0 : 1;
 				renderMenu();
-			} else if(option == inventory_list.enchant_option){
-				var rune_name:int = inventory_list.options[inventory_list.selection].target.name;
-				for(var i:int = 0; i < inventory_list.equipment_list.options.length; i++){
-					inventory_list.equipment_list.options[i].active = inventory_list.equipment_list.options[i].target.enchantable(rune_name);
+			} else if(option == inventoryList.enchantOption){
+				var runeName:int = inventoryList.options[inventoryList.selection].target.name;
+				for(var i:int = 0; i < inventoryList.equipmentList.options.length; i++){
+					inventoryList.equipmentList.options[i].active = inventoryList.equipmentList.options[i].target.enchantable(runeName);
 				}
 			}
 		}
 		
 		public function select(e:Event = null):void{
-			var option:MenuOption = current_menu_list.options[_selection];
+			var option:MenuOption = currentMenuList.options[_selection];
 			var item:Item, n:int, i:int, effect:Effect;
 			
 			// equipping items on the player
-			if(option == inventory_list.equip_option){
-				item = previous_menu_list.options[previous_menu_list.selection].target;
+			if(option == inventoryList.equipOption){
+				item = previousMenuList.options[previousMenuList.selection].target;
 				if(item.state == Item.EQUIPPED){
 					g.player.unequip(item);
 				} else {
@@ -200,8 +200,8 @@
 				if(g.minion) g.minion.updateMC();
 			
 			// equipping items on minions
-			} else if(option == inventory_list.equip_minion_option){
-				item = previous_menu_list.options[previous_menu_list.selection].target;
+			} else if(option == inventoryList.equipMinionOption){
+				item = previousMenuList.options[previousMenuList.selection].target;
 				if(item.state == Item.MINION_EQUIPPED){
 					g.minion.unequip(item);
 				} else {
@@ -219,86 +219,86 @@
 				g.minion.updateMC();
 				
 			// dropping items
-			} else if(option == inventory_list.drop_option){
-				item = previous_menu_list.options[previous_menu_list.selection].target;
+			} else if(option == inventoryList.dropOption){
+				item = previousMenuList.options[previousMenuList.selection].target;
 				if(item.state == Item.EQUIPPED){
 					item = g.player.unequip(item);
 				}
 				if(g.minion && item.state == Item.MINION_EQUIPPED){
 					item = g.minion.unequip(item);
 				}
-				item = inventory_list.removeItem(item);
-				item.dropToMap(g.player.map_x, g.player.map_y);
+				item = inventoryList.removeItem(item);
+				item.dropToMap(g.player.mapX, g.player.mapY);
 				g.entities.push(item);
 				
 			// eating items
-			} else if(option == inventory_list.eat_option){
-				item = previous_menu_list.options[previous_menu_list.selection].target;
+			} else if(option == inventoryList.eatOption){
+				item = previousMenuList.options[previousMenuList.selection].target;
 				if(item.type == Item.HEART){
 					g.player.applyHealth(CharacterAttributes.NAME_HEALTHS[item.name] + CharacterAttributes.NAME_HEALTH_LEVELS[item.level]);
 				} else if(item.type == Item.RUNE){
-					Item.revealName(item.name, inventory_list);
+					Item.revealName(item.name, inventoryList);
 					effect = new Effect(item.name, 20, Effect.EATEN, g, g.player);
 				}
-				inventory_list.removeItem(item);
+				inventoryList.removeItem(item);
 				n = g.player.loot.indexOf(item);
 				if(n > -1) g.player.loot.splice(n , 1);
 				g.console.print("rogue eats " + item.nameToString());
 			
 			// feeding runes to the minion
-			} else if(option == inventory_list.feed_minion_option){
-				item = previous_menu_list.options[previous_menu_list.selection].target;
-				Item.revealName(item.name, inventory_list);
+			} else if(option == inventoryList.feedMinionOption){
+				item = previousMenuList.options[previousMenuList.selection].target;
+				Item.revealName(item.name, inventoryList);
 				effect = new Effect(item.name, 20, Effect.EATEN, g, g.minion);
-				inventory_list.removeItem(item);
+				inventoryList.removeItem(item);
 				n = g.player.loot.indexOf(item);
 				if(n > -1) g.player.loot.splice(n , 1);
 				g.console.print("minion eats " + item.nameToString());
 			
 			// resetting the game
-			} else if(option == sure_option){
-				if(previous_menu_list.options[previous_menu_list.selection] == reset_option){
-					inventory_list.reset();
-					inventory_option.active = false;
+			} else if(option == sureOption){
+				if(previousMenuList.options[previousMenuList.selection] == resetOption){
+					inventoryList.reset();
+					inventoryOption.active = false;
 					g.reset();
 				}
 			
 			// turning off sound
-			} else if(option == on_off_option){
-				if(previous_menu_list.options[previous_menu_list.selection].name == "sound"){
-					SoundManager.sfx = on_off_option.state == 1;
+			} else if(option == onOffOption){
+				if(previousMenuList.options[previousMenuList.selection].name == "sound"){
+					SoundManager.sfx = onOffOption.state == 1;
 				}
 			
 			// shooting the bow
-			} else if(option == inventory_list.shoot_option){
+			} else if(option == inventoryList.shootOption){
 				g.player.shoot(Missile.ARROW);
 			
 			
 			// throwing runes
-			} else if(option == inventory_list.throw_option){
-				item = previous_menu_list.options[previous_menu_list.selection].target;
-				item = inventory_list.removeItem(item);
+			} else if(option == inventoryList.throwOption){
+				item = previousMenuList.options[previousMenuList.selection].target;
+				item = inventoryList.removeItem(item);
 				g.player.shoot(Missile.RUNE, new Effect(item.name, 20, Effect.THROWN, g));
 			
 			
 			// enchanting items
-			} else if(previous_menu_list.options[previous_menu_list.selection] == inventory_list.enchant_option){
+			} else if(previousMenuList.options[previousMenuList.selection] == inventoryList.enchantOption){
 				item = option.target;
-				var rune:Item = inventory_list.options[inventory_list.selection].target;
+				var rune:Item = inventoryList.options[inventoryList.selection].target;
 				
-				effect = new Effect(rune.name, 1, 0, g);
+				effect = new Effect(rune.name, 1, 1, g);
 				
-				Item.revealName(rune.name, inventory_list);
+				Item.revealName(rune.name, inventoryList);
 				
-				item = effect.enchant(item, inventory_list);
+				item = effect.enchant(item, inventoryList);
 				
-				rune = inventory_list.removeItem(rune);
+				rune = inventoryList.removeItem(rune);
 				g.console.print(item.nameToString() + " enchanted with " + rune.nameToString());
 			
 			// exit the level
-			} else if(option == go_up_down_option){
-				g.player.exitLevel(go_up_down_option.target as Stairs);
-				stairs_option.active = false;
+			} else if(option == goUpDownOption){
+				g.player.exitLevel(goUpDownOption.target as Stairs);
+				stairsOption.active = false;
 			}
 		}
 		/* In the event of player death, we need to change the menu to deactivate the inventory,
@@ -306,12 +306,12 @@
 		 */
 		public function death():void{
 			for(var i:int = 0; i < branch.length; i++){
-				if(branch[i] == inventory_list){
+				if(branch[i] == inventoryList){
 					while(branch.length > 1) stepBack();
 					break;
 				}
 			}
-			inventory_option.active = false;
+			inventoryOption.active = false;
 			// update
 			selection = _selection;
 		}

@@ -11,15 +11,15 @@
 	public class ScrollBar extends Sprite{
 		
 		public var bar:Sprite;
-		public var _border_col:uint = 0xFFFFFF;
-		public var _back_col:uint = 0x000000;
-		public var _bar_col:uint = 0xFFFFFF;
+		public var _borderCol:uint = 0xFFFFFF;
+		public var _backCol:uint = 0x000000;
+		public var barCol:uint = 0xFFFFFF;
 		public var _units:int;
 		public var _width:Number;
 		public var _height:Number;
 		public var _value:Number;
 		
-		private var y_diff:Number;
+		private var yDiff:Number;
 		
 		public var length:Number;
 		public var ration:Number;
@@ -48,7 +48,7 @@
 		
 		public function barPressed(e:MouseEvent = null):void{
 			addEventListener(Event.ENTER_FRAME, barUpdate);
-			y_diff = bar.mouseY;
+			yDiff = bar.mouseY;
 		}
 		
 		public function barReleased(e:MouseEvent = null):void{
@@ -56,7 +56,7 @@
 		}
 		
 		public function barUpdate(e:Event = null):void{
-			bar.y = mouseY - y_diff;
+			bar.y = mouseY - yDiff;
 
 		}
 		
@@ -69,42 +69,42 @@
 			return _value;
 		}
 		
-		public function set border_col(n:uint):void{
-			_border_col = n;
+		public function set borderCol(n:uint):void{
+			_borderCol = n;
 			update();
 		}
 		
-		public function get border_col():uint{
-			return _border_col;
+		public function get borderCol():uint{
+			return _borderCol;
 		}
 		
-		public function set bar_col(n:uint):void{
-			_bar_col = n;
+		public function set barCol(n:uint):void{
+			barCol = n;
 			update();
 		}
 		
-		public function get bar_col():uint{
-			return _bar_col;
+		public function get barCol():uint{
+			return barCol;
 		}
 		
-		public function set back_col(n:uint):void{
-			_back_col = n;
+		public function set backCol(n:uint):void{
+			_backCol = n;
 			update();
 		}
 		
-		public function get back_col():uint{
-			return _back_col;
+		public function get backCol():uint{
+			return _backCol;
 		}
 		
 		private function update():void{
 			graphics.clear();
-			graphics.beginFill(_border_col);
+			graphics.beginFill(_borderCol);
 			graphics.drawRect(0, 0, _width, _height);
 			graphics.endFill();
-			graphics.beginFill(_back_col);
+			graphics.beginFill(_backCol);
 			graphics.drawRect(1, 1, _width-2, _height-2);
 			graphics.endFill();
-			bar.graphics.beginFill(_bar_col);
+			bar.graphics.beginFill(barCol);
 			bar.graphics.drawRect(0, 0, _width - 2, 5);
 			bar.graphics.endFill();
 		}

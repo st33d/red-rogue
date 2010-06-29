@@ -11,7 +11,7 @@
 	 */
 	public class Room {
 		
-		public var grid_num:int;
+		public var gridNum:int;
 		public var x:int;
 		public var y:int;
 		public var width:int;
@@ -21,7 +21,7 @@
 		public var siblings:Vector.<Room>;
 		public var doors:Vector.<Pixel>;
 		
-		public static var room_count:int = 0;
+		public static var roomCount:int = 0;
 		
 		public function Room(x:int = 0, y:int = 0, width:int = 0, height:int = 0, id:int = 0) {
 			this.x = x;
@@ -31,7 +31,7 @@
 			this.id = id;
 			siblings = new Vector.<Room>();
 			doors = new Vector.<Pixel>();
-			num = room_count++;
+			num = roomCount++;
 		}
 		public function touchesDoors(p:Pixel):Boolean{
 			for(var i:int = 0; i < doors.length; i++){

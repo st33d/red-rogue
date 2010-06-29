@@ -20,37 +20,37 @@
 		public var iy:Number;//		initial y position
 		public var px:Number;//		previous x position
 		public var py:Number;//		previous y position
-		public var temp_x:Number;//		temp variable
-		public var temp_y:Number;//		temp variable
+		public var tempX:Number;//		temp variable
+		public var tempY:Number;//		temp variable
 		
 		public function Particle(x:Number = 0, y:Number = 0){
 			super(x, y);
-			px = temp_x = x;
-			py = temp_y = y;
+			px = tempX = x;
+			py = tempY = y;
 		}
 		/* Moves the particle */
 		public function verlet(gravity_x:Number, gravity_y:Number, damping:Number):void{
-			temp_x = x;
-			temp_y = y;
+			tempX = x;
+			tempY = y;
 			x += damping * (x - px) + gravity_x;
 			y += damping * (y - py) + gravity_y;
-			px = temp_x;
-			py = temp_y;
+			px = tempX;
+			py = tempY;
 		}
 		/* Set the position and initial position */
 		public function setPosition(x:Number, y:Number):void{
-			this.x = px = temp_x = ix = x;
-			this.y = py = temp_y = iy = y;
+			this.x = px = tempX = ix = x;
+			this.y = py = tempY = iy = y;
 		}
 		/* Fix the particle to it's start position */
 		public function pin():void{
-			x = px = temp_x = ix;
-			y = py = temp_y = iy;
+			x = px = tempX = ix;
+			y = py = tempY = iy;
 		}
 		/* Fix the particle to a given position */
 		public function pinTo(x:Number, y:Number):void{
-			this.x = ix = px = temp_x = x;
-			this.y = iy = py = temp_y = y;
+			this.x = ix = px = tempX = x;
+			this.y = iy = py = tempY = y;
 		}
 		/* Create a Line describing the last frame of movement */
 		public function getLine():Line{

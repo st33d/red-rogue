@@ -3,7 +3,7 @@
 	import com.robotacid.engine.MapTileConverter;
 	import com.robotacid.engine.Stairs;
 	import com.robotacid.geom.Pixel;
-	import com.robotacid.util.misc.randomiseArray;
+	import com.robotacid.util.array.randomiseArray;
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
 	import flash.display.Sprite;
@@ -12,9 +12,9 @@
 	
 	/**
 	 * This is the random map generator
-	 * 
+	 *
 	 * The layout for every dungeon is calculated in here
-	 * 
+	 *
 	 * @author Aaron Steed, robotacid.com
 	 */
 	public class Map {
@@ -57,7 +57,7 @@
 			}
 		}
 		/* Create the test bed
-		 * 
+		 *
 		 * This is a debugging playground for testing new content and trying to lure consistent
 		 * bugs out into the open (which is nigh on fucking impossible in a procedural world)
 		 */
@@ -95,22 +95,22 @@
 		
 		
 		
-		/* This is where we convert our map template into a dungeon proper made of tile_ids and other
+		/* This is where we convert our map template into a dungeon proper made of tileIds and other
 		 * information
 		 */
-		public function convertDungeonBitmap(bitmap_data:BitmapData):void{
-			width = bitmap_data.width;
-			height = bitmap_data.height;
+		public function convertDungeonBitmap(bitmapData:BitmapData):void{
+			width = bitmapData.width;
+			height = bitmapData.height;
 			// background
-			layers.push(createGrid(null, bitmap_data.width, bitmap_data.height));
+			layers.push(createGrid(null, bitmapData.width, bitmapData.height));
 			// blocks - start with a full grid
-			layers.push(createGrid(1, bitmap_data.width, bitmap_data.height));
+			layers.push(createGrid(1, bitmapData.width, bitmapData.height));
 			// game objects
-			layers.push(createGrid(null, bitmap_data.width, bitmap_data.height));
+			layers.push(createGrid(null, bitmapData.width, bitmapData.height));
 			// foreground
-			layers.push(createGrid(null, bitmap_data.width, bitmap_data.height));
+			layers.push(createGrid(null, bitmapData.width, bitmapData.height));
 			
-			var pixels:Vector.<uint> = bitmap_data.getVector(bitmap_data.rect);
+			var pixels:Vector.<uint> = bitmapData.getVector(bitmapData.rect);
 			
 			// create ladders and ledges
 			var r:int, c:int;
@@ -130,28 +130,36 @@
 				}
 			}
 			
+			
+			
+			
+			var content:Content = new Content();
+			
+			content.populateLevel(level, bitmap, layers);
+			
+			
 			// THESE ARE TEMPORARY CONTENT FILLING ROUTINES - A REAL DUNGEON SHOULD DUMP
 			// THE LOOT ANY OLD WHERE
 			
 			// populate with monsters
 			
-			for(r = 0; r < height; r++){
-				for(c = 0; c < width; c++){
-					if(layers[BLOCKS][r][c] != 1 && (layers[BLOCKS][r+1][c] == MapTileConverter.LEDGE_ID || layers[BLOCKS][r+1][c] == 1) && Math.random() > 0.9){
-						layers[ENTITIES][r][c] = Math.random() > 0.7 ? 22 : 21;
-					}
-				}
-			}
-			
+			//for(r = 0; r < height; r++){
+				//for(c = 0; c < width; c++){
+					//if(layers[BLOCKS][r][c] != 1 && (layers[BLOCKS][r+1][c] == MapTileConverter.LEDGE_ID || layers[BLOCKS][r+1][c] == 1) && Math.random() > 0.9){
+						//layers[ENTITIES][r][c] = Math.random() > 0.7 ? 22 : 21;
+					//}
+				//}
+			//}
+			//
 			// populate with items
-			
-			for(r = 0; r < height; r++){
-				for(c = 0; c < width; c++){
-					if(layers[BLOCKS][r][c] != 1 && (layers[BLOCKS][r+1][c] == MapTileConverter.LEDGE_ID || layers[BLOCKS][r+1][c] == 1) && Math.random() > 0.9){
-						layers[ENTITIES][r][c] = 52;// closed chest index
-					}
-				}
-			}
+			//
+			//for(r = 0; r < height; r++){
+				//for(c = 0; c < width; c++){
+					//if(layers[BLOCKS][r][c] != 1 && (layers[BLOCKS][r+1][c] == MapTileConverter.LEDGE_ID || layers[BLOCKS][r+1][c] == 1) && Math.random() > 0.9){
+						//layers[ENTITIES][r][c] = 52;// closed chest index
+					//}
+				//}
+			//}
 			
 			// create the access points
 			
@@ -189,50 +197,50 @@
 		}
 		
 		/* Creates the entrance and exit to the level.
-		 * 
+		 *
 		 * The logic goes thus - stairs up somewhere at the top of the level,
 		 * stairs down somewhere at the bottom of the level
 		 */
 		public function createAccessPoints():void{
 			var highest:int = int.MAX_VALUE;
-			var entrance_room:Room;
+			var entranceRoom:Room;
 			var ex:int, ey:int;
 			var breaker:int = 0;
 			var rooms:Vector.<Room> = bitmap.rooms;
 			for(i = 0; i < rooms.length; i++){
 				if(rooms[i].y < highest){
-					entrance_room = rooms[i];
+					entranceRoom = rooms[i];
 					highest = rooms[i].y;
 				}
 			}
 			// we start at the top of the rooms and work our way down
-			ey = entrance_room.y;
+			ey = entranceRoom.y;
 			do{
 				if(breaker++ > 1000){
 					throw new Error("failed to create entrance");
 					break;
 				}
-				ex = entrance_room.x + random(entrance_room.width);
+				ex = entranceRoom.x + random(entranceRoom.width);
 				// the room dimensions may have extended below
 				if(layers[BLOCKS][ey + 1][ex] == 0) ey++;
 			} while(!goodStairsPosition(ex, ey));
 			setEntrance(ex, ey);
 			
 			var lowest:int = int.MIN_VALUE;
-			var exit_room:Room;
+			var exitRoom:Room;
 			for(i = 0; i < rooms.length; i++){
 				if(rooms[i].y > lowest){
-					exit_room = rooms[i];
+					exitRoom = rooms[i];
 					lowest = rooms[i].y;
 				}
 			}
-			ey = exit_room.y;
+			ey = exitRoom.y;
 			do{
 				if(breaker++ > 1000){
 					throw new Error("failed to create exit");
 					break;
 				}
-				ex = exit_room.x + random(exit_room.width);
+				ex = exitRoom.x + random(exitRoom.width);
 				// the room dimensions may have extended below
 				if(layers[BLOCKS][ey + 1][ex] == 0) ey++;
 			} while(!goodStairsPosition(ex, ey));
@@ -267,9 +275,9 @@
 		
 		/* Lines up the start position with where the player should logically be entering this level */
 		public function setStart():void{
-			if(Stairs.last_stairs_used_type == Stairs.DOWN){
+			if(Stairs.lastStairsUsedType == Stairs.DOWN){
 				start = entrance;
-			} else if(Stairs.last_stairs_used_type == Stairs.UP){
+			} else if(Stairs.lastStairsUsedType == Stairs.UP){
 				start = exit;
 			}
 		}

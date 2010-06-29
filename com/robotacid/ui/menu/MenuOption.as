@@ -21,7 +21,7 @@
 		public var deactivates:Vector.<MenuOption>;
 		// hot key maps need to find paths of similar context when the original path is removed
 		public var context:String;
-		public var hot_key_option:Boolean = false;
+		public var hotKeyOption:Boolean = false;
 		
 		public function MenuOption(name:String, next:MenuList = null, active:Boolean = true) {
 			this.name = name;

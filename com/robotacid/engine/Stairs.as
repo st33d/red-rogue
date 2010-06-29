@@ -21,19 +21,19 @@
 		
 		/* This variable tells me whether the player was heading up or down stairs when entering
 		 * the level */
-		public static var last_stairs_used_type:int = DOWN;
+		public static var lastStairsUsedType:int = DOWN;
 		
 		public function Stairs(mc:DisplayObject, type:int, g:Game) {
 			super(mc, g);
 			this.type = type;
 			rect = new Rect(x, y, SCALE, SCALE);
-			call_main = true;
+			callMain = true;
 			contact = false;
 			mask = new g.library.StairsMaskB();
 			mask.x = mc.x;
 			mask.y = mc.y;
 			mask.cacheAsBitmap = true;
-			if(type != last_stairs_used_type) g.entrance = this;
+			if(type != lastStairsUsedType) g.entrance = this;
 			seen = false;
 		}
 		
@@ -41,28 +41,28 @@
 			if(rect.intersects(g.player.rect) && g.player.state == Character.WALKING){
 				if(!contact){
 					contact = true;
-					g.menu.stairs_option.active = true;
-					g.menu.go_up_down_option.state = type;
+					g.menu.stairsOption.active = true;
+					g.menu.goUpDownOption.state = type;
 					g.menu.selection = g.menu.selection;
-					g.menu.go_up_down_option.target = this;
+					g.menu.goUpDownOption.target = this;
 				}
 			} else if(contact){
 				contact = false;
-				g.menu.stairs_option.active = false;
-				if(g.menu.current_menu_list == g.menu.stairs_list) g.menu.stepBack();
+				g.menu.stairsOption.active = false;
+				if(g.menu.currentMenuList == g.menu.stairsList) g.menu.stepBack();
 				g.menu.selection = g.menu.selection;
 			}
 			// if the stairs are visible on the map - then make the stairs icon on the map visible
-			if(!seen && g.light_map.dark_image.getPixel32(map_x, map_y) != 0xFF000000){
+			if(!seen && g.lightMap.darkImage.getPixel32(mapX, mapY) != 0xFF000000){
 				seen = true;
 				if(type == UP){
-					g.mini_map.stairs_up.visible = true;
-					g.mini_map.stairs_up.x = map_x - 1;
-					g.mini_map.stairs_up.y = map_y - 1;
+					g.miniMap.stairsUp.visible = true;
+					g.miniMap.stairsUp.x = mapX - 1;
+					g.miniMap.stairsUp.y = mapY - 1;
 				} else if(type == DOWN){
-					g.mini_map.stairs_down.visible = true;
-					g.mini_map.stairs_down.x = map_x - 1;
-					g.mini_map.stairs_down.y = map_y - 1;
+					g.miniMap.stairsDown.visible = true;
+					g.miniMap.stairsDown.x = mapX - 1;
+					g.miniMap.stairsDown.y = mapY - 1;
 				}
 			}
 			//rect.draw(Game.debug);

@@ -13,7 +13,7 @@
 		public var vx:Number;// 	distance between p0.x and p1.x
 		public var vy:Number;// 	distance between p0.y and p1.y
 		public var length:Number;// vector length (pythagoras length of a to b)
-		public var sq_length:Number;// squared length
+		public var sqLength:Number;// squared length
 		public var dx:Number;// 	x value of unit vector (equal to Math.cos(theta))
 		public var dy:Number;// 	y value of unit vector (equal to Math.sin(theta))
 		public var rx:Number;// 	x value of right hand unit vector
@@ -32,8 +32,8 @@
 			vx = b.x - a.x;
 			vy = b.y - a.y;
 			// length of vector
-			sq_length = vx * vx + vy * vy;
-			length = Math.sqrt(sq_length);
+			sqLength = vx * vx + vy * vy;
+			length = Math.sqrt(sqLength);
 			// normalized unit-sized components
 			if (length > 0) {
 				dx = vx / length;
@@ -109,23 +109,28 @@
 			var c:Dot = new Dot(x, y);
 			// vertex region check
 			var segment:Line = this;
-			//Line to_circle = new Line(a, c);
-			var to_circle_vx:Number = c.x - a.x;
-			var to_circle_vy:Number = c.y - a.y;
+			//Line toCircle = new Line(a, c);
+			var toCircleVx:Number = c.x - a.x;
+			var toCircleVy:Number = c.y - a.y;
 			// vertex region check
 			var length:Number = dot(segment, segment);
-			var dp:Number = to_circle_vx*segment.vx+to_circle_vy*segment.vy;
+			var dp:Number = toCircleVx * segment.vx + toCircleVy * segment.vy;
+			var vx:Number, vy:Number;
 			if(dp < 0){
 				// a is the closest vertex
-				if(Util.proximity(a.x, a.y, c.x, c.y, r)) return true;
+				vx = c.x - a.x;
+				vy = c.y - a.y;
+				if(vx * vx + vy * vy < r * r) return true;
 			} else if(dp > length){
 				// b is the closest vertex
-				if(Util.proximity(b.x, b.y, c.x, c.y, r)) return true;
+				vx = c.x - b.x;
+				vy = c.y - b.y;
+				if(vx * vx + vy * vy < r * r) return true;
 			} else if(dp >=0 && dp <=length){
 				// segment region check - check distance to line
-				var np:Number = (to_circle_vx*-segment.lx)+(to_circle_vy*-segment.ly);
-				var vx:Number = np*segment.lx;
-				var vy:Number = np*segment.ly;
+				var np:Number = (toCircleVx*-segment.lx)+(toCircleVy*-segment.ly);
+				vx = np*segment.lx;
+				vy = np*segment.ly;
 				var d:Number = vx*vx+vy*vy;
 				if((r*r)-d >= 0) return true;
 			}

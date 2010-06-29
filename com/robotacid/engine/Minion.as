@@ -10,13 +10,13 @@
 	
 	/**
 	 * This is an undead character that follows the player around and attacks monsters on sight.
-	 * 
+	 *
 	 * Due to how annoying an obstruction the minion could be, at a point in development I set
 	 * the minion to pass through the player. The minion then changed from barely useful and hazardous
 	 * (crushing) to a welcome ally.
-	 * 
+	 *
 	 * options to customise your minion through spells and and equipment are in the InventoryMenuList and GameMenu
-	 * 
+	 *
 	 * @author Aaron Steed, robotacid.com
 	 */
 	public class Minion extends Character{
@@ -26,22 +26,21 @@
 		
 		public function Minion(mc:DisplayObject, name:int, width:int, height:int, g:Game) {
 			
-			super(mc, name, MINION, g.player.level, width, height, g);
+			super(mc, name, MINION, g.player.level, width, height, g, true);
 			
-			inventory = g.menu.inventory_list;
+			inventory = g.menu.inventoryList;
 			
-			holder = g.entities_holder;
+			holder = g.entitiesHolder;
 			
 			block.type |= Block.MINION;
 			ignore |= Block.PLAYER | Block.MINION;
-			missile_ignore |= Block.PLAYER | Block.MINION;
+			missileIgnore |= Block.PLAYER | Block.MINION;
 			
 			brain = new Brain(this, Brain.PLAYER, g);
 			
-			Brain.player_characters.push(this);
+			Brain.playerCharacters.push(this);
 			
-			g.minion_health_bar.visible = true;
-			g.console.print("undead minion summoned");
+			g.minionHealthBar.visible = true;
 		}
 		
 		override public function main():void {
@@ -70,12 +69,12 @@
 		
 		override public function applyDamage(n:Number, source:String, critical:Boolean = false, aggressor:int = PLAYER):void {
 			super.applyDamage(n, source, critical);
-			g.minion_health_bar.setValue(health, total_health);
+			g.minionHealthBar.setValue(health, totalHealth);
 		}
 		
 		override public function applyHealth(n:Number):void {
 			super.applyHealth(n);
-			g.minion_health_bar.setValue(health, total_health);
+			g.minionHealthBar.setValue(health, totalHealth);
 		}
 		
 		
@@ -101,9 +100,9 @@
 			if(armour) temp_armour = unequip(armour);
 			super.death(cause, decapitation);
 			if(!active){
-				Brain.player_characters.splice(Brain.player_characters.indexOf(this), 1);
+				Brain.playerCharacters.splice(Brain.playerCharacters.indexOf(this), 1);
 				g.minion = null;
-				g.minion_health_bar.visible = false;
+				g.minionHealthBar.visible = false;
 			} else {
 				if(temp_weapon) equip(temp_weapon);
 				if(temp_armour) equip(temp_armour);

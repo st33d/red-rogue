@@ -43,14 +43,14 @@
 		// properties
 		
 		public var xp:Number;
-		public var map_rect:Rect;
+		public var mapRect:Rect;
 		public var inventory:InventoryMenuList;
 		
 		
 		private var i:int, j:int;
 		
 		// states
-		public var actions_lockout:int;
+		public var actionsLockout:int;
 		
 		public static const UP:int = 1;
 		public static const RIGHT:int = 2;
@@ -64,33 +64,33 @@
 		public static var point:Point = new Point();
 		
 		public function Player(mc:DisplayObject, width:Number, height:Number, entrance:Stairs, g:Game) {
-			super(mc, ROGUE, PLAYER, 1, width, height, g);
+			super(mc, ROGUE, PLAYER, 1, width, height, g, true);
 			
 			// init states
 			dir = RIGHT;
-			actions = actions_lockout = 0;
+			actions = actionsLockout = 0;
 			looking = RIGHT | UP;
 			active = true;
-			call_main = false;
+			callMain = false;
 			collision = false;
-			step_noise = true;
+			stepNoise = true;
 			
 			// init properties
 			block.type |= Block.PLAYER;
 			ignore |= Block.PLAYER | Block.MINION;
-			missile_ignore |= Block.PLAYER | Block.MINION;
+			missileIgnore |= Block.PLAYER | Block.MINION;
 			
-			g.light_map.setLight(this, DEFAULT_LIGHT_RADIUS);
+			g.lightMap.setLight(this, DEFAULT_LIGHT_RADIUS);
 			
 			xp = 0;
-			g.player_xp_bar.value = 0;
+			g.playerXpBar.value = 0;
 			
 			g.console.print("welcome rogue");
 			
-			inventory = g.menu.inventory_list;
-			holder = g.player_holder;
+			inventory = g.menu.inventoryList;
+			holder = g.playerHolder;
 			
-			Brain.player_characters.push(this);
+			Brain.playerCharacters.push(this);
 			
 			// being a character, the rogue automatically gets added to the entities list
 			// so we remove her here
@@ -110,11 +110,11 @@
 			}
 			item = new Item(new g.library.BowMC(), Item.BOW, Item.WEAPON, 0, g);
 			item.collect(this);
-			var skeleton_mc:MovieClip = new g.library.SkeletonMC();
-			skeleton_mc.x = mc.x;
-			skeleton_mc.y = (-skeleton_mc.height * 0.5) + (map_y + 1) * SCALE;
-			g.entities_holder.addChild(skeleton_mc);
-			g.minion = new Minion(Character.SKELETON, skeleton_mc, skeleton_mc.width, skeleton_mc.height, g);*/
+			var skeletonMc:MovieClip = new g.library.SkeletonMC();
+			skeletonMc.x = mc.x;
+			skeletonMc.y = (-skeletonMc.height * 0.5) + (mapY + 1) * SCALE;
+			g.entitiesHolder.addChild(skeletonMc);
+			g.minion = new Minion(Character.SKELETON, skeletonMc, skeletonMc.width, skeletonMc.height, g);*/
 			
 			
 			// ***********************************************************************************
@@ -130,12 +130,12 @@
 			super.main();
 			if(state == EXIT){
 				if(x >= rect.x + rect.width * 0.5 + SCALE * 2 || x <= (rect.x + rect.width * 0.5) - SCALE * 2){
-					var exit_dir:int = stairs.type == Stairs.DOWN ? 1 : -1;
+					var exitDir:int = stairs.type == Stairs.DOWN ? 1 : -1;
 					stairs = null;
-					var new_level_str:String = (exit_dir > 0 ? "descended" : "ascended") + " to level " + (g.dungeon.level + exit_dir);
-					if(g.dungeon.level == 1 && exit_dir < 0) new_level_str = "ascended to overworld";
-					g.console.print(new_level_str);
-					g.changeLevel(g.dungeon.level + exit_dir);
+					var newLevelStr:String = (exitDir > 0 ? "descended" : "ascended") + " to level " + (g.dungeon.level + exitDir);
+					if(g.dungeon.level == 1 && exitDir < 0) newLevelStr = "ascended to overworld";
+					g.console.print(newLevelStr);
+					g.changeLevel(g.dungeon.level + exitDir);
 				}
 			}
 		}
@@ -143,10 +143,10 @@
 		public function tidyUp():void {
 			rect = new Block();
 			mc.visible = false;
-			g.mouse_pressed = false;
+			g.mousePressed = false;
 			moving = false;
 			divorce();
-			map_x = map_y = 0;
+			mapX = mapY = 0;
 			
 		}
 		public function itemCheck():void{
@@ -159,7 +159,7 @@
 		}
 		/* Select an item as a weapon or armour */
 		override public function equip(item:Item):Item{
-			if(item.curse_state == Item.CURSE_HIDDEN) item.revealCurse();
+			if(item.curseState == Item.CURSE_HIDDEN) item.revealCurse();
 			item = inventory.unstack(item);
 			super.equip(item);
 			inventory.updateItem(item);
@@ -173,15 +173,15 @@
 			return item;
 		}
 		
-		override public function get damage_bonus():Number {
-			return super.damage_bonus + (weapon ? weapon.damage : 0);
+		override public function get damageBonus():Number {
+			return super.damageBonus + (weapon ? weapon.damage : 0);
 		}
 		override public function death(cause:String, decapitation:Boolean = false, aggressor:int = 0):void{
 			if(g.god_mode || !active) return;
 			super.death(cause, decapitation);
 			SoundManager.playSound(g.library.RogueDeathSound);
 			if(!active){
-				Brain.player_characters.splice(Brain.player_characters.indexOf(this), 1);
+				Brain.playerCharacters.splice(Brain.playerCharacters.indexOf(this), 1);
 				g.menu.death();
 				tidyUp();
 			}
@@ -221,7 +221,7 @@
 			g.colliders.splice(g.colliders.indexOf(this), 1);
 			updateMC();
 			state = EXIT;
-			Stairs.last_stairs_used_type = stairs.type;
+			Stairs.lastStairsUsedType = stairs.type;
 		}
 		/* Check mouse movement, presses, keys etc. */
 		public function checkKeys():void{
@@ -232,7 +232,7 @@
 				looking &= ~DOWN;
 			} else {
 				actions &= ~UP;
-				actions_lockout &= ~UP;
+				actionsLockout &= ~UP;
 				looking &= ~UP;
 			}
 			if((Key.isDown(Keyboard.LEFT) || Key.customDown(Game.LEFT_KEY)) && !(Key.isDown(Keyboard.RIGHT) || Key.customDown(Game.RIGHT_KEY))){
@@ -241,7 +241,7 @@
 				looking &= ~RIGHT;
 			} else {
 				actions &= ~LEFT;
-				actions_lockout &= ~LEFT;
+				actionsLockout &= ~LEFT;
 			}
 			if((Key.isDown(Keyboard.RIGHT) || Key.customDown(Game.RIGHT_KEY)) && !(Key.isDown(Keyboard.LEFT) || Key.customDown(Game.LEFT_KEY))){
 				actions |= RIGHT;
@@ -249,7 +249,7 @@
 				looking &= ~LEFT;
 			} else {
 				actions &= ~RIGHT;
-				actions_lockout &= ~RIGHT;
+				actionsLockout &= ~RIGHT;
 			}
 			if ((Key.isDown(Keyboard.DOWN) || Key.customDown(Game.DOWN_KEY)) && !(Key.isDown(Keyboard.UP) || Key.customDown(Game.UP_KEY))){
 				actions |= DOWN;
@@ -258,7 +258,7 @@
 			} else {
 				looking &= ~DOWN;
 				actions &= ~DOWN;
-				actions_lockout &= ~DOWN;
+				actionsLockout &= ~DOWN;
 			}
 			
 			dir = actions & (UP | RIGHT | LEFT | DOWN);
@@ -269,7 +269,7 @@
 			super.updateAnimState(mc);
 		}
 		
-		/* Handles refreshing animation and the position the canvas 
+		/* Handles refreshing animation and the position the canvas
 		override public function updateMC():void{
 			mc.x = (x + 0.1) >> 0;
 			mc.y = ((y + height * 0.5) + 0.1) >> 0;
@@ -294,12 +294,12 @@
 		
 		override public function applyDamage(n:Number, source:String, critical:Boolean = false, aggressor:int = PLAYER):void {
 			super.applyDamage(n, source, critical);
-			g.player_health_bar.setValue(health, total_health);
+			g.playerHealthBar.setValue(health, totalHealth);
 		}
 		
 		override public function applyHealth(n:Number):void {
 			super.applyHealth(n);
-			g.player_health_bar.setValue(health, total_health);
+			g.playerHealthBar.setValue(health, totalHealth);
 		}
 		
 		public function addXP(n:Number):void{
@@ -308,7 +308,7 @@
 				levelUp();
 			}
 			xp += n;
-			g.player_xp_bar.setValue(xp - XP_LEVELS[level - 1], XP_LEVELS[level] - XP_LEVELS[level - 1]);
+			g.playerXpBar.setValue(xp - XP_LEVELS[level - 1], XP_LEVELS[level] - XP_LEVELS[level - 1]);
 		}
 		
 		override public function levelUp():void {

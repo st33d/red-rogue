@@ -16,7 +16,7 @@
 		
 		public var type:int;
 		public var contact:Boolean;
-		public var dart_gun:Dot;
+		public var dartGun:Dot;
 		
 		// type flags
 		public static const SPIKES:int = 1;
@@ -31,10 +31,10 @@
 				rect = new Rect(x, y - 1, SCALE, SCALE);
 			} else if(type == POISON_DART || type == TELEPORT_DART){
 				rect = new Rect(x, y - 1, SCALE, 5);
-				dart_gun = new Dot(x + SCALE * 0.5, y - SCALE);
-				while(!(g.block_map[((dart_gun.y - 1) * INV_SCALE) >> 0][(dart_gun.x * INV_SCALE) >> 0] & Block.WALL)) dart_gun.y -= SCALE;
+				dartGun = new Dot(x + SCALE * 0.5, y - SCALE);
+				while(!(g.blockMap[((dartGun.y - 1) * INV_SCALE) >> 0][(dartGun.x * INV_SCALE) >> 0] & Block.WALL)) dartGun.y -= SCALE;
 			}
-			call_main = true;
+			callMain = true;
 			contact = false;
 		}
 		
@@ -61,10 +61,10 @@
 					g.createDebrisRect(rect, 0, 100, Game.STONE);
 					g.shake(0, 3);
 					SoundManager.playSound(g.library.KillSound);
-					g.block_map[map_y][map_x] = 0;
-					g.renderer.removeFromRenderedArray(map_x, map_y, Map.BLOCKS, null);
-					g.renderer.removeFromRenderedArray(map_x, map_y, Map.ENTITIES, null);
-					g.renderer.removeTile(Map.BLOCKS, map_x, map_y);
+					g.blockMap[mapY][mapX] = 0;
+					g.renderer.removeFromRenderedArray(mapX, mapY, Map.BLOCKS, null);
+					g.renderer.removeFromRenderedArray(mapX, mapY, Map.ENTITIES, null);
+					g.renderer.removeTile(Map.BLOCKS, mapX, mapY);
 					SoundManager.playSound(g.library.KillSound);
 				} else if(type == POISON_DART){
 					g.console.print("poison trap triggered");
@@ -79,11 +79,11 @@
 		}
 		
 		public function shootDart(effect:Effect):void{
-			var missile_mc:DisplayObject = new g.library.DartMC();
-			missile_mc.x = dart_gun.x;
-			missile_mc.y = dart_gun.y;
-			g.entities_holder.addChild(missile_mc);
-			var missile:Missile = new Missile(missile_mc, Missile.DART, null, 0, 1, 5, g, Block.LADDER | Block.LEDGE, effect);
+			var missileMc:DisplayObject = new g.library.DartMC();
+			missileMc.x = dartGun.x;
+			missileMc.y = dartGun.y;
+			g.entitiesHolder.addChild(missileMc);
+			var missile:Missile = new Missile(missileMc, Missile.DART, null, 0, 1, 5, g, Block.LADDER | Block.LEDGE, effect);
 		}
 		
 	}

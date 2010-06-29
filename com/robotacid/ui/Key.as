@@ -35,7 +35,7 @@ package com.robotacid.ui {
 		public static var custom:Array; // list of customised keys
 		public static var reserved:Array = [];// list of reserved keys
 		public static var stage:Stage;
-		public static var keys_pressed:int = 0;
+		public static var keysPressed:int = 0;
 		public static const NUMBER_0:int = 48;
 		public static const NUMBER_1:int = 49;
 		public static const NUMBER_2:int = 50;
@@ -73,11 +73,11 @@ package com.robotacid.ui {
 		public static const Y:int = 89;
 		public static const Z:int = 90;
 		
-		public static var key_log:Array = [];
-		public static var key_log_string:String = "";
+		public static var keyLog:Array = [];
+		public static var keyLogString:String = "";
 		public static const KEY_LOG_LENGTH:int = 10;
 		
-		public static var hot_key_total:int = 0;
+		public static var hotKeyTotal:int = 0;
 		
 		public static const KONAMI_CODE:String = [Keyboard.UP, Keyboard.UP, Keyboard.DOWN, Keyboard.DOWN, Keyboard.LEFT, Keyboard.RIGHT, Keyboard.LEFT, Keyboard.RIGHT, B, A].toString();
 		public static const COLOSSAL_CAVE_CODE:String = [X, Y, Z, Z, Y].toString();
@@ -88,7 +88,7 @@ package com.robotacid.ui {
         * Initializes the key class creating assigning event
         * handlers to capture necessary key events from the stage
 		*
-		* optional custom_keys is an array of key codes referring to
+		* optional customKeys is an array of key codes referring to
 		* user definable keys
         */
         public static function init(_stage:Stage):void {
@@ -101,8 +101,8 @@ package com.robotacid.ui {
                 stage.addEventListener(Event.DEACTIVATE, clearKeys);
 				
 				// init key logger
-				for(var i:int = 0; i < KEY_LOG_LENGTH; i++) key_log.push(0);
-				key_log_string = key_log.toString();
+				for(var i:int = 0; i < KEY_LOG_LENGTH; i++) keyLog.push(0);
+				keyLogString = keyLog.toString();
 				
                 // mark initialization as true so redundant
                 // calls do not reassign the event handlers
@@ -139,8 +139,8 @@ package com.robotacid.ui {
 		/* Tests whether a pattern of key codes matches the recent key log
 		 * patterns are given as strings to skip laborious trawling through arrays of numbers */
 		public static function matchLog(pattern:String):Boolean{
-			if(pattern.length > key_log_string.length) return false;
-			return key_log_string.substr(key_log_string.length - pattern.length) == pattern;
+			if(pattern.length > keyLogString.length) return false;
+			return keyLogString.substr(keyLogString.length - pattern.length) == pattern;
 		}
 
         /**
@@ -148,12 +148,12 @@ package com.robotacid.ui {
         */
         private static function keyPressed(event:KeyboardEvent):void {
             // create a property in keysDown with the name of the keyCode
-			if(!Boolean(keysDown[event.keyCode])) keys_pressed++;
+			if(!Boolean(keysDown[event.keyCode])) keysPressed++;
             keysDown[event.keyCode] = true;
 			
-			key_log.shift();
-			key_log[KEY_LOG_LENGTH - 1] = event.keyCode;
-			key_log_string = key_log.toString();
+			keyLog.shift();
+			keyLog[KEY_LOG_LENGTH - 1] = event.keyCode;
+			keyLogString = keyLog.toString();
         }
 
         /**
@@ -161,7 +161,7 @@ package com.robotacid.ui {
         */
         private static function keyReleased(event:KeyboardEvent):void {
             keysDown[event.keyCode] = false;
-			keys_pressed--;
+			keysPressed--;
         }
 
         /**
@@ -171,11 +171,11 @@ package com.robotacid.ui {
             // clear all keys in keysDown since the player cannot
             // detect keys being pressed or released when not focused
             keysDown = [];
-			keys_pressed = 0;
+			keysPressed = 0;
         }
 		public static function forceClearKeys():void{
             keysDown = [];
-			keys_pressed = 0;
+			keysPressed = 0;
 		}
 		
 		/*
@@ -184,8 +184,8 @@ package com.robotacid.ui {
 		 *
 		 */
 		
-		public static function keyString(key_code:uint):String{
-			switch(key_code){
+		public static function keyString(keyCode:uint):String{
+			switch(keyCode){
 				case Keyboard.BACKSPACE:
 					return "bsp";
 				case Keyboard.CAPS_LOCK:
@@ -241,10 +241,10 @@ package com.robotacid.ui {
 				case 222:
 					return "'";
 				default:
-					if(key_code >= 96 && key_code <= 105){
-						return "n "+String.fromCharCode(key_code-48);
+					if(keyCode >= 96 && keyCode <= 105){
+						return "n "+String.fromCharCode(keyCode-48);
 					} else {
-						return String.fromCharCode(key_code);
+						return String.fromCharCode(keyCode);
 					}
 			}
 			return "";

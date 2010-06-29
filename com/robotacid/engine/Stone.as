@@ -15,7 +15,7 @@
 		public static const GRIND:int = 2;
 		
 		public static const STONE_NAME_HEALTHS:Array = [
-			3,
+			5,
 			0,
 			0
 		];
@@ -24,8 +24,8 @@
 			super(mc, name, STONE, 0, width, height, g);
 			health = STONE_NAME_HEALTHS[name];
 			defense = 0;
-			call_main = false;
-			debris_type = name == HEALTH ? Game.BLOOD : Game.STONE;
+			callMain = false;
+			debrisType = name == HEALTH ? Game.BLOOD : Game.STONE;
 			free = false;
 			weight = 20;
 			crushable = false;
@@ -50,15 +50,15 @@
 		
 		override public function death(cause:String, decapitation:Boolean = false, aggressor:int = PLAYER):void {
 			active = false;
-			g.createDebrisRect(rect, 0, 100, debris_type);
+			g.createDebrisRect(rect, 0, 100, debrisType);
 			g.console.print("secret revealed");
 			g.shake(0, 3);
 			SoundManager.playSound(g.library.KillSound);
-			g.player.addXP(xp_reward);
-			g.block_map[map_y][map_x] = 0;
-			g.renderer.removeFromRenderedArray(map_x, map_y, Map.BLOCKS, null);
-			g.renderer.removeFromRenderedArray(map_x, map_y, Map.ENTITIES, null);
-			g.renderer.removeTile(Map.BLOCKS, map_x, map_y);
+			g.player.addXP(xpReward);
+			g.blockMap[mapY][mapX] = 0;
+			g.renderer.removeFromRenderedArray(mapX, mapY, Map.BLOCKS, null);
+			g.renderer.removeFromRenderedArray(mapX, mapY, Map.ENTITIES, null);
+			g.renderer.removeTile(Map.BLOCKS, mapX, mapY);
 		}
 	}
 

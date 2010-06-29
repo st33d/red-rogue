@@ -1,6 +1,13 @@
 ﻿package com.robotacid.engine {
 	/**
-	 * ...
+	 * The amount of constants for every type and name of character was too much to pack
+	 * into the Character class, so it seemed easier to monitor in its own class.
+	 * 
+	 * I guess idealy I should be importing all this data from an xml file at compile
+	 * time. It would look nicer, but I would have to do the same for items, and then
+	 * I may get further carried away. It's a job for when managing this class file gets
+	 * out of hand.
+	 * 
 	 * @author Aaron Steed, robotacid.com
 	 */
 	public class CharacterAttributes{

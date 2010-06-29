@@ -6,11 +6,11 @@
 	 */
 	public class AStar {
 		
-		public var search_id:Number = 0;
+		public var searchId:Number = 0;
 		public var g:Game;
 		public var open:Vector.<SearchNode>;
-		public var adjacent_tile:SearchNode;
-		public var adjacent_entity:SearchNode
+		public var adjacentTile:SearchNode;
+		public var adjacentEntity:SearchNode
 		public var SEARCH_STEPS:Number = 20;
 	
 		public function AStar(g:Game) {
@@ -20,7 +20,7 @@
 		// Note that the A* map is a scale version of your game map - it locates the grid
 		// node in a linear array.
 		public function getPath(start:SearchNode, finish:SearchNode, steps:int = 20):Array {
-			search_id++;
+			searchId++;
 			if (start == finish || !finish.walkable || start == undefined || finish == undefined) {
 				return new Array();
 			}
@@ -28,7 +28,7 @@
 			open = new Array();
 			open.push(start);
 			var found:Boolean = false;
-			var closest_good_node:Object = start;
+			var closestGoodNode:Object = start;
 			for(var k:Number = 0; k < steps; k++){
 				if(open.length == 0) break;
 				var lowest = Number.MAX_VALUE;
@@ -40,9 +40,9 @@
 					}
 				}
 				var current:Object = open.splice(c, 1)[0];
-				if(current._h < closest_good_node._h) closest_good_node = current;
-				current.closed_id = search_id;
-				current.open_id = 0;
+				if(current._h < closestGoodNode._h) closestGoodNode = current;
+				current.closedId = searchId;
+				current.openId = 0;
 				if (current == finish) {
 					found = true;
 					break;
@@ -50,88 +50,88 @@
 				// Check all directions
 				// UP
 				if(current.y > 0){
-					adjacent_tile = g.tile_map[current.y-1][current.x];
-					adjacent_entity = g.entity_map[current.y-1][current.x];
-					if (adjacent_entity == undefined && adjacent_tile.walkable && adjacent_tile.closed_id != search_id) {
-						if (adjacent_tile.open_id != search_id) {
-							open.push(adjacent_tile);
-							adjacent_tile.open_id = search_id;
-							adjacent_tile.closed_id = 0;
-							adjacent_tile.parent = current;
-							adjacent_tile.setF(finish);
+					adjacentTile = g.tileMap[current.y-1][current.x];
+					adjacentEntity = g.entityMap[current.y-1][current.x];
+					if (adjacentEntity == undefined && adjacentTile.walkable && adjacentTile.closedId != searchId) {
+						if (adjacentTile.openId != searchId) {
+							open.push(adjacentTile);
+							adjacentTile.openId = searchId;
+							adjacentTile.closedId = 0;
+							adjacentTile.parent = current;
+							adjacentTile.setF(finish);
 						} else {
-							if (adjacent_tile._g > current._g + 1){
-								adjacent_tile.parent = current;
-								adjacent_tile.setF(finish);
+							if (adjacentTile._g > current._g + 1){
+								adjacentTile.parent = current;
+								adjacentTile.setF(finish);
 							}
 						}
 					}
 				}
 				// RIGHT
 				if(current.x < g.map_width){
-					adjacent_tile = g.tile_map[current.y][current.x+1];
-					adjacent_entity = g.entity_map[current.y][current.x+1];
-					if (adjacent_entity == undefined && adjacent_tile.walkable && adjacent_tile.closed_id != search_id) {
-						if (adjacent_tile.open_id != search_id) {
-							open.push(adjacent_tile);
-							adjacent_tile.open_id = search_id;
-							adjacent_tile.closed_id = 0;
-							adjacent_tile.parent = current;
-							adjacent_tile.setF(finish);
+					adjacentTile = g.tileMap[current.y][current.x+1];
+					adjacentEntity = g.entityMap[current.y][current.x+1];
+					if (adjacentEntity == undefined && adjacentTile.walkable && adjacentTile.closedId != searchId) {
+						if (adjacentTile.openId != searchId) {
+							open.push(adjacentTile);
+							adjacentTile.openId = searchId;
+							adjacentTile.closedId = 0;
+							adjacentTile.parent = current;
+							adjacentTile.setF(finish);
 						} else {
-							if (adjacent_tile._g > current._g + 1){
-								adjacent_tile.parent = current;
-								adjacent_tile.setF(finish);
+							if (adjacentTile._g > current._g + 1){
+								adjacentTile.parent = current;
+								adjacentTile.setF(finish);
 							}
 						}
 					}
 				}
 				// DOWN
 				if(current.y < g.map_height){
-					adjacent_tile = g.tile_map[current.y+1][current.x];
-					adjacent_entity = g.entity_map[current.y+1][current.x];
-					if (adjacent_entity == undefined && adjacent_tile.walkable && adjacent_tile.closed_id != search_id) {
-						if (adjacent_tile.open_id != search_id) {
-							open.push(adjacent_tile);
-							adjacent_tile.open_id = search_id;
-							adjacent_tile.closed_id = 0;
-							adjacent_tile.parent = current;
-							adjacent_tile.setF(finish);
+					adjacentTile = g.tileMap[current.y+1][current.x];
+					adjacentEntity = g.entityMap[current.y+1][current.x];
+					if (adjacentEntity == undefined && adjacentTile.walkable && adjacentTile.closedId != searchId) {
+						if (adjacentTile.openId != searchId) {
+							open.push(adjacentTile);
+							adjacentTile.openId = searchId;
+							adjacentTile.closedId = 0;
+							adjacentTile.parent = current;
+							adjacentTile.setF(finish);
 						} else {
-							if (adjacent_tile._g > current._g + 1){
-								adjacent_tile.parent = current;
-								adjacent_tile.setF(finish);
+							if (adjacentTile._g > current._g + 1){
+								adjacentTile.parent = current;
+								adjacentTile.setF(finish);
 							}
 						}
 					}
 				}
 				// LEFT
 				if(current.x > 0){
-					adjacent_tile = g.tile_map[current.y][current.x-1];
-					adjacent_entity = g.entity_map[current.y][current.x-1];
-					if (adjacent_entity == undefined && adjacent_tile.walkable && adjacent_tile.closed_id != search_id) {
-						if (adjacent_tile.open_id != search_id) {
-							open.push(adjacent_tile);
-							adjacent_tile.open_id = search_id;
-							adjacent_tile.closed_id = 0;
-							adjacent_tile.parent = current;
-							adjacent_tile.setF(finish);
+					adjacentTile = g.tileMap[current.y][current.x-1];
+					adjacentEntity = g.entityMap[current.y][current.x-1];
+					if (adjacentEntity == undefined && adjacentTile.walkable && adjacentTile.closedId != searchId) {
+						if (adjacentTile.openId != searchId) {
+							open.push(adjacentTile);
+							adjacentTile.openId = searchId;
+							adjacentTile.closedId = 0;
+							adjacentTile.parent = current;
+							adjacentTile.setF(finish);
 						} else {
-							if (adjacent_tile._g > current._g + 1){
-								adjacent_tile.parent = current;
-								adjacent_tile.setF(finish);
+							if (adjacentTile._g > current._g + 1){
+								adjacentTile.parent = current;
+								adjacentTile.setF(finish);
 							}
 						}
 					}
 				}
 			}
 			var path = new Array();
-			var path_node:Object = finish;
-			if(!found) path_node = closest_good_node;
+			var pathNode:Object = finish;
+			if(!found) pathNode = closestGoodNode;
 			for(var k:Number = 0; k < 1000;k++){
-			if(path_node == start) break;
-				path.push(path_node);
-				path_node = path_node.parent;
+			if(pathNode == start) break;
+				path.push(pathNode);
+				pathNode = pathNode.parent;
 			}
 			return path;
 		}

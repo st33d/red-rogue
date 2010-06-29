@@ -19,12 +19,12 @@
 		public var dx:Number;
 		public var dy:Number;
 		public var speed:Number;
-		public var temp_x:Number, temp_y:Number;
+		public var tempX:Number, tempY:Number;
 		public var ignore:int;
 		public var effect:Effect;
 		public var sender:Character;
 		public var target:Character;
-		public var failed_target:Character;
+		public var failedTarget:Character;
 		public var item:Item;
 		
 		public static var cast:Cast;
@@ -43,11 +43,11 @@
 			this.ignore = ignore;
 			this.effect = effect;
 			this.item = item;
-			call_main = true;
+			callMain = true;
 			
 			// runes glow when they are converted to missiles
 			if(name == RUNE){
-				g.light_map.setLight(this, 3, 112);
+				g.lightMap.setLight(this, 3, 112);
 			}
 		}
 		override public function main():void {
@@ -58,23 +58,23 @@
 		public function move():void{
 			var vx:Number = speed * dx;
 			var vy:Number = speed * dy;
-			cast = Cast.ray(x, y, vx > 0 ? 1 : -1, vy > 0 ? 1 : -1, g.block_map, ignore, g);
+			cast = Cast.ray(x, y, vx > 0 ? 1 : -1, vy > 0 ? 1 : -1, g.blockMap, ignore, g);
 			if(cast && cast.block && cast.distance < speed){
 				
 				if(cast.collider){
 					if(cast.collider is Character){
 						target = cast.collider as Character;
-						if(target == failed_target){
+						if(target == failedTarget){
 							x += vx;
 							y += vy;
 						} else {
 							if(name == ARROW){
-								var hit_result:int = sender.hit(target);
-								if(hit_result){
-									hitCharacter(target, hit_result > 1);
+								var hitResult:int = sender.hit(target);
+								if(hitResult){
+									hitCharacter(target, hitResult > 1);
 									resolve(cast);
 								} else {
-									failed_target = target;
+									failedTarget = target;
 									x += vx;
 									y += vy;
 								}
@@ -103,8 +103,8 @@
 					}
 				}
 			}
-			map_x = x * Game.INV_SCALE;
-			map_y = y * Game.INV_SCALE;
+			mapX = x * Game.INV_SCALE;
+			mapY = y * Game.INV_SCALE;
 				
 		}
 		
@@ -150,11 +150,11 @@
 				if(critical) g.shake(0, 5);
 				if(item.effects) character.applyWeaponEffects(item);
 				character.applyDamage(Item.WEAPON_DAMAGES[Item.BOW] * (critical ? 2 : 1), "arrow");
-				g.createDebrisSpurt(x, y, dx > 0 ? 5 : -5, 5, character.debris_type);
+				g.createDebrisSpurt(x, y, dx > 0 ? 5 : -5, 5, character.debrisType);
 				SoundManager.playSound(g.library.HitSound);
 			} else if(name == RUNE){
 				if(character.type & Character.STONE) return;
-				Item.revealName(effect.name, g.menu.inventory_list);
+				Item.revealName(effect.name, g.menu.inventoryList);
 				g.console.print(effect.nameToString() + " cast upon " + character.nameToString());
 				effect.apply(character);
 				SoundManager.playSound(g.library.RuneHitSound);

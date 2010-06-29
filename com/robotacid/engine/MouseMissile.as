@@ -15,7 +15,7 @@
 		public function MouseMissile(mc:DisplayObject, name:int, g:Game, ignore:int = 0, effect:Effect = null) {
 			super(mc, name, null, 0, 0, speed, g, ignore, effect);
 			
-			g.light_map.setLight(this, 3, 112);
+			g.lightMap.setLight(this, 3, 112);
 			
 		}
 		
@@ -28,7 +28,7 @@
 				dx = vx / speed;
 				dy = vy / speed;
 			
-				cast = Cast.ray(x, y, dx, dy, g.block_map, ignore, g);
+				cast = Cast.ray(x, y, dx, dy, g.blockMap, ignore, g);
 				
 				if(cast && cast.distance < speed){
 					if(cast.collider){
@@ -53,8 +53,8 @@
 					}
 				}
 			}
-			map_x = x * Game.INV_SCALE;
-			map_y = y * Game.INV_SCALE;
+			mapX = x * Game.INV_SCALE;
+			mapY = y * Game.INV_SCALE;
 		}
 		
 	}

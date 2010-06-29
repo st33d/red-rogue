@@ -25,7 +25,7 @@
 		public var platform:Boolean;
 		public var children:Vector.<Collider>;
 		public var parent:Collider;
-		public var parent_block:Block;
+		public var parentBlock:Block;
 		
 		public var collisions:int;
 		
@@ -42,13 +42,13 @@
 		
 		public var weight:int;
 		
-		public var up_collider:Collider;
-		public var right_collider:Collider;
-		public var left_collider:Collider;
-		public var down_collider:Collider;
+		public var upCollider:Collider;
+		public var rightCollider:Collider;
+		public var leftCollider:Collider;
+		public var downCollider:Collider;
 		
 		/* To give Characters a chance of surviving a glancing blow to the head, we make their heads slippy */
-		public var inflicts_crush:Boolean;
+		public var inflictsCrush:Boolean;
 		public var crushable:Boolean;
 		
 		// there needs to be a limit to how little an object can move
@@ -60,13 +60,13 @@
 		// This value needs to be at a maximum value of the smallest side a Collider has been given in the game
 		// otherwise that small Collider will curiously sink into other objects
 		// The value is variable for on the fly optimisation
-		public static var scan_step:Number = 5;
+		public static var scanStep:Number = 5;
 		
 		/* Echoing Box2D, colliders sleep when inactive to prevent method calls that aren't needed */
 		public static var AWAKE_DELAY:int = 10;
 		
-		public function Collider(mc:DisplayObject, width:Number, height:Number, g:Game) {
-			super(mc, g, true);
+		public function Collider(mc:DisplayObject, width:Number, height:Number, g:Game, active:Boolean = false) {
+			super(mc, g, true, active);
 			this.width = width;
 			this.height = height;
 			block = new Block(x, y, width, height, Block.SOLID);
@@ -74,13 +74,13 @@
 			updateRect();
 			parent = null;
 			children = new Vector.<Collider>();
-			g.colliders.push(this);
+			if(active) g.colliders.push(this);
 			ignore = 0;
 			weight = 1;
 			platform = false;
 			awake = AWAKE_DELAY;
 			vx = vy = 0;
-			inflicts_crush = false;
+			inflictsCrush = false;
 			crushable = false;
 		}
 		
@@ -97,16 +97,16 @@
 			var r:Number;
 			var c:Number;
 			var test:Cast;
-			var collider_moved:Number = 0;
+			var colliderMoved:Number = 0;
 			var length:int = 2 + Math.abs(xm) * INV_SCALE;
 			// horizontal movement
 			// moving right
 			if(xm > 0){
 				// test grid intervals
-				for(r = rect.y; r < rect.y + rect.height + SCALE; r += scan_step){
+				for(r = rect.y; r < rect.y + rect.height + SCALE; r += scanStep){
 					
 					// cast for obstacles
-					test = Cast.horiz(rect.x + rect.width - 1, r < rect.y + rect.height - 1 ? r : rect.y + rect.height - 1, 1, length, g.block_map, ignore, g);
+					test = Cast.horiz(rect.x + rect.width - 1, r < rect.y + rect.height - 1 ? r : rect.y + rect.height - 1, 1, length, g.blockMap, ignore, g);
 					if(test){
 						// moving against a collider
 						if(test.collider && test.collider != this){
@@ -115,18 +115,18 @@
 									
 									test.collider.collisions |= Rect.LEFT;
 									collisions |= Rect.RIGHT;
-									test.collider.left_collider = this;
-									right_collider = test.collider;
+									test.collider.leftCollider = this;
+									rightCollider = test.collider;
 									
 									// move collider as much as it was bitten into
 									if(!(test.collider.collisions & Rect.RIGHT) && test.collider.weight < weight){
-										collider_moved = test.collider.moveX(xm - (test.block.x - (rect.x + rect.width)), source);
+										colliderMoved = test.collider.moveX(xm - (test.block.x - (rect.x + rect.width)), source);
 									}
 									// if the collider has met a static wall, reduce possible movement
 									// and adopt collision status
 									if((test.collider.collisions & Rect.RIGHT) || test.collider.weight >= weight){
-										if(collider_moved != 0){
-											xm -= xm - collider_moved;
+										if(colliderMoved != 0){
+											xm -= xm - colliderMoved;
 										} else {
 											xm = test.collider.rect.x - (rect.x + rect.width);
 										}
@@ -145,10 +145,10 @@
 			// moving left
 			} else if(xm < 0){
 				// test grid intervals
-				for(r = rect.y; r < rect.y + rect.height + SCALE; r += scan_step){
+				for(r = rect.y; r < rect.y + rect.height + SCALE; r += scanStep){
 					
 					// cast for obstacles
-					test = Cast.horiz(rect.x, r < rect.y + rect.height - 1 ? r : rect.y + rect.height - 1, -1, length, g.block_map, ignore, g);
+					test = Cast.horiz(rect.x, r < rect.y + rect.height - 1 ? r : rect.y + rect.height - 1, -1, length, g.blockMap, ignore, g);
 					
 					if(test){
 						// moving against a collider
@@ -158,18 +158,18 @@
 									
 									test.collider.collisions |= Rect.RIGHT;
 									collisions |= Rect.LEFT;
-									test.collider.right_collider = this;
-									left_collider = test.collider;
+									test.collider.rightCollider = this;
+									leftCollider = test.collider;
 									
 									// move collider as much as it was bitten into
 									if(!(test.collider.collisions & Rect.LEFT) && test.collider.weight < weight){
-										collider_moved = test.collider.moveX(xm - ((test.block.x + test.block.width) - rect.x), source);
+										colliderMoved = test.collider.moveX(xm - ((test.block.x + test.block.width) - rect.x), source);
 									}
 									// if the collider has met a static wall, reduce possible movement
 									// and adopt collision status
 									if((test.collider.collisions & Rect.LEFT) || test.collider.weight >= weight){
-										if (collider_moved != 0){
-											xm -= xm - collider_moved;
+										if (colliderMoved != 0){
+											xm -= xm - colliderMoved;
 										} else {
 											xm = (test.collider.rect.x + test.collider.rect.width) - rect.x;
 										}
@@ -204,16 +204,16 @@
 			var r:Number;
 			var c:Number;
 			var test:Cast;
-			var collider_moved:Number = 0;
+			var colliderMoved:Number = 0;
 			var length:int = 2 + Math.abs(ym) * INV_SCALE;
 			// vertical movement
 			// moving down
 			if(ym > 0){
 				// test grid intervals
-				for(c = rect.x; c < rect.x + rect.width + SCALE; c += scan_step){
+				for(c = rect.x; c < rect.x + rect.width + SCALE; c += scanStep){
 					
 					// cast for obstacles
-					test = Cast.vert(c < rect.x + rect.width - 1 ? c : rect.x + rect.width - 1, rect.y + rect.height - 1, 1, length, g.block_map, ignore, g);
+					test = Cast.vert(c < rect.x + rect.width - 1 ? c : rect.x + rect.width - 1, rect.y + rect.height - 1, 1, length, g.blockMap, ignore, g);
 					
 					if(test){
 						// moving against a collider
@@ -223,18 +223,18 @@
 									
 									test.collider.collisions |= Rect.UP;
 									collisions |= Rect.DOWN;
-									test.collider.up_collider = this;
-									down_collider = test.collider;
+									test.collider.upCollider = this;
+									downCollider = test.collider;
 									
 									// move collider as much as it was bitten into
 									if(!(test.collider.collisions & Rect.DOWN) && test.collider.weight < weight){
-										collider_moved = test.collider.moveY(ym - (test.block.y - (rect.y + rect.height)), source);
+										colliderMoved = test.collider.moveY(ym - (test.block.y - (rect.y + rect.height)), source);
 									}
 									// if the collider has met a static wall, reduce possible movement
 									// and adopt collision status
 									if((test.collider.collisions & Rect.DOWN) || test.collider.weight >= weight){
-										if(collider_moved != 0){
-											ym -= ym - collider_moved;
+										if(colliderMoved != 0){
+											ym -= ym - colliderMoved;
 										} else {
 											ym = test.collider.rect.y - (rect.y + rect.height);
 										}
@@ -260,7 +260,7 @@
 								if(parent != null){
 									parent.removeChild(this);
 								}
-								parent_block = test.block;
+								parentBlock = test.block;
 								parent = null;
 							}
 						}
@@ -269,10 +269,10 @@
 			// moving up
 			} else if(ym < 0){
 				// test grid intervals
-				for(c = rect.x; c < rect.x + rect.width + SCALE; c += scan_step){
+				for(c = rect.x; c < rect.x + rect.width + SCALE; c += scanStep){
 					
 					// cast for obstacles
-					test = Cast.vert(c < rect.x + rect.width - 1 ? c : rect.x + rect.width - 1, rect.y, -1, length, g.block_map, ignore, g);
+					test = Cast.vert(c < rect.x + rect.width - 1 ? c : rect.x + rect.width - 1, rect.y, -1, length, g.blockMap, ignore, g);
 					
 					if(test){ // a map height condition goes well in here to catch falling off the map
 						// moving against a collider
@@ -282,18 +282,18 @@
 									
 									test.collider.collisions |= Rect.DOWN;
 									collisions |= Rect.UP;
-									test.collider.down_collider = this;
-									up_collider = test.collider;
+									test.collider.downCollider = this;
+									upCollider = test.collider;
 									
 									// move collider as much as it was bitten into
 									if(!(test.collider.collisions & Rect.UP) && test.collider.weight < weight){
-										collider_moved = test.collider.moveY(ym - ((test.block.y + test.block.height) - rect.y), source);
+										colliderMoved = test.collider.moveY(ym - ((test.block.y + test.block.height) - rect.y), source);
 									}
 									// if the collider has met a static wall, reduce possible movement
 									// and adopt collision status
 									if((test.collider.collisions & Rect.UP) || test.collider.weight >= weight){
-										if(collider_moved != 0){
-											ym -= ym - collider_moved;
+										if(colliderMoved != 0){
+											ym -= ym - colliderMoved;
 										} else {
 											ym = (test.collider.rect.y + test.block.height) - rect.y;
 										}
@@ -331,28 +331,29 @@
 			return ym;
 		}
 		
-		/* remove a child collider from children */
+		/* add a child collider to this collider - it will move when this collider moves */
 		public function addChild(collider:Collider):void{
 			collider.parent = this;
-			collider.parent_block = block;
+			collider.parentBlock = block;
+			collider.vy = 0;
 			children.push(collider);
 		}
 		
 		/* remove a child collider from children */
 		public function removeChild(collider:Collider):void{
 			collider.parent = null;
-			collider.parent_block = null;
+			collider.parentBlock = null;
 			children.splice(children.lastIndexOf(collider), 1);
 		}
 		
 		/* Check the floor is still beneath us */
 		public function checkFloor():void{
 			// test if we've walked beyond a block's width or if that block is breakable and has ceased to be
-			if(parent_block && (parent_block.x > rect.x + rect.width - 1 || parent_block.x + parent_block.width - 1 < rect.x)){
+			if(parentBlock && (parentBlock.x > rect.x + rect.width - 1 || parentBlock.x + parentBlock.width - 1 < rect.x)){
 				if(parent){
 					parent.removeChild(this);
 				}
-				parent_block = null;
+				parentBlock = null;
 				vy = 0;
 			} else {
 				collisions |= Rect.DOWN;
@@ -373,11 +374,11 @@
 			}
 			for (var i:int = 0; i < children.length; i++) {
 				children[i].parent = null;
-				children[i].parent_block = null;
+				children[i].parentBlock = null;
 				children[i].vy = 0;
 			}
 			children.length = 0;
-			parent_block = null;
+			parentBlock = null;
 			awake = AWAKE_DELAY;
 		}
 		

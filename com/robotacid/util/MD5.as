@@ -88,7 +88,7 @@ package com.robotacid.util {
 		* These functions implement the four basic operations the algorithm uses.
 		*/
 		private function md5_cmn( q:int, a:int, b:int, x:int, s:int, t:int ):int {
-			return safe_add(bit_rol(safe_add(safe_add(a, q), safe_add(x, t)), s), b);
+			return safe_add(bitRol(safe_add(safe_add(a, q), safe_add(x, t)), s), b);
 		}
 		private function md5_ff( a:int, b:int, c:int, d:int, x:int, s:int, t:int ):int {
 			return md5_cmn((b & c) | ((~b) & d), a, b, x, s, t);
@@ -221,7 +221,7 @@ package com.robotacid.util {
 		/**
 		* Bitwise rotate a 32-bit int to the left.
 		*/
-		private function bit_rol( num:int, cnt:int ):int {
+		private function bitRol( num:int, cnt:int ):int {
 			return (num << cnt) | (num >>> (32-cnt));
 		}
 		

@@ -1,7 +1,7 @@
 ﻿package com.robotacid.gfx{
 	import com.robotacid.geom.Pixel;
 	import com.robotacid.phys.Block;
-	import com.robotacid.util.misc.randomiseArray;
+	import com.robotacid.util.array.randomiseArray;
 	import flash.display.Graphics;
 	/**
 	 * Creates a lightning graphic that will travel between two points and return whether
@@ -30,11 +30,11 @@
 		private var dx:int;
 		private var dy:int;
 		
-		private var map_x:int;
-		private var map_y:int;
+		private var mapX:int;
+		private var mapY:int;
 		
-		private var map_width:int;
-		private var map_height:int;
+		private var mapWidth:int;
+		private var mapHeight:int;
 		
 		private var map:Vector.<Vector.<int>>;
 		private var pos:Array/*Pixel*/ = [
@@ -64,26 +64,26 @@
 		
 		/* Generates the lightning graphic and returns whether the lightning walk was successful
 		 * in reaching its target or was blocked by a wall */
-		public function strike(gfx:Graphics, map:Vector.<Vector.<int>>, start_x:Number, start_y:Number, finish_x:Number, finish_y:Number):Boolean{
+		public function strike(gfx:Graphics, map:Vector.<Vector.<int>>, startX:Number, startY:Number, finishX:Number, finishY:Number):Boolean{
 			// by randomising the search order of nodes we avoid paths being weighted
 			randomiseArray(pos);
 			
-			sx = start_x * INV_SCALE;
-			sy = start_y * INV_SCALE;
-			fx = finish_x * INV_SCALE;
-			fy = finish_y * INV_SCALE;
+			sx = startX * INV_SCALE;
+			sy = startY * INV_SCALE;
+			fx = finishX * INV_SCALE;
+			fy = finishY * INV_SCALE;
 			
 			this.map = map;
 			
-			map_x = sx * LIGHTNING_TO_MAP_CONVERSION;
-			map_y = sy * LIGHTNING_TO_MAP_CONVERSION;
+			mapX = sx * LIGHTNING_TO_MAP_CONVERSION;
+			mapY = sy * LIGHTNING_TO_MAP_CONVERSION;
 			
-			map_height = map.length;
-			map_width = map[0].length;
+			mapHeight = map.length;
+			mapWidth = map[0].length;
 			
 			// draw the initial jump to the grid
 			gfx.lineStyle(1, 0xFFFFFF);
-			gfx.moveTo(start_x, start_y);
+			gfx.moveTo(startX, startY);
 			gfx.lineTo((SCALE * 0.5) + sx * SCALE, (SCALE * 0.5) + sy * SCALE);
 			
 			// keep looking till we find a wall or the target
@@ -108,11 +108,11 @@
 				dy += (Math.random() * -dx * 1.5) + (Math.random() * dx * 1.5);
 				sx += dx;
 				sy += dy;
-				map_x = sx * LIGHTNING_TO_MAP_CONVERSION;
-				map_y = sy * LIGHTNING_TO_MAP_CONVERSION;
-				if(map_x < 0 || map_y < 0 || map_x > map_width-1 || map_y > map_height-1 || (map[map_y][map_x] & Block.WALL)) break;
+				mapX = sx * LIGHTNING_TO_MAP_CONVERSION;
+				mapY = sy * LIGHTNING_TO_MAP_CONVERSION;
+				if(mapX < 0 || mapY < 0 || mapX > mapWidth-1 || mapY > mapHeight-1 || (map[mapY][mapX] & Block.WALL)) break;
 				gfx.lineTo((SCALE * 0.5) + sx * SCALE, (SCALE * 0.5) + sy * SCALE);
-				lightningBranch(gfx, sx, sy, dx, dy, map_x, map_y, Math.random());
+				lightningBranch(gfx, sx, sy, dx, dy, mapX, mapY, Math.random());
 				
 			}
 			
@@ -120,7 +120,7 @@
 			if(sx == fx && sy == fy){
 				gfx.lineStyle(1, 0xFFFFFF);
 				gfx.moveTo((SCALE * 0.5) + fx * SCALE, (SCALE * 0.5) + fy * SCALE);
-				gfx.lineTo(finish_x, finish_y);
+				gfx.lineTo(finishX, finishY);
 				return true;
 			}
 			return false;
@@ -129,19 +129,19 @@
 		/* A recursive function that sends out random tendrils that either get blocked by walls or
 		 * lose all energy to continue - this creates the branched forks that extend from the lightning
 		 * path proper - these have no impact on the Boolean returned */
-		private function lightningBranch(gfx:Graphics, x:int, y:int, dx:int, dy:int, map_x:int, map_y:int, decay:Number):void{
+		private function lightningBranch(gfx:Graphics, x:int, y:int, dx:int, dy:int, mapX:int, mapY:int, decay:Number):void{
 			gfx.lineStyle(1, 0xFFFFFF, decay);
 			gfx.moveTo((SCALE * 0.5) + x * SCALE, (SCALE * 0.5) + y * SCALE);
 			x += dx;
 			y += dy;
-			map_x = x * LIGHTNING_TO_MAP_CONVERSION;
-			map_y = y * LIGHTNING_TO_MAP_CONVERSION;
-			if(map_x < 0 || map_y < 0 || map_x > map_width-1 || map_y > map_height-1 || (map[map_y][map_x] & Block.WALL)) return;
+			mapX = x * LIGHTNING_TO_MAP_CONVERSION;
+			mapY = y * LIGHTNING_TO_MAP_CONVERSION;
+			if(mapX < 0 || mapY < 0 || mapX > mapWidth-1 || mapY > mapHeight-1 || (map[mapY][mapX] & Block.WALL)) return;
 			gfx.lineTo((SCALE * 0.5) + x * SCALE, (SCALE * 0.5) + y * SCALE);
 			if(Math.random() < decay){
 				dx += (Math.random() * -dy * 1.5) + (Math.random() * dy * 1.5);
 				dy += (Math.random() * -dx * 1.5) + (Math.random() * dx * 1.5);
-				lightningBranch(gfx, x, y, dx, dy, map_x, map_y, decay * Math.random());
+				lightningBranch(gfx, x, y, dx, dy, mapX, mapY, decay * Math.random());
 			}
 			
 		}

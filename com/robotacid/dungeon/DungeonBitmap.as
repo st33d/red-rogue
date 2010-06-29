@@ -1,6 +1,6 @@
 ﻿package com.robotacid.dungeon {
 	import com.robotacid.geom.Pixel;
-	import com.robotacid.util.misc.randomiseArray;
+	import com.robotacid.util.array.randomiseArray;
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
 	import flash.display.Graphics;
@@ -25,14 +25,14 @@
 		private var i:int, j:int, k:int, n:int, r:int, c:int, node:Node, room:Room;
 		
 		// pacing variables - these keep a consistent scale for the dungeon
-		public var vert_pace:int;
-		public var horiz_pace:int;
+		public var vertPace:int;
+		public var horizPace:int;
 		public var roominess:int;
 		
 		public static var directions:Array = [new Pixel(0, -1), new Pixel(1, 0), new Pixel(0, 1), new Pixel( -1, 0)];
 		
-		public static const MIN_ROOM_WIDTH:int = 4;
-		public static const MIN_ROOM_HEIGHT:int = 3;
+		public static const MIN_ROOMWidth:int = 4;
+		public static const MIN_ROOMHeight:int = 3;
 		
 		public static const LEDGE_LENGTH:int = 4;
 		public static const LEDGINESS:Number = 0.3;
@@ -71,8 +71,8 @@
 			this.level = level;
 			
 			// create pacing standard for this level
-			horiz_pace = Math.ceil(level * 0.5) * 3;
-			vert_pace = Math.ceil(level * 0.5) * 2;
+			horizPace = Math.ceil(level * 0.5) * 3;
+			vertPace = Math.ceil(level * 0.5) * 2;
 			roominess = 5;
 			
 			super(createRoomsAndTunnels(), "auto", false);
@@ -84,7 +84,7 @@
 			// sometimes the generator will fail - then we recreate the dungeon
 			
 			do{
-				var good_level:Boolean = true;
+				var goodLevel:Boolean = true;
 			
 				// create a list of rooms, then randomly assign a sibling
 				rooms = new Vector.<Room>();
@@ -104,44 +104,44 @@
 				
 				// size each room and get a ball park size for each cell in the grid
 				
-				var cell_height:int = 0;
-				var cell_width:int = 0;
+				var cellHeight:int = 0;
+				var cellWidth:int = 0;
 				
 				for(i = 0; i < rooms.length; i++){
-					rooms[i].width = MIN_ROOM_WIDTH + random(horiz_pace);
-					if(rooms[i].width > cell_width) cell_width = rooms[i].width;
-					rooms[i].height = MIN_ROOM_HEIGHT + random(vert_pace);
-					if(rooms[i].height > cell_height) cell_height = rooms[i].height;
+					rooms[i].width = MIN_ROOMWidth + random(horizPace);
+					if(rooms[i].width > cellWidth) cellWidth = rooms[i].width;
+					rooms[i].height = MIN_ROOMHeight + random(vertPace);
+					if(rooms[i].height > cellHeight) cellHeight = rooms[i].height;
 				}
 				
-				cell_height += 2;
-				cell_width += 2;
+				cellHeight += 2;
+				cellWidth += 2;
 				
 				// get a grid size for the cells
 				// we basically create a minimum of 2 or a maximum of half the number of cells either way
-				var grid_height:int = 2 + random((rooms.length / 2) - 2);
-				var grid_width:int = Math.ceil((1.0 * rooms.length) / grid_height);
+				var gridHeight:int = 2 + random((rooms.length / 2) - 2);
+				var gridWidth:int = Math.ceil((1.0 * rooms.length) / gridHeight);
 				
 				// let's assign grid numbers
 				var nums:Array = [];
-				for(i = 0; i < grid_height * grid_width; i++) nums.push(i);
+				for(i = 0; i < gridHeight * gridWidth; i++) nums.push(i);
 				for(i = 0; i < rooms.length; i++){
 					var n:int = random(nums.length);
-					rooms[i].grid_num = nums[n];
+					rooms[i].gridNum = nums[n];
 					nums.splice(n, 1);
 				}
 				
 				// we use a bitmap for digging, we can use floodFill to verify connectivity later:
-				var data:BitmapData = new BitmapData(grid_width * cell_width, grid_height * cell_height, true, WALL);
+				var data:BitmapData = new BitmapData(gridWidth * cellWidth, gridHeight * cellHeight, true, WALL);
 				
 				// place the rooms in their cells
 				for(i = 0; i < rooms.length; i++){
-					rooms[i].x = (rooms[i].grid_num % grid_width) * cell_width;
-					rooms[i].y = (rooms[i].grid_num / grid_width);
-					rooms[i].y *= cell_height;
+					rooms[i].x = (rooms[i].gridNum % gridWidth) * cellWidth;
+					rooms[i].y = (rooms[i].gridNum / gridWidth);
+					rooms[i].y *= cellHeight;
 					// random offset the rooms
-					rooms[i].x += 1 + random((cell_width - 1) - rooms[i].width);
-					rooms[i].y += 1 + random((cell_height - 1) - rooms[i].height);
+					rooms[i].x += 1 + random((cellWidth - 1) - rooms[i].width);
+					rooms[i].y += 1 + random((cellHeight - 1) - rooms[i].height);
 					// draw the room:
 					data.fillRect(new Rectangle(
 						rooms[i].x, rooms[i].y, rooms[i].width, rooms[i].height
@@ -242,26 +242,26 @@
 				for(i = 0; i < rooms.length; i++){
 					if(data.getPixel32(rooms[i].x, rooms[i].y) != EMPTY){
 						trace("failed");
-						good_level = false;
+						goodLevel = false;
 					}
 				}
 			
-			} while(!good_level);
+			} while(!goodLevel);
 			
 			// trim the map, we may have a large portion of unused rock
-			var map_bounds:Rectangle = data.getColorBoundsRect(0xFFFFFFFF, EMPTY);
+			var mapBounds:Rectangle = data.getColorBoundsRect(0xFFFFFFFF, EMPTY);
 			// the rooms will have to be moved!
-			var move_x:int = 1 - map_bounds.x;
-			var move_y:int = 1 - map_bounds.y;
+			var moveX:int = 1 - mapBounds.x;
+			var moveY:int = 1 - mapBounds.y;
 			for(i = 0; i < rooms.length; i++){
-				rooms[i].x += move_x;
-				rooms[i].y += move_y;
+				rooms[i].x += moveX;
+				rooms[i].y += moveY;
 			}
-			var trimmed_data:BitmapData = new BitmapData(map_bounds.width + 2, map_bounds.height + 2, true, 0xFFFF0000);
+			var trimmedData:BitmapData = new BitmapData(mapBounds.width + 2, mapBounds.height + 2, true, 0xFFFF0000);
 			
-			trimmed_data.copyPixels(data, map_bounds, new Point(1, 1));
+			trimmedData.copyPixels(data, mapBounds, new Point(1, 1));
 			
-			return trimmed_data;
+			return trimmedData;
 		}
 		
 		public function createRoutes():void{
@@ -275,25 +275,25 @@
 			// first we get the bitmap as a vector, this makes iterating over it faster
 			
 			var pixels:Vector.<uint> = bitmapData.getVector(bitmapData.rect);
-			var map_width:int = bitmapData.width;
+			var mapWidth:int = bitmapData.width;
 			var cliffs:Vector.<int> = new Vector.<int>;
 			
 			// there is a border around the map - we don't need to count it
-			for(i = map_width; i < pixels.length - map_width; i++){
-				c = i % map_width;
-				if(c > 0 && c < map_width - 1){
-					if(pixels[i] != WALL && pixels[i - map_width] != WALL){
+			for(i = mapWidth; i < pixels.length - mapWidth; i++){
+				c = i % mapWidth;
+				if(c > 0 && c < mapWidth - 1){
+					if(pixels[i] != WALL && pixels[i - mapWidth] != WALL){
 						// we have a gap, now we look for the cliffs
-						if(pixels[i - 1] == WALL && pixels[i - 1 - map_width] != WALL){
-							cliffs.push(i - map_width);
-							pixels[i - map_width] = NODE;
-						} else if(pixels[i + 1] == WALL && pixels[(i + 1) - map_width] != WALL){
-							cliffs.push(i - map_width);
-							pixels[i - map_width] = NODE;
+						if(pixels[i - 1] == WALL && pixels[i - 1 - mapWidth] != WALL){
+							cliffs.push(i - mapWidth);
+							pixels[i - mapWidth] = NODE;
+						} else if(pixels[i + 1] == WALL && pixels[(i + 1) - mapWidth] != WALL){
+							cliffs.push(i - mapWidth);
+							pixels[i - mapWidth] = NODE;
 						}
 					}
 					// we can use this sweep to mark out horizontal paths as we go, saving time
-					if(pixels[i] == EMPTY && pixels[i + map_width] == WALL){
+					if(pixels[i] == EMPTY && pixels[i + mapWidth] == WALL){
 						pixels[i] = PATH;
 					}
 				}
@@ -301,10 +301,10 @@
 			
 			// we've marked out the top nodes, now we'll get the bottom nodes and mark out paths as we do
 			for(i = 0; i < cliffs.length; i++){
-				n = cliffs[i] + map_width;
+				n = cliffs[i] + mapWidth;
 				while(pixels[n] != NODE && pixels[n] != WALL){
-					if(pixels[n] != NODE) pixels[n] = pixels[n + map_width] == WALL ? NODE : PATH;
-					n += map_width;
+					if(pixels[n] != NODE) pixels[n] = pixels[n + mapWidth] == WALL ? NODE : PATH;
+					n += mapWidth;
 				}
 			}
 			
@@ -314,44 +314,44 @@
 			var graph:Vector.<Node> = new Vector.<Node>();
 			
 			// create an empty grid so that locating graph nodes is fast
-			var graph_grid:Vector.<Vector.<Node>> = new Vector.<Vector.<Node>>(bitmapData.height, true);
+			var graphGrid:Vector.<Vector.<Node>> = new Vector.<Vector.<Node>>(bitmapData.height, true);
 			for(r = 0; r < bitmapData.height; r++){
-				graph_grid[r] = new Vector.<Node>(map_width, true);
+				graphGrid[r] = new Vector.<Node>(mapWidth, true);
 			}
-			for(i = map_width; i < pixels.length - map_width; i++){
+			for(i = mapWidth; i < pixels.length - mapWidth; i++){
 				if(pixels[i] == NODE){
-					c = i % map_width;
-					r = i / map_width;
+					c = i % mapWidth;
+					r = i / mapWidth;
 					node = new Node(c, r);
 					graph.push(node);
-					graph_grid[r][c] = node;
+					graphGrid[r][c] = node;
 				}
 			}
 			// now search for connections
 			var dirs:Vector.<int> = new Vector.<int>(4, true);
 			dirs[0] = 1;
 			dirs[1] = -1;
-			dirs[3] = -map_width;
-			dirs[2] = map_width;
+			dirs[3] = -mapWidth;
+			dirs[2] = mapWidth;
 			
 			var pos:int;
 			
 			for(i = 0; i < graph.length; i++){
 				
 				// only 4 directions to look in
-				pos = graph[i].x + graph[i].y * map_width;
+				pos = graph[i].x + graph[i].y * mapWidth;
 				
 				for(j = 0; j < dirs.length; j++){
 					if(pixels[pos + dirs[j]] == PATH || pixels[pos + dirs[j]] == NODE){
 						n = pos + dirs[j];
 						do{
 							if(pixels[n] == NODE){
-								c = n % map_width;
-								r = n / map_width;
-								graph[i].connections.push(graph_grid[r][c]);
-								graph[i].connections_active.push(false);
-								graph_grid[r][c].connections.push(graph[i]);
-								graph_grid[r][c].connections_active.push(false);
+								c = n % mapWidth;
+								r = n / mapWidth;
+								graph[i].connections.push(graphGrid[r][c]);
+								graph[i].connectionsActive.push(false);
+								graphGrid[r][c].connections.push(graph[i]);
+								graphGrid[r][c].connectionsActive.push(false);
 								// mark out where drops are - it can lead to broken maps
 								if(j == 2){
 									graph[i].drop = true;
@@ -367,23 +367,23 @@
 			// so lets visit all points on the graph now and mark our good connections
 			// whilst we're at it we'll delete our node pixels to clean up
 			
-			var visited_nodes:Vector.<Node> = new Vector.<Node>();
+			var visitedNodes:Vector.<Node> = new Vector.<Node>();
 			node = graph[(Math.random() * graph.length) >> 0];
 			node.visited = true;
-			visited_nodes.push(node);
-			pixels[node.x + node.y * map_width] = PATH;
+			visitedNodes.push(node);
+			pixels[node.x + node.y * mapWidth] = PATH;
 			
 			i = 0;
 			while(i < graph.length){		
 				search:
-				for(i = 0; i < visited_nodes.length; i++){
-					for(j = 0; j < visited_nodes[i].connections.length; j++){
-						if(!visited_nodes[i].connections_active[j] && !visited_nodes[i].connections[j].visited){
-							visited_nodes[i].connections_active[j] = true;
-							visited_nodes[i].connections[j].visited = true;
-							pixels[visited_nodes[i].connections[j].x + visited_nodes[i].connections[j].y * map_width] = PATH;
-							visited_nodes[i].connections[j].connections_active[visited_nodes[i].connections[j].connections.indexOf(visited_nodes[i])] = true;
-							visited_nodes.push(visited_nodes[i].connections[j]);
+				for(i = 0; i < visitedNodes.length; i++){
+					for(j = 0; j < visitedNodes[i].connections.length; j++){
+						if(!visitedNodes[i].connectionsActive[j] && !visitedNodes[i].connections[j].visited){
+							visitedNodes[i].connectionsActive[j] = true;
+							visitedNodes[i].connections[j].visited = true;
+							pixels[visitedNodes[i].connections[j].x + visitedNodes[i].connections[j].y * mapWidth] = PATH;
+							visitedNodes[i].connections[j].connectionsActive[visitedNodes[i].connections[j].connections.indexOf(visitedNodes[i])] = true;
+							visitedNodes.push(visitedNodes[i].connections[j]);
 							break search;
 						}
 					}
@@ -402,7 +402,7 @@
 			gfx.lineStyle(2, 0);
 			for(i = 0; i < graph.length; i++){
 				for(j = 0; j < graph[i].connections.length; j++){
-					if(graph[i].connections_active[j]){
+					if(graph[i].connectionsActive[j]){
 						gfx.moveTo((graph[i].x + 0.5) * Main.SCALE, (graph[i].y + 0.5) * Main.SCALE);
 						gfx.lineTo((graph[i].connections[j].x + 0.5) * Main.SCALE, (graph[i].connections[j].y + 0.5) * Main.SCALE);
 					}
@@ -418,37 +418,37 @@
 			// would normally stop and drop the player into open space
 			for(i = 0; i < graph.length; i++){
 				for(j = 0; j < graph[i].connections.length; j++){
-					if(graph[i].connections_active[j]){
+					if(graph[i].connectionsActive[j]){
 						if(graph[i].connections[j].x == graph[i].x){
-							n = graph[i].x + graph[i].y * map_width;
-							dest = graph[i].connections[j].x + graph[i].connections[j].y * map_width;
+							n = graph[i].x + graph[i].y * mapWidth;
+							dest = graph[i].connections[j].x + graph[i].connections[j].y * mapWidth;
 							// xor swap so we get end the job with a ladder at the top
 							if(dest > n){
 								n ^= dest
 								dest ^= n;
 								n ^= dest;
 							}
-							if(pixels[n + map_width] != WALL){
-								pixels[n + map_width] = LEDGE;
+							if(pixels[n + mapWidth] != WALL){
+								pixels[n + mapWidth] = LEDGE;
 							}
-							pixels[dest + map_width] = LADDER_LEDGE;
+							pixels[dest + mapWidth] = LADDER_LEDGE;
 						}
 						// after we query a connection, we deactivate at both ends, we don't need it anymore
-						graph[i].connections_active[j] = false;
-						graph[i].connections[j].connections_active[graph[i].connections[j].connections.indexOf(graph[i])] = false;
+						graph[i].connectionsActive[j] = false;
+						graph[i].connections[j].connectionsActive[graph[i].connections[j].connections.indexOf(graph[i])] = false;
 					}
 				}
 				// also we slap a ledge in under any drop node (a node with a downwards link) - they can cause broken maps
 				if(graph[i].drop){
-					if(pixels[graph[i].x + (graph[i].y + 1) * map_width] == EMPTY){
-						pixels[graph[i].x + (graph[i].y + 1) * map_width] = LEDGE;
+					if(pixels[graph[i].x + (graph[i].y + 1) * mapWidth] == EMPTY){
+						pixels[graph[i].x + (graph[i].y + 1) * mapWidth] = LEDGE;
 					}
 				}
 			}
 			
 			// sprinkle some extra ladders in
-			for(i = map_width; i < pixels.length - map_width; i++){
-				if(pixels[i] == EMPTY && pixels[i - map_width] == EMPTY){
+			for(i = mapWidth; i < pixels.length - mapWidth; i++){
+				if(pixels[i] == EMPTY && pixels[i - mapWidth] == EMPTY){
 					if(pixels[i - 1] == WALL && pixels[i + 1] == EMPTY && Math.random() < LADDERINESS){
 						pixels[i] = LADDER_LEDGE;
 					} else if(pixels[i + 1] == WALL && pixels[i - 1] == EMPTY && Math.random() < LADDERINESS){
@@ -462,13 +462,13 @@
 			
 			// note to self - a ledge with a wall on top of it looks fucking stupid
 			
-			for(i = map_width; i < pixels.length - map_width; i++){
+			for(i = mapWidth; i < pixels.length - mapWidth; i++){
 				if(pixels[i] == LADDER_LEDGE){
 					if(pixels[i - 1] == EMPTY){
 						// pull out the ladder ledge
 						j = i;
 						for(n = Math.random() * LEDGE_LENGTH; n; n--){
-							if(pixels[j - 1] == EMPTY && pixels[j - 1 - map_width] != WALL){
+							if(pixels[j - 1] == EMPTY && pixels[j - 1 - mapWidth] != WALL){
 								pixels[j] = LEDGE;
 								pixels[j - 1] = LADDER_LEDGE;
 							} else break;
@@ -476,7 +476,7 @@
 						}
 						// add a bit of extension past it
 						for(n = Math.random() * LEDGE_LENGTH; n; n--){
-							if(pixels[j - 1] == EMPTY && pixels[j - 1 - map_width] != WALL){
+							if(pixels[j - 1] == EMPTY && pixels[j - 1 - mapWidth] != WALL){
 								pixels[j - 1] = LEDGE;
 							} else break;
 							j--;
@@ -484,7 +484,7 @@
 					} else if(pixels[i + 1] == EMPTY){
 						// push out the ladder ledge
 						for(n = Math.random() * LEDGE_LENGTH; n; n--){
-							if(pixels[i + 1] == EMPTY && pixels[i + 1 - map_width] != WALL){
+							if(pixels[i + 1] == EMPTY && pixels[i + 1 - mapWidth] != WALL){
 								pixels[i] = LEDGE;
 								pixels[i + 1] = LADDER_LEDGE;
 							} else break;
@@ -493,7 +493,7 @@
 						// add a bit of extension past it
 						j = i;
 						for(n = Math.random() * LEDGE_LENGTH; n; n--){
-							if(pixels[j + 1] == EMPTY && pixels[j + 1 - map_width] != WALL){
+							if(pixels[j + 1] == EMPTY && pixels[j + 1 - mapWidth] != WALL){
 								pixels[j + 1] = LEDGE;
 							} else break;
 							j++;
@@ -503,23 +503,23 @@
 			}
 			
 			// cast ladders down from all the ladder ledges
-			for(i = map_width; i < pixels.length - map_width; i++){
+			for(i = mapWidth; i < pixels.length - mapWidth; i++){
 				if(pixels[i] == LADDER_LEDGE){
-					n = i + map_width;
+					n = i + mapWidth;
 					while(pixels[n] == EMPTY){
 						pixels[n] = LADDER;
-						n += map_width;
+						n += mapWidth;
 					}
 				}
 			}
 			
 			// sprinkle a few more ledges in
-			for(i = map_width; i < pixels.length - map_width; i++){
+			for(i = mapWidth; i < pixels.length - mapWidth; i++){
 				if(pixels[i] == LADDER && Math.random() < LEDGINESS){
 					if(pixels[i - 1] == EMPTY){
 						j = i;
 						for(n = Math.random() * LEDGE_LENGTH; n; n--){
-							if(pixels[j - 1] == EMPTY && pixels[j - 1 - map_width] != WALL){
+							if(pixels[j - 1] == EMPTY && pixels[j - 1 - mapWidth] != WALL){
 								pixels[j - 1] = LEDGE;
 							} else if(pixels[j - 1] == LADDER){
 								pixels[j - 1] = LADDER_LEDGE;
@@ -532,7 +532,7 @@
 					if(pixels[i + 1] == EMPTY){
 						j = i;
 						for(n = Math.random() * LEDGE_LENGTH; n; n--){
-							if(pixels[j + 1] == EMPTY && pixels[j + 1 - map_width] != WALL){
+							if(pixels[j + 1] == EMPTY && pixels[j + 1 - mapWidth] != WALL){
 								pixels[j + 1] = LEDGE;
 							} else if(pixels[j + 1] == LADDER){
 								pixels[j + 1] = LADDER_LEDGE;

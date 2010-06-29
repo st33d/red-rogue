@@ -11,13 +11,13 @@
 	*/
 	public class Spring extends Line{
 		
-		public var rest_length:Number;	// length the spring returns to
+		public var restLength:Number;	// length the spring returns to
 		public var stiffness:Number;	// the speed the spring returns to normal - a value above 0.5 is unstable
 		
 		public function Spring(a:Dot, b:Dot){
 			super(a, b);
 			stiffness = 0.5;
-			rest_length = length;
+			restLength = length;
 		}
 		// Spring physics
 		public function updateSpring():void{
@@ -26,38 +26,38 @@
 			length = Math.sqrt(vx * vx + vy * vy);
 			var diff:Number = 0;
 			if(length > 0){
-				diff = (length - rest_length) / length;
+				diff = (length - restLength) / length;
 			}
 			var mul:Number = diff * stiffness;
-			var move_by:Dot = new Dot( -vx * mul, -vy * mul);
-			a.x -= move_by.x;
-			a.y -= move_by.y;
-			b.x += move_by.x;
-			b.y += move_by.y;
+			var moveBy:Dot = new Dot( -vx * mul, -vy * mul);
+			a.x -= moveBy.x;
+			a.y -= moveBy.y;
+			b.x += moveBy.x;
+			b.y += moveBy.y;
 			updateLine();
 		}
 		// constrain spring length
-		public function constrainFromA(min_length:Number, max_length:Number):void{
+		public function constrainFromA(minLength:Number, maxLength:Number):void{
 			updateLine();
-			if(length < min_length){
-				b.x = a.x + min_length * dx;
-				b.y = a.y + min_length * dy;
+			if(length < minLength){
+				b.x = a.x + minLength * dx;
+				b.y = a.y + minLength * dy;
 				updateLine();
-			} else if(length > max_length){
-				b.x = a.x + max_length * dx;
-				b.y = a.y + max_length * dy;
+			} else if(length > maxLength){
+				b.x = a.x + maxLength * dx;
+				b.y = a.y + maxLength * dy;
 				updateLine();
 			}
 		}
-		public function constrainFromB(min_length:Number, max_length:Number):void{
+		public function constrainFromB(minLength:Number, maxLength:Number):void{
 			updateLine();
-			if(length < min_length){
-				a.x = b.x + min_length * -dx;
-				a.y = b.y + min_length * -dy;
+			if(length < minLength){
+				a.x = b.x + minLength * -dx;
+				a.y = b.y + minLength * -dy;
 				updateLine();
-			} else if(length > max_length){
-				a.x = b.x + max_length * -dx;
-				a.y = b.y + max_length * -dy;
+			} else if(length > maxLength){
+				a.x = b.x + maxLength * -dx;
+				a.y = b.y + maxLength * -dy;
 				updateLine();
 			}
 		}

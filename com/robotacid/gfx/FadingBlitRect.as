@@ -10,14 +10,14 @@
 	public class FadingBlitRect extends BlitRect{
 		
 		public var frames:Array;
-		public var total_frames:int;
+		public var totalFrames:int;
 		
-		public function FadingBlitRect(dx:int = 0, dy:int = 0, width:int = 1, height:int = 1, total_frames:int = 1, col:uint = 0xFF000000) {
+		public function FadingBlitRect(dx:int = 0, dy:int = 0, width:int = 1, height:int = 1, totalFrames:int = 1, col:uint = 0xFF000000) {
 			super(dx, dy, width, height, col);
 			frames = [];
-			this.total_frames = total_frames;
-			var step:int = 255 / total_frames;
-			for(var i:int = 0; i < total_frames; i++) {
+			this.totalFrames = totalFrames;
+			var step:int = 255 / totalFrames;
+			for(var i:int = 0; i < totalFrames; i++) {
 				frames[i] = new BitmapData(width, height, true, col - 0x01000000 * i * step);
 			}
 		}

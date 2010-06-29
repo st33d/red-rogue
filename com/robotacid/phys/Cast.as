@@ -31,7 +31,7 @@
 		/* Returns a Cast object with the first block or Collider (the block then being a property
 		 * of the Collider) encountered horizontally in a direction given by dir (1 or -1). ignore
 		 * is given as a composite of flags referring to properties that should be ignored. map is
-		 * the identity map of values for static blocks (g.block_map)
+		 * the identity map of values for static blocks (g.blockMap)
 		 */
 		public static function horiz(x:Number, y:Number, dir:Number, length:int, map:Vector.<Vector.<int>>, ignore:int, g:Game):Cast{
 			var width:int = map[0].length;
@@ -88,7 +88,7 @@
 		/* Returns a Cast object with the first block or Collider (the block then being a property
 		 * of the Collider) encountered vertically in a direction given by dir (1 or -1). ignore
 		 * is given as a composite of flags referring to properties that should be ignored. map is
-		 * the identity map of values for static blocks (g.block_map)
+		 * the identity map of values for static blocks (g.blockMap)
 		 */
 		public static function vert(x:Number, y:Number, dir:Number, length:int, map:Vector.<Vector.<int>>, ignore:int, g:Game):Cast{
 			var height:int = map.length;
@@ -154,21 +154,21 @@
 			// n.b. if the ray direction is not normalized, WEIRD THINGS WILL HAPPEN!
 			
 			
-			var map_x:int = x * Game.INV_SCALE;
-			var map_y:int = y * Game.INV_SCALE;
+			var mapX:int = x * Game.INV_SCALE;
+			var mapY:int = y * Game.INV_SCALE;
 			var width:int = g.renderer.width;
 			var height:int = g.renderer.height;
 			
 			var result:Cast;
 			
-			if (map[map_y][map_x] > Block.EMPTY && !(ignore & map[map_y][map_x])){
+			if (map[mapY][mapX] > Block.EMPTY && !(ignore & map[mapY][mapX])){
 				result = new Cast;
-				result.block = new Block(map_x * Game.SCALE, map_y * Game.SCALE, Game.SCALE, Game.SCALE, map[map_y][map_x]);
+				result.block = new Block(mapX * Game.SCALE, mapY * Game.SCALE, Game.SCALE, Game.SCALE, map[mapY][mapX]);
 				result.distance = 0;
 				return result;
 			}
-			var px:Number = x - (map_x * Game.SCALE);
-			var py:Number = y - (map_y * Game.SCALE);
+			var px:Number = x - (mapX * Game.SCALE);
+			var py:Number = y - (mapY * Game.SCALE);
 			var targetPX:Number = (dx < 0) ? 0 : Game.SCALE;
 			var targetPY:Number = (dy < 0) ? 0 : Game.SCALE;
 			var dirX:int = dx < 0 ? -1 : 1;
@@ -178,7 +178,7 @@
 			var totalDistance:Number = 0;
 			var type:int;
 			
-			while(map_x > -1 && map_x < width && map_y > -1 && map_y < height) {
+			while(mapX > -1 && mapX < width && mapY > -1 && mapY < height) {
 				
 				
 				var toNextX:Number = Math.abs((px - targetPX) * invdx);
@@ -186,14 +186,14 @@
 				
 				if(toNextX < toNextY) {
 					// move horizontally
-					map_x += dirX;
+					mapX += dirX;
 					totalDistance += toNextX;
 					// acquire block properties from grid or fabricate an out of range block
-					if(map_x < 0 || map_y < 0 || map_y > height - 1 || map_x > width - 1) type = Block.SOLID | Block.STATIC;
-					else type = map[map_y][map_x];
+					if(mapX < 0 || mapY < 0 || mapY > height - 1 || mapX > width - 1) type = Block.SOLID | Block.STATIC;
+					else type = map[mapY][mapX];
 					if(type > Block.EMPTY && !(ignore & type)){
 						result = new Cast;
-						result.block = new Block(map_x * Game.SCALE, map_y * Game.SCALE, Game.SCALE, Game.SCALE, type);
+						result.block = new Block(mapX * Game.SCALE, mapY * Game.SCALE, Game.SCALE, Game.SCALE, type);
 						result.distance = totalDistance;
 						result.side = dirX > 0 ? LEFT : RIGHT;
 						break;
@@ -203,14 +203,14 @@
 					px -= dirX * Game.SCALE;
 				} else {
 					// move vertically
-					map_y += dirY;
+					mapY += dirY;
 					totalDistance += toNextY;
 					// acquire block properties from grid or fabricate an out of range block
-					if(map_x < 0 || map_y < 0 || map_y > height - 1 || map_x > width - 1) type = Block.SOLID | Block.STATIC;
-					else type = map[map_y][map_x];
+					if(mapX < 0 || mapY < 0 || mapY > height - 1 || mapX > width - 1) type = Block.SOLID | Block.STATIC;
+					else type = map[mapY][mapX];
 					if(type > Block.EMPTY && !(ignore & type)){
 						result = new Cast;
-						result.block = new Block(map_x * Game.SCALE, map_y * Game.SCALE, Game.SCALE, Game.SCALE, type);
+						result.block = new Block(mapX * Game.SCALE, mapY * Game.SCALE, Game.SCALE, Game.SCALE, type);
 						result.distance = totalDistance;
 						result.side = dirY > 0 ? UP : DOWN;
 						break;
