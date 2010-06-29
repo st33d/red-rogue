@@ -262,6 +262,7 @@
 								}
 								parentBlock = test.block;
 								parent = null;
+								if(ym <= 0) vy = 0;
 							}
 						}
 					}

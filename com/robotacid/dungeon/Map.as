@@ -55,7 +55,14 @@
 			} else {
 				createOverworld();
 			}
+			//var destruct:Bitmap = new Bitmap(bitmap.destructibleWalls);
+			//bitmap.scaleX = bitmap.scaleY = destruct.scaleX = destruct.scaleY = 4;
+			//destruct.alpha = 0.5;
+			//g.addChild(bitmap);
+			//g.addChild(destruct);
+			
 		}
+		
 		/* Create the test bed
 		 *
 		 * This is a debugging playground for testing new content and trying to lure consistent
@@ -76,20 +83,20 @@
 			// insert test code for items and such here
 			//layers[ENTITIES][44][4] = 54;
 			//layers[ENTITIES][44][6] = 22;
-			layers[ENTITIES][44][8] = 22;
+			//layers[ENTITIES][44][8] = 22;
 			
 			// access points
 			setEntrance(12, 44);
 			setExit(10, 44);
 			setStart();
 			
-			layers[BLOCKS][44][14] = 1;
-			layers[ENTITIES][44][14] = 60;
+			//layers[BLOCKS][44][14] = 1;
+			//layers[ENTITIES][44][14] = 60;
 			
-			//createSecretWall(14, 44);
+			createSecretWall(14, 44);
 			
 			
-			layers[BLOCKS][40][10] = 1;
+			//layers[BLOCKS][40][10] = 1;
 			//layers[BLOCKS][44][10] = 1;
 		}
 		
@@ -131,35 +138,13 @@
 			}
 			
 			
-			
+			// a good dungeon needs to be full of loot and monsters
+			// in comes the content manager
 			
 			var content:Content = new Content();
 			
 			content.populateLevel(level, bitmap, layers);
 			
-			
-			// THESE ARE TEMPORARY CONTENT FILLING ROUTINES - A REAL DUNGEON SHOULD DUMP
-			// THE LOOT ANY OLD WHERE
-			
-			// populate with monsters
-			
-			//for(r = 0; r < height; r++){
-				//for(c = 0; c < width; c++){
-					//if(layers[BLOCKS][r][c] != 1 && (layers[BLOCKS][r+1][c] == MapTileConverter.LEDGE_ID || layers[BLOCKS][r+1][c] == 1) && Math.random() > 0.9){
-						//layers[ENTITIES][r][c] = Math.random() > 0.7 ? 22 : 21;
-					//}
-				//}
-			//}
-			//
-			// populate with items
-			//
-			//for(r = 0; r < height; r++){
-				//for(c = 0; c < width; c++){
-					//if(layers[BLOCKS][r][c] != 1 && (layers[BLOCKS][r+1][c] == MapTileConverter.LEDGE_ID || layers[BLOCKS][r+1][c] == 1) && Math.random() > 0.9){
-						//layers[ENTITIES][r][c] = 52;// closed chest index
-					//}
-				//}
-			//}
 			
 			// create the access points
 			
@@ -173,6 +158,8 @@
 		 * There is a health stone for restoring health and a grindstone -
 		 * an allegory of improving yourself in the real world as opposed to a fantasy where
 		 * you kill people to better yourself, that you can ironically destroy by levelling up next to
+		 *
+		 * This bit I haven't finished yet :P
 		 */
 		public function createOverworld():void{
 			width = 20;

@@ -1,4 +1,5 @@
 ﻿package  {
+	import com.robotacid.engine.CharacterAttributes;
 	import com.robotacid.gfx.BlitBackgroundClip;
 	import com.robotacid.gfx.BloodClip;
 	
@@ -13,7 +14,6 @@
 		
 		[Embed(source = "assets/banner.png")] public var BannerB:Class;
 		
-		[Embed(source="assets/fff_Quadratis.ttf",fontFamily="FFF Quadratis")] public var font_name:String;
 		[Embed(source = "assets/assets.swf", symbol = "PlayerMC")] public var PlayerMC:Class;
 		[Embed(source = "assets/assets.swf", symbol = "BackMC1")] public var BackMC1:Class;
 		
@@ -50,8 +50,10 @@
 		
 		
 		[Embed(source = "assets/assets.swf", symbol = "SkeletonMC")] public var SkeletonMC:Class;
+		[Embed(source = "assets/assets.swf", symbol = "KoboldMC")] public var KoboldMC:Class;
 		[Embed(source = "assets/assets.swf", symbol = "GoblinMC")] public var GoblinMC:Class;
 		[Embed(source = "assets/assets.swf", symbol = "OrcMC")] public var OrcMC:Class;
+		[Embed(source = "assets/assets.swf", symbol = "TrollMC")] public var TrollMC:Class;
 		
 		[Embed(source = "assets/assets.swf", symbol = "DartMC")] public var DartMC:Class;
 		[Embed(source = "assets/assets.swf", symbol = "ArrowMC")] public var ArrowMC:Class;
@@ -104,7 +106,7 @@
 			return list[n];
 		}
 		public function characterNameToMcClass(n:int):Class{
-			var list:Array = [PlayerMC, SkeletonMC, GoblinMC, OrcMC];
+			var list:Array = CharacterAttributes.NAME_SKINS;
 			return list[n];
 		}
 	}

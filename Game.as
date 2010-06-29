@@ -5,12 +5,14 @@
 	import com.robotacid.engine.Effect;
 	import com.robotacid.engine.Minion;
 	import com.robotacid.engine.Stairs;
-	import com.robotacid.ui.MiniMap;
+	import com.robotacid.engine.Entity;
+	import com.robotacid.engine.MapRenderer;
+	import com.robotacid.engine.Player;
+	import com.robotacid.engine.MapTileConverter;
+	import com.robotacid.engine.Item;
 	import com.robotacid.geom.Dot;
 	import com.robotacid.geom.Pixel;
-	import com.robotacid.engine.Entity;
 	import com.robotacid.geom.Rect;
-	import com.robotacid.engine.MapRenderer;
 	import com.robotacid.geom.Trig;
 	import com.robotacid.gfx.*;
 	import com.robotacid.phys.Block;
@@ -19,18 +21,14 @@
 	import com.robotacid.ui.menu.GameMenu;
 	import com.robotacid.ui.ProgressBar;
 	import com.robotacid.ui.TextBox;
+	import com.robotacid.ui.MiniMap;
+	import com.robotacid.ui.Key;
 	import com.robotacid.util.clips.stopClips;
 	import com.robotacid.util.HiddenInt;
 	import com.robotacid.util.misc.onScreen;
-	import com.robotacid.engine.Item;
-	import com.robotacid.gfx.LightMap;
-	import com.robotacid.dungeon.Map;
-	import com.robotacid.engine.Player;
-	import com.robotacid.gfx.Camera;
-	import com.robotacid.engine.MapTileConverter;
-	import com.robotacid.ui.Key;
 	import com.robotacid.util.LZW;
 	import com.robotacid.util.RLE;
+	import com.robotacid.dungeon.Map;
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
 	import flash.display.Graphics;
@@ -41,12 +39,12 @@
 	import flash.events.Event;
 	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
+	import flash.geom.ColorTransform;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	import flash.text.AntiAliasType;
 	import flash.text.GridFitType;
 	import flash.text.TextField;
-	import flash.text.TextFieldAutoSize;
 	import flash.text.TextFormat;
 	import flash.ui.Keyboard;
 	import flash.utils.getTimer;
@@ -58,6 +56,8 @@
 	 *
 	 * @author Aaron Steed, robotacid.com
 	 */
+	
+	[SWF(width = "640", height = "480", frameRate="30", backgroundColor = "#000000")]
 	
 	public class Game extends Sprite {
 		
@@ -138,11 +138,13 @@
 		public var mousePressed:Boolean;
 		public var god_mode:Boolean;
 		public var paused:Boolean;
-		public var shakeDir_x:int;
-		public var shakeDir_y:int;
+		public var shakeDirX:int;
+		public var shakeDirY:int;
 		public var konamiCode:Boolean = false;
 		public var colossalCaveCode:Boolean = false;
-		public var force_focus:Boolean = true;
+		
+		
+		public var forceFocus:Boolean = true;
 		
 		// temp variables
 		private var i:int;
@@ -187,6 +189,8 @@
 			Key.init(stage);
 			Key.custom = [Key.W, Key.S, Key.A, Key.D, Keyboard.SPACE, Key.NUMBER_1, Key.NUMBER_2, Key.NUMBER_3, Key.NUMBER_4, Key.NUMBER_5, Key.NUMBER_6, Key.NUMBER_7, Key.NUMBER_8, Key.NUMBER_9, Key.NUMBER_0];
 			Key.hotKeyTotal = 10;
+			
+			TextBox.init();
 			
 			library = new Library;
 			scaleX = scaleY = 2;
@@ -255,8 +259,9 @@
 			
 			// user interface:
 			console = new Console(320, 3);
-			console.y = HEIGHT - (console._height);
+			console.y = HEIGHT - (console.height);
 			console.maxLines = 3;
+			console.fixedHeight = true;
 			addChild(console);
 			//Effect.hideNames();
 			
@@ -295,18 +300,12 @@
 				focusPrompt = new Sprite();
 				focusPrompt.graphics.beginFill(0x000000);
 				focusPrompt.graphics.drawRect(0, 0, WIDTH, HEIGHT);
-				var focus_text:TextField = new TextField();
-				focusPrompt.addChild(focus_text);
-				focus_text.embedFonts = true;
-				focus_text.antiAliasType = AntiAliasType.NORMAL;
-				focus_text.gridFitType = GridFitType.PIXEL;
-				var tf:TextFormat = new TextFormat("quadratis", 8, 0xAA0000);
-				//tf.letterSpacing = -1;
-				focus_text.defaultTextFormat = tf;
-				focus_text.selectable = false;
-				focus_text.text = "click to play";
-				focus_text.x = (WIDTH * 0.5) - 35;
-				focus_text.y = (HEIGHT * 0.5) + 10;
+				var focusText:TextBox = new TextBox(100, 1, 0x00000000, 0x00000000, 0xFFAA0000);
+				focusText.text = "click to play";
+				focusText.bitmapData.colorTransform(focusText.bitmapData.rect, new ColorTransform(1, 0, 0, 1, -85));
+				focusPrompt.addChild(focusText);
+				focusText.x = (WIDTH * 0.5) - 36;
+				focusText.y = (HEIGHT * 0.5) + 10;
 				var title_b:Bitmap = new library.BannerB();
 				focusPrompt.addChild(title_b);
 				title_b.y = HEIGHT * 0.5 - title_b.height * 0.5;
@@ -321,16 +320,13 @@
 			info = new TextField();
 			addChild(info);
 			info.embedFonts = true;
-			info.antiAliasType = AntiAliasType.NORMAL;
-			info.gridFitType = GridFitType.PIXEL;
-			info.defaultTextFormat = new TextFormat("quadratis", 8, 0xFFFFFF);
+			info.defaultTextFormat = new TextFormat("_sans", 8, 0xFFFFFF);
 			info.selectable = false;
-			info.autoSize = TextFieldAutoSize.LEFT;
 			info.text = "";
 			
 			info.visible = true;
 			
-			shakeDir_x = shakeDir_y = 0;
+			shakeDirX = shakeDirY = 0;
 			konamiCode = false;
 			colossalCaveCode = false;
 			
@@ -584,21 +580,21 @@
 			if(Math.abs(y) < Math.abs(shaker.y)) return;
 			shaker.x = x;
 			shaker.y = y;
-			shakeDir_x = x > 0 ? 1 : -1;
-			shakeDir_y = y > 0 ? 1 : -1;
+			shakeDirX = x > 0 ? 1 : -1;
+			shakeDirY = y > 0 ? 1 : -1;
 		}
 		/* resolve the shake */
 		private function updateShaker():void {
 			// shake first
 			if(shaker.y != 0) {
 				shaker.y = -shaker.y;
-				if(shakeDir_y == 1 && shaker.y > 0) shaker.y--;
-				if(shakeDir_y == -1 && shaker.y < 0) shaker.y++;
+				if(shakeDirY == 1 && shaker.y > 0) shaker.y--;
+				if(shakeDirY == -1 && shaker.y < 0) shaker.y++;
 			}
 			if(shaker.x != 0) {
 				shaker.x = -shaker.x;
-				if(shakeDir_x == 1 && shaker.x > 0) shaker.x--;
-				if(shakeDir_x == -1 && shaker.x < 0) shaker.x++;
+				if(shakeDirX == 1 && shaker.x > 0) shaker.x--;
+				if(shakeDirX == -1 && shaker.x < 0) shaker.x++;
 			}
 		}
 		/* Maintain FX */
@@ -675,24 +671,6 @@
 			Brain.init();
 			dungeon = new Map(1, this);
 			renderer = new MapRenderer(this, canvas, new Sprite(), SCALE, dungeon.width, dungeon.height, WIDTH, HEIGHT);
-			/*for(var i:int = 0; i < dungeon.layers.length; i++){
-				var gfx:Boolean = false;
-				var image:BitmapData = null;
-				var imageHolder:Bitmap = null;
-				if(i == 0) {
-					image = tileImage;
-					imageHolder = tileImageHolder;
-				} else if(i == 1) {
-					image = tileImage;
-					imageHolder = tileImageHolder;
-				} else if(i == 2) {
-					renderer.addTileLayer(entitiesHolder);
-				} else if(i == 3) {
-					renderer.addTileLayer(foregroundHolder);
-					gfx = true;
-				}
-				if(renderer.layers < 4) renderer.addLayer(dungeon.layers[i], image, imageHolder);
-			}*/
 			renderer.setLayers(dungeon.layers, [null, null, entitiesHolder, foregroundHolder], [tileImage, tileImage, null, null], [tileImageHolder, tileImageHolder, null, null]);
 			blockMap = createIdMap(renderer.mapArrayLayers[MapRenderer.BLOCK_LAYER]);
 			lightMap = new LightMap(blockMap, this);
@@ -707,10 +685,11 @@
 			// fire up listeners
 			addListeners();
 			// this is a hack to force clicking on the game when the browser first pulls in the swf
-			//if(force_focus){
-				//onFocusLost();
-				//force_focus = false;
-			//}
+			if(forceFocus){
+				
+				onFocusLost();
+				forceFocus = false;
+			}
 		}
 		
 		/*
@@ -728,6 +707,7 @@
 			}
 			return idMap;
 		}
+		
 		private function mouseDown(e:MouseEvent):void{
 			mousePressed = true;
 			mouseCount = frameCount;
@@ -758,6 +738,7 @@
 		}
 		
 		private function onFocusLost(e:Event = null):void{
+			if(state == UNFOCUSED) return;
 			previousState = state;
 			state = UNFOCUSED;
 			Key.forceClearKeys();

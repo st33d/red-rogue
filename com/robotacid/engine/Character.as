@@ -77,8 +77,10 @@
 		// character names
 		public static const ROGUE:int = 0;
 		public static const SKELETON:int = 1;
-		public static const GOBLIN:int = 2;
-		public static const ORC:int = 3;
+		public static const KOBOLD:int = 2;
+		public static const GOBLIN:int = 3;
+		public static const ORC:int = 4;
+		public static const TROLL:int = 5;
 		
 		// states
 		public static const WALKING:int = 1;
@@ -153,6 +155,7 @@
 			inflictsCrush = true;
 			
 			loot = new Vector.<Item>();
+			addNameAbilities(name);
 		}
 		
 		
@@ -278,6 +281,7 @@
 					if(parentBlock && (parentBlock.type & Block.LEDGE)){
 						awake = AWAKE_DELAY;
 						ignore |= Block.LEDGE;
+						vy = 0;
 						if (parent != null){
 							parent.removeChild(this);
 						}
@@ -824,7 +828,19 @@
 			damage = CharacterAttributes.NAME_DAMAGES[name] + CharacterAttributes.NAME_DAMAGE_LEVELS[name] * level;
 			speed = CharacterAttributes.NAME_SPEEDS[name] + CharacterAttributes.NAME_SPEED_LEVELS[name] * level;
 			xpReward = CharacterAttributes.NAME_XP_REWARDS[name] + CharacterAttributes.NAME_XP_REWARD_LEVELS[name] * level;
+			removeNameAbilities(name);
+			addNameAbilities(name);
 			applyHealth(totalHealth);
+		}
+		
+		public function addNameAbilities(n:int):void{
+			if(n == TROLL){
+				
+			}
+		}
+		
+		public function removeNameAbilities(n:int):void{
+			
 		}
 		
 		override public function nameToString():String {

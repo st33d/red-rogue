@@ -1,4 +1,5 @@
 ﻿package com.robotacid.engine {
+	import com.robotacid.ai.Brain;
 	import com.robotacid.dungeon.Map;
 	import com.robotacid.engine.Character;
 	import com.robotacid.sound.SoundManager;
@@ -21,7 +22,7 @@
 		];
 		
 		public function Stone(mc:DisplayObject, name:int, width:int, height:int, g:Game) {
-			super(mc, name, STONE, 0, width, height, g);
+			super(mc, name, STONE, 0, width, height, g, true);
 			health = STONE_NAME_HEALTHS[name];
 			defense = 0;
 			callMain = false;
@@ -29,6 +30,9 @@
 			free = false;
 			weight = 20;
 			crushable = false;
+			if(name == SECRET_WALL){
+				Brain.monsterCharacters.push(this);
+			}
 		}
 		
 		override public function applyDamage(n:Number, source:String, critical:Boolean = false, aggressor:int = PLAYER):void {
@@ -59,6 +63,16 @@
 			g.renderer.removeFromRenderedArray(mapX, mapY, Map.BLOCKS, null);
 			g.renderer.removeFromRenderedArray(mapX, mapY, Map.ENTITIES, null);
 			g.renderer.removeTile(Map.BLOCKS, mapX, mapY);
+			if(name == SECRET_WALL){
+				Brain.monsterCharacters.splice(Brain.monsterCharacters.indexOf(this), 1);
+			}
+		}
+		
+		override public function remove():void {
+			super.remove();
+			if(name == SECRET_WALL){
+				Brain.monsterCharacters.splice(Brain.monsterCharacters.indexOf(this), 1);
+			}
 		}
 	}
 

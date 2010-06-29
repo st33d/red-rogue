@@ -110,9 +110,9 @@
 			maskShape.graphics.endFill();
 			mask = maskShape;
 			
-			lineHeight = new TextBox(10, 1).lineMetrics.height;
+			lineHeight = TextBox.lineHeight + 2;
 			
-			help = new TextBox(320, 3, 0x111111, 0x999999, 0xDDDDDD, 0.6);
+			help = new TextBox(320, 3, 0x66111111, 0xFF999999, 0xFFDDDDDD);
 			help.maxLines = 3;
 			help.fixedHeight = true;
 			
@@ -122,9 +122,11 @@
 			textHolder.x = -LIST_WIDTH * 0.5 + Width * 0.5;
 			textHolder.y = (lineHeight * 3) + (Height - (lineHeight * 3)) * 0.5 - lineHeight * 0.5;
 			
-			previousTextBox = new TextBox(LIST_WIDTH, 1, 0x010101, 0x666666, 0x999999, 0.6);
-			currentTextBox = new TextBox(LIST_WIDTH, 1, 0x111111, 0x999999, 0xDDDDDD, 0.6);
-			nextTextBox = new TextBox(LIST_WIDTH, 1, 0x010101, 0x666666, 0x999999, 0.6);
+			previousTextBox = new TextBox(LIST_WIDTH, 1, 0x66010101, 0xFF666666, 0xFF999999);
+			previousTextBox.alpha = 0.7;
+			currentTextBox = new TextBox(LIST_WIDTH, 1, 0x66111111, 0xFF999999, 0xFFDDDDDD);
+			nextTextBox = new TextBox(LIST_WIDTH, 1, 0x66010101, 0xFF666666, 0xFF999999);
+			nextTextBox.alpha = 0.7;
 			
 			previousTextBox.x = -LIST_WIDTH;
 			nextTextBox.x = LIST_WIDTH;
@@ -138,8 +140,8 @@
 			
 			// the selection window shows what option we are currently on
 			selectionWindow = new Bitmap(new BitmapData(LIST_WIDTH, lineHeight));
-			selectionWindow.x = -LIST_WIDTH * 0.5 + Width * 0.5;
-			selectionWindow.y = (lineHeight * 3) + (Height - (lineHeight * 3)) * 0.5 - lineHeight * 0.5;
+			selectionWindow.x = -selectionWindow.width * 0.5 + Width * 0.5;
+			selectionWindow.y = 1 + (lineHeight * 3) + (Height - (lineHeight * 3)) * 0.5 - lineHeight * 0.5;
 			selectionWindowTaperNext = new Bitmap(new BitmapData(SELECTION_WINDOW_TAPER_WIDTH, lineHeight, true, 0x00000000));
 			selectionWindowTaperNext.x = selectionWindow.x + selectionWindow.width;
 			selectionWindowTaperNext.y = selectionWindow.y;
@@ -307,7 +309,7 @@
 		public function renderMenu():void{
 			if(previousMenuList){
 				previousTextBox.text = previousMenuList.optionsToString();
-				previousTextBox.y = -previousMenuList.selection * lineHeight;
+				previousTextBox.y = -previousMenuList.selection * (lineHeight - TextBox.BORDER_ALLOWANCE);
 				setDisabledLines(previousMenuList, previousTextBox);
 				previousTextBox.visible = true;
 				selectionWindowTaperPrevious.visible = true;
@@ -320,7 +322,7 @@
 					keyChanger.options[0].name = "press a key";
 				}
 				currentTextBox.text = currentMenuList.optionsToString();
-				currentTextBox.y = -currentMenuList.selection * lineHeight;
+				currentTextBox.y = -currentMenuList.selection * (lineHeight - TextBox.BORDER_ALLOWANCE);
 				setDisabledLines(currentMenuList, currentTextBox);
 			}
 			if(currentMenuList.options[_selection].active && nextMenuList){
@@ -328,7 +330,7 @@
 					keyChanger.options[0].name = Key.keyString(Key.custom[_selection]);
 				}
 				nextTextBox.text = nextMenuList.optionsToString();
-				nextTextBox.y = -nextMenuList.selection * lineHeight;
+				nextTextBox.y = -nextMenuList.selection * (lineHeight - TextBox.BORDER_ALLOWANCE);
 				setDisabledLines(nextMenuList, nextTextBox);
 				nextTextBox.visible = true;
 				selectionWindowTaperNext.visible = true;
@@ -340,7 +342,6 @@
 		
 		/* Updates the rendering of disabled MenuOptions */
 		public function setDisabledLines(menuList:MenuList, textBox:TextBox):void{
-			textBox.disabledShape.graphics.clear();
 			for(var i:int = 0; i < menuList.options.length; i++){
 				if(!menuList.options[i].active) textBox.setDisabledLine(i);
 			}

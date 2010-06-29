@@ -9,7 +9,7 @@
 	
 	/**
 	 * Various entities that will attack the player when triggered
-	 * 
+	 *
 	 * @author Aaron Steed, robotacid.com
 	 */
 	public class Trap extends Entity{
@@ -19,10 +19,11 @@
 		public var dartGun:Dot;
 		
 		// type flags
-		public static const SPIKES:int = 1;
-		public static const PIT:int = 2;
-		public static const POISON_DART:int = 3;
-		public static const TELEPORT_DART:int = 4;
+		public static const PIT:int = 0;
+		public static const POISON_DART:int = 1;
+		public static const TELEPORT_DART:int = 2;
+		
+		public static const SPIKES:int = 3;
 		
 		public function Trap(mc:DisplayObject, type:int, g:Game) {
 			super(mc, g);
@@ -52,7 +53,7 @@
 		
 		public function resolveCollision():void {
 			if(type == SPIKES){
-				g.player.death("spikes");
+				// thinking that this should be a character wide trap
 			} else {
 				if(type == PIT){
 					g.console.print("pit trap triggered");

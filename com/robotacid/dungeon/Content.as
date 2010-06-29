@@ -101,16 +101,16 @@
 					r = 1 + Math.random() * (bitmap.height - 1);
 					c = 1 + Math.random() * (bitmap.width - 1);
 					if(!layers[Map.ENTITIES][r][c] && layers[Map.BLOCKS][r][c] != 1 && (layers[Map.BLOCKS][r + 1][c] == MapTileConverter.LEDGE_ID || layers[Map.BLOCKS][r + 1][c] == 1)){
-						//trace(monstersByLevel[dungeonLevel - 1][0].toXMLString());
-						layers[Map.ENTITIES][r][c] = convertXMLToObject(c, r, monstersByLevel[dungeonLevel-1].shift(), Game.g);
+						//trace(monstersByLevel[level][0].toXMLString());
+						layers[Map.ENTITIES][r][c] = convertXMLToObject(c, r, monstersByLevel[level].shift(), Game.g);
 					}
 				}
 				while(chestsByLevel[level].length){
 					r = 1 + Math.random() * (bitmap.height - 1);
 					c = 1 + Math.random() * (bitmap.width - 1);
 					if(!layers[Map.ENTITIES][r][c] && layers[Map.BLOCKS][r][c] != 1 && (layers[Map.BLOCKS][r + 1][c] == MapTileConverter.LEDGE_ID || layers[Map.BLOCKS][r + 1][c] == 1)){
-						//trace(chestsByLevel[dungeonLevel - 1][0].toXMLString());
-						layers[Map.ENTITIES][r][c] = convertXMLToObject(c, r, chestsByLevel[dungeonLevel-1].shift(), Game.g);
+						//trace(chestsByLevel[level][0].toXMLString());
+						layers[Map.ENTITIES][r][c] = convertXMLToObject(c, r, chestsByLevel[level].shift(), Game.g);
 					}
 				}
 			} else {
@@ -121,14 +121,23 @@
 			}
 		}
 		
+		/* Create a trap appropriate for the dungeon level
+		public static function createTrapXML(dungeonLevel:int):XML{
+			var trapXML:XML = <character />;
+			var type:int =
+			return trapXML;
+		}*/
+		
 		/* Create a random character appropriate for the dungeon level */
 		public static function createCharacterXML(dungeonLevel:int, type:int):XML{
 			var characterXML:XML = <character />;
 			var name:int = Math.random() * CharacterAttributes.NAME_STRINGS.length;
-			if(name > dungeonLevel + 1) name = dungeonLevel + 1;
 			var level:int = -1 + Math.random() * dungeonLevel;
 			if(type == Character.MONSTER){
-				while(name < 2) name = Math.random() * CharacterAttributes.NAME_STRINGS.length;
+				while(name < 2 || name > dungeonLevel + 1){
+					name = Math.random() * CharacterAttributes.NAME_STRINGS.length;
+					if(name > dungeonLevel + 1) name = dungeonLevel + 1;
+				}
 			}
 			characterXML.@name = name;
 			characterXML.@type = type;

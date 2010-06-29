@@ -8,24 +8,24 @@
 	 */
 	public class Console extends TextBox{
 		
-		public function Console(_width:Number, line_height:int, backgroundCol:uint = 0x111111, borderCol:uint = 0x999999, fontCol:uint = 0xDDDDDD) {
-			super(_width, line_height, backgroundCol, borderCol, fontCol);
+		public function Console(_width:Number, lines:int, backgroundCol:uint = 0xFF111111, borderCol:uint = 0xFF999999, fontCol:uint = 0xFFDDDDDD) {
+			super(_width, lines, backgroundCol, borderCol, fontCol);
 		}
 		
 		public function print(str:String):void{
 			// catch multiple lines here, split and recurse
+			str = str.toUpperCase();
 			if(str.indexOf("\n") > -1){
 				var printList:Array = str.split("\n");
 				while(printList.length) print(printList.shift());
 				return;
 			}
-			if(lines >= maxLines){
+			_text += (_text.length > 0 ? "\n" : "") + str;
+			var consoleLines:int = _text.split("\n").length;
+			if(consoleLines > maxLines){
 				_text = _text.substr(_text.indexOf("\n") + 1);
-				lines--;
 			}
-			_text += (lines > 0 ? "\n" : "") + str;
-			info.text = _text;
-			lines++;
+			drawText();
 			try{
 				ExternalInterface.call("printToLog", str);
 			}catch(e:Error){}

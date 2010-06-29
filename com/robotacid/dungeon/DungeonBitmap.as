@@ -9,10 +9,10 @@
 	
 	/**
 	 * This class creates the dungeon layout as a bitmap
-	 * 
+	 *
 	 * This gives us the advantage of testing connectivity using the floodFill method and it
 	 * means in the event of debugging, it's a simple task to see what state the level is in
-	 * 
+	 *
 	 * @author Aaron Steed, robotacid.com
 	 */
 	public class DungeonBitmap extends Bitmap{
@@ -28,6 +28,8 @@
 		public var vertPace:int;
 		public var horizPace:int;
 		public var roominess:int;
+		
+		public var destructibleWalls:BitmapData;
 		
 		public static var directions:Array = [new Pixel(0, -1), new Pixel(1, 0), new Pixel(0, 1), new Pixel( -1, 0)];
 		
@@ -48,6 +50,9 @@
 		public static const LADDER:uint = 0xFF0000FF;
 		public static const LEDGE:uint = 0xFF00FF00;
 		public static const LADDER_LEDGE:uint = 0xFF00FFFF;
+		
+		public static const PIT:uint = 0xFFFFFFFF;
+		public static const SECRET:uint = 0xFFCCCCCC;
 		
 		public static const UP:int = 1;
 		public static const RIGHT:int = 1 << 1;
@@ -78,7 +83,11 @@
 			super(createRoomsAndTunnels(), "auto", false);
 			
 			createRoutes();
+			findDestructibleWalls();
 		}
+		
+		
+		/* This plots the size, number of rooms and how those rooms are connected */
 		public function createRoomsAndTunnels():BitmapData{
 			
 			// sometimes the generator will fail - then we recreate the dungeon
@@ -264,6 +273,8 @@
 			return trimmedData;
 		}
 		
+		/* Given a network of rooms and tunnels, a platform game character requires ledges and
+		 * ladders to navigate that network and be able to visit every corner of it */
 		public function createRoutes():void{
 			
 			// count all the cliffs that are in the level. A cliff is an L-shaped area where the
@@ -374,7 +385,7 @@
 			pixels[node.x + node.y * mapWidth] = PATH;
 			
 			i = 0;
-			while(i < graph.length){		
+			while(i < graph.length){
 				search:
 				for(i = 0; i < visitedNodes.length; i++){
 					for(j = 0; j < visitedNodes[i].connections.length; j++){
@@ -545,6 +556,35 @@
 			}
 			
 			bitmapData.setVector(bitmapData.rect, pixels);
+		}
+		
+		/* This initialises and loads the property destructibleWalls with markers where pits
+		 * and secret walls could be positioned */
+		public function findDestructibleWalls():void{
+			var mapWidth:int = bitmapData.width;
+			destructibleWalls = new BitmapData(bitmapData.width, bitmapData.height, true, 0x00000000);
+			var pixels:Vector.<uint> = bitmapData.getVector(bitmapData.rect);
+			var destructiblePixels:Vector.<uint> = destructibleWalls.getVector(destructibleWalls.rect);
+			
+			// first the search for possible pits
+			//
+			// my theory is that any ledge could still allow access to any other area if it had a pit under
+			// it - so a pixel thick wall with a ledge directly above is a candidate and shall be marked
+			for(i = mapWidth; i < pixels.length - mapWidth; i++){
+				if(pixels[i] == WALL && pixels[i + mapWidth] == EMPTY && (pixels[i - mapWidth] == EMPTY || pixels[i - mapWidth] == LEDGE)){
+					// need to be doubly sure we have a ledge above us
+					for(j = i - mapWidth; j > i % mapWidth ; j -= mapWidth){
+						if(pixels[j] == WALL){
+							break;
+						} else if(pixels[j] == LEDGE){
+							destructiblePixels[i] = PIT;
+							break;
+						}
+					}
+				}
+			}
+			
+			destructibleWalls.setVector(destructibleWalls.rect, destructiblePixels);
 		}
 		
 		

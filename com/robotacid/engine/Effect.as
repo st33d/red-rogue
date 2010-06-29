@@ -212,7 +212,7 @@
 			
 			if(inventoryList) inventoryList.updateItem(item);
 			
-			if(name == TELEPORT){
+			if(name == TELEPORT && inventoryList){
 				// this is possibly the biggest pisstake of all the spells, casting teleport on an item
 				// in your inventory (suprise, surprise) teleports it to another location in the dungeon
 				if(item.state & Item.EQUIPPED){
