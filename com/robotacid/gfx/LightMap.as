@@ -89,9 +89,6 @@
 			horizEdge = new Rectangle(0, 0, 16, 2);
 			wallRect = new Rectangle(0, 0, 16, 16);
 			edgeImage = g.tileImage;
-			
-			//bitmap.visible = false;
-			
 		}
 		
 		public function newMap(blockMap:Vector.<Vector.<int>>):void{
@@ -105,6 +102,7 @@
 		}
 		
 		public function main():void{
+			//bitmap.visible = false;
 			p.x = (g.renderer.scrollTopleftX * INV_SCALE) >> 0;
 			p.y = (g.renderer.scrollTopleftY * INV_SCALE) >> 0;
 			rect.x = rect.y = 0;

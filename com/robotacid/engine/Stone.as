@@ -30,9 +30,6 @@
 			free = false;
 			weight = 20;
 			crushable = false;
-			if(name == SECRET_WALL){
-				Brain.monsterCharacters.push(this);
-			}
 		}
 		
 		override public function applyDamage(n:Number, source:String, critical:Boolean = false, aggressor:int = PLAYER):void {
@@ -52,6 +49,7 @@
 			rect.height = height;
 		}
 		
+		/* The secret wall is the only stone that can be destroyed, so only its death is dealt with here */
 		override public function death(cause:String, decapitation:Boolean = false, aggressor:int = PLAYER):void {
 			active = false;
 			g.createDebrisRect(rect, 0, 100, debrisType);
@@ -63,15 +61,12 @@
 			g.renderer.removeFromRenderedArray(mapX, mapY, Map.BLOCKS, null);
 			g.renderer.removeFromRenderedArray(mapX, mapY, Map.ENTITIES, null);
 			g.renderer.removeTile(Map.BLOCKS, mapX, mapY);
-			if(name == SECRET_WALL){
-				Brain.monsterCharacters.splice(Brain.monsterCharacters.indexOf(this), 1);
-			}
-		}
-		
-		override public function remove():void {
-			super.remove();
-			if(name == SECRET_WALL){
-				Brain.monsterCharacters.splice(Brain.monsterCharacters.indexOf(this), 1);
+			// adjust the mapRect to show new content
+			if(mapX < g.player.mapX){
+				g.renderer.mapRect.x = 0;
+				g.renderer.mapRect.width += g.dungeon.bitmap.leftSecretWidth;
+			} else if(mapX > g.player.mapX){
+				g.renderer.mapRect.width += g.dungeon.bitmap.rightSecretWidth;
 			}
 		}
 	}

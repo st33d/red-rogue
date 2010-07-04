@@ -1,5 +1,6 @@
 ﻿package com.robotacid.dungeon {
 	import com.robotacid.geom.Pixel;
+	import com.robotacid.geom.Rect;
 	import com.robotacid.util.array.randomiseArray;
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
@@ -21,6 +22,13 @@
 		
 		public var rooms:Vector.<Room>;
 		
+		public var leftSecretRoom:Room;
+		public var rightSecretRoom:Room;
+		public var leftSecretWidth:Number;
+		public var rightSecretWidth:Number;
+		
+		public var adjustedMapRect:Rect;
+		
 		// temp variables
 		private var i:int, j:int, k:int, n:int, r:int, c:int, node:Node, room:Room;
 		
@@ -31,8 +39,8 @@
 		
 		public static var directions:Array = [new Pixel(0, -1), new Pixel(1, 0), new Pixel(0, 1), new Pixel( -1, 0)];
 		
-		public static const MIN_ROOMWidth:int = 4;
-		public static const MIN_ROOMHeight:int = 3;
+		public static const MIN_ROOM_WIDTH:int = 4;
+		public static const MIN_ROOM_HEIGHT:int = 3;
 		
 		public static const LEDGE_LENGTH:int = 4;
 		public static const LEDGINESS:Number = 0.3;
@@ -60,6 +68,8 @@
 		public static const MAX_LEVEL:int = 7;
 		public static const MIN_LEVEL:int = 3;
 		
+		public static const SECRET_FREQ:Number = 0.5;
+		
 		public function DungeonBitmap(level:int) {
 			
 			if(level > MIN_LEVEL){
@@ -81,7 +91,8 @@
 			super(createRoomsAndTunnels(), "auto", false);
 			
 			createRoutes();
-			findPits();
+			createPits();
+			createSecrets();
 		}
 		
 		
@@ -115,9 +126,9 @@
 				var cellWidth:int = 0;
 				
 				for(i = 0; i < rooms.length; i++){
-					rooms[i].width = MIN_ROOMWidth + random(horizPace);
+					rooms[i].width = MIN_ROOM_WIDTH + random(horizPace);
 					if(rooms[i].width > cellWidth) cellWidth = rooms[i].width;
-					rooms[i].height = MIN_ROOMHeight + random(vertPace);
+					rooms[i].height = MIN_ROOM_HEIGHT + random(vertPace);
 					if(rooms[i].height > cellHeight) cellHeight = rooms[i].height;
 				}
 				
@@ -556,8 +567,9 @@
 			bitmapData.setVector(bitmapData.rect, pixels);
 		}
 		
-		/* This finds and digs pits */
-		public function findPits():void{
+		/* This finds suitable locations for pits and digs them, leaving a trap marker for the Map class
+		 * to turn into a Trap Entity */
+		public function createPits():void{
 			var mapWidth:int = bitmapData.width;
 			var pits:Vector.<int> = new Vector.<int>();
 			var pixels:Vector.<uint> = bitmapData.getVector(bitmapData.rect);
@@ -593,6 +605,144 @@
 			}
 			
 			bitmapData.setVector(bitmapData.rect, pixels);
+		}
+		
+		/* This creates extra rooms on the edges of the map, hidden by a destructible wall */
+		public function createSecrets():void{
+			adjustedMapRect = new Rect(0, 0, bitmapData.width * Game.SCALE, bitmapData.height * Game.SCALE);
+			
+			var mapWidth:int = bitmapData.width;
+			var secretsLeft:Vector.<int> = new Vector.<int>();
+			var secretsRight:Vector.<int> = new Vector.<int>();
+			var pixels:Vector.<uint> = bitmapData.getVector(bitmapData.rect);
+			
+			// we check the edges of the map for locations where a secret room would be acceptable
+			
+			// to avoid any overlap and need to recalculate routes, only one secret per side maximum
+			
+			var room:Room, pos:int, posY:int, corridorLength:int, temp:BitmapData, ladderPos:int, ledgePos:int;
+			
+			// left edge:
+			for(i = mapWidth; i < pixels.length - mapWidth; i += mapWidth){
+				if(pixels[i+1] != WALL && pixels[i+1+mapWidth] != LADDER && pixels[i+1+mapWidth] != EMPTY && pixels[i+1+mapWidth] != PIT){
+					secretsLeft.push(i);
+				}
+			}
+			
+			if(secretsLeft.length && Math.random() < SECRET_FREQ){
+				pos = secretsLeft[(Math.random() * secretsLeft.length) >> 0];
+				posY = pos / mapWidth;
+				room = new Room();
+				room.width = MIN_ROOM_WIDTH + random(horizPace * 0.5);
+				room.height = MIN_ROOM_HEIGHT + random(vertPace * 0.5);
+				if(room.height > bitmapData.height - 2) room.height = bitmapData.height - 2;
+				corridorLength = 1 + random(5);
+				// recreate bitmap
+				temp = new BitmapData(1 + mapWidth + corridorLength + room.width, bitmapData.height, true, WALL);
+				temp.copyPixels(bitmapData, bitmapData.rect, new Point(1 + room.width + corridorLength, 0));
+				bitmapData = temp;
+				pixels = bitmapData.getVector(bitmapData.rect);
+				pixels[1 + room.width + corridorLength + posY * bitmapData.width] = SECRET;
+				for(i = 0; i < corridorLength; i++){
+					pixels[-i + room.width + corridorLength + posY * bitmapData.width] = EMPTY
+				}
+				room.x = 1;
+				room.y = posY - random(room.height);
+				if(room.y + room.height > bitmapData.height - 1) room.y = bitmapData.height - 1 - room.height;
+				if(room.y < 1) room.y = 1;
+				bitmapData.setVector(bitmapData.rect, pixels);
+				bitmapData.fillRect(new Rectangle(1, room.y, room.width, room.height), EMPTY);
+				// enable access:
+				// I like the idea of the secret rooms being spartan in function
+				// they should feel like a cubby hole
+				pixels = bitmapData.getVector(bitmapData.rect);
+				if(posY < room.y + room.height - 1){
+					ladderPos = 1 + random(room.width) + (posY + 1) * bitmapData.width;
+					pixels[ladderPos] = LADDER_LEDGE;
+					ledgePos = ladderPos + 1;
+					while(pixels[ledgePos] != WALL){
+						pixels[ledgePos] = LEDGE;
+						ledgePos++;
+					}
+					ledgePos = ladderPos - 1;
+					while(pixels[ledgePos] != WALL && Math.random() < 0.5){
+						pixels[ledgePos] = LEDGE;
+						ledgePos--;
+					}
+					ladderPos += bitmapData.width;
+					while(pixels[ladderPos] != WALL){
+						pixels[ladderPos] = LADDER;
+						ladderPos += bitmapData.width;
+					}
+				}
+				bitmapData.setVector(bitmapData.rect, pixels);
+				leftSecretRoom = room;
+				leftSecretWidth = (1 + room.width + corridorLength) * Game.SCALE;
+				adjustedMapRect.x += leftSecretWidth;
+				for(i = 0; i < rooms.length; i++){
+					rooms[i].x += 1 + room.width + corridorLength;
+				}
+			}
+			
+			mapWidth = bitmapData.width;
+			
+			// right edge:
+			for(i = mapWidth + mapWidth - 1; i < pixels.length - mapWidth; i += mapWidth){
+				if(pixels[i-1] != WALL && pixels[i-1+mapWidth] != LADDER && pixels[i-1+mapWidth] != EMPTY && pixels[i-1+mapWidth] != PIT){
+					secretsRight.push(i);
+				}
+			}
+			
+			if(secretsRight.length && Math.random() < SECRET_FREQ){
+				pos = secretsRight[(Math.random() * secretsRight.length) >> 0];
+				posY = pos / mapWidth;
+				room = new Room();
+				room.width = MIN_ROOM_WIDTH + random(horizPace * 0.5);
+				room.height = MIN_ROOM_HEIGHT + random(vertPace * 0.5);
+				if(room.height > bitmapData.height - 2) room.height = bitmapData.height - 2;
+				corridorLength = 1 + random(5);
+				// recreate bitmap
+				temp = new BitmapData(1 + bitmapData.width + corridorLength + room.width, bitmapData.height, true, WALL);
+				temp.copyPixels(bitmapData, bitmapData.rect, new Point());
+				bitmapData = temp;
+				pixels = bitmapData.getVector(bitmapData.rect);
+				pixels[mapWidth - 1 + posY * bitmapData.width] = SECRET;
+				for(i = 0; i < corridorLength; i++){
+					pixels[mapWidth + i + posY * bitmapData.width] = EMPTY
+				}
+				room.x = mapWidth + corridorLength;
+				room.y = posY - random(room.height);
+				if(room.y + room.height > bitmapData.height - 1) room.y = bitmapData.height - 1 - room.height;
+				if(room.y < 1) room.y = 1;
+				bitmapData.setVector(bitmapData.rect, pixels);
+				bitmapData.fillRect(new Rectangle(room.x, room.y, room.width, room.height), EMPTY);
+				// enable access:
+				// I like the idea of the secret rooms being spartan in function
+				// they should feel like a cubby hole
+				pixels = bitmapData.getVector(bitmapData.rect);
+				if(posY < room.y + room.height - 1){
+					ladderPos = room.x + random(room.width) + (posY + 1) * bitmapData.width;
+					pixels[ladderPos] = LADDER_LEDGE;
+					ledgePos = ladderPos - 1;
+					while(pixels[ledgePos] != WALL){
+						pixels[ledgePos] = LEDGE;
+						ledgePos--;
+					}
+					ledgePos = ladderPos + 1;
+					while(pixels[ledgePos] != WALL && Math.random() < 0.5){
+						pixels[ledgePos] = LEDGE;
+						ledgePos++;
+					}
+					ladderPos += bitmapData.width;
+					while(pixels[ladderPos] != WALL){
+						pixels[ladderPos] = LADDER;
+						ladderPos += bitmapData.width;
+					}
+				}
+				bitmapData.setVector(bitmapData.rect, pixels);
+				rightSecretWidth = (1 + room.width + corridorLength) * Game.SCALE;
+				rightSecretRoom = room;
+			}
 		}
 		
 		

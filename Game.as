@@ -319,8 +319,7 @@
 			// debugging textfield
 			info = new TextField();
 			addChild(info);
-			info.embedFonts = true;
-			info.defaultTextFormat = new TextFormat("_sans", 8, 0xFFFFFF);
+			info.textColor = 0xFFFFFF;
 			info.selectable = false;
 			info.text = "";
 			
@@ -407,6 +406,9 @@
 			
 			dungeon = new Map(n, this);
 			renderer.newMap(dungeon.width, dungeon.height, dungeon.layers);
+			// modify the mapRect to conceal secrets
+			renderer.mapRect = dungeon.bitmap.adjustedMapRect;
+			camera.mapRect = dungeon.bitmap.adjustedMapRect;
 			
 			blockMap = createIdMap(renderer.mapArrayLayers[MapRenderer.BLOCK_LAYER]);
 			lightMap.newMap(blockMap);
@@ -474,7 +476,7 @@
 			
 			// copy out these debug tools when needed
 			//var t:int = getTimer();
-			//info.text = ""
+			//info.text = g.player.mapX + " " + g.player.mapY;
 			//info.appendText("pixels" + (getTimer() - t) + "\n"); t = getTimer();
 				
 			debug.clear();
@@ -675,8 +677,9 @@
 			blockMap = createIdMap(renderer.mapArrayLayers[MapRenderer.BLOCK_LAYER]);
 			lightMap = new LightMap(blockMap, this);
 			canvas.addChild(lightMap.bitmap);
-			//changeMapValue(1, 0, renderer.mapArrayLayers[MapRenderer.BLOCK_LAYER]);
 			renderer.init(dungeon.start.x, dungeon.start.y);
+			// modify the mapRect to conceal secrets
+			renderer.mapRect = dungeon.bitmap.adjustedMapRect;
 			miniMap = new MiniMap(blockMap, this);
 			miniMap.y = miniMap.x = 25;
 			miniMapHolder.addChild(miniMap);

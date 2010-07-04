@@ -133,6 +133,8 @@
 					layers[BLOCKS][r][c] = 0;
 				} else if(pixels[i] == DungeonBitmap.PIT){
 					layers[ENTITIES][r][c] = MapTileConverter.PIT_ID;
+				} else if(pixels[i] == DungeonBitmap.SECRET){
+					layers[ENTITIES][r][c] = MapTileConverter.SECRET_WALL_ID;
 				}
 			}
 			
@@ -209,6 +211,7 @@
 				ex = entranceRoom.x + random(entranceRoom.width);
 				// the room dimensions may have extended below
 				if(layers[BLOCKS][ey + 1][ex] == 0) ey++;
+				if(layers[BLOCKS][ey][ex] == 1) ey = entranceRoom.y;
 			} while(!goodStairsPosition(ex, ey));
 			setEntrance(ex, ey);
 			
@@ -229,6 +232,7 @@
 				ex = exitRoom.x + random(exitRoom.width);
 				// the room dimensions may have extended below
 				if(layers[BLOCKS][ey + 1][ex] == 0) ey++;
+				if(layers[BLOCKS][ey][ex] == 1) ey = exitRoom.y;
 			} while(!goodStairsPosition(ex, ey));
 			setExit(ex, ey);
 			
@@ -238,6 +242,8 @@
 		public function goodStairsPosition(x:int, y:int):Boolean{
 			var pos:uint = bitmap.bitmapData.getPixel32(x, y);
 			var pos_below:uint = bitmap.bitmapData.getPixel32(x, y + 1);
+			if(bitmap.leftSecretRoom && bitmap.leftSecretRoom.contains(x, y)) return false;
+			if(bitmap.rightSecretRoom && bitmap.rightSecretRoom.contains(x, y)) return false;
 			return (pos_below == DungeonBitmap.WALL || pos_below == DungeonBitmap.LEDGE) && (pos == DungeonBitmap.EMPTY || pos == DungeonBitmap.LEDGE);
 		}
 		

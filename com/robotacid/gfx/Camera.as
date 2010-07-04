@@ -52,10 +52,10 @@
 			scrollY = scrollRect.height * 0.5;
 			scrollTargetX = -targetObject.x+scrollRect.x+scrollX;
 			scrollTargetY = -targetObject.y+scrollRect.y+scrollY;
-			scrollTargetX = Math.min(0, scrollTargetX);
-			scrollTargetY = Math.min(0, scrollTargetY);
-			scrollTargetX = Math.max(( -g.renderer.width * Game.SCALE) + viewWidth, scrollTargetX);
-			scrollTargetY = Math.max(( -(g.renderer.height + 1) * Game.SCALE) + viewHeight, scrollTargetY);
+			scrollTargetX = Math.min(-mapRect.x, scrollTargetX);
+			scrollTargetY = Math.min(-mapRect.y, scrollTargetY);
+			scrollTargetX = Math.max(( -(mapRect.x + mapRect.width)) + viewWidth, scrollTargetX);
+			scrollTargetY = Math.max(( -(mapRect.y + mapRect.height + Game.SCALE)) + viewHeight, scrollTargetY);
 			canvas.x = scrollTargetX >> 0;
 			canvas.y = scrollTargetY >> 0;
 			virtualCanvasX = lastVirtualCanvasX = canvas.x;
@@ -86,10 +86,11 @@
 			
 			scrollTargetX = -targetObject.x + scrollRect.x + scrollX;
 			scrollTargetY = -targetObject.y + scrollRect.y + scrollY;
-			/**/scrollTargetX = Math.min(0, scrollTargetX);
-			scrollTargetY = Math.min(0, scrollTargetY);
-			scrollTargetX = Math.max(( -g.renderer.width * Game.SCALE) + viewWidth, scrollTargetX);
-			scrollTargetY = Math.max(( -(g.renderer.height+1) * Game.SCALE) + viewHeight, scrollTargetY);
+			/**/
+			scrollTargetX = Math.min(-mapRect.x, scrollTargetX);
+			scrollTargetY = Math.min(-mapRect.y, scrollTargetY);
+			scrollTargetX = Math.max(( -(mapRect.x + mapRect.width)) + viewWidth, scrollTargetX);
+			scrollTargetY = Math.max(( -(mapRect.y + mapRect.height + Game.SCALE)) + viewHeight, scrollTargetY);
 			
 			lastCanvasX = canvas.x;
 			lastCanvasY = canvas.y;
