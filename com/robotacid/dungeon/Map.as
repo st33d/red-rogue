@@ -138,7 +138,6 @@
 				}
 			}
 			
-			
 			// a good dungeon needs to be full of loot and monsters
 			// in comes the content manager
 			
@@ -146,10 +145,10 @@
 			
 			content.populateLevel(level, bitmap, layers);
 			
-			
 			// create the access points
 			
 			createAccessPoints();
+			setDartTraps();
 		}
 		
 		/* Create the overworld
@@ -271,6 +270,35 @@
 				start = entrance;
 			} else if(Stairs.lastStairsUsedType == Stairs.UP){
 				start = exit;
+			}
+		}
+		
+		/* This adds dart traps to the level */
+		public function setDartTraps():void{
+			var numTraps:int = level;
+			var trapPositions:Vector.<Pixel> = new Vector.<Pixel>();
+			var pixels:Vector.<uint> = bitmap.bitmapData.getVector(bitmap.bitmapData.rect);
+			var mapWidth:int = bitmap.bitmapData.width;
+			for(i = mapWidth; i < pixels.length - mapWidth; i++){
+				if((pixels[i] == DungeonBitmap.WALL) && pixels[i - mapWidth] == DungeonBitmap.EMPTY){
+					for(j = i - mapWidth; j > mapWidth; j -= mapWidth){
+						if(pixels[j] == DungeonBitmap.LEDGE || pixels[j] == DungeonBitmap.PIT){
+							break;
+						} else if(pixels[j] == DungeonBitmap.WALL){
+							trapPositions.push(new Pixel(i % mapWidth, i / mapWidth));
+							break;
+						}
+					}
+				}
+			}
+			
+			while(numTraps > 0 && trapPositions.length > 0){
+				var trapIndex:int = trapPositions.length * Math.random();
+				var trapPos:Pixel = trapPositions[trapIndex];
+				layers[ENTITIES][trapPos.y][trapPos.x] = Math.random() < 0.5 ? MapTileConverter.POISON_DART_ID : MapTileConverter.TELEPORT_DART_ID;
+				numTraps--;
+				trapPositions.splice(trapIndex, 1);
+				
 			}
 		}
 		

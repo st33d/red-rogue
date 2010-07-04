@@ -60,6 +60,8 @@
 		public static const LADDER_ID:int = 17;
 		public static const LEDGE_ID:int = 14;
 		public static const PIT_ID:int = 55;
+		public static const POISON_DART_ID:int = 56;
+		public static const TELEPORT_DART_ID:int = 57;
 		
 		public static const ID_TO_GRAPHIC:Array = [
 			"",						// 0

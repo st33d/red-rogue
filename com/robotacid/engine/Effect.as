@@ -1,5 +1,6 @@
 ﻿package com.robotacid.engine {
 	import com.robotacid.geom.Pixel;
+	import com.robotacid.geom.Rect;
 	import com.robotacid.phys.Block;
 	import com.robotacid.phys.Collider;
 	import com.robotacid.sound.SoundManager;
@@ -111,7 +112,7 @@
 					g.createTeleportSparkRect(target.rect, 20);
 					SoundManager.playSound(g.library.TeleportSound);
 					target.divorce();
-					var dest:Pixel = getTeleportTarget(target.mapX, target.mapY, g.blockMap);
+					var dest:Pixel = getTeleportTarget(target.mapX, target.mapY, g.blockMap, g.renderer.mapRect);
 					target.x = (dest.x + 0.5) * Game.SCALE;
 					target.y = (dest.y + 0.5) * Game.SCALE;
 					target.updateRect();
@@ -219,7 +220,7 @@
 					item = g.player.unequip(item);
 				}
 				item = inventoryList.removeItem(item);
-				var dest:Pixel = getTeleportTarget(g.player.mapX, g.player.mapY, g.blockMap);
+				var dest:Pixel = getTeleportTarget(g.player.mapX, g.player.mapY, g.blockMap, g.renderer.mapRect);
 				item.dropToMap(dest.x, dest.y);
 				g.entities.push(item);
 				g.createTeleportSparkRect(g.player.rect, 10);
@@ -281,7 +282,7 @@
 					if(Math.random() < 0.05 * level){
 						g.createTeleportSparkRect(target.rect, 20);
 						target.divorce();
-						var dest:Pixel = getTeleportTarget(target.mapX, target.mapY, g.blockMap);
+						var dest:Pixel = getTeleportTarget(target.mapX, target.mapY, g.blockMap, g.renderer.mapRect);
 						target.x = (dest.x + 0.5) * Game.SCALE;
 						target.y = (dest.y + 0.5) * Game.SCALE;
 						target.updateRect();
@@ -427,9 +428,9 @@
 		}*/
 		
 		/* Get a random location on the map to teleport to - aims for somewhere not too immediate */
-		public static function getTeleportTarget(start_x:int, start_y:int, map:Vector.<Vector.<int>>):Pixel{
+		public static function getTeleportTarget(start_x:int, start_y:int, map:Vector.<Vector.<int>>, mapRect:Rect):Pixel{
 			var finish:Pixel = new Pixel(start_x, start_y);
-			while((Math.abs(start_x - finish.x) < MIN_TELEPORT_DIST && Math.abs(start_y - finish.y) < MIN_TELEPORT_DIST) || (map[finish.y][finish.x] & Block.WALL)){
+			while((Math.abs(start_x - finish.x) < MIN_TELEPORT_DIST && Math.abs(start_y - finish.y) < MIN_TELEPORT_DIST) || (map[finish.y][finish.x] & Block.WALL) || !mapRect.contains((start_x + 0.5) * Game.SCALE, (start_y + 0.5) * Game.SCALE)){
 				finish.x = Math.random() * map[0].length;
 				finish.y = Math.random() * map.length;
 			}

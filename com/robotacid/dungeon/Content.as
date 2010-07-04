@@ -17,14 +17,12 @@
 		
 		public var chestsByLevel:Vector.<Vector.<XML>>;
 		public var monstersByLevel:Vector.<Vector.<XML>>;
-		public var trapsByLevel:Vector.<Vector.<XML>>;
 		
 		public static const TOTAL_LEVELS:int = 20;
 		
 		public function Content() {
 			chestsByLevel = new Vector.<Vector.<XML>>(TOTAL_LEVELS);
 			monstersByLevel = new Vector.<Vector.<XML>>(TOTAL_LEVELS);
-			trapsByLevel = new Vector.<Vector.<XML>>(TOTAL_LEVELS);
 			init();
 		}
 		
@@ -120,13 +118,6 @@
 				// and character before long
 			}
 		}
-		
-		/* Create a trap appropriate for the dungeon level
-		public static function createTrapXML(dungeonLevel:int):XML{
-			var trapXML:XML = <character />;
-			var type:int =
-			return trapXML;
-		}*/
 		
 		/* Create a random character appropriate for the dungeon level */
 		public static function createCharacterXML(dungeonLevel:int, type:int):XML{
