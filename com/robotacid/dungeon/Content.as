@@ -106,9 +106,9 @@
 					}
 				}
 				while(chestsByLevel[level].length){
-					r = 1 + Math.random() * (bitmap.height - 1);
-					c = 1 + Math.random() * (bitmap.width - 1);
-					if(!layers[Map.ENTITIES][r][c] && layers[Map.BLOCKS][r][c] != 1 && (layers[Map.BLOCKS][r + 1][c] == MapTileConverter.LEDGE_ID || layers[Map.BLOCKS][r + 1][c] == 1)){
+					r = 1 + Math.random() * (bitmap.height - 2);
+					c = 1 + Math.random() * (bitmap.width - 2);
+					if(layers[Map.ENTITIES][r + 1][c] != MapTileConverter.PIT_ID && !layers[Map.ENTITIES][r][c] && layers[Map.BLOCKS][r][c] != 1 && (layers[Map.BLOCKS][r + 1][c] == MapTileConverter.LEDGE_ID || layers[Map.BLOCKS][r + 1][c] == 1)){
 						//trace(chestsByLevel[level][0].toXMLString());
 						layers[Map.ENTITIES][r][c] = convertXMLToObject(c, r, chestsByLevel[level].shift(), Game.g);
 					}

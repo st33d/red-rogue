@@ -29,8 +29,6 @@
 		public var horizPace:int;
 		public var roominess:int;
 		
-		public var destructibleWalls:BitmapData;
-		
 		public static var directions:Array = [new Pixel(0, -1), new Pixel(1, 0), new Pixel(0, 1), new Pixel( -1, 0)];
 		
 		public static const MIN_ROOMWidth:int = 4;
@@ -83,7 +81,7 @@
 			super(createRoomsAndTunnels(), "auto", false);
 			
 			createRoutes();
-			findDestructibleWalls();
+			findPits();
 		}
 		
 		
@@ -409,13 +407,13 @@
 			// DEBUG! ---------------------------------------------------------------
 			// did I fuck up?
 			// let's draw it and find out
-			/*var gfx:Graphics = Main.debug.graphics;
+			/*var gfx:Graphics = Game.debug.graphics;
 			gfx.lineStyle(2, 0);
 			for(i = 0; i < graph.length; i++){
 				for(j = 0; j < graph[i].connections.length; j++){
 					if(graph[i].connectionsActive[j]){
-						gfx.moveTo((graph[i].x + 0.5) * Main.SCALE, (graph[i].y + 0.5) * Main.SCALE);
-						gfx.lineTo((graph[i].connections[j].x + 0.5) * Main.SCALE, (graph[i].connections[j].y + 0.5) * Main.SCALE);
+						gfx.moveTo((graph[i].x + 0.5) * Game.SCALE, (graph[i].y + 0.5) * Game.SCALE);
+						gfx.lineTo((graph[i].connections[j].x + 0.5) * Game.SCALE, (graph[i].connections[j].y + 0.5) * Game.SCALE);
 					}
 				}
 			}*/
@@ -558,33 +556,43 @@
 			bitmapData.setVector(bitmapData.rect, pixels);
 		}
 		
-		/* This initialises and loads the property destructibleWalls with markers where pits
-		 * and secret walls could be positioned */
-		public function findDestructibleWalls():void{
+		/* This finds and digs pits */
+		public function findPits():void{
 			var mapWidth:int = bitmapData.width;
-			destructibleWalls = new BitmapData(bitmapData.width, bitmapData.height, true, 0x00000000);
+			var pits:Vector.<int> = new Vector.<int>();
 			var pixels:Vector.<uint> = bitmapData.getVector(bitmapData.rect);
-			var destructiblePixels:Vector.<uint> = destructibleWalls.getVector(destructibleWalls.rect);
 			
-			// first the search for possible pits
-			//
-			// my theory is that any ledge could still allow access to any other area if it had a pit under
-			// it - so a pixel thick wall with a ledge directly above is a candidate and shall be marked
-			for(i = mapWidth; i < pixels.length - mapWidth; i++){
-				if(pixels[i] == WALL && pixels[i + mapWidth] == EMPTY && (pixels[i - mapWidth] == EMPTY || pixels[i - mapWidth] == LEDGE)){
-					// need to be doubly sure we have a ledge above us
-					for(j = i - mapWidth; j > i % mapWidth ; j -= mapWidth){
-						if(pixels[j] == WALL){
-							break;
-						} else if(pixels[j] == LEDGE){
-							destructiblePixels[i] = PIT;
+			// any bottom corner can serve as a location for a pit, as there always seems to be a
+			// route around
+			for(i = mapWidth; i < pixels.length - mapWidth * 2; i++){
+				if(pixels[i] != WALL && pixels[i] != LADDER && pixels[i] != LADDER_LEDGE && pixels[i + mapWidth] == WALL && (pixels[i - 1] == WALL || pixels[i + 1] == WALL)){
+					// we need to verify the pit can tunnel down to a new area
+					for(j = i + mapWidth * 2; j < pixels.length - mapWidth * 2; j += mapWidth){
+						if(pixels[j] == EMPTY){
+							pits.push(i + mapWidth);
 							break;
 						}
 					}
 				}
 			}
 			
-			destructibleWalls.setVector(destructibleWalls.rect, destructiblePixels);
+			// we have a selection of locations, it remains to select from them and dig
+			var num:int = level;
+			while(num > 0 && pits.length > 0){
+				var r:int = Math.random() * pits.length;
+				pixels[pits[r]] = PIT;
+				for(i = pits[r] + mapWidth; i < pixels.length - mapWidth * 2; i += mapWidth){
+					if(pixels[i] == EMPTY){
+						break;
+					} else {
+						pixels[i] = EMPTY;
+					}
+				}
+				pits.splice(r, 1);
+				num--;
+			}
+			
+			bitmapData.setVector(bitmapData.rect, pixels);
 		}
 		
 		

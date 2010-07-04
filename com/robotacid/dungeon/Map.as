@@ -55,11 +55,8 @@
 			} else {
 				createOverworld();
 			}
-			//var destruct:Bitmap = new Bitmap(bitmap.destructibleWalls);
-			//bitmap.scaleX = bitmap.scaleY = destruct.scaleX = destruct.scaleY = 4;
-			//destruct.alpha = 0.5;
+			//bitmap.scaleX = bitmap.scaleY = 4;
 			//g.addChild(bitmap);
-			//g.addChild(destruct);
 			
 		}
 		
@@ -134,6 +131,8 @@
 					layers[BLOCKS][r][c] = MapTileConverter.LEDGE_ID;
 				} else if(pixels[i] == DungeonBitmap.EMPTY){
 					layers[BLOCKS][r][c] = 0;
+				} else if(pixels[i] == DungeonBitmap.PIT){
+					layers[ENTITIES][r][c] = MapTileConverter.PIT_ID;
 				}
 			}
 			

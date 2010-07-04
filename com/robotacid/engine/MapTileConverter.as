@@ -59,6 +59,7 @@
 		public static const LADDER_LEDGE_ID:int = 19;
 		public static const LADDER_ID:int = 17;
 		public static const LEDGE_ID:int = 14;
+		public static const PIT_ID:int = 55;
 		
 		public static const ID_TO_GRAPHIC:Array = [
 			"",						// 0

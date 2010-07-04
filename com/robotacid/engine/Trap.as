@@ -66,7 +66,7 @@
 					g.renderer.removeFromRenderedArray(mapX, mapY, Map.BLOCKS, null);
 					g.renderer.removeFromRenderedArray(mapX, mapY, Map.ENTITIES, null);
 					g.renderer.removeTile(Map.BLOCKS, mapX, mapY);
-					SoundManager.playSound(g.library.KillSound);
+					g.player.divorce();
 				} else if(type == POISON_DART){
 					g.console.print("poison trap triggered");
 					SoundManager.playSound(g.library.ThrowSound);
