@@ -5,7 +5,9 @@
 	import com.robotacid.phys.Block;
 	import com.robotacid.sound.SoundManager;
 	import com.robotacid.util.HiddenInt;
+	import flash.display.Bitmap;
 	import flash.display.DisplayObject;
+	import flash.display.Sprite;
 	
 	/**
 	 * Various entities that will attack the player when triggered
@@ -16,6 +18,7 @@
 		
 		public var type:int;
 		public var contact:Boolean;
+		public var revealed:Boolean;
 		public var dartGun:Dot;
 		
 		// type flags
@@ -29,8 +32,10 @@
 			super(mc, g);
 			this.type = type;
 			if(type == PIT){
+				revealed = true;
 				rect = new Rect(x, y - 1, SCALE, SCALE);
 			} else if(type == POISON_DART || type == TELEPORT_DART){
+				revealed = false;
 				rect = new Rect(x, y - 1, SCALE, 5);
 				dartGun = new Dot(x + SCALE * 0.5, y - SCALE);
 				while(!(g.blockMap[((dartGun.y - 1) * INV_SCALE) >> 0][(dartGun.x * INV_SCALE) >> 0] & Block.WALL)) dartGun.y -= SCALE;
@@ -76,6 +81,13 @@
 					SoundManager.playSound(g.library.ThrowSound);
 					shootDart(new Effect(Effect.TELEPORT, Game.MAX_LEVEL, Effect.THROWN, g));
 				}
+			}
+			// when a dart trap is triggered, we hang a graphic over it to warn the player
+			if(!revealed){
+				var trapRevealedB:Bitmap = new g.library.TrapRevealedB();
+				trapRevealedB.y = -SCALE;
+				(mc as Sprite).addChild(trapRevealedB);
+				revealed = true;
 			}
 		}
 		

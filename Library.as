@@ -96,6 +96,8 @@
 		[Embed(source = 'assets/midground/walls/wall_bottom_left_top.png')] public var WallBottomLeftTopB:Class;
 		[Embed(source = 'assets/midground/walls/wall_left_top_right.png')] public var WallLeftTopRightB:Class;
 		
+		[Embed(source = 'assets/trap_revealed.png')] public var TrapRevealedB:Class;
+		
 		
 		public function armourNameToMCClass(n:int):Class{
 			var list:Array = [FliesMC, FedoraMC, VikingHelmMC, SkullMC, BloodClip, BlitBackgroundClip];

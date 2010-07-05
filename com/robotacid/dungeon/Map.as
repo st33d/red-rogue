@@ -280,9 +280,11 @@
 			var pixels:Vector.<uint> = bitmap.bitmapData.getVector(bitmap.bitmapData.rect);
 			var mapWidth:int = bitmap.bitmapData.width;
 			for(i = mapWidth; i < pixels.length - mapWidth; i++){
-				if((pixels[i] == DungeonBitmap.WALL) && pixels[i - mapWidth] == DungeonBitmap.EMPTY){
+				if((pixels[i] == DungeonBitmap.WALL) && (pixels[i - mapWidth] == DungeonBitmap.EMPTY || pixels[i - mapWidth] == DungeonBitmap.LEDGE)){
 					for(j = i - mapWidth; j > mapWidth; j -= mapWidth){
-						if(pixels[j] == DungeonBitmap.LEDGE || pixels[j] == DungeonBitmap.PIT){
+						// no combining ladders or pit traps with dart traps
+						// it confuses the trap and it's unfair to have to climb a ladder into a dart
+						if(pixels[j] == DungeonBitmap.LADDER || pixels[j] == DungeonBitmap.LADDER_LEDGE || pixels[j] == DungeonBitmap.PIT){
 							break;
 						} else if(pixels[j] == DungeonBitmap.WALL){
 							trapPositions.push(new Pixel(i % mapWidth, i / mapWidth));

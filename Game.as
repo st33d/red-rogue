@@ -725,19 +725,19 @@
 		
 		
 		private function keyPressed(e:KeyboardEvent):void{
-			/*if(Key.isDown(Key.R)){
-				reset();
-			}*/
-			if(Key.isDown(Key.T)){
-				console.print("test\n"+(testCounter++));
-			}
 			if(Key.customDown(MENU_KEY)){
 				pauseGame();
+			}
+			/*if(Key.isDown(Key.R)){
+				reset();
+			}
+			if(Key.isDown(Key.T)){
+				console.print("test\n"+(testCounter++));
 			}
 			if(Key.isDown(Key.P)){
 				//minion.death("key");
 				player.levelUp();
-			}
+			}*/
 		}
 		
 		private function onFocusLost(e:Event = null):void{

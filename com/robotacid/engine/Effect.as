@@ -428,9 +428,9 @@
 		}*/
 		
 		/* Get a random location on the map to teleport to - aims for somewhere not too immediate */
-		public static function getTeleportTarget(start_x:int, start_y:int, map:Vector.<Vector.<int>>, mapRect:Rect):Pixel{
-			var finish:Pixel = new Pixel(start_x, start_y);
-			while((Math.abs(start_x - finish.x) < MIN_TELEPORT_DIST && Math.abs(start_y - finish.y) < MIN_TELEPORT_DIST) || (map[finish.y][finish.x] & Block.WALL) || !mapRect.contains((start_x + 0.5) * Game.SCALE, (start_y + 0.5) * Game.SCALE)){
+		public static function getTeleportTarget(startX:int, startY:int, map:Vector.<Vector.<int>>, mapRect:Rect):Pixel{
+			var finish:Pixel = new Pixel(startX, startY);
+			while((Math.abs(startX - finish.x) < MIN_TELEPORT_DIST && Math.abs(startY - finish.y) < MIN_TELEPORT_DIST) || (map[finish.y][finish.x] & Block.WALL) || !mapRect.contains((finish.x + 0.5) * Game.SCALE, (finish.y + 0.5) * Game.SCALE)){
 				finish.x = Math.random() * map[0].length;
 				finish.y = Math.random() * map.length;
 			}
