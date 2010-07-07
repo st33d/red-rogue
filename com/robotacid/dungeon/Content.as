@@ -171,10 +171,10 @@
 				}
 				for(i = 0; i < bucket.length; i++){
 					if(bucket[i]){
-						var enchantmentXML:XML = <enchantment />;
-						enchantmentXML.@name = i;
-						enchantmentXML.@level = bucket[i];
-						itemXML.appendChild(enchantmentXML);
+						var effectXML:XML = <effect />;
+						effectXML.@name = i;
+						effectXML.@level = bucket[i];
+						itemXML.appendChild(effectXML);
 					}
 				}
 			}
@@ -216,7 +216,7 @@
 				
 				// is this item enchanted?
 				var effect:Effect;
-				for each(var enchantment:XML in xml.enchantment){
+				for each(var enchantment:XML in xml.effect){
 					effect = new Effect(enchantment.@name, enchantment.@level, 0, g);
 					effect.enchant(obj);
 				}

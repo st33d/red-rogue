@@ -96,28 +96,6 @@
 			// so we remove her here
 			g.entities.splice(g.entities.indexOf(this), 1);
 			
-			
-			// DEBUGGING HACKS *******************************************************************
-			
-			
-			/*Item.rune_names = Item.RUNE_NAMES;
-			var item:Item;
-			for(var i:int = 0, j:int; i < 20; i++){
-				for(j = 0; j < 6; j++){
-					item = new Item(new g.library.RuneMC(), j, Item.RUNE, 0, g);
-					item.collect(this);
-				}
-			}
-			item = new Item(new g.library.BowMC(), Item.BOW, Item.WEAPON, 0, g);
-			item.collect(this);
-			var skeletonMc:MovieClip = new g.library.SkeletonMC();
-			skeletonMc.x = mc.x;
-			skeletonMc.y = (-skeletonMc.height * 0.5) + (mapY + 1) * SCALE;
-			g.entitiesHolder.addChild(skeletonMc);
-			g.minion = new Minion(Character.SKELETON, skeletonMc, skeletonMc.width, skeletonMc.height, g);*/
-			
-			
-			// ***********************************************************************************
 		}
 		// Loop
 		override public function main():void{
@@ -173,9 +151,6 @@
 			return item;
 		}
 		
-		override public function get damageBonus():Number {
-			return super.damageBonus + (weapon ? weapon.damage : 0);
-		}
 		override public function death(cause:String, decapitation:Boolean = false, aggressor:int = 0):void{
 			if(g.god_mode || !active) return;
 			super.death(cause, decapitation);
@@ -334,6 +309,12 @@
 			var ys:String = "" + (y >> 0);
 			while (ys.length < 4) ys = "0" + ys;
 			return "("+xs+","+ys+","+state_string+")";
+		}
+		
+		override public function toXML():XML {
+			var xml:XML = super.toXML();
+			xml.@xp = xp;
+			return xml;
 		}
 	}
 	

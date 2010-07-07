@@ -6,6 +6,7 @@
 	import com.robotacid.engine.Missile;
 	import com.robotacid.engine.Stairs;
 	import com.robotacid.sound.SoundManager;
+	import com.robotacid.ui.QuickSave;
 	import flash.events.Event;
 	
 	/**
@@ -32,8 +33,9 @@
 		
 		// tier 3
 		public var goUpDownOption:ToggleMenuOption;
-		public var resetList:MenuList;
-		public var resetOption:MenuOption;
+		public var loadOption:MenuOption;
+		public var saveOption:MenuOption;
+		public var newGameOption:MenuOption;
 		public var sureList:MenuList;
 		public var sureOption:MenuOption;
 		
@@ -60,7 +62,6 @@
 			optionsList = new MenuList();
 			stairsList = new MenuList();
 			// tier 3
-			resetList = new MenuList();
 			
 			onOffList = new MenuList();
 			sureList = new MenuList();
@@ -86,8 +87,12 @@
 			
 			var soundOption:MenuOption = new MenuOption("sound", onOffList);
 			soundOption.help = "toggle sound";
-			resetOption = new MenuOption("reset", sureList);
-			resetOption.help = "start a new game";
+			loadOption = new MenuOption("load", sureList);
+			loadOption.help = "load a saved game\nplayer status is saved automatically when\nusing stairs";
+			saveOption = new MenuOption("save", sureList);
+			saveOption.help = "save the menu state\nplayer status is saved automatically when\nusing stairs";
+			newGameOption = new MenuOption("new game", sureList);
+			newGameOption.help = "start a new game";
 			
 			goUpDownOption = new ToggleMenuOption(["go up", "go down"]);
 			
@@ -104,11 +109,11 @@
 			optionsList.options.push(soundOption);
 			optionsList.options.push(changeKeysOption);
 			optionsList.options.push(hotKeyOption);
-			optionsList.options.push(resetOption);
+			optionsList.options.push(loadOption);
+			optionsList.options.push(saveOption);
+			optionsList.options.push(newGameOption);
 			
 			stairsList.options.push(goUpDownOption);
-			
-			resetList.options.push(resetOption);
 			
 			sureList.options.push(sureOption);
 			
@@ -255,9 +260,13 @@
 				if(n > -1) g.player.loot.splice(n , 1);
 				g.console.print("minion eats " + item.nameToString());
 			
-			// resetting the game
+			// loading / saving / new game
 			} else if(option == sureOption){
-				if(previousMenuList.options[previousMenuList.selection] == resetOption){
+				if(previousMenuList.options[previousMenuList.selection] == loadOption){
+					QuickSave.load(g);
+				} else if(previousMenuList.options[previousMenuList.selection] == saveOption){
+					QuickSave.save(g);
+				} else if(previousMenuList.options[previousMenuList.selection] == newGameOption){
 					inventoryList.reset();
 					inventoryOption.active = false;
 					g.reset();
@@ -299,6 +308,7 @@
 			} else if(option == goUpDownOption){
 				g.player.exitLevel(goUpDownOption.target as Stairs);
 				stairsOption.active = false;
+				QuickSave.save(g, true);
 			}
 		}
 		/* In the event of player death, we need to change the menu to deactivate the inventory,

@@ -72,7 +72,7 @@
 				for(var i:int = 0; i < contents.length; i++){
 					str += contents[i].nameToString();
 					if(i < contents.length - 1){
-						str += "\n";
+						str += "\nand ";
 					}
 				}
 			}

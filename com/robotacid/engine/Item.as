@@ -407,6 +407,22 @@
 			}
 			return str;
 		}
+		
+		override public function toXML():XML{
+			var xml:XML = <item />;
+			xml.@name = name;
+			xml.@type = type;
+			xml.@level = level;
+			xml.@state = state;
+			xml.@curseState = curseState;
+			if(effects && effects.length){
+				for(var i:int = 0; i < effects.length; i++){
+					xml.appendChild(effects[i].toXML());
+				}
+			}
+			
+			return xml;
+		}
 	}
 	
 }

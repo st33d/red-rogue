@@ -312,7 +312,7 @@
 								if(weapon && weapon.effects && target.active && !(target.type & STONE)){
 									target.applyWeaponEffects(weapon);
 								}
-								target.applyDamage((damage + damageBonus) * hitResult, nameToString(), hitResult > 1, type);
+								target.applyDamage((damage + (weapon ? weapon.damage : 0)) * hitResult, nameToString(), hitResult > 1, type);
 								SoundManager.playSound(g.library.HitSound);
 								p = localToLocal(p, (mc as MovieClip).weapon, g.canvas);
 								g.createDebrisSpurt(p.x, p.y, (dir & LEFT) ? -5 : 5, 5, target.debrisType);
@@ -799,12 +799,9 @@
 			return false;
 		}
 		
-		public function get damageBonus():Number{
-			return 0;
-		}
-		
 		public function reskin(mc:DisplayObject, name:int, width:Number, height:Number):void{
 			this.name = name;
+			undead = name == SKELETON;
 			var holder:DisplayObjectContainer = this.mc.parent;
 			this.mc.parent.removeChild(this.mc);
 			holder.addChild(mc);
@@ -841,6 +838,22 @@
 		
 		public function removeNameAbilities(n:int):void{
 			
+		}
+		
+		override public function toXML():XML {
+			var xml:XML = <character />;
+			xml.@name = name;
+			xml.@type = type;
+			xml.@level = level;
+			xml.@health = health;
+ 			if(effects && effects.length){
+				for(var i:int = 0; i < effects.length; i++){
+					if(effects[i].source != Effect.ARMOUR){
+						xml.appendChild(effects[i].toXML());
+					}
+				}
+			}
+			return xml;
 		}
 		
 		override public function nameToString():String {

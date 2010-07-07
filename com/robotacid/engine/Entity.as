@@ -88,6 +88,10 @@
 			return "none";
 		}
 		
+		public function toXML():XML{
+			return <entity />;
+		}
+		
 	}
 
 }

@@ -407,9 +407,10 @@
 			dungeon = new Map(n, this);
 			renderer.newMap(dungeon.width, dungeon.height, dungeon.layers);
 			// modify the mapRect to conceal secrets
-			renderer.mapRect = dungeon.bitmap.adjustedMapRect;
-			camera.mapRect = dungeon.bitmap.adjustedMapRect;
-			
+			if(n > 0){
+				renderer.mapRect = dungeon.bitmap.adjustedMapRect;
+				camera.mapRect = dungeon.bitmap.adjustedMapRect;
+			}
 			blockMap = createIdMap(renderer.mapArrayLayers[MapRenderer.BLOCK_LAYER]);
 			lightMap.newMap(blockMap);
 			lightMap.setLight(player, player.light);

@@ -46,13 +46,13 @@
 		public static const MIN_TELEPORT_DIST:int = 10;
 		public static const TELEPORT_COUNTDOWN_STEP:int = 600 / 20;
 		
-		public function Effect(name:int, level:int, source:int, g:Game, target:Character = null) {
+		public function Effect(name:int, level:int, source:int, g:Game, target:Character = null, count:int = 0) {
 			this.g = g;
 			this.name = name;
 			this.level = level;
 			this.source = source;
 			if(target){
-				apply(target);
+				apply(target, count);
 			}
 		}
 		
@@ -236,9 +236,10 @@
 		 * means that the effect is once only and is not to be stored in the character's
 		 * effect buffer
 		 */
-		public function apply(target:Character):void{
+		public function apply(target:Character, count:int = 0):void{
 			
 			var callMain:Boolean = false;
+			this.count = 0;
 			
 			this.target = target;
 			if(name == LIGHT){
@@ -247,7 +248,7 @@
 				// the player is always lit at top strength - other things less so, for now.
 				g.lightMap.setLight(target, target.light + radius, target is Player ? 255 : 150);
 				if(source == WEAPON || source == THROWN || source == EATEN){
-					count = DECAY_DELAY_PER_LEVEL;
+					this.count = count > 0 ? count : DECAY_DELAY_PER_LEVEL;
 					callMain = true;
 				}
 			} else if(name == POISON){
@@ -257,7 +258,7 @@
 				// percentage of health per hit
 				healthStep = (target.totalHealth * 0.5) / (1 + Game.MAX_LEVEL - level);
 				healthStep /= DECAY_DELAY_PER_LEVEL;
-				count = DECAY_DELAY_PER_LEVEL;
+				this.count = count > 0 ? count : DECAY_DELAY_PER_LEVEL;
 				callMain = true;
 			} else if(name == HEAL){
 				// heal is the inverse of poison, but will restore twice all health
@@ -266,7 +267,7 @@
 				if(source == WEAPON || source == EATEN || source == THROWN){
 					healthStep = (target.totalHealth * 2) / (1 + Game.MAX_LEVEL - level);
 					healthStep /= (DECAY_DELAY_PER_LEVEL * 2);
-					count = DECAY_DELAY_PER_LEVEL * 2;
+					this.count = count > 0 ? count : DECAY_DELAY_PER_LEVEL * 2;
 				} else if(source == ARMOUR){
 					targetTotalHealth = target.totalHealth;
 					healthStep = targetTotalHealth / (2 * DECAY_DELAY_PER_LEVEL * (1 + Game.MAX_LEVEL - level));
@@ -301,16 +302,15 @@
 				}
 			} else if(name == POLYMORPH){
 				if(source == EATEN || source == THROWN){
-					var new_skin:Class = Object(target.mc).constructor;
-					var new_skin_name:int;
+					var newSkin:Class = Object(target.mc).constructor;
+					var newSkinName:int;
 					for(var i:int = 0; i < 100; i++){
-						new_skin_name = (Math.random() * CharacterAttributes.NAME_SKINS.length) >> 0;
-						new_skin = CharacterAttributes.NAME_SKINS[new_skin_name];
-						if(new_skin != Object(target.mc).constructor) break;
+						newSkinName = (Math.random() * CharacterAttributes.NAME_SKINS.length) >> 0;
+						newSkin = CharacterAttributes.NAME_SKINS[newSkinName];
+						if(newSkin != Object(target.mc).constructor) break;
 					}
-					target.undead = new_skin_name == Character.SKELETON;
-					var new_skinMc:MovieClip = new new_skin();
-					target.reskin(new_skinMc, new_skin_name, new_skinMc.width, new_skinMc.height);
+					var newSkinMc:MovieClip = new newSkin();
+					target.reskin(newSkinMc, newSkinName, newSkinMc.width, newSkinMc.height);
 					return;
 				}
 			} else if(name == XP){
@@ -400,32 +400,14 @@
 			return NAMES[name];
 		}
 		
-		/*public function toString():String{
-			var string:String = "", name:String;
-			for(var i:int = 0; i < names.length; i++){
-				if(type & (1 << i)){
-					if(CHAOS & (1 << i)){
-						name = names[Math.random() * names.length];
-					} else {
-						name = names[i];
-					}
-					if(string == ""){
-						string += " of " + name;
-					} else {
-						string += " " + name;
-					}
-				}
-			}
-			return string;
+		public function toXML():XML{
+			var xml:XML = <effect />;
+			xml.@name = name;
+			xml.@level = level;
+			xml.@count = count;
+			xml.@source = source;
+			return xml;
 		}
-		
-		
-		public static function hideNames():void{
-			names = [];
-			for(var i:int = 0; i < PROPERTY_NAMES.length; i++){
-				names.push("?");
-			}
-		}*/
 		
 		/* Get a random location on the map to teleport to - aims for somewhere not too immediate */
 		public static function getTeleportTarget(startX:int, startY:int, map:Vector.<Vector.<int>>, mapRect:Rect):Pixel{
