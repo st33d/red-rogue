@@ -1,6 +1,7 @@
 ﻿package
 {
 	import com.robotacid.ai.Brain;
+	import com.robotacid.dungeon.Content;
 	import com.robotacid.engine.Character;
 	import com.robotacid.engine.Effect;
 	import com.robotacid.engine.Minion;
@@ -70,6 +71,7 @@
 		public var minion:Minion;
 		public var library:Library;
 		public var dungeon:Map;
+		public var content:Content;
 		public var entrance:Stairs;
 		
 		// graphics
@@ -182,14 +184,16 @@
 			if (stage) init();
 			else addEventListener(Event.ADDED_TO_STAGE, init);
 		}
-		
+		/* The initialisation is quite long, so I'm breaking it up with some comment lines */
 		private function init(e:Event = null):void {
 			removeEventListener(Event.ADDED_TO_STAGE, init);
 			
+			// KEYS INIT
 			Key.init(stage);
 			Key.custom = [Key.W, Key.S, Key.A, Key.D, Keyboard.SPACE, Key.NUMBER_1, Key.NUMBER_2, Key.NUMBER_3, Key.NUMBER_4, Key.NUMBER_5, Key.NUMBER_6, Key.NUMBER_7, Key.NUMBER_8, Key.NUMBER_9, Key.NUMBER_0];
 			Key.hotKeyTotal = 10;
 			
+			// GRAPHICS INIT
 			TextBox.init();
 			
 			library = new Library;
@@ -257,7 +261,8 @@
 			
 			lightning = new Lightning();
 			
-			// user interface:
+			// UI INIT
+			
 			console = new Console(320, 3);
 			console.y = HEIGHT - (console.height);
 			console.maxLines = 3;
@@ -322,15 +327,14 @@
 			info.textColor = 0xFFFFFF;
 			info.selectable = false;
 			info.text = "";
-			
 			info.visible = true;
 			
 			shakeDirX = shakeDirY = 0;
 			konamiCode = false;
 			colossalCaveCode = false;
 			
+			// LISTS
 			
-			//lists
 			colliders = new Vector.<Collider>();
 			entities = new Vector.<Entity>();
 			items = [];
@@ -342,13 +346,37 @@
 				return item.active && onScreen(item.x, item.y, g, item.blit.width);
 			};
 			
-			
 			Item.rune_names = [];
 			for(i = 0; i < Item.RUNE_NAMES.length; i++){
 				Item.rune_names.push("?");
 			}
 			
-			createDungeon();
+			// LEVEL SPECIFIC INIT
+			// This stuff that follows requires the bones of a level to initialise
+			
+			Brain.init();
+			content = new Content();
+			dungeon = new Map(1, this);
+			renderer = new MapRenderer(this, canvas, new Sprite(), SCALE, dungeon.width, dungeon.height, WIDTH, HEIGHT);
+			renderer.setLayers(dungeon.layers, [null, null, entitiesHolder, foregroundHolder], [tileImage, tileImage, null, null], [tileImageHolder, tileImageHolder, null, null]);
+			blockMap = createIdMap(renderer.mapArrayLayers[MapRenderer.BLOCK_LAYER]);
+			lightMap = new LightMap(blockMap, this);
+			canvas.addChild(lightMap.bitmap);
+			renderer.init(dungeon.start.x, dungeon.start.y);
+			// modify the mapRect to conceal secrets
+			renderer.mapRect = dungeon.bitmap.adjustedMapRect;
+			miniMap = new MiniMap(blockMap, this);
+			miniMap.y = miniMap.x = 25;
+			miniMapHolder.addChild(miniMap);
+			frameCount = 1;
+			initPlayer();
+			// fire up listeners
+			addListeners();
+			// this is a hack to force clicking on the game when the browser first pulls in the swf
+			if(forceFocus){
+				onFocusLost();
+				forceFocus = false;
+			}
 		}
 		/* Pedantically clear all memory and re-init the project */
 		public function reset():void{
@@ -375,6 +403,10 @@
 		 * This method tries to wipe all layers whilst leaving the gaming architecture in place
 		 */
 		public function changeLevel(n:int):void{
+			// left over content needs to be pulled back into the content manager to be found
+			// if the level is visited again
+			content.recycleLevel(this);
+			
 			// elements to update:
 			
 			// game_objects list needs to be emptied
@@ -667,32 +699,6 @@
 					(dx + (-dy + Math.random() * (dy * 2))) * Math.random() * 5,
 					(dy + ( -dx + Math.random() * (dx * 2))) * Math.random() * 5
 				);
-			}
-		}
-		/* Procedurally generate a dungeon */
-		public function createDungeon():void{
-			Brain.init();
-			dungeon = new Map(1, this);
-			renderer = new MapRenderer(this, canvas, new Sprite(), SCALE, dungeon.width, dungeon.height, WIDTH, HEIGHT);
-			renderer.setLayers(dungeon.layers, [null, null, entitiesHolder, foregroundHolder], [tileImage, tileImage, null, null], [tileImageHolder, tileImageHolder, null, null]);
-			blockMap = createIdMap(renderer.mapArrayLayers[MapRenderer.BLOCK_LAYER]);
-			lightMap = new LightMap(blockMap, this);
-			canvas.addChild(lightMap.bitmap);
-			renderer.init(dungeon.start.x, dungeon.start.y);
-			// modify the mapRect to conceal secrets
-			renderer.mapRect = dungeon.bitmap.adjustedMapRect;
-			miniMap = new MiniMap(blockMap, this);
-			miniMap.y = miniMap.x = 25;
-			miniMapHolder.addChild(miniMap);
-			frameCount = 1;
-			initPlayer();
-			// fire up listeners
-			addListeners();
-			// this is a hack to force clicking on the game when the browser first pulls in the swf
-			if(forceFocus){
-				
-				onFocusLost();
-				forceFocus = false;
 			}
 		}
 		

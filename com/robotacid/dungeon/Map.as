@@ -140,10 +140,7 @@
 			
 			// a good dungeon needs to be full of loot and monsters
 			// in comes the content manager
-			
-			var content:Content = new Content();
-			
-			content.populateLevel(level, bitmap, layers);
+			g.content.populateLevel(level, bitmap, layers);
 			
 			// create the access points
 			

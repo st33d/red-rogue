@@ -3,6 +3,7 @@
 	import com.robotacid.engine.CharacterAttributes;
 	import com.robotacid.engine.Chest;
 	import com.robotacid.engine.Effect;
+	import com.robotacid.engine.Entity;
 	import com.robotacid.engine.Item;
 	import com.robotacid.engine.MapTileConverter;
 	import com.robotacid.engine.Monster;
@@ -10,6 +11,10 @@
 	/**
 	 * Creates content to place on the map for the first 20 levels to create structured
 	 * play, then returns random content from the entire selection afterwards
+	 *
+	 * You'll notice that I'm shifting between XML and normal objects a lot. The logic behind this
+	 * is that if I need to find out what's going on in a level, a quick print out of the XML renders
+	 * an easily readable itinerary. And it takes up less room in the shared object.
 	 *
 	 * @author Aaron Steed, robotacid.com
 	 */
@@ -92,6 +97,14 @@
 		public function populateLevel(dungeonLevel:int, bitmap:DungeonBitmap, layers:Array):void{
 			var r:int, c:int;
 			var level:int = dungeonLevel - 1;
+			var i:int;
+			//trace("populating..."+dungeonLevel);
+			//for(i = 0; i < monstersByLevel[level].length; i++){
+				//trace(monstersByLevel[level][i].toXMLString());
+			//}
+			//for(i = 0; i < chestsByLevel[level].length; i++){
+				//trace(chestsByLevel[level][i].toXMLString());
+			//}
 			if(level < TOTAL_LEVELS){
 				// just going to go for a random drop for now.
 				// I intend to figure out a distribution pattern later
@@ -112,10 +125,66 @@
 					}
 				}
 			} else {
+				// TO DO!!
+				
+				
 				// content for levels 21+ will have to be generated on the fly
 				// the aim is to let the player dig for more random items should they
 				// desire to - but they should encounter the level cap on their items
 				// and character before long
+			}
+		}
+		
+		/* This method tracks down monsters and items and pulls them back into the content manager to be sent out
+		 * again if the level is re-visited */
+		public function recycleLevel(g:Game):void{
+			var i:int;
+			var level:int = g.dungeon.level - 1;
+			// first we check the active list of entities
+			for(i = 0; i < g.entities.length; i++){
+				recycleEntity(g.entities[i], level);
+			}
+			// now we scour the entities layer of the renderer for more entities to convert to XML
+			var r:int, c:int;
+			for(r = 0; r < g.renderer.height; r++){
+				for(c = 0; c < g.renderer.width; c++){
+					if(g.renderer.mapArrayLayers[Map.ENTITIES][r][c] is Entity){
+						recycleEntity(g.renderer.mapArrayLayers[Map.ENTITIES][r][c], level);
+					}
+				}
+			}
+			//trace("recycling..." + g.dungeon.level);
+			//for(i = 0; i < monstersByLevel[level].length; i++){
+				//trace(monstersByLevel[level][i].toXMLString());
+			//}
+			//for(i = 0; i < chestsByLevel[level].length; i++){
+				//trace(chestsByLevel[level][i].toXMLString());
+			//}
+		}
+		
+		/* Used in concert with the recycleLevel() method to convert level assets to XML and store them */
+		public function recycleEntity(entity:Entity, level:int):void{
+			var chest:XML;
+			if(entity is Monster){
+				monstersByLevel[level].push(entity.toXML());
+			} else if(entity is Item){
+				if(chestsByLevel[level].length > 0){
+					chest = chestsByLevel[level][chestsByLevel[level].length - 1];
+					if(chest.item.length < 1 + Math.random() * 3){
+						chest.appendChild(entity.toXML());
+					} else {
+						chest = <chest />;
+						chest.appendChild(entity.toXML());
+						chestsByLevel[level].push(chest);
+					}
+				} else {
+					chest = <chest />;
+					chest.appendChild(entity.toXML());
+					chestsByLevel[level].push(chest);
+				}
+			} else if(entity is Chest){
+				chest = entity.toXML();
+				if(chest) chestsByLevel[level].push(entity.toXML());
 			}
 		}
 		

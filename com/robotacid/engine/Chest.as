@@ -85,6 +85,18 @@
 			if(n > -1) g.items.splice(n, 1);
 		}
 		
+		override public function toXML():XML {
+			if(contents){
+				var xml:XML = <chest />;
+				for(var i:int = 0; i < contents.length; i++){
+					xml.appendChild(contents[i].toXML());
+				}
+				return xml;
+			}
+			return null;
+			
+		}
+		
 	}
 
 }

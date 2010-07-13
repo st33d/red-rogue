@@ -50,6 +50,9 @@ package com.robotacid.ui {
 					items.push(g.menu.inventoryList.options[i].target.toXML());
 				}
 				obj.items = items;
+				// now the content manager stocks
+				obj.chestsByLevel = g.content.chestsByLevel;
+				obj.monstersByLevel = g.content.monstersByLevel;
 			}
 			
 			var byteArray:ByteArray = new ByteArray();
@@ -167,6 +170,9 @@ package com.robotacid.ui {
 							g.minion.updateMC();
 						}
 					}
+					// restock the content manager
+					g.content.chestsByLevel = obj.chestsByLevel;
+					g.content.monstersByLevel = obj.monstersByLevel;
 					// call for a new level
 					g.changeLevel(parseInt(obj.dungeonLevel));
 				}
