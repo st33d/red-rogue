@@ -85,6 +85,8 @@
 			divorce();
 			x = g.player.x;
 			y = g.player.rect.y + g.player.rect.height - height * 0.5;
+			mapX = (rect.x + rect.width * 0.5) * INV_SCALE;
+			mapY = (rect.y + rect.height * 0.5) * INV_SCALE;
 			updateRect();
 			updateMC();
 			awake = Collider.AWAKE_DELAY;

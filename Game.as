@@ -446,6 +446,8 @@
 			if(n > 0){
 				renderer.mapRect = dungeon.bitmap.adjustedMapRect;
 				camera.mapRect = dungeon.bitmap.adjustedMapRect;
+			} else {
+				camera.mapRect = renderer.mapRect;
 			}
 			blockMap = createIdMap(renderer.mapArrayLayers[MapRenderer.BLOCK_LAYER]);
 			lightMap.newMap(blockMap);
