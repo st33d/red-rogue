@@ -308,7 +308,6 @@
 			} else if(option == goUpDownOption){
 				g.player.exitLevel(goUpDownOption.target as Stairs);
 				stairsOption.active = false;
-				QuickSave.save(g, true);
 			}
 		}
 		/* In the event of player death, we need to change the menu to deactivate the inventory,

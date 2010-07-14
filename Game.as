@@ -21,6 +21,7 @@
 	import com.robotacid.ui.Console;
 	import com.robotacid.ui.menu.GameMenu;
 	import com.robotacid.ui.ProgressBar;
+	import com.robotacid.ui.QuickSave;
 	import com.robotacid.ui.TextBox;
 	import com.robotacid.ui.MiniMap;
 	import com.robotacid.ui.Key;
@@ -402,10 +403,13 @@
 		 *
 		 * This method tries to wipe all layers whilst leaving the gaming architecture in place
 		 */
-		public function changeLevel(n:int):void{
-			// left over content needs to be pulled back into the content manager to be found
-			// if the level is visited again
-			content.recycleLevel(this);
+		public function changeLevel(n:int, loaded:Boolean = false):void{
+			if(!loaded){
+				// left over content needs to be pulled back into the content manager to be found
+				// if the level is visited again
+				content.recycleLevel(this);
+				QuickSave.save(g, true);
+			}
 			
 			// elements to update:
 			

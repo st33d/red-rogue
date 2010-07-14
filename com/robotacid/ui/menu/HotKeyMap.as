@@ -1,18 +1,18 @@
 ﻿package com.robotacid.ui.menu {
 	/**
 	 * This maps out a behaviour for a hot key
-	 * 
+	 *
 	 * A hot key runs down a specific path to activate a menu option
-	 * 
+	 *
 	 * However - as I decided to make the topology of the menu dynamic, it became apparent that the hot
 	 * keys needed to seek alternative paths to similar goals when the current route became blocked
-	 * 
+	 *
 	 * Thus when a hot key encounters a blocked path, or the path no longer appears to operate how it used
 	 * to, then it will seek out MenuOptions in the current list that bear the same "context"
-	 * 
+	 *
 	 * Consider setting up a key to consume health potions - you would want this key to remain in that
 	 * "context" whether you have potions to spare or not
-	 * 
+	 *
 	 * @author Aaron Steed, robotacid.com
 	 */
 	public class HotKeyMap{
@@ -21,9 +21,7 @@
 		public var active:Boolean;
 		public var key:int;
 		public var selectionBranch:Vector.<int>;
-		public var listBranch:Vector.<MenuList>;
 		public var optionBranch:Vector.<MenuOption>;
-		public var branchString:String;
 		
 		public var length:int;
 		
@@ -33,18 +31,30 @@
 			active = false;
 		}
 		
-		/* Clears all lists and prepares for a new recording */
-		public function init():void{
+		/* Clears all lists and prepares for a new recording
+		 *
+		 * If XML is fed in as a parameter, this object tries to construct a map based
+		 * on the contents of the XML - it is assumed that XML came from the toXML() method
+		 * of this object */
+		public function init(xml:XML = null):void{
 			selectionBranch = new Vector.<int>();
-			listBranch = new Vector.<MenuList>();
 			optionBranch = new Vector.<MenuOption>();
-			branchString = "";
 			length = 0;
+			if(xml){
+				for each(var branch:XML in xml.branch){
+					selectionBranch.push(parseInt(branch.@selection));
+					// for each optionBranch step, a fake MenuOption is made with the right
+					// name and context. And so hopefully the course correction will find the
+					// right option and execute
+					optionBranch.push(new MenuOption(branch.@name));
+					optionBranch[optionBranch.length - 1].context = branch.@context;
+					length++;
+				}
+			}
 		}
 		
 		
-		public function push(list:MenuList, option:MenuOption, selection:int):void{
-			listBranch.push(list);
+		public function push(option:MenuOption, selection:int):void{
 			optionBranch.push(option);
 			selectionBranch.push(selection);
 			length++;
@@ -52,7 +62,6 @@
 		
 		public function pop(steps:int = 1):void{
 			while(steps){
-				listBranch.pop();
 				optionBranch.pop();
 				selectionBranch.pop();
 				if(--length <= 0) break;
@@ -128,6 +137,18 @@
 				menu.selection = selectionBranch[i];
 				menu.stepForward();
 			}
+		}
+		
+		public function toXML():XML{
+			var xml:XML = <hotKey />;
+			for(var i:int = 0; i < length; i++){
+				var branchNode:XML = <branch />;
+				branchNode.@selection = selectionBranch[i];
+				branchNode.@name = optionBranch[i].name;
+				branchNode.@context = optionBranch[i].context;
+				xml.appendChild(branchNode);
+			}
+			return xml;
 		}
 	}
 

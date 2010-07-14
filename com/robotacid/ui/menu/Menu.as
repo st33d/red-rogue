@@ -216,7 +216,7 @@
 				if(nextMenuList){
 					// recording?
 					if(hotKeyMapRecord){
-						hotKeyMapRecord.push(currentMenuList, currentMenuList.options[currentMenuList.selection], currentMenuList.selection);
+						hotKeyMapRecord.push(currentMenuList.options[currentMenuList.selection], currentMenuList.selection);
 					}
 					
 					// options that are deactivated by walking this option are disabled here
@@ -249,7 +249,7 @@
 					// if the Menu is recording a path for a hot key, then we store that
 					// hot key here:
 					if(hotKeyMapRecord){
-						hotKeyMapRecord.push(currentMenuList, currentMenuList.options[currentMenuList.selection], currentMenuList.selection);
+						hotKeyMapRecord.push(currentMenuList.options[currentMenuList.selection], currentMenuList.selection);
 						
 						hotKeyMaps[hotKeyMapRecord.key] = hotKeyMapRecord;
 						
