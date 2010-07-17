@@ -1,0 +1,40 @@
+/* CSS Document */
+
+body {
+	width: 640px; /* adjust to taste; do not use fixed px width */
+	margin: 0 auto;
+	text-align: center;
+	font-family: Courier;
+	padding: 10px;
+	background: #000000;
+	color: #AAAAAA;
+	font-size: 10pt;
+	font-weight: normal;
+	text-decoration: none;
+}
+h1{
+	color: #AAAAAA;
+	font-size: 18pt;
+	font-weight: bold;
+	margin-bottom: 0px;
+}
+#content{
+	text-align: left;
+	width:640px;
+	height:480px;
+}
+a{
+	color: #AAAAAA;
+	outline:none;
+}
+object { outline:none; }
+
+a:hover{
+	color: #AA0000;
+}
+#log{
+	width:640px;
+	height:200px;
+	overflow-x:auto;
+	overflow-y:scroll;
+}
