@@ -49,8 +49,6 @@
 		}
 		
 		public function collect(character:Character):void{
-			trace("collect" + objectNum);
-			if(!contents) trace("what the hell?");
 			(mc as MovieClip).gotoAndStop("open");
 			tileId = ""+OPEN_ID;
 			for(var i:int = 0; i < contents.length; i++){

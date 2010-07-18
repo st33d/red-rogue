@@ -34,7 +34,7 @@
 			mapY = y * Game.INV_SCALE;
 			px = x;
 			py = y;
-			ignore = Block.CHARACTER | Block.LEDGE | Block.LADDER | Block.HEAD;
+			ignore = Block.CHARACTER | Block.LEDGE | Block.LADDER | Block.HEAD | Block.CORPSE;
 		}
 	
 		override public function main():void{

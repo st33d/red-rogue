@@ -149,8 +149,8 @@
 			undead = name == SKELETON;
 			debrisType = name == SKELETON ? Game.BONE : Game.BLOOD;
 			inTheDark = false;
-			missileIgnore = Block.LADDER | Block.LEDGE;
-			missileIgnore = Block.LADDER | Block.LEDGE;
+			missileIgnore = Block.LADDER | Block.LEDGE | Block.CORPSE;
+			ignore |= Block.CORPSE;
 			crushable = true;
 			inflictsCrush = true;
 			
@@ -209,14 +209,6 @@
 			mapX = (rect.x + rect.width * 0.5) * INV_SCALE;
 			mapY = (rect.y + rect.height * 0.5) * INV_SCALE;
 			
-			
-			
-			if(mapY > g.blockMap.length-1) throw new Error(nameToString()+" mapx:" + mapX + "mapy:" + mapY + " map dimensions:" + g.renderer.width + " " + g.renderer.height + " block map height:" + g.blockMap.length);
-			if(mapX > g.blockMap[0].length-1) throw new Error(nameToString()+" mapx:" + mapX + "mapy:" + mapY + " map dimensions:" + g.renderer.width + " " + g.renderer.height + " block map height:" + g.blockMap.length);
-			
-			
-			
-			
 			blockMapType = g.blockMap[mapY][mapX];
 			
 			// will put the collider to sleep if it doesn't move
@@ -257,7 +249,7 @@
 		// This chunk is the core state machine for all Characters
 		public function processActions():void{
 			if(parentBlock != null) collisions |= Rect.DOWN;
-			tileCenter = (mapX + 0.5) * SCALE
+			tileCenter = (mapX + 0.5) * SCALE;
 			// react to direction state
 			if(state == WALKING) moving = Boolean(dir & (LEFT | RIGHT));
 			else if(state == CLIMBING) moving = Boolean(dir & (UP | DOWN));
@@ -505,6 +497,7 @@
 			var method:String = decapitation ? "decapitated" : CharacterAttributes.NAME_DEATH_STRINGS[name];
 			if(decapitation){
 				var head:Head = new Head(mc as MovieClip, totalHealth * 0.5, g);
+				var corpse:Corpse = new Corpse(this, g);
 			}
 			g.console.print(CharacterAttributes.NAME_STRINGS[name] + " " + method + " by " + cause);
 			g.shake(0, 3);
@@ -698,7 +691,7 @@
 		}
 		
 		
-		/* Handles refreshing animation and the position the canvas */
+		/* Positions the graphic */
 		public function updateMC():void{
 			mc.x = (x + 0.1) >> 0;
 			mc.y = ((y + height * 0.5) + 0.1) >> 0;

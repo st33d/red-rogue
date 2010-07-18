@@ -17,8 +17,6 @@ monsters are not following a specific target
 
 strange rapid dithering behaviour on monsters, perhaps due to target switching in Brain
 
-implement static amount content throughout levels
-
 clip renderer on small levels (background tiles show through underneath on odd sized small levels)
 
 crushing inconsistent - you can surf a monster
@@ -26,6 +24,8 @@ crushing inconsistent - you can surf a monster
 deactivate all the CHANGE events fired when walking back from setting a hotkey
 
 add center of room pit that will convert to a ledge when dropped through
+
+hearts are all at level 0
 
 racial abilities - implement by having a personal effects list, add a new effect source - RACIAL:
 	troll regeneration

@@ -219,7 +219,7 @@
 						//startClips(obj.mc);
 					//}
 				} else if(obj is Chest){
-					g.items.push(obj);
+					if(obj.contents) g.items.push(obj);
 				} else if(obj is Collider){
 					g.colliders.push(obj);
 					if(obj is Character){

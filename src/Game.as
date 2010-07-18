@@ -700,7 +700,7 @@
 				addDebris(x, y, blit, vx + vx * Math.random() , -Math.random() * 4.5, print, true);
 			}
 		}
-		/* Throw some blood particles out */
+		/* Throw some sparks out */
 		public function createSparks(x:Number, y:Number, dx:Number, dy:Number, quantity:int):void{
 			for(var i:int = 0; i < quantity; i++){
 				addDebris(x, y, sparkBr,

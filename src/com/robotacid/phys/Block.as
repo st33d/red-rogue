@@ -75,6 +75,8 @@
 		public static const LADDER:int = 1 << 14;
 		/* This block is a slave of the player */
 		public static const MINION:int = 1 << 15;
+		/* This block is an animation for the decapitation of Characters */
+		public static const CORPSE:int = 1 << 16;
 		
 		/* used with idToString() */
 		public static const TOTAL_PROPERTIES:int = 12;

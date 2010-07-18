@@ -14,15 +14,15 @@
     </define>
     <define>
       <name>CONFIG::timeStamp</name>
-      <value>'17/07/2010'</value>
+      <value>'18/07/2010'</value>
     </define>
     <source-path append="true">
-      <path-element>C:\Documents and Settings\Aaron\My Documents\Flash\platform rogue\155\src</path-element>
+      <path-element>C:\Documents and Settings\Aaron\My Documents\Flash\platform rogue\156\src</path-element>
       <path-element>C:\Program Files\FlashDevelop\Library\AS3\classes</path-element>
     </source-path>
   </compiler>
   <file-specs>
-    <path-element>C:\Documents and Settings\Aaron\My Documents\Flash\platform rogue\155\src\Preloader.as</path-element>
+    <path-element>C:\Documents and Settings\Aaron\My Documents\Flash\platform rogue\156\src\Preloader.as</path-element>
   </file-specs>
   <default-background-color>#FFFFFF</default-background-color>
   <default-frame-rate>30</default-frame-rate>

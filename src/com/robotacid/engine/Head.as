@@ -7,6 +7,7 @@
 	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
 	import flash.display.Sprite;
+	import flash.filters.GlowFilter;
 	import flash.geom.Matrix;
 	import flash.geom.Rectangle;
 	
@@ -38,9 +39,9 @@
 		public function Head(victim:MovieClip, damage:Number, g:Game) {
 			// first we get capture the target's head
 			// each decapitatable victim has a marker clip on it called "neck" that we chop at
-			var neck_y:int = victim.neck.y + 1;
+			var neckY:int = victim.neck.y + 1;
 			var bounds:Rectangle = victim.getBounds(victim);
-			var data:BitmapData = new BitmapData(Math.ceil(bounds.width), Math.ceil(-bounds.top + neck_y), true, 0x00000000);
+			var data:BitmapData = new BitmapData(Math.ceil(bounds.width), Math.ceil(-bounds.top + neckY), true, 0x00000000);
 			data.draw(victim, new Matrix(1, 0, 0, 1, -bounds.left, -bounds.top));
 			var holder:Sprite = new Sprite();
 			var bitmap:Bitmap = new Bitmap(data);
@@ -48,7 +49,7 @@
 			holder.addChild(bitmap);
 			g.fxHolder.addChild(holder);
 			holder.x = victim.x;
-			holder.y = victim.y + neck_y;
+			holder.y = victim.y + neckY;
 			// now we've got a head, but the width of the actual graphic may be lying
 			var colourBounds:Rectangle = data.getColorBoundsRect(0xFFFFFFFF, 0x00000000, false);
 			bitmap.y = -colourBounds.bottom;
@@ -57,6 +58,7 @@
 			weight = 0;
 			bloodCount = BLOOD_DELAY;
 			block.type |= Block.HEAD;
+			ignore |= Block.CORPSE;
 			this.damage = damage;
 			inflictsCrush = false;
 		}
