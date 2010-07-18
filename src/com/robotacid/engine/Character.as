@@ -117,6 +117,8 @@
 		public static const CRITICAL_MISS:Number = 0.05;
 		public static const QUICKENING_DELAY:int = 90;
 		
+		public static const CRUSH_TOLERANCE:Number = 2;
+		
 		public static var p:Point = new Point();
 		
 		public function Character(mc:DisplayObject, name:int, type:int, level:int, width:int, height:int, g:Game, active:Boolean = false) {
@@ -856,19 +858,21 @@
 		override public function addChild(collider:Collider):void {
 			super.addChild(collider);
 			if(crushable && collider.inflictsCrush){
-				if(collider.rect.x < rect.x + rect.width * 0.5 && collider.rect.x + collider.rect.width > rect.x + rect.width * 0.5){
+				// if the centers of both colliders are within crush tolerance range, then we execute
+				// a crush death
+				if(Math.abs(collider.x - x) < CRUSH_TOLERANCE){
 					crushed = true;
 				} else {
-					// try to be lenient to the character by offering a dodge from the collision - seeing
+					// we try to be lenient to the character by offering a dodge from the collision - seeing
 					// as they are only clipping the crusher
 					divorce();
-					if(collider.rect.x + collider.rect.width < rect.x + rect.width * 0.5){
-						moveX(collider.rect.x + collider.rect.width - rect.x);
-					} else if(collider.rect.x > rect.x + rect.width * 0.5){
-						moveX((rect.x + collider.rect.width) - collider.rect.x);
+					if(collider.x > x){
+						collider.moveX(vx + ((rect.x + rect.width) - collider.rect.x));
+					} else if(collider.x < x){
+						collider.moveX(vx + (rect.x - (collider.rect.x + collider.rect.width)));
 					}
-					// did it work?
-					if(collider.rect.x < rect.x + rect.width * 0.5 && collider.rect.x + collider.rect.width > rect.x + rect.width * 0.5){
+					// did it work? is the offending collider free from contact?
+					if(!(rect.x > collider.rect.x + (collider.rect.width - 1) || rect.x + (rect.width - 1) < collider.rect.x)){
 						crushed = true;
 					}
 				}
