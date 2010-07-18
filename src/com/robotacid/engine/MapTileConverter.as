@@ -12,9 +12,12 @@
 	import com.robotacid.util.array.getParams;
 	import com.robotacid.util.array.protectedSplitArray;
 	import com.robotacid.util.clips.startClips;
+	import flash.display.BitmapData;
 	import flash.display.DisplayObject;
 	import flash.display.Sprite;
 	import flash.display.MovieClip;
+	import flash.filters.DropShadowFilter;
+	import flash.geom.Point;
 	
 	/**
 	* Converts indices into MapObjects and their derivatives
@@ -168,12 +171,15 @@
 		/* Do any preprocessing needed on the BlitSprites */
 		public static function init():void{
 			var i:int;
-			for(i = 24; i <= 32; i++){
+			var point:Point = new Point();
+			for(i = 15; i <= 41; i++){
 				ID_TO_GRAPHIC[i].resize(0, 0, 16, 16);
+				(ID_TO_GRAPHIC[i].data as BitmapData).applyFilter(ID_TO_GRAPHIC[i].data, ID_TO_GRAPHIC[i].rect, point, new DropShadowFilter(1, 90, 0, 0.3, 0, 3, 1));
+			}
+			for(i = 24; i <= 32; i++){
 				ID_TO_GRAPHIC[i].add(ID_TO_GRAPHIC[LADDER]);
 			}
 			for(i = 33; i <= 41; i++){
-				ID_TO_GRAPHIC[i].resize(0, 0, 16, 16);
 				ID_TO_GRAPHIC[i].add(ID_TO_GRAPHIC[LADDER_TOP]);
 			}
 		}
