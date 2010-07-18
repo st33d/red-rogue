@@ -11,6 +11,8 @@
 	import com.robotacid.engine.Player;
 	import com.robotacid.engine.MapTileConverter;
 	import com.robotacid.engine.Item;
+	import com.robotacid.engine.Stone;
+	import com.robotacid.engine.Trap;
 	import com.robotacid.geom.Dot;
 	import com.robotacid.geom.Pixel;
 	import com.robotacid.geom.Rect;
@@ -707,6 +709,25 @@
 					(dx + (-dy + Math.random() * (dy * 2))) * Math.random() * 5,
 					(dy + ( -dx + Math.random() * (dx * 2))) * Math.random() * 5
 				);
+			}
+		}
+		/* Sets all traps and secrets to their revealed status */
+		public function revealTrapsAndSecrets():void{
+			var n:int = 0;
+			for(var i:int = 0; i < entities.length; i++){
+				if(entities[i] is Trap && !(entities[i] as Trap).revealed){
+					(entities[i] as Trap).reveal();
+					n++;
+				}
+				if(entities[i] is Stone && (entities[i] as Stone).name == Stone.SECRET_WALL && !(entities[i] as Stone).revealed){
+					(entities[i] as Stone).reveal();
+					n++;
+				}
+			}
+			if(n == 0){
+				console.print("found nothing");
+			} else {
+				console.print(n + " discover" + (n > 1 ? "ies" : "y"));
 			}
 		}
 		

@@ -41,6 +41,8 @@
 			Brain.playerCharacters.push(this);
 			
 			g.minionHealthBar.visible = true;
+			g.menu.summonOption.active = true;
+			g.menu.selection = g.menu.selection;
 		}
 		
 		override public function main():void {
@@ -77,8 +79,6 @@
 			g.minionHealthBar.setValue(health, totalHealth);
 		}
 		
-		
-		
 		/* This pulls the minion to the vicinity of the player */
 		public function teleportToPlayer():void{
 			g.createTeleportSparkRect(rect, 20);
@@ -105,6 +105,8 @@
 				Brain.playerCharacters.splice(Brain.playerCharacters.indexOf(this), 1);
 				g.minion = null;
 				g.minionHealthBar.visible = false;
+				g.menu.summonOption.active = false;
+				g.menu.selection = g.menu.selection;
 			} else {
 				if(temp_weapon) equip(temp_weapon);
 				if(temp_armour) equip(temp_armour);

@@ -1,7 +1,4 @@
-actions menu:
-	search
-	stairs
-	summon minion
+come up with a means to get the brain object to navigate ladders, some kind of best first search
 
 *the rune pass through has changed to a hit with no effect - still needs investigation
 
@@ -19,8 +16,6 @@ strange rapid dithering behaviour on monsters, perhaps due to target switching i
 
 clip renderer on small levels (background tiles show through underneath on odd sized small levels)
 
-crushing inconsistent - you can surf a monster
-
 deactivate all the CHANGE events fired when walking back from setting a hotkey
 
 add center of room pit that will convert to a ledge when dropped through
@@ -30,6 +25,8 @@ hearts are all at level 0
 racial abilities - implement by having a personal effects list, add a new effect source - RACIAL:
 	troll regeneration
 	shadow monster - all walls are ledges
+
+help on menu has not been fully written out
 
 level generator overhaul:
 	distribution tactics -
@@ -59,6 +56,12 @@ move towards final build - update final build on a regular basis
 
 
 EXTRA ELEMENTS TO DO:
+
+	tutorial:
+		the game needs a teaching mode
+	
+	title screen:
+		needs the options - play,
 	
 	ui:
 		more apple:
@@ -84,7 +87,6 @@ EXTRA ELEMENTS TO DO:
 		mimic (that chest just bit me!)
 		vampire (steals health and adds it to its own)
 		graded monsters (simply harder or weaker)
-			troll - apply heal effect into monster's buffer
 			ogre - big fucker, perhaps be bigger than corridors
 		champion monsters (how do I illustrate this?), will possess magic items and can rally surrounding monsters to mob the player
 		

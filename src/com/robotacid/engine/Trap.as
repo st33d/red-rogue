@@ -31,11 +31,10 @@
 		public function Trap(mc:DisplayObject, type:int, g:Game) {
 			super(mc, g);
 			this.type = type;
+			revealed = false;
 			if(type == PIT){
-				revealed = true;
 				rect = new Rect(x, y - 1, SCALE, SCALE);
 			} else if(type == POISON_DART || type == TELEPORT_DART){
-				revealed = false;
 				rect = new Rect(x, y - 1, SCALE, 5);
 				dartGun = new Dot(x + SCALE * 0.5, y - SCALE);
 				while(!(g.blockMap[((dartGun.y - 1) * INV_SCALE) >> 0][(dartGun.x * INV_SCALE) >> 0] & Block.WALL)) dartGun.y -= SCALE;
@@ -71,7 +70,12 @@
 					g.renderer.removeFromRenderedArray(mapX, mapY, Map.BLOCKS, null);
 					g.renderer.removeFromRenderedArray(mapX, mapY, Map.ENTITIES, null);
 					g.renderer.removeTile(Map.BLOCKS, mapX, mapY);
-					g.player.divorce();
+					// check to see if any colliders are on this and drop them
+					for(var i:int = 0; i < g.colliders.length; i++){
+						if(g.colliders[i].mapX == mapX && g.colliders[i].mapY == mapY - 1){
+							g.colliders[i].divorce();
+						}
+					}
 				} else if(type == POISON_DART){
 					g.console.print("poison trap triggered");
 					SoundManager.playSound(g.library.ThrowSound);
@@ -82,13 +86,17 @@
 					shootDart(new Effect(Effect.TELEPORT, Game.MAX_LEVEL, Effect.THROWN, g));
 				}
 			}
-			// when a dart trap is triggered, we hang a graphic over it to warn the player
-			if(!revealed){
-				var trapRevealedB:Bitmap = new g.library.TrapRevealedB();
-				trapRevealedB.y = -SCALE;
-				(mc as Sprite).addChild(trapRevealedB);
-				revealed = true;
+			// a trap that still exists after being triggered gets revealed
+			if(!revealed && active){
+				reveal();
 			}
+		}
+		/* Adds a graphic to this trap to show the player where it is */
+		public function reveal():void{
+			var trapRevealedB:Bitmap = new g.library.TrapRevealedB();
+			trapRevealedB.y = -SCALE;
+			(mc as Sprite).addChild(trapRevealedB);
+			revealed = true;
 		}
 		
 		public function shootDart(effect:Effect):void{

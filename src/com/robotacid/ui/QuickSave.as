@@ -33,8 +33,6 @@ package com.robotacid.ui {
 		
 		public static function save(g:Game, playerData:Boolean = false):void{
 			
-			g.console.print("saving game, please wait...");
-			
 			var customKeys:Array = Key.custom;
 			
 			var obj:Object = {};

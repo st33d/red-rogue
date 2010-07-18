@@ -4,6 +4,7 @@
 	import com.robotacid.engine.Effect;
 	import com.robotacid.engine.Item;
 	import com.robotacid.engine.Missile;
+	import com.robotacid.engine.Player;
 	import com.robotacid.engine.Stairs;
 	import com.robotacid.sound.SoundManager;
 	import com.robotacid.ui.QuickSave;
@@ -21,18 +22,15 @@
 		
 		public var g:Game;
 		
-		// tier 1
-		// branch 0
-		
-		// tier 2
 		public var inventoryList:InventoryMenuList;
 		public var inventoryOption:MenuOption;
 		public var optionsList:MenuList;
-		public var stairsOption:MenuOption;
-		public var stairsList:MenuList;
+		public var actionsList:MenuList;
 		
-		// tier 3
-		public var goUpDownOption:ToggleMenuOption;
+		public var exitLevelOption:MenuOption;
+		public var summonOption:MenuOption;
+		public var searchOption:MenuOption;
+		
 		public var loadOption:MenuOption;
 		public var saveOption:MenuOption;
 		public var newGameOption:MenuOption;
@@ -55,29 +53,27 @@
 		public function init():void{
 			// MENU LISTS
 			
-			// tier 1
+			
 			var trunk:MenuList = new MenuList();
-			// tier 2
+			
 			inventoryList = new InventoryMenuList(this, g);
 			optionsList = new MenuList();
-			stairsList = new MenuList();
-			// tier 3
+			actionsList = new MenuList();
 			
 			onOffList = new MenuList();
 			sureList = new MenuList();
 			
 			// MENU OPTIONS
 			
-			// tier 1
 			inventoryOption = new MenuOption("inventory", inventoryList, false);
 			inventoryOption.help = "a list of items the rogue currently possesses in her\nhandbag of holding";
 			inventoryList.pointers = new Vector.<MenuOption>();
 			inventoryList.pointers.push(inventoryOption);
 			var optionsOption:MenuOption = new MenuOption("options", optionsList);
 			optionsOption.help = "change game settings";
-			stairsOption = new MenuOption("stairs", stairsList, false);
+			var actionsOption:MenuOption = new MenuOption("actions", actionsList);
+			actionsOption.help = "perform actions like searching for traps and going\nup and down stairs"
 			
-			// tier 2
 			var changeKeysOption:MenuOption = Menu.createChangeKeysMenuOption();
 			changeKeysOption.help = "change the movement keys, menu key and hot keys"
 			var hotKeyDeactivates:Vector.<MenuOption> = new Vector.<MenuOption>();
@@ -93,10 +89,13 @@
 			saveOption.help = "save the menu state\nplayer status is saved automatically when\nusing stairs";
 			newGameOption = new MenuOption("new game", sureList);
 			newGameOption.help = "start a new game";
+			exitLevelOption = new MenuOption("exit level", null, false);
+			exitLevelOption.help = "exit this level when standing next to\n a stairway";
+			summonOption = new MenuOption("summon");
+			summonOption.help = "teleport your minion to your location";
+			searchOption = new MenuOption("search");
+			searchOption.help = "search immediate area for traps and secret areas.\nthe player must not move till the search\nis over, or it will be aborted"
 			
-			goUpDownOption = new ToggleMenuOption(["go up", "go down"]);
-			
-			// tier 3
 			onOffOption = new ToggleMenuOption(["off", "on"]);
 			sureOption = new MenuOption("sure?");
 			
@@ -104,7 +103,7 @@
 			
 			trunk.options.push(inventoryOption);
 			trunk.options.push(optionsOption);
-			trunk.options.push(stairsOption);
+			trunk.options.push(actionsOption);
 			
 			optionsList.options.push(soundOption);
 			optionsList.options.push(changeKeysOption);
@@ -113,7 +112,9 @@
 			optionsList.options.push(saveOption);
 			optionsList.options.push(newGameOption);
 			
-			stairsList.options.push(goUpDownOption);
+			actionsList.options.push(searchOption);
+			actionsList.options.push(summonOption);
+			actionsList.options.push(exitLevelOption);
 			
 			sureList.options.push(sureOption);
 			
@@ -305,10 +306,20 @@
 				g.console.print(item.nameToString() + " enchanted with " + rune.nameToString());
 			
 			// exit the level
-			} else if(option == goUpDownOption){
-				g.player.exitLevel(goUpDownOption.target as Stairs);
-				stairsOption.active = false;
+			} else if(option == exitLevelOption){
+				g.player.exitLevel(exitLevelOption.target as Stairs);
+				exitLevelOption.active = false;
+			
+			// searching
+			} else if(option == searchOption){
+				g.player.searchCount = Player.SEARCH_DELAY;
+				g.console.print("beginning search, please stay still...");
+			
+			// summoning
+			} else if(option == summonOption){
+				if(g.minion) g.minion.teleportToPlayer();
 			}
+			
 		}
 		/* In the event of player death, we need to change the menu to deactivate the inventory,
 		 * and maybe some other stuff in future

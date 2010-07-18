@@ -6,7 +6,7 @@
 	
 	/**
 	 * A trap style entity that allows access to the next/previous level
-	 * 
+	 *
 	 * @author Aaron Steed, robotacid.com
 	 */
 	public class Stairs extends Entity{
@@ -41,15 +41,13 @@
 			if(rect.intersects(g.player.rect) && g.player.state == Character.WALKING){
 				if(!contact){
 					contact = true;
-					g.menu.stairsOption.active = true;
-					g.menu.goUpDownOption.state = type;
+					g.menu.exitLevelOption.active = true;
 					g.menu.selection = g.menu.selection;
-					g.menu.goUpDownOption.target = this;
+					g.menu.exitLevelOption.target = this;
 				}
 			} else if(contact){
 				contact = false;
-				g.menu.stairsOption.active = false;
-				if(g.menu.currentMenuList == g.menu.stairsList) g.menu.stepBack();
+				g.menu.exitLevelOption.active = false;
 				g.menu.selection = g.menu.selection;
 			}
 			// if the stairs are visible on the map - then make the stairs icon on the map visible

@@ -45,7 +45,7 @@
 		public var xp:Number;
 		public var mapRect:Rect;
 		public var inventory:InventoryMenuList;
-		
+		public var searchCount:int;
 		
 		private var i:int, j:int;
 		
@@ -60,6 +60,7 @@
 		public static const XP_LEVELS:Array = [0, 10, 20, 40, 80, 160, 320, 640, 1280, 2560];
 		
 		public static const DEFAULT_LIGHT_RADIUS:int = 5;
+		public static const SEARCH_DELAY:int = 90;
 		
 		public static var point:Point = new Point();
 		
@@ -114,6 +115,16 @@
 					if(g.dungeon.level == 1 && exitDir < 0) newLevelStr = "ascended to overworld";
 					g.console.print(newLevelStr);
 					g.changeLevel(g.dungeon.level + exitDir);
+				}
+			}
+			if(searchCount){
+				searchCount--;
+				if(actions){
+					searchCount = 0;
+					g.console.print("search abandoned");
+				} else if(searchCount == 0){
+					g.console.print("search complete");
+					g.revealTrapsAndSecrets();
 				}
 			}
 		}

@@ -3,13 +3,19 @@
 	import com.robotacid.dungeon.Map;
 	import com.robotacid.engine.Character;
 	import com.robotacid.sound.SoundManager;
+	import flash.display.Bitmap;
 	import flash.display.DisplayObject;
+	import flash.display.Sprite;
+	import flash.geom.Matrix;
 	
 	/**
 	 * ...
 	 * @author Aaron Steed, robotacid.com
 	 */
 	public class Stone extends Character{
+		
+		public var side:int;
+		public var revealed:Boolean;
 		
 		public static const SECRET_WALL:int = 0;
 		public static const HEALTH:int = 1;
@@ -30,6 +36,14 @@
 			free = false;
 			weight = 20;
 			crushable = false;
+			if(name == SECRET_WALL){
+				revealed = false;
+				if(x >= g.renderer.mapRect.x + g.renderer.mapRect.width * 0.5){
+					side = RIGHT;
+				} else {
+					side = LEFT;
+				}
+			}
 		}
 		
 		override public function applyDamage(n:Number, source:String, critical:Boolean = false, aggressor:int = PLAYER):void {
@@ -68,6 +82,22 @@
 			} else if(mapX > g.player.mapX){
 				g.renderer.mapRect.width += g.dungeon.bitmap.rightSecretWidth;
 			}
+		}
+		
+		/* A search action can reveal to the player where a secret wall is */
+		public function reveal():void{
+			var trapRevealedB:Bitmap = new g.library.TrapRevealedB();
+			var matrix:Matrix = new Matrix();
+			matrix.tx = -SCALE * 0.5;
+			matrix.ty = -SCALE * 0.5;
+			matrix.rotate(side == RIGHT ? -Math.PI * 0.5 : Math.PI * 0.5);
+			matrix.tx += side == RIGHT ? -((SCALE * 0.5) - 1) : 1 + (SCALE * 1.5);
+			matrix.ty += SCALE * 0.5;
+			trace(matrix.tx);
+			trapRevealedB.transform.matrix = matrix;
+			(mc as Sprite).addChild(trapRevealedB);
+			revealed = true;
+			trace("revealed secret");
 		}
 	}
 
