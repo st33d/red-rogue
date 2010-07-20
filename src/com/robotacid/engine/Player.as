@@ -119,7 +119,7 @@
 			}
 			if(searchCount){
 				searchCount--;
-				if(actions){
+				if((actions) || !(state == WALKING || state == FALLING || state == CLIMBING)){
 					searchCount = 0;
 					g.console.print("search abandoned");
 				} else if(searchCount == 0){

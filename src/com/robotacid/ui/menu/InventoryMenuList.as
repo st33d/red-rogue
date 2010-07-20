@@ -5,7 +5,7 @@
 	/**
 	 * A special MenuList just for the inventory, because managing the items is quite complicated
 	 * and makes quite mess on its own without having all the other game options farting around it
-	 * 
+	 *
 	 * @author Aaron Steed, robotacid.com
 	 */
 	public class InventoryMenuList extends MenuList{
@@ -84,6 +84,7 @@
 			runeList.options.push(dropOption);
 			
 			heartList.options.push(eatOption);
+			heartList.options.push(feedMinionOption);
 			heartList.options.push(dropOption);
 			
 			itemToOption = new Dictionary(true);

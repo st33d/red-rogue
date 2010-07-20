@@ -1,26 +1,28 @@
-come up with a means to get the brain object to navigate ladders, some kind of best first search
+Brain.as overhaul:
+
+	patrol behaviour - completely fine, looks great, may need to investigate ladders as playtesters complain of monsters blocking routes still
+	
+	chase behaviour - might need total rewrite, needs a graph of the level to operate properly
+	
+	flee behaviour - same as chase I think
+
+	come up with a means to get the brain object to navigate ladders, some kind of best first search
+	monsters chasing you up ladders - usually initiated whilst in possession of a bow - needs investigation
+	follow ai doesn't understand the concept of ledges - especially the minion
+	strange rapid dithering behaviour on monsters, perhaps due to target switching in Brain
+	monsters are not following a specific target
+
+
 
 *the rune pass through has changed to a hit with no effect - still needs investigation
 
 *pickup bug - very rarely an item will not get removed from the map when being picked up. Error throwing in place
 
-monsters chasing you up ladders - usually initiated whilst in possession of a bow - needs investigation
-
 thrown rune triggered wrong effect - investigate
-
-follow ai doesn't understand the concept of ledges - especially the minion
-
-monsters are not following a specific target
-
-strange rapid dithering behaviour on monsters, perhaps due to target switching in Brain
 
 clip renderer on small levels (background tiles show through underneath on odd sized small levels)
 
 deactivate all the CHANGE events fired when walking back from setting a hotkey
-
-add center of room pit that will convert to a ledge when dropped through
-
-hearts are all at level 0
 
 racial abilities - implement by having a personal effects list, add a new effect source - RACIAL:
 	troll regeneration

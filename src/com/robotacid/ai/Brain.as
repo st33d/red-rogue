@@ -204,16 +204,20 @@
 				
 				// if a scheduleTarget is directly above, get the hell out of there
 				
+				// ===============================================================
+				// THIS MAY BE CAUSING DITHERING BEHAVIOUR
+				
 				if(scheduleTarget){
 					if(
 						char.y > scheduleTarget.rect.y + scheduleTarget.rect.height &&
-						char.mapX == scheduleTarget.mapX 
+						char.mapX == scheduleTarget.mapX
 					){
 						state = FLEE;
 						target = scheduleTarget;
 						count = delay + Math.random() * delay * 2;
 					}
 				}
+				// ===============================================================
 				
 				// sometimes the target can be at the same height on a ladder
 				// when two characters are chasing each other, this causes a stalemate,

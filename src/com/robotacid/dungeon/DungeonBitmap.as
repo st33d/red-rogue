@@ -576,8 +576,10 @@
 			
 			// any bottom corner can serve as a location for a pit, as there always seems to be a
 			// route around
+			
+			// - just added a mod to the pits so they cap with a ledge above them after triggering
 			for(i = mapWidth; i < pixels.length - mapWidth * 2; i++){
-				if(pixels[i] != WALL && pixels[i] != LADDER && pixels[i] != LADDER_LEDGE && pixels[i + mapWidth] == WALL && (pixels[i - 1] == WALL || pixels[i + 1] == WALL)){
+				if(pixels[i] != WALL && pixels[i] != LADDER && pixels[i] != LADDER_LEDGE && pixels[i + mapWidth] == WALL){// && (pixels[i - 1] == WALL || pixels[i + 1] == WALL)){
 					// we need to verify the pit can tunnel down to a new area
 					for(j = i + mapWidth * 2; j < pixels.length - mapWidth * 2; j += mapWidth){
 						if(pixels[j] == EMPTY){

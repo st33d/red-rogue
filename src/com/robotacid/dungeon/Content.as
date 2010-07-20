@@ -211,24 +211,28 @@
 			var enchantments:int = -2 + Math.random() * dungeonLevel;
 			var name:int;
 			var level:int =  1 + Math.random() * dungeonLevel;
+			var nameRange:int;
 			if(type == Item.ARMOUR){
-				name = Math.random() * Item.ARMOUR_NAMES.length;
+				nameRange = Item.ARMOUR_NAMES.length;
 			} else if(type == Item.WEAPON){
-				name = Math.random() * Item.WEAPON_NAMES.length;
+				nameRange = Item.WEAPON_NAMES.length;
 			} else if(type == Item.RUNE){
-				name = Math.random() * Item.RUNE_NAMES.length;
+				nameRange = Item.RUNE_NAMES.length;
 				level = 0;
 				enchantments = 0;
 			}
-			if(name > dungeonLevel) name = dungeonLevel;
+			if(nameRange > dungeonLevel) nameRange = dungeonLevel;
+			name = Math.random() * nameRange;
+			
 			itemXML.@name = name;
 			itemXML.@type = type;
 			itemXML.@level = level;
 			if(enchantments > 0){
 				var runeList:Vector.<int> = new Vector.<int>();
 				while(enchantments--){
-					name = Math.random() * Item.RUNE_NAMES.length;
-					if(name > dungeonLevel) name = dungeonLevel;
+					nameRange = Math.random() * Item.RUNE_NAMES.length;
+					if(nameRange > dungeonLevel) nameRange = dungeonLevel;
+					name = Math.random() * nameRange;
 					runeList.push(name);
 				}
 				// each effect must now be given a level, for this we do a bucket sort

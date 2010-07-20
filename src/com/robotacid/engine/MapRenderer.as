@@ -111,7 +111,7 @@
 			mapRect = new Rect(0, 0, width * scale, height * scale);
 		}
 		/* Sets the extension of the rendering around the viewport
-		 * 
+		 *
 		 * Some elements may require some distance away from the viewport before they get yanked
 		 */
 		public function setBorder(xLayers:Array, yLayers:Array):void{
@@ -273,10 +273,10 @@
 		}
 		/* Gets rid of a tile (coins, enemies, etc) */
 		public function removeTile(layer:int, x:int, y:int):void{
-			mapArrayLayers[layer][y][x] = 0;
+			mapArrayLayers[layer][y][x] = null;
 		}
 		/* Puts a tile on the map (useful for enemies with AI that change their map locale) */
-		public function addTile(layer:int, x:int, y:int, id:int):void{
+		public function addTile(layer:int, x:int, y:int, id:*):void{
 			mapArrayLayers[layer][y][x] = id;
 		}
 		/* Draw the edge of the scroll border and the stage edge */

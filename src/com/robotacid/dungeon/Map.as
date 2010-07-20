@@ -273,6 +273,36 @@
 			
 			createAccessPoints();
 			setDartTraps();
+			addCritters();
+		}
+		
+		/* Adds critters to the level */
+		public function addCritters():void{
+			var r:int, c:int, critterNum:int, breaker:int;
+			critterNum = Math.sqrt(width * height) * 0.5;
+			breaker = 0;
+			while(critterNum){
+				r = 1 + Math.random() * (bitmap.height - 1);
+				c = 1 + Math.random() * (bitmap.width - 1);
+				if(!layers[Map.ENTITIES][r][c] && layers[Map.BLOCKS][r][c] != 1 && (bitmap.bitmapData.getPixel32(c, r + 1) == DungeonBitmap.LEDGE || layers[Map.BLOCKS][r + 1][c] == 1)){
+						
+					layers[Map.ENTITIES][r][c] = MapTileConverter.RAT;
+					critterNum--;
+				}
+				if((breaker++) > 1000) break;
+			}
+			critterNum = Math.sqrt(width * height) * 0.5;
+			breaker = 0;
+			while(critterNum){
+				r = 1 + Math.random() * (bitmap.height - 1);
+				c = 1 + Math.random() * (bitmap.width - 1);
+				if(!layers[Map.ENTITIES][r][c] && layers[Map.BLOCKS][r][c] != 1 && layers[Map.BLOCKS][r - 1][c] == 1 && bitmap.bitmapData.getPixel32(c, r - 1) != DungeonBitmap.PIT){
+						
+					layers[Map.ENTITIES][r][c] = MapTileConverter.SPIDER;
+					critterNum--;
+				}
+				if((breaker++) > 1000) break;
+			}
 		}
 		
 		/* Create the overworld

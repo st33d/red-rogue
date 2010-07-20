@@ -20,6 +20,7 @@
 		public var contact:Boolean;
 		public var revealed:Boolean;
 		public var dartGun:Dot;
+		public var count:int;
 		
 		// type flags
 		public static const PIT:int = 0;
@@ -27,6 +28,8 @@
 		public static const TELEPORT_DART:int = 2;
 		
 		public static const SPIKES:int = 3;
+		
+		public static const PIT_COVER_DELAY:int = 7;
 		
 		public function Trap(mc:DisplayObject, type:int, g:Game) {
 			super(mc, g);
@@ -52,6 +55,17 @@
 			} else if(contact){
 				contact = false;
 			}
+			if(count){
+				count--;
+				if(count == 0){
+					if(type == PIT){
+						active = false;
+						g.renderer.addToRenderedArray(mapX, mapY, Map.BLOCKS, MapTileConverter.ID_TO_GRAPHIC[MapTileConverter.LEDGE_SINGLE]);
+						g.renderer.mapArrayLayers[Map.BLOCKS][mapY][mapX] = MapTileConverter.LEDGE_SINGLE;
+						g.blockMap[mapY][mapX] = Rect.UP | Block.LEDGE;
+					}
+				}
+			}
 			//rect.draw(Game.debug);
 		}
 		
@@ -60,8 +74,10 @@
 				// thinking that this should be a character wide trap
 			} else {
 				if(type == PIT){
+					if(count) return;
+					count = PIT_COVER_DELAY;
 					g.console.print("pit trap triggered");
-					active = false;
+					//active = false;
 					rect.y += 1;
 					g.createDebrisRect(rect, 0, 100, Game.STONE);
 					g.shake(0, 3);
@@ -70,6 +86,7 @@
 					g.renderer.removeFromRenderedArray(mapX, mapY, Map.BLOCKS, null);
 					g.renderer.removeFromRenderedArray(mapX, mapY, Map.ENTITIES, null);
 					g.renderer.removeTile(Map.BLOCKS, mapX, mapY);
+					g.renderer.addTile(Map.BLOCKS, mapX, mapY, MapTileConverter.LEDGE_SINGLE);
 					// check to see if any colliders are on this and drop them
 					for(var i:int = 0; i < g.colliders.length; i++){
 						if(g.colliders[i].mapX == mapX && g.colliders[i].mapY == mapY - 1){

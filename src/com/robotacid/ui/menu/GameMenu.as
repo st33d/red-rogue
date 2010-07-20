@@ -247,18 +247,18 @@
 					effect = new Effect(item.name, 20, Effect.EATEN, g, g.player);
 				}
 				inventoryList.removeItem(item);
-				n = g.player.loot.indexOf(item);
-				if(n > -1) g.player.loot.splice(n , 1);
 				g.console.print("rogue eats " + item.nameToString());
 			
 			// feeding runes to the minion
 			} else if(option == inventoryList.feedMinionOption){
 				item = previousMenuList.options[previousMenuList.selection].target;
-				Item.revealName(item.name, inventoryList);
-				effect = new Effect(item.name, 20, Effect.EATEN, g, g.minion);
-				inventoryList.removeItem(item);
-				n = g.player.loot.indexOf(item);
-				if(n > -1) g.player.loot.splice(n , 1);
+				if(item.type == Item.HEART){
+					g.minion.applyHealth(CharacterAttributes.NAME_HEALTHS[item.name] + CharacterAttributes.NAME_HEALTH_LEVELS[item.level]);
+				} else if(item.type == Item.RUNE){
+					Item.revealName(item.name, inventoryList);
+					effect = new Effect(item.name, 20, Effect.EATEN, g, g.minion);
+					inventoryList.removeItem(item);
+				}
 				g.console.print("minion eats " + item.nameToString());
 			
 			// loading / saving / new game

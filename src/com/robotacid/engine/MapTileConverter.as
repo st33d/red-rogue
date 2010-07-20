@@ -95,6 +95,9 @@
 		public static const POISON_DART:int = 56;
 		public static const TELEPORT_DART:int = 57;
 		
+		public static const RAT:int = 62;
+		public static const SPIDER:int = 63;
+		
 		public static var ID_TO_GRAPHIC:Array = [
 			"",						// 0
 			new BlitRect(0, 0, Game.SCALE, Game.SCALE, 0xFF000000),// wall
@@ -159,7 +162,9 @@
 			Game.g.library.StairsUpB,
 			Game.g.library.StairsDownB,
 			Sprite,
-			Sprite
+			Sprite,
+			Game.g.library.RatMC,
+			Game.g.library.SpiderMC
 		];
 		
 		public function MapTileConverter(g:Game, r:MapRenderer) {
@@ -288,6 +293,14 @@
 			} else if(id == 61) {
 				mc.x -= 1;
 				item = new Stone(mc, Stone.GRIND, Game.SCALE + 2, Game.SCALE, g);
+			} else if(id == 62) {
+				mc.x += Game.SCALE * 0.5;
+				mc.y += Game.SCALE - mc.height * 0.5;
+				item = new Critter(mc, Critter.RAT, g);
+			} else if(id == 63) {
+				mc.x += Game.SCALE * 0.5;
+				mc.y += Game.SCALE * 0.5;
+				item = new Critter(mc, Critter.SPIDER, g);
 			}
 			
 			

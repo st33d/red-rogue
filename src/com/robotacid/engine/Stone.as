@@ -93,11 +93,9 @@
 			matrix.rotate(side == RIGHT ? -Math.PI * 0.5 : Math.PI * 0.5);
 			matrix.tx += side == RIGHT ? -((SCALE * 0.5) - 1) : 1 + (SCALE * 1.5);
 			matrix.ty += SCALE * 0.5;
-			trace(matrix.tx);
 			trapRevealedB.transform.matrix = matrix;
 			(mc as Sprite).addChild(trapRevealedB);
 			revealed = true;
-			trace("revealed secret");
 		}
 	}
 

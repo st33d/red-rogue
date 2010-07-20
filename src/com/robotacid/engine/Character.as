@@ -857,24 +857,28 @@
 		
 		override public function addChild(collider:Collider):void {
 			super.addChild(collider);
-			if(crushable && collider.inflictsCrush){
+			if(crushable && collider.inflictsCrush && state != QUICKENING){
 				// if the centers of both colliders are within crush tolerance range, then we execute
-				// a crush death
-				if(Math.abs(collider.x - x) < CRUSH_TOLERANCE){
-					crushed = true;
-				} else {
-					// we try to be lenient to the character by offering a dodge from the collision - seeing
-					// as they are only clipping the crusher
-					divorce();
-					if(collider.x > x){
-						collider.moveX(vx + ((rect.x + rect.width) - collider.rect.x));
-					} else if(collider.x < x){
-						collider.moveX(vx + (rect.x - (collider.rect.x + collider.rect.width)));
-					}
-					// did it work? is the offending collider free from contact?
-					if(!(rect.x > collider.rect.x + (collider.rect.width - 1) || rect.x + (rect.width - 1) < collider.rect.x)){
+				// a crush death for the player or minon - for the other's we're less kind
+				if(type == PLAYER || type == MINION){
+					if(Math.abs(collider.x - x) < CRUSH_TOLERANCE){
 						crushed = true;
+					} else {
+						// we try to be lenient to the character by offering a dodge from the collision - seeing
+						// as they are only clipping the crusher
+						divorce();
+						if(collider.x > x){
+							collider.moveX(1 + vx + ((rect.x + rect.width) - collider.rect.x));
+						} else if(collider.x < x){
+							collider.moveX(-1 + vx + (rect.x - (collider.rect.x + collider.rect.width)));
+						}
+						// did it work? is the offending collider free from contact?
+						if(!(rect.x > collider.rect.x + (collider.rect.width - 1) || rect.x + (rect.width - 1) < collider.rect.x)){
+							crushed = true;
+						}
 					}
+				} else {
+					crushed = true;
 				}
 			}
 		}

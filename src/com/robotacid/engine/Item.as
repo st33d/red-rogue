@@ -375,7 +375,7 @@
 		}
 		/* Is 'item' essentially identical to this Item, suggesting we can stack the two */
 		public function stackable(item:Item):Boolean{
-			return item != this && item.type == type && item.name == name && !(type == ARMOUR || type == WEAPON);
+			return item != this && item.type == type && item.name == name && item.level == level && !(type == ARMOUR || type == WEAPON);
 		}
 		
 		public function copy():Item{
