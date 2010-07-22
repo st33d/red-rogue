@@ -22,8 +22,6 @@ thrown rune triggered wrong effect - investigate
 
 clip renderer on small levels (background tiles show through underneath on odd sized small levels)
 
-deactivate all the CHANGE events fired when walking back from setting a hotkey
-
 racial abilities - implement by having a personal effects list, add a new effect source - RACIAL:
 	troll regeneration
 	shadow monster - all walls are ledges
@@ -63,7 +61,7 @@ EXTRA ELEMENTS TO DO:
 		the game needs a teaching mode
 	
 	title screen:
-		needs the options - play,
+		
 	
 	ui:
 		more apple:
@@ -84,7 +82,6 @@ EXTRA ELEMENTS TO DO:
 		
 	monsters:
 		story - an old man that spouts lines of generative story to the console and bars the player's progress out of the first room until they kill him (story killed by rogue)
-		rats / dogs (can't climb ladders)
 		shadow monsters (can walk through walls)
 		mimic (that chest just bit me!)
 		vampire (steals health and adds it to its own)

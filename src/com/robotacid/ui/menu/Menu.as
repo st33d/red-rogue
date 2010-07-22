@@ -46,6 +46,7 @@
 		public var selectionWindowTaperPrevious:Bitmap;
 		public var selectionWindowTaperNext:Bitmap;
 		public var lineHeight:Number;
+		public var hideChangeEvent:Boolean;
 		
 		public var branch:Vector.<MenuList>;
 		public var branchStringCurrentOption:String;
@@ -112,6 +113,8 @@
 			
 			lineHeight = TextBox.lineHeight + 2;
 			
+			hideChangeEvent = false;
+			
 			help = new TextBox(320, 3, 0x66111111, 0xFF999999, 0xFFDDDDDD);
 			help.maxLines = 3;
 			help.fixedHeight = true;
@@ -156,7 +159,6 @@
 			addChild(help);
 			
 			if(trunk) setTrunk(trunk);
-			
 			
 			addEventListener(Event.ENTER_FRAME, onEnterFrame, false, 0, true);
 			
@@ -203,7 +205,7 @@
 				nextMenuList = null;
 			}
 			renderMenu();
-			dispatchEvent(new Event(Event.CHANGE));
+			if(!hideChangeEvent) dispatchEvent(new Event(Event.CHANGE));
 		}
 		
 		/* Either walks forward to the MenuList pointed to by the current option
@@ -255,9 +257,10 @@
 						
 						hotKeyMapRecord = null;
 						// because recording a hot key involves deactivating recursive MenuOptions
-						// we have to return to the trunk by foot. It's on my todo list to
-						// deactivate all the CHANGE events fired when doing this
+						// we have to return to the trunk by foot.
+						hideChangeEvent = true;
 						while(branch.length > 1) stepBack();
+						hideChangeEvent = false;
 					} else {
 						dispatchEvent(new Event(Event.SELECT));
 						setTrunk(branch[0]);

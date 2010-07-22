@@ -173,8 +173,11 @@
 			
 		}
 		
+		public static var preProcessed:Boolean = false;
+		
 		/* Do any preprocessing needed on the BlitSprites */
 		public static function init():void{
+			if(preProcessed) return;
 			var i:int;
 			var point:Point = new Point();
 			for(i = 15; i <= 41; i++){
@@ -187,6 +190,7 @@
 			for(i = 33; i <= 41; i++){
 				ID_TO_GRAPHIC[i].add(ID_TO_GRAPHIC[LADDER_TOP]);
 			}
+			preProcessed = true;
 		}
 		
 		/* Converts a number in one of the map layers into a MapObject or a MovieClip or Sprite
