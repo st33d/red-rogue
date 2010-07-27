@@ -1,3 +1,18 @@
+Error when crushed after loading:
+
+TypeError: Error #1009: Cannot access a property or method of a null object reference.
+	at com.robotacid.engine::Effect/dismiss()[C:\Documents and Settings\Aaron\My Documents\Flash\platform rogue\163\src\com\robotacid\engine\Effect.as:384]
+	at com.robotacid.engine::Character/removeEffects()[C:\Documents and Settings\Aaron\My Documents\Flash\platform rogue\163\src\com\robotacid\engine\Character.as:585]
+	at com.robotacid.engine::Character/death()[C:\Documents and Settings\Aaron\My Documents\Flash\platform rogue\163\src\com\robotacid\engine\Character.as:508]
+	at com.robotacid.engine::Player/death()[C:\Documents and Settings\Aaron\My Documents\Flash\platform rogue\163\src\com\robotacid\engine\Player.as:167]
+	at com.robotacid.engine::Character/processActions()[C:\Documents and Settings\Aaron\My Documents\Flash\platform rogue\163\src\com\robotacid\engine\Character.as:487]
+	at com.robotacid.engine::Character/main()[C:\Documents and Settings\Aaron\My Documents\Flash\platform rogue\163\src\com\robotacid\engine\Character.as:221]
+	at com.robotacid.engine::Player/main()[C:\Documents and Settings\Aaron\My Documents\Flash\platform rogue\163\src\com\robotacid\engine\Player.as:109]
+	at Game/main()[C:\Documents and Settings\Aaron\My Documents\Flash\platform rogue\163\src\Game.as:565]
+	
+either the effect target reference is null or the effects list for the target is null
+
+
 Brain.as overhaul:
 
 	patrol behaviour - completely fine, looks great, may need to investigate ladders as playtesters complain of monsters blocking routes still
@@ -21,6 +36,10 @@ Brain.as overhaul:
 thrown rune triggered wrong effect - investigate
 
 clip renderer on small levels (background tiles show through underneath on odd sized small levels)
+
+corpses spawning blood particles deep into the floor somehow
+
+change all for loops to run backwards - it's faster
 
 racial abilities - implement by having a personal effects list, add a new effect source - RACIAL:
 	troll regeneration
@@ -72,21 +91,31 @@ EXTRA ELEMENTS TO DO:
 				for this I would create a transistion menu change (as well as a state change - rendering and state change would need to be isolated from each other - probably for the best I think)
 				
 	spells:
-		confusion (flip controls - will require changing the key constants to internal variables, for the player, flip the screen also)
+		confusion (flip controls - will require changing the key constants to internal variables, for the player, flip the screen also) - this could work as a charm spell on monsters, making them additional minions
 		haste (just need to boost attack times and movement speed)
 		slow (just need to cripple attack times and movement speed)
 		chaos (random effect, and will need to modify GameMenu to show random names)
 		identify (detail information about monsters or the player or add a random ability to an item)
 		thorns (reflect damage)
 		power (attacks have a chance to throw the victim into a wall or other monsters)
+		fear (overrides enemy AI - but what does it do to you? makes you hallucinate? that would be pretty funny)
 		
 	monsters:
 		story - an old man that spouts lines of generative story to the console and bars the player's progress out of the first room until they kill him (story killed by rogue)
-		shadow monsters (can walk through walls)
-		mimic (that chest just bit me!)
+		wraiths - shadow monsters (can walk through walls)
+		mimic (that chest just bit me!
+			even better - high level mimics mimic stairways!)
 		vampire (steals health and adds it to its own)
+		leprechaun (steals items when it attacks)
+		floating eyes (casts paralysis? - this is a dangerous effect to have as rune, maybe combo with slow)
 		graded monsters (simply harder or weaker)
 			ogre - big fucker, perhaps be bigger than corridors
+			hobgoblins - bigger goblins
+		umber hulk - insectoid monster with confusion attack
+		slimes - worse than kobolds?
+		tengu - teleporting demon
+		balrog - a red character, players should shit themselves when confronted with one
+		
 		champion monsters (how do I illustrate this?), will possess magic items and can rally surrounding monsters to mob the player
 		
 	sounds:

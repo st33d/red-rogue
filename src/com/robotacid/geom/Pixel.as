@@ -15,7 +15,7 @@
 		}
 		/* Manhattan distance */
 		public function mDist(p:Pixel):Number{
-			return Math.abs(p.x - x) + Math.abs(p.y - y);
+			return (p.x < x ? x - p.x : p.x - x) + (p.y < y ? y - p.y : p.y - y);
 		}
 		public function toString():String {
 			return "(" + x + "," + y + ")";

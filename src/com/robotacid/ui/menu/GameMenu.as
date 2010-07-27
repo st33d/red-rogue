@@ -30,6 +30,7 @@
 		public var exitLevelOption:MenuOption;
 		public var summonOption:MenuOption;
 		public var searchOption:MenuOption;
+		public var disarmTrapOption:MenuOption;
 		
 		public var loadOption:MenuOption;
 		public var saveOption:MenuOption;
@@ -94,7 +95,10 @@
 			summonOption = new MenuOption("summon");
 			summonOption.help = "teleport your minion to your location";
 			searchOption = new MenuOption("search");
-			searchOption.help = "search immediate area for traps and secret areas.\nthe player must not move till the search\nis over, or it will be aborted"
+			searchOption.help = "search immediate area for traps and secret areas.\nthe player must not move till the search\nis over, or it will be aborted";
+			disarmTrapOption = new MenuOption("disarm trap", null, false);
+			disarmTrapOption.help = "disarms any revealed traps that the rogue is\nstanding next to";
+			
 			
 			onOffOption = new ToggleMenuOption(["off", "on"]);
 			sureOption = new MenuOption("sure?");
@@ -114,6 +118,7 @@
 			
 			actionsList.options.push(searchOption);
 			actionsList.options.push(summonOption);
+			actionsList.options.push(disarmTrapOption);
 			actionsList.options.push(exitLevelOption);
 			
 			sureList.options.push(sureOption);
@@ -309,6 +314,8 @@
 			} else if(option == exitLevelOption){
 				g.player.exitLevel(exitLevelOption.target as Stairs);
 				exitLevelOption.active = false;
+				g.player.disarmableTraps.length = 0;
+				disarmTrapOption.active = false;
 			
 			// searching
 			} else if(option == searchOption){
@@ -318,6 +325,12 @@
 			// summoning
 			} else if(option == summonOption){
 				if(g.minion) g.minion.teleportToPlayer();
+			
+			// disarming
+			} else if(option == disarmTrapOption){
+				g.console.print("trap" + (g.player.disarmableTraps.length > 1 ? "s" : "") + " disarmed");
+				g.player.disarmTraps();
+				disarmTrapOption.active = false;
 			}
 			
 		}

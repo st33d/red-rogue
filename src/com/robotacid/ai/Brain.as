@@ -1,4 +1,5 @@
 ﻿package com.robotacid.ai {
+	import com.robotacid.dungeon.DungeonBitmap;
 	import com.robotacid.engine.Character;
 	import com.robotacid.engine.CharacterAttributes;
 	import com.robotacid.engine.Item;
@@ -6,6 +7,7 @@
 	import com.robotacid.engine.Missile;
 	import com.robotacid.engine.Player;
 	import com.robotacid.geom.Rect;
+	import com.robotacid.geom.Pixel;
 	import com.robotacid.phys.Block;
 	import com.robotacid.phys.Cast;
 	import com.robotacid.phys.Collider;
@@ -51,6 +53,22 @@
 		public static var playerCharacters:Vector.<Character>;
 		public static var monsterCharacters:Vector.<Character>;
 		
+		// search vars
+		private static var scentMap:Vector.<Vector.<int>>;
+		private static var scentMapNeighbours:Vector.<Pixel> = Vector.<Pixel>([
+			new Pixel(0, -1),
+			new Pixel(1, 0),
+			new Pixel(0, 1),
+			new Pixel(-1, 0)
+		]);
+		private static var choice:int;
+		private static var best:int;
+		private static var start:Node;
+		private static var node:Node;
+		private static var path:Vector.<Node>;
+		
+		public static var dungeonGraph:DungeonGraph;
+		
 		// alliegances
 		public static const PLAYER:int = 0;
 		public static const MONSTER:int = 1;
@@ -73,6 +91,8 @@
 		public static const SCALE:Number = Game.SCALE;
 		public static const INV_SCALE:Number = Game.INV_SCALE;
 		
+		public static const SEARCH_STEPS:int = 20;
+		
 		public static const LOS_BORDER:Number = 100;
 		
 		public static const FOLLOW_CHASE_EDGE:Number = Game.SCALE * 1.5;
@@ -85,9 +105,40 @@
 		public static const SNIPE_CHASE_EDGE_SQ:Number = SNIPE_CHASE_EDGE * SNIPE_CHASE_EDGE;
 		public static const SNIPE_FLEE_EDGE_SQ:Number = SNIPE_FLEE_EDGE * SNIPE_FLEE_EDGE;
 		
-		public static function init():void{
+		public static function initCharacterLists():void{
 			playerCharacters = new Vector.<Character>();
 			monsterCharacters = new Vector.<Character>();
+		}
+		public static function initMaps(bitmap:DungeonBitmap):void{
+			scentMap = new Vector.<Vector.<int>>();
+			var r:int, c:int;
+			for(r = 0; r < bitmap.bitmapData.height; r++){
+				scentMap.push(new Vector.<int>());
+				for(c = 0; c < bitmap.bitmapData.width; c++){
+					if(bitmap.bitmapData.getPixel32(c, r) == DungeonBitmap.WALL){
+						scentMap[r].push( -1);
+					} else {
+						scentMap[r].push(0);
+					}
+				}
+			}
+			dungeonGraph = new DungeonGraph(bitmap);
+		}
+		
+		private static var oldX:int;
+		private static var oldY:int;
+		
+		/* Creates a scent trail behind the player, giving characters an opportunity to avoid expensive
+		 * search algorithms */
+		public static function createScentTrail(x:int, y:int, frameCount:int):void{
+			if(scentMap[y][x] > -1) scentMap[y][x] = frameCount;
+			// a perfect diagonal scent trail can't be tracked, so we have to fill in the gaps
+			if(x != oldX && y != oldY) {
+				if(scentMap[oldY][x] > -1) scentMap[oldY][x] = frameCount;
+				if(scentMap[y][oldX] > -1) scentMap[y][oldX] = frameCount;
+			}
+			oldX = x;
+			oldY = y;
 		}
 		
 		public function Brain(char:Character, allegiance:int, g:Game) {
@@ -287,17 +338,113 @@
 		/* Chase the player, Pepé Le Pew algorithm */
 		public function chase(target:Character):void {
 			char.actions = 0;
+			//return;
+			var i:int;
 			
-			if(target.x < char.x) char.actions |= LEFT;
-			else if(target.x > char.x) char.actions |= RIGHT;
+			// are we in the same tile?
+			if(target.mapX == char.mapX && target.mapY == char.mapY){
 			
-			if(target.mapY > char.mapY) char.actions |= DOWN;
-			// you can't walk sideways and climb a ladder at the same time
-			else if(target.rect.y + target.rect.height < char.rect.y + char.rect.height && char.canClimb() && !(char.parentBlock && (char.parentBlock.type & Block.LEDGE) && !(char.blockMapType & Block.LADDER))){
-				char.actions = UP;
+				if(target.x < char.x) char.actions |= LEFT;
+				else if(target.x > char.x) char.actions |= RIGHT;
+				if(target.mapY > char.mapY) char.actions |= DOWN;
+				// you can't walk sideways and climb a ladder at the same time
+				else if(target.rect.y + target.rect.height < char.rect.y + char.rect.height && char.canClimb() && !(char.parentBlock && (char.parentBlock.type & Block.LEDGE) && !(char.blockMapType & Block.LADDER))){
+					char.actions = UP;
+				}
+				
+			// if it's the player look on scent map for a scent
+			} else if(target == g.player && scentMap[char.mapY][char.mapX] > 0 && target.mapY >= char.mapY){
+				// create a list of nodes and sort
+				choice = -1;
+				best = -1;
+				for(i = 0; i < scentMapNeighbours.length; i++){
+					if(scentMap[char.mapY + scentMapNeighbours[i].y][char.mapX + scentMapNeighbours[i].x] > best){
+						choice = i;
+						best = scentMap[char.mapY + scentMapNeighbours[i].y][char.mapX + scentMapNeighbours[i].x];
+					}
+				}
+				if(scentMapNeighbours[choice].y == 0){
+					if(scentMapNeighbours[choice].x > 0){
+						char.actions |= RIGHT;
+						// get to the top of a ladder before leaping off it
+						if(char.rect.y + char.rect.height > (char.mapY + 1) * SCALE) char.actions = UP;
+					} else if(scentMapNeighbours[choice].x < 0){
+						char.actions |= LEFT;
+						// get to the top of a ladder before leaping off it
+						if(char.rect.y + char.rect.height > (char.mapY + 1) * SCALE) char.actions = UP;
+					}
+				} else if(scentMapNeighbours[choice].x == 0){
+					
+					// heading up or down it's best to center on a tile to avoid the confusion
+					// in moving from horizontal to vertical movement
+					if(scentMapNeighbours[choice].y > 0){
+						char.actions |= DOWN;
+						
+						if(char.x > char.tileCenter) char.actions |= LEFT;
+						else if(char.x < char.tileCenter) char.actions |= RIGHT;
+						
+					} else if(scentMapNeighbours[choice].y < 0){
+						if(char.canClimb()){
+							char.actions |= UP;
+						} else {
+							if(char.x < char.tileCenter) char.actions |= LEFT;
+							else if(char.x > char.tileCenter) char.actions |= RIGHT;
+						}
+					}
+					
+				}
+				
+			// no scent, the dungeon graph must be searched for a route
+			} else {
+				start = dungeonGraph.nodes[char.mapY][char.mapX];
+				
+				// no node means the character must be falling or clipping a ledge
+				if(start){
+					path = dungeonGraph.getPath(start, dungeonGraph.nodes[target.mapY][target.mapX], SEARCH_STEPS);
+					
+					if(path){
+						
+						//if(char == g.minion) dungeonGraph.drawPath(path, Game.debug, SCALE);
+						
+						node = path[path.length - 1];
+						if(node.y == char.mapY){
+							if(node.x > char.mapX){
+								char.actions |= RIGHT;
+								// get to the top of a ladder before leaping off it
+								if(char.rect.y + char.rect.height > (char.mapY + 1) * SCALE) char.actions = UP;
+							} else if(node.x < char.mapX){
+								char.actions |= LEFT;
+								// get to the top of a ladder before leaping off it
+								if(char.rect.y + char.rect.height > (char.mapY + 1) * SCALE) char.actions = UP;
+							}
+						} else if(node.x == char.mapX){
+							// heading up or down it's best to center on a tile to avoid the confusion
+							// in moving from horizontal to vertical movement
+							if(node.y > char.mapY){
+								char.actions |= DOWN;
+								
+								if(char.x > char.tileCenter) char.actions |= LEFT;
+								else if(char.x < char.tileCenter) char.actions |= RIGHT;
+								
+							} else if(node.y < char.mapY){
+								if(char.canClimb()){
+									char.actions |= UP;
+								} else {
+									if(char.x < char.tileCenter) char.actions |= LEFT;
+									else if(char.x > char.tileCenter) char.actions |= RIGHT;
+								}
+							}
+						}
+					}
+					
+				} else {
+					// character might be standing on the edge of a ledge - outside of a node
+					char.actions |= DOWN;
+				}
+				
 			}
 			
-			char.looking = char.actions & (LEFT | RIGHT);
+			if(char.actions) char.looking = char.actions & (LEFT | RIGHT);
 			char.dir = char.actions & (LEFT | RIGHT | UP | DOWN);
 		}
 		

@@ -351,7 +351,7 @@
 				g.lightMap.setLight(target, target.light - radius, target is Player ? 255 : 150);
 			} else if(name == UNDEAD){
 				// this rune's effect comes in to play when the target is killed and is not undead
-				if(!target.active && !buffer && !target.undead){
+				if(!target.active && !buffer && !target.undead && !target.crushed){
 					if(Math.random() < 0.05 * level){
 						var mc:MovieClip;
 						if(source == THROWN || source == WEAPON){

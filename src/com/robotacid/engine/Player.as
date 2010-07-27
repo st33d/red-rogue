@@ -46,6 +46,7 @@
 		public var mapRect:Rect;
 		public var inventory:InventoryMenuList;
 		public var searchCount:int;
+		public var disarmableTraps:Vector.<Trap>;
 		
 		private var i:int, j:int;
 		
@@ -57,7 +58,7 @@
 		public static const DOWN:int = 4;
 		public static const LEFT:int = 8;
 		
-		public static const XP_LEVELS:Array = [0, 10, 20, 40, 80, 160, 320, 640, 1280, 2560];
+		public static const XP_LEVELS:Array = [0, 10, 20, 40, 80, 160, 320, 640, 1280, 2560, 5120, 10240, 20480, 40960, 81920, 163840, 327680, 655360, 1310720, 2621440];
 		
 		public static const DEFAULT_LIGHT_RADIUS:int = 5;
 		public static const SEARCH_DELAY:int = 90;
@@ -82,6 +83,8 @@
 			missileIgnore |= Block.PLAYER | Block.MINION;
 			
 			g.lightMap.setLight(this, DEFAULT_LIGHT_RADIUS);
+			
+			disarmableTraps = new Vector.<Trap>();
 			
 			xp = 0;
 			g.playerXpBar.value = 0;
@@ -127,6 +130,9 @@
 					g.revealTrapsAndSecrets();
 				}
 			}
+			
+			// the player leaves a scent trail to ease AI
+			Brain.createScentTrail(mapX, mapY, g.frameCount);
 		}
 		/* Various things that need to be hidden or killed upon death or finishing a level */
 		public function tidyUp():void {
@@ -300,6 +306,29 @@
 		override public function levelUp():void {
 			super.levelUp();
 			if(g.minion) g.minion.levelUp();
+		}
+		/* Adds a trap that the rogue could possibly disarm and updates the menu */
+		public function addDisarmableTrap(trap:Trap):void{
+			disarmableTraps.push(trap);
+			if(!g.menu.disarmTrapOption.active){
+				g.menu.disarmTrapOption.active = true;
+				g.menu.selection = g.menu.selection;
+			}
+		}
+		/* Removes a trap that the rogue could possibly disarm and updates the menu */
+		public function removeDisarmableTrap(trap:Trap):void{
+			disarmableTraps.splice(disarmableTraps.indexOf(trap), 1);
+			if(disarmableTraps.length == 0){
+				g.menu.disarmTrapOption.active = false;
+				g.menu.selection = g.menu.selection;
+			}
+		}
+		/* Disarms any traps on the disarmableTraps list - effectively destroying them */
+		public function disarmTraps():void{
+			for(var i:int = 0; i < disarmableTraps.length; i++){
+				disarmableTraps[i].disarm();
+			}
+			disarmableTraps.length = 0;
 		}
 		
 		override public function toString():String{

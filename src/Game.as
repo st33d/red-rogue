@@ -1,6 +1,7 @@
 ﻿package
 {
 	import com.robotacid.ai.Brain;
+	import com.robotacid.ai.Node;
 	import com.robotacid.dungeon.Content;
 	import com.robotacid.engine.Character;
 	import com.robotacid.engine.Effect;
@@ -359,9 +360,10 @@
 			// LEVEL SPECIFIC INIT
 			// This stuff that follows requires the bones of a level to initialise
 			
-			Brain.init();
+			Brain.initCharacterLists();
 			content = new Content();
 			dungeon = new Map(1, this);
+			Brain.initMaps(dungeon.bitmap);
 			renderer = new MapRenderer(this, canvas, new Sprite(), SCALE, dungeon.width, dungeon.height, WIDTH, HEIGHT);
 			renderer.setLayers(dungeon.layers, [null, null, entitiesHolder, foregroundHolder], [tileImage, tileImage, null, null], [tileImageHolder, tileImageHolder, null, null]);
 			blockMap = createIdMap(renderer.mapArrayLayers[MapRenderer.BLOCK_LAYER]);
@@ -444,8 +446,12 @@
 			while(playerHolder.numChildren > 0) playerHolder.removeChildAt(0);
 			while(fxHolder.numChildren > 0) fxHolder.removeChildAt(0);
 			
+			Brain.initCharacterLists();
 			dungeon = new Map(n, this);
+			Brain.initMaps(dungeon.bitmap);
+			
 			renderer.newMap(dungeon.width, dungeon.height, dungeon.layers);
+			
 			// modify the mapRect to conceal secrets
 			if(n > 0){
 				renderer.mapRect = dungeon.bitmap.adjustedMapRect;
@@ -453,6 +459,7 @@
 			} else {
 				camera.mapRect = renderer.mapRect;
 			}
+			
 			blockMap = createIdMap(renderer.mapArrayLayers[MapRenderer.BLOCK_LAYER]);
 			lightMap.newMap(blockMap);
 			lightMap.setLight(player, player.light);
@@ -521,10 +528,22 @@
 			//var t:int = getTimer();
 			//info.text = g.player.mapX + " " + g.player.mapY;
 			//info.appendText("pixels" + (getTimer() - t) + "\n"); t = getTimer();
-				
+			
 			debug.clear();
 			debug.lineStyle(1, 0x00ff00);
 			fxHolder.graphics.clear();
+			
+			//Brain.dungeonGraph.drawGraph(debug, SCALE);
+			//
+			//var mouseMapX:int = INV_SCALE * canvas.mouseX;
+			//var mouseMapY:int = INV_SCALE * canvas.mouseY;
+			//if(Brain.dungeonGraph.nodes[mouseMapY][mouseMapX] && Brain.dungeonGraph.nodes[player.mapY][player.mapX]){
+				//var path:Vector.<Node> = Brain.dungeonGraph.getPath(Brain.dungeonGraph.nodes[player.mapY][player.mapX], Brain.dungeonGraph.nodes[mouseMapY][mouseMapX], 100);
+				//if(path){
+					//if(path.length == 0) trace(g.frameCount);
+					//Brain.dungeonGraph.drawPath(path, debug, SCALE);
+				//}
+			//}
 			
 			if(state == GAME){
 				

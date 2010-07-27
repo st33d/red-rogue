@@ -22,6 +22,9 @@
 		public var dartGun:Dot;
 		public var count:int;
 		
+		public var disarmingRect:Rect;
+		public var disarmingContact:Boolean;
+		
 		// type flags
 		public static const PIT:int = 0;
 		public static const POISON_DART:int = 1;
@@ -30,6 +33,8 @@
 		public static const SPIKES:int = 3;
 		
 		public static const PIT_COVER_DELAY:int = 7;
+		
+		public static const DISARMING_XP_REWARD:Number = 1;
 		
 		public function Trap(mc:DisplayObject, type:int, g:Game) {
 			super(mc, g);
@@ -42,8 +47,10 @@
 				dartGun = new Dot(x + SCALE * 0.5, y - SCALE);
 				while(!(g.blockMap[((dartGun.y - 1) * INV_SCALE) >> 0][(dartGun.x * INV_SCALE) >> 0] & Block.WALL)) dartGun.y -= SCALE;
 			}
+			disarmingRect = new Rect(x - SCALE, y - 1, SCALE * 3, 5);
 			callMain = true;
 			contact = false;
+			disarmingContact = false;
 		}
 		
 		override public function main():void {
@@ -55,6 +62,15 @@
 			} else if(contact){
 				contact = false;
 			}
+			if(revealed && disarmingRect.intersects(g.player.rect)){
+				if(!disarmingContact){
+					disarmingContact = true;
+					g.player.addDisarmableTrap(this);
+				}
+			} else if(disarmingContact){
+				disarmingContact = false;
+				g.player.removeDisarmableTrap(this);
+			}
 			if(count){
 				count--;
 				if(count == 0){
@@ -65,6 +81,7 @@
 						g.blockMap[mapY][mapX] = Rect.UP | Block.LEDGE;
 					}
 				}
+				rect.draw(Game.debug);
 			}
 			//rect.draw(Game.debug);
 		}
@@ -93,6 +110,10 @@
 							g.colliders[i].divorce();
 						}
 					}
+					if(g.player.disarmableTraps.indexOf(this) > -1){
+						g.player.removeDisarmableTrap(this);
+					}
+					disarmingRect = new Rect(0, 0, 1, 1);
 				} else if(type == POISON_DART){
 					g.console.print("poison trap triggered");
 					SoundManager.playSound(g.library.ThrowSound);
@@ -115,7 +136,13 @@
 			(mc as Sprite).addChild(trapRevealedB);
 			revealed = true;
 		}
-		
+		/* Destroys this object and gives xp */
+		public function disarm():void{
+			if(!active) return;
+			active = false;
+			g.player.addXP(DISARMING_XP_REWARD * g.dungeon.level);
+		}
+		/* Launches a missile from the ceiling that bears a magic effect */
 		public function shootDart(effect:Effect):void{
 			var missileMc:DisplayObject = new g.library.DartMC();
 			missileMc.x = dartGun.x;

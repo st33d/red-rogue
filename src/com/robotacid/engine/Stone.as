@@ -21,6 +21,9 @@
 		public static const HEALTH:int = 1;
 		public static const GRIND:int = 2;
 		
+		public static const SECRET_XP_REWARD:Number = 2;
+		public static const GRIND_XP_REWARD:Number = 0.1;
+		
 		public static const STONE_NAME_HEALTHS:Array = [
 			5,
 			0,
@@ -51,7 +54,7 @@
 			else if(name == HEALTH){
 				g.player.applyHealth(n);
 			} else if(name == GRIND){
-				g.player.addXP(0.1);
+				g.player.addXP(GRIND_XP_REWARD);
 			}
 		}
 		
@@ -70,7 +73,7 @@
 			g.console.print("secret revealed");
 			g.shake(0, 3);
 			SoundManager.playSound(g.library.KillSound);
-			g.player.addXP(xpReward);
+			g.player.addXP(SECRET_XP_REWARD * g.dungeon.level);
 			g.blockMap[mapY][mapX] = 0;
 			g.renderer.removeFromRenderedArray(mapX, mapY, Map.BLOCKS, null);
 			g.renderer.removeFromRenderedArray(mapX, mapY, Map.ENTITIES, null);

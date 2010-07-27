@@ -20,6 +20,8 @@ h1{
 }
 #content{
 	text-align: left;
+}
+#forcedSize{
 	width:640px;
 	height:480px;
 }
