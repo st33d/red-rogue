@@ -11,6 +11,7 @@
 	import com.robotacid.phys.Block;
 	import com.robotacid.phys.Cast;
 	import com.robotacid.phys.Collider;
+	import flash.geom.ColorTransform;
 	
 	/**
 	 * A set of behaviours for Characters
@@ -49,20 +50,11 @@
 		public var sheduleIndex:int;
 		public var allyIndex:int;
 		public var allegiance:int;
+		public var searchSteps:int;
 		
 		public static var playerCharacters:Vector.<Character>;
 		public static var monsterCharacters:Vector.<Character>;
 		
-		// search vars
-		private static var scentMap:Vector.<Vector.<int>>;
-		private static var scentMapNeighbours:Vector.<Pixel> = Vector.<Pixel>([
-			new Pixel(0, -1),
-			new Pixel(1, 0),
-			new Pixel(0, 1),
-			new Pixel(-1, 0)
-		]);
-		private static var choice:int;
-		private static var best:int;
 		private static var start:Node;
 		private static var node:Node;
 		private static var path:Vector.<Node>;
@@ -91,7 +83,8 @@
 		public static const SCALE:Number = Game.SCALE;
 		public static const INV_SCALE:Number = Game.INV_SCALE;
 		
-		public static const SEARCH_STEPS:int = 20;
+		public static const MONSTER_SEARCH_STEPS:int = 14;
+		public static const MINION_SEARCH_STEPS:int = 20;
 		
 		public static const LOS_BORDER:Number = 100;
 		
@@ -109,36 +102,8 @@
 			playerCharacters = new Vector.<Character>();
 			monsterCharacters = new Vector.<Character>();
 		}
-		public static function initMaps(bitmap:DungeonBitmap):void{
-			scentMap = new Vector.<Vector.<int>>();
-			var r:int, c:int;
-			for(r = 0; r < bitmap.bitmapData.height; r++){
-				scentMap.push(new Vector.<int>());
-				for(c = 0; c < bitmap.bitmapData.width; c++){
-					if(bitmap.bitmapData.getPixel32(c, r) == DungeonBitmap.WALL){
-						scentMap[r].push( -1);
-					} else {
-						scentMap[r].push(0);
-					}
-				}
-			}
+		public static function initDungeonGraph(bitmap:DungeonBitmap):void{
 			dungeonGraph = new DungeonGraph(bitmap);
-		}
-		
-		private static var oldX:int;
-		private static var oldY:int;
-		
-		/* Creates a scent trail behind the player, giving characters an opportunity to avoid expensive
-		 * search algorithms */
-		public static function createScentTrail(x:int, y:int, frameCount:int):void{
-			if(scentMap[y][x] > -1) scentMap[y][x] = frameCount;
-			// a perfect diagonal scent trail can't be tracked, so we have to fill in the gaps
-			if(x != oldX && y != oldY) {
-				if(scentMap[oldY][x] > -1) scentMap[oldY][x] = frameCount;
-				if(scentMap[y][oldX] > -1) scentMap[y][oldX] = frameCount;
-			}
-			oldX = x;
-			oldY = y;
 		}
 		
 		public function Brain(char:Character, allegiance:int, g:Game) {
@@ -156,8 +121,10 @@
 			ignore = Block.LEDGE | Block.LADDER;
 			if(allegiance == PLAYER){
 				ignore |= Block.MINION | Block.PLAYER;
+				searchSteps = MINION_SEARCH_STEPS;
 			} else {
 				ignore |= Block.MONSTER;
+				searchSteps = MONSTER_SEARCH_STEPS;
 			}
 		}
 		
@@ -205,6 +172,7 @@
 						state = PATROL;
 					}
 				}
+				
 				// here's where we look for targets
 				// any enemy touching us counts as a target, but we also look for targets
 				// rather than checking all enemy characters, we check one at a time each frame
@@ -314,6 +282,25 @@
 					count = 0;
 				}
 			}
+			
+			// debugging colours
+			//if(state == PATROL){
+				//char.mc.transform.colorTransform = new ColorTransform(1, 1, 1, 1, 0, 200);
+			//} else if(state == ATTACK){
+				//char.mc.transform.colorTransform = new ColorTransform(1, 1, 1, 1, 200, 0);
+			//} else if(state == FLEE){
+				//char.mc.transform.colorTransform = new ColorTransform(1, 1, 1, 1, 150, 150);
+			//} else if(state == PAUSE){
+				//char.mc.transform.colorTransform = new ColorTransform(1, 1, 1, 1, 0, 150, 100);
+			//}
+		}
+		
+		/* Abandons any targets and reverts to PATROL state
+		 *
+		 * must be called on minion entering a new level as a target may still be pursued */
+		public function clear():void{
+			target = null;
+			state = PATROL;
 		}
 		
 		/* This walks a character left and right in their patrol area
@@ -351,56 +338,14 @@
 				else if(target.rect.y + target.rect.height < char.rect.y + char.rect.height && char.canClimb() && !(char.parentBlock && (char.parentBlock.type & Block.LEDGE) && !(char.blockMapType & Block.LADDER))){
 					char.actions = UP;
 				}
-				
-			// if it's the player look on scent map for a scent
-			} else if(target == g.player && scentMap[char.mapY][char.mapX] > 0 && target.mapY >= char.mapY){
-				// create a list of nodes and sort
-				choice = -1;
-				best = -1;
-				for(i = 0; i < scentMapNeighbours.length; i++){
-					if(scentMap[char.mapY + scentMapNeighbours[i].y][char.mapX + scentMapNeighbours[i].x] > best){
-						choice = i;
-						best = scentMap[char.mapY + scentMapNeighbours[i].y][char.mapX + scentMapNeighbours[i].x];
-					}
-				}
-				if(scentMapNeighbours[choice].y == 0){
-					if(scentMapNeighbours[choice].x > 0){
-						char.actions |= RIGHT;
-						// get to the top of a ladder before leaping off it
-						if(char.rect.y + char.rect.height > (char.mapY + 1) * SCALE) char.actions = UP;
-					} else if(scentMapNeighbours[choice].x < 0){
-						char.actions |= LEFT;
-						// get to the top of a ladder before leaping off it
-						if(char.rect.y + char.rect.height > (char.mapY + 1) * SCALE) char.actions = UP;
-					}
-				} else if(scentMapNeighbours[choice].x == 0){
-					
-					// heading up or down it's best to center on a tile to avoid the confusion
-					// in moving from horizontal to vertical movement
-					if(scentMapNeighbours[choice].y > 0){
-						char.actions |= DOWN;
-						
-						if(char.x > char.tileCenter) char.actions |= LEFT;
-						else if(char.x < char.tileCenter) char.actions |= RIGHT;
-						
-					} else if(scentMapNeighbours[choice].y < 0){
-						if(char.canClimb()){
-							char.actions |= UP;
-						} else {
-							if(char.x < char.tileCenter) char.actions |= LEFT;
-							else if(char.x > char.tileCenter) char.actions |= RIGHT;
-						}
-					}
-					
-				}
-				
-			// no scent, the dungeon graph must be searched for a route
+			
+			// perform an A* search to locate the target
 			} else {
 				start = dungeonGraph.nodes[char.mapY][char.mapX];
 				
 				// no node means the character must be falling or clipping a ledge
 				if(start){
-					path = dungeonGraph.getPath(start, dungeonGraph.nodes[target.mapY][target.mapX], SEARCH_STEPS);
+					path = dungeonGraph.getPath(start, dungeonGraph.nodes[target.mapY][target.mapX], searchSteps);
 					
 					if(path){
 						

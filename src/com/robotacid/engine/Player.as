@@ -130,9 +130,6 @@
 					g.revealTrapsAndSecrets();
 				}
 			}
-			
-			// the player leaves a scent trail to ease AI
-			Brain.createScentTrail(mapX, mapY, g.frameCount);
 		}
 		/* Various things that need to be hidden or killed upon death or finishing a level */
 		public function tidyUp():void {

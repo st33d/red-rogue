@@ -1,4 +1,5 @@
 ﻿package com.robotacid.engine {
+	import com.robotacid.ai.Brain;
 	import com.robotacid.dungeon.Map;
 	import com.robotacid.geom.Dot;
 	import com.robotacid.geom.Rect;
@@ -29,8 +30,6 @@
 		public static const PIT:int = 0;
 		public static const POISON_DART:int = 1;
 		public static const TELEPORT_DART:int = 2;
-		
-		public static const SPIKES:int = 3;
 		
 		public static const PIT_COVER_DELAY:int = 7;
 		
@@ -87,42 +86,49 @@
 		}
 		
 		public function resolveCollision():void {
-			if(type == SPIKES){
-				// thinking that this should be a character wide trap
-			} else {
-				if(type == PIT){
-					if(count) return;
-					count = PIT_COVER_DELAY;
-					g.console.print("pit trap triggered");
-					//active = false;
-					rect.y += 1;
-					g.createDebrisRect(rect, 0, 100, Game.STONE);
-					g.shake(0, 3);
-					SoundManager.playSound(g.library.KillSound);
-					g.blockMap[mapY][mapX] = 0;
-					g.renderer.removeFromRenderedArray(mapX, mapY, Map.BLOCKS, null);
-					g.renderer.removeFromRenderedArray(mapX, mapY, Map.ENTITIES, null);
-					g.renderer.removeTile(Map.BLOCKS, mapX, mapY);
-					g.renderer.addTile(Map.BLOCKS, mapX, mapY, MapTileConverter.LEDGE_SINGLE);
-					// check to see if any colliders are on this and drop them
-					for(var i:int = 0; i < g.colliders.length; i++){
-						if(g.colliders[i].mapX == mapX && g.colliders[i].mapY == mapY - 1){
-							g.colliders[i].divorce();
-						}
+			if(type == PIT){
+				if(count) return;
+				count = PIT_COVER_DELAY;
+				g.console.print("pit trap triggered");
+				//active = false;
+				rect.y += 1;
+				g.createDebrisRect(rect, 0, 100, Game.STONE);
+				g.shake(0, 3);
+				SoundManager.playSound(g.library.KillSound);
+				g.blockMap[mapY][mapX] = 0;
+				g.renderer.removeFromRenderedArray(mapX, mapY, Map.BLOCKS, null);
+				g.renderer.removeFromRenderedArray(mapX, mapY, Map.ENTITIES, null);
+				g.renderer.removeTile(Map.BLOCKS, mapX, mapY);
+				g.renderer.addTile(Map.BLOCKS, mapX, mapY, MapTileConverter.LEDGE_SINGLE);
+				// check to see if any colliders are on this and drop them
+				for(var i:int = 0; i < g.colliders.length; i++){
+					if(g.colliders[i].mapX == mapX && g.colliders[i].mapY == mapY - 1){
+						g.colliders[i].divorce();
 					}
-					if(g.player.disarmableTraps.indexOf(this) > -1){
-						g.player.removeDisarmableTrap(this);
-					}
-					disarmingRect = new Rect(0, 0, 1, 1);
-				} else if(type == POISON_DART){
-					g.console.print("poison trap triggered");
-					SoundManager.playSound(g.library.ThrowSound);
-					shootDart(new Effect(Effect.POISON, g.dungeon.level, Effect.THROWN, g));
-				} else if(type == TELEPORT_DART){
-					g.console.print("teleport trap triggered");
-					SoundManager.playSound(g.library.ThrowSound);
-					shootDart(new Effect(Effect.TELEPORT, Game.MAX_LEVEL, Effect.THROWN, g));
 				}
+				// make sure the player can't disarm a trap that no longer exists
+				if(g.player.disarmableTraps.indexOf(this) > -1){
+					g.player.removeDisarmableTrap(this);
+				}
+				disarmingRect = new Rect(0, 0, 1, 1);
+				// the dungeon graph is currently unaware of a new route
+				// we need to educate it by looking down from the node that must be above the
+				// pit to the node that must be below it
+				for(var r:int = mapY; r < g.dungeon.height; r++){
+					if(Brain.dungeonGraph.nodes[r][mapX]){
+						Brain.dungeonGraph.nodes[mapY - 1][mapX].connections.push(Brain.dungeonGraph.nodes[r][mapX]);
+						break;
+					}
+				}
+				
+			} else if(type == POISON_DART){
+				g.console.print("poison trap triggered");
+				SoundManager.playSound(g.library.ThrowSound);
+				shootDart(new Effect(Effect.POISON, g.dungeon.level, Effect.THROWN, g));
+			} else if(type == TELEPORT_DART){
+				g.console.print("teleport trap triggered");
+				SoundManager.playSound(g.library.ThrowSound);
+				shootDart(new Effect(Effect.TELEPORT, Game.MAX_LEVEL, Effect.THROWN, g));
 			}
 			// a trap that still exists after being triggered gets revealed
 			if(!revealed && active){

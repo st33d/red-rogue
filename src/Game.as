@@ -363,7 +363,7 @@
 			Brain.initCharacterLists();
 			content = new Content();
 			dungeon = new Map(1, this);
-			Brain.initMaps(dungeon.bitmap);
+			Brain.initDungeonGraph(dungeon.bitmap);
 			renderer = new MapRenderer(this, canvas, new Sprite(), SCALE, dungeon.width, dungeon.height, WIDTH, HEIGHT);
 			renderer.setLayers(dungeon.layers, [null, null, entitiesHolder, foregroundHolder], [tileImage, tileImage, null, null], [tileImageHolder, tileImageHolder, null, null]);
 			blockMap = createIdMap(renderer.mapArrayLayers[MapRenderer.BLOCK_LAYER]);
@@ -446,9 +446,9 @@
 			while(playerHolder.numChildren > 0) playerHolder.removeChildAt(0);
 			while(fxHolder.numChildren > 0) fxHolder.removeChildAt(0);
 			
-			Brain.initCharacterLists();
+			Brain.monsterCharacters = new Vector.<Character>();
 			dungeon = new Map(n, this);
-			Brain.initMaps(dungeon.bitmap);
+			Brain.initDungeonGraph(dungeon.bitmap);
 			
 			renderer.newMap(dungeon.width, dungeon.height, dungeon.layers);
 			
@@ -484,6 +484,7 @@
 				entitiesHolder.addChild(minion.mc);
 				if(minion.light) lightMap.setLight(minion, minion.light, 150);
 				minion.teleportToPlayer();
+				minion.brain.clear();
 			}
 			
 			// the overworld behaves differently to the rest of the game
