@@ -140,6 +140,8 @@
 		public function recycleLevel(g:Game):void{
 			var i:int;
 			var level:int = g.dungeon.level - 1;
+			// no recycling the overworld
+			if(level < 0) return;
 			// first we check the active list of entities
 			for(i = 0; i < g.entities.length; i++){
 				recycleEntity(g.entities[i], level);

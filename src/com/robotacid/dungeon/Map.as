@@ -316,6 +316,9 @@
 		 * This bit I haven't finished yet :P
 		 */
 		public function createOverworld():void{
+			
+			bitmap = new DungeonBitmap(0);
+			
 			width = 20;
 			height = 17;
 			layers.push(createGrid(null, width, height));

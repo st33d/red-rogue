@@ -72,27 +72,42 @@
 		
 		public function DungeonBitmap(level:int) {
 			
-			if(level > MIN_LEVEL){
-				// the level parameter seems to fail at dishing out cool levels at about 8
-				// so I'm capping it at 7
-				level = level > MAX_LEVEL ? MAX_LEVEL : level;
-				// but we also get some cool levels earlier, so let's randomise
-				level = 1 + level * Math.random();
-				level = level < MIN_LEVEL ? MIN_LEVEL : level;
+			var bitmapData:BitmapData;
+			
+			if(level == 0){
+				bitmapData = createOverWorld();
+			} else {
+				if(level > MIN_LEVEL){
+					// the level parameter seems to fail at dishing out cool levels at about 8
+					// so I'm capping it at 7
+					level = level > MAX_LEVEL ? MAX_LEVEL : level;
+					// but we also get some cool levels earlier, so let's randomise
+					level = 1 + level * Math.random();
+					level = level < MIN_LEVEL ? MIN_LEVEL : level;
+				}
+				
+				this.level = level;
+				
+				// create pacing standard for this level
+				horizPace = Math.ceil(level * 0.5) * 3;
+				vertPace = Math.ceil(level * 0.5) * 2;
+				roominess = 5;
+				bitmapData = createRoomsAndTunnels();
 			}
 			
-			this.level = level;
+			super(bitmapData, "auto", false);
 			
-			// create pacing standard for this level
-			horizPace = Math.ceil(level * 0.5) * 3;
-			vertPace = Math.ceil(level * 0.5) * 2;
-			roominess = 5;
-			
-			super(createRoomsAndTunnels(), "auto", false);
-			
-			createRoutes();
-			createPits();
-			createSecrets();
+			if(level > 0){
+				createRoutes();
+				createPits();
+				createSecrets();
+			}
+		}
+		
+		public function createOverWorld():BitmapData{
+			var overworldMap:BitmapData = new BitmapData(20, 17, true, WALL);
+			overworldMap.fillRect(new Rectangle(1, 1, overworldMap.width - 2, overworldMap.height - 2), EMPTY);
+			return overworldMap;
 		}
 		
 		
