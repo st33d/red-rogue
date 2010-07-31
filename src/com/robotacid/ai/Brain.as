@@ -221,30 +221,16 @@
 					chase(target);
 				}
 				
-				// if a scheduleTarget is directly above, get the hell out of there
-				
-				// ===============================================================
-				// THIS MAY BE CAUSING DITHERING BEHAVIOUR
-				
-				if(scheduleTarget){
-					if(
-						char.y > scheduleTarget.rect.y + scheduleTarget.rect.height &&
-						char.mapX == scheduleTarget.mapX
-					){
-						state = FLEE;
-						target = scheduleTarget;
-						count = delay + Math.random() * delay * 2;
-					}
-				}
-				// ===============================================================
-				
-				// sometimes the target can be at the same height on a ladder
-				// when two characters are chasing each other, this causes a stalemate,
-				// an infinite loop, one of them must flee for a moment to break the cycle
-				if(char.mapX == target.mapX && char.mapY == target.mapY && char.state == Character.CLIMBING && target.state == Character.CLIMBING){
+				// if the target is directly above, get the hell out of there
+				if(
+					char.rect.y >= target.rect.y + target.rect.height &&
+					!(
+						char.rect.x >= target.rect.x + target.rect.width ||
+						char.rect.x + char.rect.width <= target.rect.x
+					)
+				){
 					state = FLEE;
-					target = scheduleTarget;
-					count = 5 + Math.random() * delay;
+					count = delay + Math.random() * delay * 2;
 				}
 				
 				if(!target.active){
@@ -333,10 +319,11 @@
 			
 				if(target.x < char.x) char.actions |= LEFT;
 				else if(target.x > char.x) char.actions |= RIGHT;
-				if(target.mapY > char.mapY) char.actions |= DOWN;
-				// you can't walk sideways and climb a ladder at the same time
-				else if(target.rect.y + target.rect.height < char.rect.y + char.rect.height && char.canClimb() && !(char.parentBlock && (char.parentBlock.type & Block.LEDGE) && !(char.blockMapType & Block.LADDER))){
-					char.actions = UP;
+				if(target.rect.y >= char.rect.y + char.rect.height) char.actions |= DOWN;
+				// a climbing target is a deadly target - do not engage, run away
+				else if(target.rect.y + target.rect.height < char.rect.y + char.rect.height && char.state == Character.CLIMBING){
+					state = FLEE;
+					count = delay + Math.random() * delay * 2;
 				}
 			
 			// perform an A* search to locate the target
@@ -357,10 +344,16 @@
 								char.actions |= RIGHT;
 								// get to the top of a ladder before leaping off it
 								if(char.rect.y + char.rect.height > (char.mapY + 1) * SCALE) char.actions = UP;
+								// a rare situation occurs when walking off a ladder to a ledge, resulting falling short
+								// so we get the character to climb higher, allowing them to leap onto the ledge
+								else if(!char.parentBlock && char.canClimb() && char.rect.y + char.rect.height > (char.mapY + SCALE * 1.5) * SCALE) char.actions = UP;
 							} else if(node.x < char.mapX){
 								char.actions |= LEFT;
 								// get to the top of a ladder before leaping off it
 								if(char.rect.y + char.rect.height > (char.mapY + 1) * SCALE) char.actions = UP;
+								// a rare situation occurs when walking off a ladder to a ledge, resulting falling short
+								// so we get the character to climb higher, allowing them to leap onto the ledge
+								else if(!char.parentBlock && char.canClimb() && char.rect.y + char.rect.height > (char.mapY + SCALE * 1.5) * SCALE) char.actions = UP;
 							}
 						} else if(node.x == char.mapX){
 							// heading up or down it's best to center on a tile to avoid the confusion
@@ -393,7 +386,7 @@
 			char.dir = char.actions & (LEFT | RIGHT | UP | DOWN);
 		}
 		
-		/* Run away from a target */
+		/* Run away from a target, no special algorithms here, it makes the panic look better */
 		public function flee(target:Character):void {
 			// if the character hits a wall, we make them run the other way for a period of time
 			if(dontRunIntoTheWallCount){
@@ -406,8 +399,11 @@
 			} else if(dontRunIntoTheWallCount <= 0){
 				// if the target is overhead, that may mean certain death - limit movement to left or right
 				if(
-					char.y > target.rect.y + target.rect.height &&
-					char.mapX == target.mapX
+					char.rect.y >= target.rect.y + target.rect.height &&
+					!(
+						char.rect.x >= target.rect.x + target.rect.width ||
+						char.rect.x + char.rect.width <= target.rect.x
+					)
 				){
 					dontRunIntoTheWallCount = delay + Math.random();
 					if(target.x > char.x) char.actions = RIGHT;
