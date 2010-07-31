@@ -1,5 +1,4 @@
 ﻿package com.robotacid.engine {
-	import com.robotacid.geom.Rect;
 	import com.robotacid.sound.SoundManager;
 	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
@@ -30,7 +29,7 @@
 				contents = items;
 				//g.items.push(this);
 				bounds = mc.getBounds(mc);
-				rect = new Rect(x + bounds.left, y + bounds.top, bounds.width, bounds.height);
+				rect = new Rectangle(x + bounds.left, y + bounds.top, bounds.width, bounds.height);
 				callMain = true;
 			}
 			(mc as MovieClip).gotoAndStop(open ? "open" : "closed");

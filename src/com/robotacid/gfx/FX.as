@@ -1,7 +1,7 @@
 ﻿package com.robotacid.gfx {
-	import com.robotacid.geom.Dot;
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
+	import flash.geom.Point;
 	
 	/**
 	* Self managing BlitClip wrapper
@@ -10,7 +10,7 @@
 	*
 	* @author Aaron Steed, robotacid.com
 	*/
-	public class FX extends Dot{
+	public class FX extends Point{
 		
 		public var blit:BlitRect;
 		public var g:Game
@@ -18,10 +18,10 @@
 		public var active:Boolean;
 		public var imageHolder:Bitmap;
 		public var image:BitmapData;
-		public var dir:Dot;
+		public var dir:Point;
 		public var looped:Boolean;
 		
-		public function FX(x:Number, y:Number, blit:BlitRect, image:BitmapData, imageHolder:Bitmap, g:Game, dir:Dot = null, delay:int = 0, looped:Boolean = false) {
+		public function FX(x:Number, y:Number, blit:BlitRect, image:BitmapData, imageHolder:Bitmap, g:Game, dir:Point = null, delay:int = 0, looped:Boolean = false) {
 			super(x, y);
 			this.blit = blit;
 			this.image = image;

@@ -8,7 +8,6 @@
 	import com.robotacid.util.clips.localToLocal;
 	import com.robotacid.util.HiddenInt;
 	import com.robotacid.util.HiddenNumber;
-	import com.robotacid.geom.Rect;
 	import flash.display.DisplayObject;
 	import flash.display.DisplayObjectContainer;
 	import flash.display.MovieClip;
@@ -250,7 +249,7 @@
 		
 		// This chunk is the core state machine for all Characters
 		public function processActions():void{
-			if(parentBlock != null) collisions |= Rect.DOWN;
+			if(parentBlock != null) collisions |= DOWN;
 			tileCenter = (mapX + 0.5) * SCALE;
 			// react to direction state
 			if(state == WALKING) moving = Boolean(dir & (LEFT | RIGHT));

@@ -6,12 +6,12 @@
 	import com.robotacid.engine.Minion;
 	import com.robotacid.engine.Missile;
 	import com.robotacid.engine.Player;
-	import com.robotacid.geom.Rect;
 	import com.robotacid.geom.Pixel;
 	import com.robotacid.phys.Block;
 	import com.robotacid.phys.Cast;
 	import com.robotacid.phys.Collider;
 	import flash.geom.ColorTransform;
+	import flash.geom.Rectangle;
 	
 	/**
 	 * A set of behaviours for Characters
@@ -72,10 +72,10 @@
 		public static const FLEE:int = 3;
 		
 		// directional states
-		public static const UP:int = Rect.UP;
-		public static const RIGHT:int = Rect.RIGHT;
-		public static const DOWN:int = Rect.DOWN;
-		public static const LEFT:int = Rect.LEFT;
+		public static const UP:int = Block.UP;
+		public static const RIGHT:int = Block.RIGHT;
+		public static const DOWN:int = Block.DOWN;
+		public static const LEFT:int = Block.LEFT;
 		public static const SHOOT:int = 1 << 4;
 		
 		// scale constants
@@ -557,7 +557,7 @@
 			if(target.mapY != char.mapY || !(char.looking & LEFT | RIGHT)) return false;
 			var r:Number;
 			var test:Cast = null;
-			var rect:Rect = char.rect;
+			var rect:Rectangle = char.rect;
 			if(char.looking & RIGHT){
 				test = Cast.horiz(rect.x + rect.width - 1, rect.y + rect.height * 0.5, 1, length, map, ignore, g);
 				if(test && test.collider == target) {

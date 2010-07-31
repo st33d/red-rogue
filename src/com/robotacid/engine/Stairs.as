@@ -1,8 +1,8 @@
 ﻿package com.robotacid.engine {
 	import com.robotacid.engine.Entity;
-	import com.robotacid.geom.Rect;
 	import flash.display.Bitmap;
 	import flash.display.DisplayObject;
+	import flash.geom.Rectangle;
 	
 	/**
 	 * A trap style entity that allows access to the next/previous level
@@ -26,7 +26,7 @@
 		public function Stairs(mc:DisplayObject, type:int, g:Game) {
 			super(mc, g);
 			this.type = type;
-			rect = new Rect(x, y, SCALE, SCALE);
+			rect = new Rectangle(x, y, SCALE, SCALE);
 			callMain = true;
 			contact = false;
 			mask = new g.library.StairsMaskB();

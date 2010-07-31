@@ -1,11 +1,11 @@
 ﻿package com.robotacid.engine {
 	import com.robotacid.geom.Pixel;
-	import com.robotacid.geom.Rect;
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
 	import flash.display.Graphics;
 	import flash.display.Sprite;
 	import flash.geom.Matrix;
+	import flash.geom.Rectangle;
 	
 	/**
 	* Keeps the game content limited to a window surrounding the available view,
@@ -55,7 +55,7 @@
 		public var scrollBottomrightX:int;
 		public var scrollBottomrightY:int;
 		public var masterLayer:int;
-		public var mapRect:Rect;
+		public var mapRect:Rectangle;
 		public var SCALE:Number;
 		
 		public var topLeft:Pixel;
@@ -108,7 +108,7 @@
 			scrollTopleftY=0;
 			scrollBottomrightX=0;
 			scrollBottomrightY = 0;
-			mapRect = new Rect(0, 0, width * scale, height * scale);
+			mapRect = new Rectangle(0, 0, width * scale, height * scale);
 		}
 		/* Sets the extension of the rendering around the viewport
 		 *
@@ -171,7 +171,7 @@
 			mapArrayLayers = newMapArrayLayers;
 			this.width = width;
 			this.height = height;
-			mapRect = new Rect(0, 0, width * scale, height * scale);
+			mapRect = new Rectangle(0, 0, width * scale, height * scale);
 		}
 		/* Force the scroller to use tileLayer as the mount for the next layer
 		 * instead of generating its own layer internally
@@ -297,7 +297,7 @@
 			return x < scrollBottomrightX - 1 && x >= scrollTopleftX && y < scrollBottomrightY - 1 && y >= scrollTopleftY;
 		}
 		/* Return true if a rect intersects the scrolling area */
-		public function intersects(b:Rect, border:Number = 0):Boolean{
+		public function intersects(b:Rectangle, border:Number = 0):Boolean{
 			return !(scrollTopleftX - border > b.x + (b.width - 1) || scrollBottomrightX - 1 + border < b.x || scrollTopleftY - border > b.y + (b.height - 1) || scrollBottomrightY - 1 + border < b.y);
 		}
 		/* Reset the lastStageX and lastStageY to indicate no scroll should occur */

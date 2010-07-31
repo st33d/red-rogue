@@ -14,9 +14,7 @@
 	import com.robotacid.engine.Item;
 	import com.robotacid.engine.Stone;
 	import com.robotacid.engine.Trap;
-	import com.robotacid.geom.Dot;
 	import com.robotacid.geom.Pixel;
-	import com.robotacid.geom.Rect;
 	import com.robotacid.geom.Trig;
 	import com.robotacid.gfx.*;
 	import com.robotacid.phys.Block;
@@ -669,7 +667,7 @@
 			if(fx.length) fx = fx.filter(fxFilterCallBack);
 		}
 		/* Add to list */
-		public function addFX(x:Number, y:Number, blit:BlitRect, image:BitmapData, imageHolder:Bitmap, dir:Dot = null, looped:Boolean = false):FX{
+		public function addFX(x:Number, y:Number, blit:BlitRect, image:BitmapData, imageHolder:Bitmap, dir:Point = null, looped:Boolean = false):FX{
 			var item:FX = new FX(x, y, blit, image, imageHolder, this, dir, 0, looped);
 			fx.push(item);
 			return item;
@@ -682,18 +680,18 @@
 			return item;
 		}
 		/* Fill a rect with fading teleport sparks that drift upwards */
-		public function createTeleportSparkRect(rect:Rect, quantity:int):void{
+		public function createTeleportSparkRect(rect:Rectangle, quantity:int):void{
 			var x:Number, y:Number, spark:FadingBlitRect, item:FX;
 			for(var i:int = 0; i < quantity; i++){
 				x = rect.x + Math.random() * rect.width;
 				y = rect.y + Math.random() * rect.height;
 				spark = Math.random() > 0.5 ? teleportSparkSmallFadeFbr : teleportSparkBigFadeFbr;
-				item = addFX(x, y, spark, frontFxImage, frontFxImageHolder, new Dot(0, -Math.random()));
+				item = addFX(x, y, spark, frontFxImage, frontFxImageHolder, new Point(0, -Math.random()));
 				item.frame = Math.random() * spark.totalFrames;
 			}
 		}
 		/* Fill a rect with particles and let them fly */
-		public function createDebrisRect(rect:Rect, vx:Number, quantity:int, type:int):void{
+		public function createDebrisRect(rect:Rectangle, vx:Number, quantity:int, type:int):void{
 			var x:Number, y:Number, blit:BlitRect, print:BlitRect;
 			for(var i:int = 0; i < quantity; i++){
 				x = rect.x + Math.random() * rect.width;

@@ -1,7 +1,6 @@
 ﻿package com.robotacid.phys {
 	import com.robotacid.engine.Entity;
 	import com.robotacid.engine.Player;
-	import com.robotacid.geom.Rect;
 	import flash.display.DisplayObject;
 	import flash.display.Graphics;
 	import flash.display.Sprite;
@@ -113,18 +112,18 @@
 							if(test.collider.parent != this && parent != test.collider){
 								if(rect.x + rect.width + xm >= test.block.x){
 									
-									test.collider.collisions |= Rect.LEFT;
-									collisions |= Rect.RIGHT;
+									test.collider.collisions |= Block.LEFT;
+									collisions |= Block.RIGHT;
 									test.collider.leftCollider = this;
 									rightCollider = test.collider;
 									
 									// move collider as much as it was bitten into
-									if(!(test.collider.collisions & Rect.RIGHT) && test.collider.weight < weight){
+									if(!(test.collider.collisions & Block.RIGHT) && test.collider.weight < weight){
 										colliderMoved = test.collider.moveX(xm - (test.block.x - (rect.x + rect.width)), source);
 									}
 									// if the collider has met a static wall, reduce possible movement
 									// and adopt collision status
-									if((test.collider.collisions & Rect.RIGHT) || test.collider.weight >= weight){
+									if((test.collider.collisions & Block.RIGHT) || test.collider.weight >= weight){
 										if(colliderMoved != 0){
 											xm -= xm - colliderMoved;
 										} else {
@@ -137,7 +136,7 @@
 						} else if(test.block){
 							if(rect.x + rect.width + xm >= test.block.x){
 								xm = test.block.x - (rect.x + rect.width);
-								collisions |= Rect.RIGHT;
+								collisions |= Block.RIGHT;
 							}
 						}
 					}
@@ -156,18 +155,18 @@
 							if(test.collider.parent != this && parent != test.collider){
 								if(rect.x + xm < test.block.x + test.block.width){
 									
-									test.collider.collisions |= Rect.RIGHT;
-									collisions |= Rect.LEFT;
+									test.collider.collisions |= Block.RIGHT;
+									collisions |= Block.LEFT;
 									test.collider.rightCollider = this;
 									leftCollider = test.collider;
 									
 									// move collider as much as it was bitten into
-									if(!(test.collider.collisions & Rect.LEFT) && test.collider.weight < weight){
+									if(!(test.collider.collisions & Block.LEFT) && test.collider.weight < weight){
 										colliderMoved = test.collider.moveX(xm - ((test.block.x + test.block.width) - rect.x), source);
 									}
 									// if the collider has met a static wall, reduce possible movement
 									// and adopt collision status
-									if((test.collider.collisions & Rect.LEFT) || test.collider.weight >= weight){
+									if((test.collider.collisions & Block.LEFT) || test.collider.weight >= weight){
 										if (colliderMoved != 0){
 											xm -= xm - colliderMoved;
 										} else {
@@ -180,7 +179,7 @@
 						} else if(test.block){
 							if (rect.x + xm < test.block.x + test.block.width){
 								xm = (test.block.x + test.block.width) - rect.x;
-								collisions |= Rect.LEFT;
+								collisions |= Block.LEFT;
 							}
 						}
 					}
@@ -221,18 +220,18 @@
 							if(test.collider.parent != this && parent != test.collider){
 								if(rect.y + rect.height + ym >= test.block.y){
 									
-									test.collider.collisions |= Rect.UP;
-									collisions |= Rect.DOWN;
+									test.collider.collisions |= Block.UP;
+									collisions |= Block.DOWN;
 									test.collider.upCollider = this;
 									downCollider = test.collider;
 									
 									// move collider as much as it was bitten into
-									if(!(test.collider.collisions & Rect.DOWN) && test.collider.weight < weight){
+									if(!(test.collider.collisions & Block.DOWN) && test.collider.weight < weight){
 										colliderMoved = test.collider.moveY(ym - (test.block.y - (rect.y + rect.height)), source);
 									}
 									// if the collider has met a static wall, reduce possible movement
 									// and adopt collision status
-									if((test.collider.collisions & Rect.DOWN) || test.collider.weight >= weight){
+									if((test.collider.collisions & Block.DOWN) || test.collider.weight >= weight){
 										if(colliderMoved != 0){
 											ym -= ym - colliderMoved;
 										} else {
@@ -254,7 +253,7 @@
 						} else if(test.block){
 							if(rect.y + rect.height + ym >= test.block.y){
 								ym = test.block.y - (rect.y + rect.height);
-								collisions |= Rect.DOWN;
+								collisions |= Block.DOWN;
 								// add to platforms
 								
 								if(parent != null){
@@ -281,18 +280,18 @@
 							if(test.collider.parent != this && parent != test.collider){
 								if (rect.y + ym < test.block.y + test.block.height){
 									
-									test.collider.collisions |= Rect.DOWN;
-									collisions |= Rect.UP;
+									test.collider.collisions |= Block.DOWN;
+									collisions |= Block.UP;
 									test.collider.downCollider = this;
 									upCollider = test.collider;
 									
 									// move collider as much as it was bitten into
-									if(!(test.collider.collisions & Rect.UP) && test.collider.weight < weight){
+									if(!(test.collider.collisions & Block.UP) && test.collider.weight < weight){
 										colliderMoved = test.collider.moveY(ym - ((test.block.y + test.block.height) - rect.y), source);
 									}
 									// if the collider has met a static wall, reduce possible movement
 									// and adopt collision status
-									if((test.collider.collisions & Rect.UP) || test.collider.weight >= weight){
+									if((test.collider.collisions & Block.UP) || test.collider.weight >= weight){
 										if(colliderMoved != 0){
 											ym -= ym - colliderMoved;
 										} else {
@@ -312,7 +311,7 @@
 						} else if(test.block){
 							if(rect.y + ym < test.block.y + test.block.height){
 								ym = (test.block.y + test.block.height) - rect.y;
-								collisions |= Rect.UP;
+								collisions |= Block.UP;
 							}
 						}
 					}
@@ -327,7 +326,7 @@
 			awake = AWAKE_DELAY;
 			
 			// head bumping on ceiling when jumping
-			if(!platform && (collisions & Rect.UP) && vy < 0) vy = 0;
+			if(!platform && (collisions & Block.UP) && vy < 0) vy = 0;
 			
 			return ym;
 		}
@@ -357,7 +356,7 @@
 				parentBlock = null;
 				vy = 0;
 			} else {
-				collisions |= Rect.DOWN;
+				collisions |= Block.DOWN;
 			}
 		}
 		
@@ -386,25 +385,25 @@
 		/* Draw debug diagram */
 		public function draw(gfx:Graphics):void{
 			if(awake == 0) return;
-			rect.draw(gfx);
+			gfx.drawRect(rect.x, rect.y, rect.width, rect.height);
 			if(parent != null){
 				gfx.moveTo(rect.x + rect.width * 0.5, rect.y + rect.height * 0.5);
 				gfx.lineTo(parent.rect.x + parent.rect.width * 0.5, parent.rect.y + parent.rect.height * 0.5);
 			}
 			if(collisions){
-				if(collisions & Rect.UP){
+				if(collisions & Block.UP){
 					gfx.moveTo(rect.x + 5, rect.y + 5);
 					gfx.lineTo(rect.x + rect.width - 5, rect.y + 5);
 				}
-				if(collisions & Rect.RIGHT){
+				if(collisions & Block.RIGHT){
 					gfx.moveTo(rect.x + rect.width- 5, rect.y + 5);
 					gfx.lineTo(rect.x + rect.width - 5, rect.y + rect.height - 5);
 				}
-				if(collisions & Rect.DOWN){
+				if(collisions & Block.DOWN){
 					gfx.moveTo(rect.x + 5, rect.y + rect.height - 5);
 					gfx.lineTo(rect.x + rect.width - 5, rect.y + rect.height - 5);
 				}
-				if(collisions & Rect.LEFT){
+				if(collisions & Block.LEFT){
 					gfx.moveTo(rect.x + 5, rect.y + 5);
 					gfx.lineTo(rect.x + 5, rect.y + rect.height - 5);
 				}

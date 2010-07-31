@@ -65,11 +65,34 @@
 			tempData.copyPixels(data, data.rect, p, null, null, true);
 			data = tempData;
 		}
+		/* Draws over the current data */
+		public function draw(mc:DisplayObject, colorTransform:ColorTransform = null, blendMode:String = null):void{
+			bounds = mc.getBounds(mc);
+			data.draw(mc, new Matrix(1, 0, 0, 1, -bounds.left, -bounds.top), colorTransform, blendMode)
+		}
 		
 		override public function render(destination:BitmapData, frame:int = 0):void{
 			p.x = x + dx;
 			p.y = y + dy;
 			destination.copyPixels(data, rect, p, null, null, true);
+		}
+		/* Paints a channel from the bitmapData to the destination */
+		public function renderChannel(destination:BitmapData, sourceChannel:uint, destChannel:uint, frame:int = 0):void{
+			p.x = x + dx;
+			p.y = y + dy;
+			destination.copyChannel(data, rect, p, sourceChannel, destChannel);
+		}
+		/* Paints the bitmapData to the destination using the alphaBitmapData's alpha channel*/
+		public function renderAlpha(destination:BitmapData, alphaBitmapData:BitmapData, alphaPoint:Point, frame:int = 0):void{
+			p.x = x + dx;
+			p.y = y + dy;
+			destination.copyPixels(data, rect, p, alphaBitmapData, alphaPoint, true);
+		}
+		/* Paints the bitmapData to the destination using the merge method */
+		public function renderMerge(destination:BitmapData, redMultiplier:uint, greenMultiplier:uint, blueMultiplier:uint, alphaMultiplier:uint, frame:int = 0):void{
+			p.x = x + dx;
+			p.y = y + dy;
+			destination.merge(data, rect, p, redMultiplier, greenMultiplier, blueMultiplier, alphaMultiplier);
 		}
 		/* Given a plane of multiple bitmaps that have been tiled together, calculate which bitmap(s) this
 		 * should appear on and render to as many as required to compensate for tiling

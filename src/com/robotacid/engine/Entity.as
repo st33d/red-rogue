@@ -1,21 +1,21 @@
 ﻿package com.robotacid.engine {
-	import com.robotacid.geom.Dot;
-	import com.robotacid.geom.Rect;
 	import flash.display.DisplayObject;
 	import flash.display.DisplayObjectContainer;
+	import flash.geom.Point;
+	import flash.geom.Rectangle;
 	
 	/**
 	 * ...
 	 * @author Aaron Steed, robotacid.com
 	 */
-	public class Entity extends Dot{
+	public class Entity extends Point{
 		
 		public var mc:DisplayObject;
 		public var g:Game;
 		public var active:Boolean;
 		public var callMain:Boolean;
 		public var collision:Boolean;
-		public var rect:Rect;
+		public var rect:Rectangle;
 		
 		public var name:int;
 		public var light:int;
@@ -55,7 +55,7 @@
 			
 		}
 		
-		public function intersects(rect:Rect):Boolean{
+		public function intersects(rect:Rectangle):Boolean{
 			return this.rect.intersects(rect);
 		}
 		

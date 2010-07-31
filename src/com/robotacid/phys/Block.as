@@ -1,14 +1,14 @@
 ﻿package com.robotacid.phys {
-	import com.robotacid.geom.Rect;
 	import flash.display.Graphics;
 	import flash.display.Sprite;
+	import flash.geom.Rectangle;
 	
 	/**
 	* Work horse of the collision engine
 	*
 	* @author Aaron Steed, robotacid.com
 	*/
-	public class Block extends Rect{
+	public class Block extends Rectangle{
 		
 		public var active:Boolean;
 		
@@ -49,7 +49,12 @@
 		/* No block here */
 		public static const EMPTY:int = 0;
 		
-		// properties 1 to 4 are the sides of a Rect, inhierited from Rect
+		// properties 0 to 3 are the sides of a Rectangle
+		
+		public static const UP:int = 1 << 0;
+		public static const RIGHT:int = 1 << 1;
+		public static const DOWN:int = 1 << 2;
+		public static const LEFT:int = 1 << 3;
 		
 		/* A block that doesn't move */
 		public static const STATIC:int = 1 << 4;
@@ -101,8 +106,8 @@
 			this.height = height;
 			this.type = type;
 		}
-		override public function draw(gfx:Graphics):void {
-			super.draw(gfx);
+		public function draw(gfx:Graphics):void {
+			gfx.drawRect(x, y, width, height);
 			if (type > 0){
 				if (type & UP){
 					gfx.moveTo(x + width * 0.5, y + height * 0.5);

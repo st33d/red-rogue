@@ -1,5 +1,4 @@
 package com.robotacid.engine {
-	import com.robotacid.geom.Rect;
 	import com.robotacid.gfx.BlitRect;
 	import com.robotacid.phys.Block;
 	import com.robotacid.phys.Collider;
@@ -119,7 +118,7 @@ package com.robotacid.engine {
 		}
 		
 		override public function main():void{
-			if(parentBlock != null) collisions |= Rect.DOWN;
+			if(parentBlock != null) collisions |= Block.DOWN;
 			// react to direction state
 			if(state == WALKING) moving = Boolean(dir & (LEFT | RIGHT));
 			// moving left or right

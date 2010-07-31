@@ -3,11 +3,9 @@
 	import com.robotacid.gfx.BlitSprite;
 	import com.robotacid.phys.Block;
 	import com.robotacid.phys.Cast;
-	import com.robotacid.geom.Dot;
 	import com.robotacid.sound.SoundManager;
 	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
-	import com.robotacid.geom.Rect;
 	
 	/**
 	* Basic missile class - only moves in straight lines for now

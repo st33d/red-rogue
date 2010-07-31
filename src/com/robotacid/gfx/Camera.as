@@ -1,8 +1,8 @@
 ﻿package com.robotacid.gfx {
-	import com.robotacid.geom.Dot;
-	import com.robotacid.geom.Rect;
 	import com.robotacid.ui.Key;
 	import flash.display.Sprite;
+	import flash.geom.Point;
+	import flash.geom.Rectangle;
 	
 	/**
 	 * ...
@@ -18,19 +18,19 @@
 		public var virtualCanvasX:Number, virtualCanvasY:Number;
 		public var lastVirtualCanvasX:Number, lastVirtualCanvasY:Number;
 		public var scrollX:Number, scrollY:Number;
-		public var scrollRect:Rect;
-		public var mapRect:Rect;
+		public var scrollRect:Rectangle;
+		public var mapRect:Rectangle;
 		public var viewWidth:Number;
 		public var viewHeight:Number;
 		
 		public var count:int;
-		public var delayTarget:Dot;
+		public var delayTarget:Point;
 		public var mouseHidden:Boolean;
 		public var scrolling:Boolean;
-		public var scrollFocus:Dot;
+		public var scrollFocus:Point;
 		public var lockOut:Boolean;
 		
-		public var targetObject:Dot;
+		public var targetObject:Point;
 		
 		public static const SCROLL_PACE:Number = 0.5;
 		
@@ -40,14 +40,14 @@
 		public static const LEFT:int = 8;
 		
 		
-		public function Camera(g:Game, targetObject:Dot, viewWidth:Number, viewHeight:Number) {
+		public function Camera(g:Game, targetObject:Point, viewWidth:Number, viewHeight:Number) {
 			this.g = g;
 			this.targetObject = targetObject;
 			this.viewWidth = viewWidth;
 			this.viewHeight = viewHeight;
 			this.canvas = g.canvas;
 			mapRect = g.renderer.mapRect;
-			scrollRect = new Rect(60, 64, 200, 80);
+			scrollRect = new Rectangle(60, 64, 200, 80);
 			scrollX = 0;
 			scrollY = scrollRect.height * 0.5;
 			scrollTargetX = -targetObject.x+scrollRect.x+scrollX;
@@ -79,10 +79,6 @@
 			else if(scrollY < scrollRect.height * 0.5) scrollY += SCROLL_PACE;
 			if((g.player.actions & RIGHT) && scrollX > 0) scrollX -= SCROLL_PACE * 2;
 			if ((g.player.actions & LEFT) && scrollX < scrollRect.width) scrollX += SCROLL_PACE * 2;
-			// scroll down when down is pressed
-			//if ((g.player.keysPressed & DOWN) && scrollY > 0) scrollY -= 1;
-			// scroll back to default when neither falling or down is pressed
-			//if (!(g.player.keysPressed & DOWN) && !(g.player.state == Character.FALLING) && scrollY < scrollRect.height) scrollY += 1;
 			
 			scrollTargetX = -targetObject.x + scrollRect.x + scrollX;
 			scrollTargetY = -targetObject.y + scrollRect.y + scrollY;
@@ -112,7 +108,7 @@
 			scrollTargetY = Math.min(0, scrollTargetY);
 		}
 		public function setDelayedScrollTarget(x:Number, y:Number, delay:int):void{
-			delayTarget = new Dot(x, y);
+			delayTarget = new Point(x, y);
 			count = delay;
 		}
 		public function setScrollInit(x:Number, y:Number):void{
@@ -123,8 +119,8 @@
 			canvas.x = scrollTargetX >> 0;
 			canvas.y = scrollTargetY >> 0;
 		}
-		public function getScrollTarget():Dot{
-			return new Dot( -scrollTargetX + viewWidth * 0.5, -scrollTargetY + viewHeight * 0.5);
+		public function getScrollTarget():Point{
+			return new Point( -scrollTargetX + viewWidth * 0.5, -scrollTargetY + viewHeight * 0.5);
 		}
 		public function reset():void{
 			canvas.x = 0;

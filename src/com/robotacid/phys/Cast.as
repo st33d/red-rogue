@@ -1,9 +1,8 @@
 ﻿package com.robotacid.phys {
-	import com.robotacid.geom.Dot;
-	import com.robotacid.geom.Rect;
 	import com.robotacid.phys.Block;
 	import com.robotacid.geom.Line;
 	import com.robotacid.engine.Player;
+	import flash.geom.Rectangle;
 	
 	/**
 	* Scans for blocks or Colliders
@@ -229,7 +228,7 @@
 				
 				if (g.colliders[n].block.type & ignore) continue;
 				
-				var rect:Rect = g.colliders[n].rect;
+				var rect:Rectangle = g.colliders[n].rect;
 				
 				// bounding box check. the ray must fall in or before the object
 				if(dx > 0 && x > rect.x + rect.width - 1) continue;

@@ -1,5 +1,6 @@
 ﻿package com.robotacid.geom {
 	import flash.display.Graphics;
+	import flash.geom.Point;
 	
 	/**
 	* Line class for vector math and calculation of positions and directions
@@ -8,8 +9,8 @@
 	*/
 	public class Line {
 		
-		public var a:Dot;// 		Old position x,y
-		public var b:Dot;// 		Current position x,y
+		public var a:Point;// 		Old position x,y
+		public var b:Point;// 		Current position x,y
 		public var vx:Number;// 	distance between p0.x and p1.x
 		public var vy:Number;// 	distance between p0.y and p1.y
 		public var length:Number;// vector length (pythagoras length of a to b)
@@ -22,7 +23,7 @@
 		public var ly:Number;// 	y value of left hand unit vector
 		public var theta:Number;// 	rotation - updated by calling atan2 or rotate methods
 		
-		public function Line(a:Dot, b:Dot){
+		public function Line(a:Point, b:Point){
 			this.a = a;
 			this.b = b;
 			updateLine();
@@ -71,8 +72,8 @@
 			return theta;
 		}
 		/* Return a point along the line */
-		public function lerp(n:Number):Dot{
-			return new Dot(a.x + ((b.x - a.x) * n), a.y + ((b.y - a.y) * n));
+		public function lerp(n:Number):Point{
+			return new Point(a.x + ((b.x - a.x) * n), a.y + ((b.y - a.y) * n));
 		}
 		/* return the a and b properties of this line as a string */
 		public function toString():String{
@@ -100,13 +101,13 @@
 				gfx.lineTo(b.x, b.y);
 			}
 		}
-		/* Return a copy of this line with new Dot objects */
+		/* Return a copy of this line with new Point objects */
 		public function copy():Line{
-			return new Line(new Dot(a.x, a.y), new Dot(b.x, b.y));
+			return new Line(new Point(a.x, a.y), new Point(b.x, b.y));
 		}
 		/* Returns true if x,y is within a distance of r to the line */
 		public function proximity(x:Number, y:Number, r:Number):Boolean{
-			var c:Dot = new Dot(x, y);
+			var c:Point = new Point(x, y);
 			// vertex region check
 			var segment:Line = this;
 			//Line toCircle = new Line(a, c);
@@ -148,7 +149,7 @@
 		/* create a new Line that is a projection of la and lb */
 		public static function projection(la:Line, lb:Line):Line{
 			var dot:Number = Line.dot(la, lb);
-			return new Line(new Dot(0, 0), new Dot(la.dx * dot, la.dy * dot));
+			return new Line(new Point(0, 0), new Point(la.dx * dot, la.dy * dot));
 		}
 		/* Perpendicular product (dot product rotated 90 degrees) */
 		public static function perP(va:Object, vb:Object):Number{

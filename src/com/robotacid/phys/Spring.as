@@ -1,6 +1,6 @@
 ﻿package com.robotacid.phys {
-	import com.robotacid.geom.Dot;
 	import com.robotacid.geom.Line;
+	import flash.geom.Point;
 	
 	/**
 	* Basic (really basic) spring class based on Flade engine springs
@@ -14,7 +14,7 @@
 		public var restLength:Number;	// length the spring returns to
 		public var stiffness:Number;	// the speed the spring returns to normal - a value above 0.5 is unstable
 		
-		public function Spring(a:Dot, b:Dot){
+		public function Spring(a:Point, b:Point){
 			super(a, b);
 			stiffness = 0.5;
 			restLength = length;
@@ -29,7 +29,7 @@
 				diff = (length - restLength) / length;
 			}
 			var mul:Number = diff * stiffness;
-			var moveBy:Dot = new Dot( -vx * mul, -vy * mul);
+			var moveBy:Point = new Point( -vx * mul, -vy * mul);
 			a.x -= moveBy.x;
 			a.y -= moveBy.y;
 			b.x += moveBy.x;

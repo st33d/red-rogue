@@ -1,6 +1,5 @@
 ﻿package com.robotacid.dungeon {
 	import com.robotacid.geom.Pixel;
-	import com.robotacid.geom.Rect;
 	import com.robotacid.util.array.randomiseArray;
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
@@ -27,7 +26,7 @@
 		public var leftSecretWidth:Number;
 		public var rightSecretWidth:Number;
 		
-		public var adjustedMapRect:Rect;
+		public var adjustedMapRect:Rectangle;
 		
 		// temp variables
 		private var i:int, j:int, k:int, n:int, r:int, c:int, node:Node, room:Room;
@@ -626,7 +625,7 @@
 		
 		/* This creates extra rooms on the edges of the map, hidden by a destructible wall */
 		public function createSecrets():void{
-			adjustedMapRect = new Rect(0, 0, bitmapData.width * Game.SCALE, bitmapData.height * Game.SCALE);
+			adjustedMapRect = new Rectangle(0, 0, bitmapData.width * Game.SCALE, bitmapData.height * Game.SCALE);
 			
 			var mapWidth:int = bitmapData.width;
 			var secretsLeft:Vector.<int> = new Vector.<int>();

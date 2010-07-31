@@ -1,5 +1,5 @@
 ﻿package com.robotacid.phys {
-	import com.robotacid.geom.Dot;
+	import flash.geom.Point;
 	
 	/**
 	* Free floating Verlet Integration particle
@@ -15,7 +15,7 @@
 	*
 	* @author Aaron Steed, robotacid.com
 	*/
-	public class Particle extends Dot{
+	public class Particle extends Point{
 		public var ix:Number;//		initial x position
 		public var iy:Number;//		initial y position
 		public var px:Number;//		previous x position

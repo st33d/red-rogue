@@ -1,14 +1,14 @@
 ﻿package com.robotacid.engine {
 	import com.robotacid.ai.Brain;
 	import com.robotacid.dungeon.Map;
-	import com.robotacid.geom.Dot;
-	import com.robotacid.geom.Rect;
 	import com.robotacid.phys.Block;
 	import com.robotacid.sound.SoundManager;
 	import com.robotacid.util.HiddenInt;
 	import flash.display.Bitmap;
 	import flash.display.DisplayObject;
 	import flash.display.Sprite;
+	import flash.geom.Point;
+	import flash.geom.Rectangle;
 	
 	/**
 	 * Various entities that will attack the player when triggered
@@ -20,10 +20,10 @@
 		public var type:int;
 		public var contact:Boolean;
 		public var revealed:Boolean;
-		public var dartGun:Dot;
+		public var dartGun:Point;
 		public var count:int;
 		
-		public var disarmingRect:Rect;
+		public var disarmingRect:Rectangle;
 		public var disarmingContact:Boolean;
 		
 		// type flags
@@ -40,13 +40,13 @@
 			this.type = type;
 			revealed = false;
 			if(type == PIT){
-				rect = new Rect(x, y - 1, SCALE, SCALE);
+				rect = new Rectangle(x, y - 1, SCALE, SCALE);
 			} else if(type == POISON_DART || type == TELEPORT_DART){
-				rect = new Rect(x, y - 1, SCALE, 5);
-				dartGun = new Dot(x + SCALE * 0.5, y - SCALE);
+				rect = new Rectangle(x, y - 1, SCALE, 5);
+				dartGun = new Point(x + SCALE * 0.5, y - SCALE);
 				while(!(g.blockMap[((dartGun.y - 1) * INV_SCALE) >> 0][(dartGun.x * INV_SCALE) >> 0] & Block.WALL)) dartGun.y -= SCALE;
 			}
-			disarmingRect = new Rect(x - SCALE, y - 1, SCALE * 3, 5);
+			disarmingRect = new Rectangle(x - SCALE, y - 1, SCALE * 3, 5);
 			callMain = true;
 			contact = false;
 			disarmingContact = false;
@@ -77,12 +77,10 @@
 						active = false;
 						g.renderer.addToRenderedArray(mapX, mapY, Map.BLOCKS, MapTileConverter.ID_TO_GRAPHIC[MapTileConverter.LEDGE_SINGLE]);
 						g.renderer.mapArrayLayers[Map.BLOCKS][mapY][mapX] = MapTileConverter.LEDGE_SINGLE;
-						g.blockMap[mapY][mapX] = Rect.UP | Block.LEDGE;
+						g.blockMap[mapY][mapX] = Block.UP | Block.LEDGE;
 					}
 				}
-				rect.draw(Game.debug);
 			}
-			//rect.draw(Game.debug);
 		}
 		
 		public function resolveCollision():void {
@@ -110,7 +108,7 @@
 				if(g.player.disarmableTraps.indexOf(this) > -1){
 					g.player.removeDisarmableTrap(this);
 				}
-				disarmingRect = new Rect(0, 0, 1, 1);
+				disarmingRect = new Rectangle(0, 0, 1, 1);
 				// the dungeon graph is currently unaware of a new route
 				// we need to educate it by looking down from the node that must be above the
 				// pit to the node that must be below it

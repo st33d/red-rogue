@@ -1,6 +1,4 @@
 ﻿package com.robotacid.gfx {
-	import com.robotacid.geom.Dot;
-	import com.robotacid.geom.Rect;
 	import com.robotacid.phys.Block;
 	import com.robotacid.phys.Cast;
 	import flash.display.Bitmap;
@@ -15,7 +13,6 @@
 		
 		public var mapX:int, mapY:int;
 		public var dx:Number, dy:Number;
-		public var length:Number;
 		public var ignore:int;
 		public var px:Number;
 		public var py:Number;
@@ -61,7 +58,7 @@
 				x = px + cast.distance * dx;
 				y = py + cast.distance * dy;
 				if(print) printFade();
-				if(!smear || cast.side == Rect.UP || cast.side == 0) kill();
+				if(!smear || cast.side == Block.UP || cast.side == 0) kill();
 			}
 			// collider collision
 			for (var i:int = 0; i < g.colliders.length; i++){
@@ -79,7 +76,7 @@
 		}
 		/* Calculate the normalised vector this particle is travelling on */
 		public function getVector():void{
-			length = Math.sqrt((x - px) * (x - px) + (y - py) * (y - py));
+			var length:Number = Math.sqrt((x - px) * (x - px) + (y - py) * (y - py));
 			if(length > 0){
 				dx = (x - px) / length;
 				dy = (y - py) / length;

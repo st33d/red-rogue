@@ -59,6 +59,24 @@
 			p.y = y + dy;
 			destination.copyPixels(frames[frame], rect, p, null, null, true);
 		}
+		/* Paints a channel from the bitmapData to the destination */
+		override public function renderChannel(destination:BitmapData, sourceChannel:uint, destChannel:uint, frame:int = 0):void{
+			p.x = x + dx;
+			p.y = y + dy;
+			destination.copyChannel(frames[frame], rect, p, sourceChannel, destChannel);
+		}
+		/* Paints the bitmapData to the destination using the alphaBitmapData's alpha channel*/
+		override public function renderAlpha(destination:BitmapData, alphaBitmapData:BitmapData, alphaPoint:Point, frame:int = 0):void{
+			p.x = x + dx;
+			p.y = y + dy;
+			destination.copyPixels(frames[frame], rect, p, alphaBitmapData, alphaPoint, true);
+		}
+		/* Paints the bitmapData to the destination using the merge method */
+		override public function renderMerge(destination:BitmapData, redMultiplier:uint, greenMultiplier:uint, blueMultiplier:uint, alphaMultiplier:uint, frame:int = 0):void{
+			p.x = x + dx;
+			p.y = y + dy;
+			destination.merge(frames[frame], rect, p, redMultiplier, greenMultiplier, blueMultiplier, alphaMultiplier);
+		}
 		/* Given a plane of multiple bitmaps that have been tiled together, calculate which bitmap(s) this
 		 * should appear on and render to as many as required to compensate for tiling
 		 *

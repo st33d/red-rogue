@@ -5,7 +5,6 @@
 	import com.robotacid.ui.menu.InventoryMenuList;
 	import com.robotacid.ui.menu.MenuOptionStack;
 	import com.robotacid.util.HiddenInt;
-	import com.robotacid.geom.Rect;
 	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
 	import flash.filters.GlowFilter;
@@ -271,7 +270,7 @@
 			dropGlow();
 			
 			// drop to the floor if hanging in the air - we pre raycast to find floor below
-			if(!(g.blockMap[mapY + 1][mapX] & Rect.UP)){
+			if(!(g.blockMap[mapY + 1][mapX] & Block.UP)){
 				var cast:Cast = Cast.vert(x, y, 1, g.blockMap.length, g.blockMap, Block.CHARACTER | Block.HEAD, g);
 				floorY = (cast.block.y - Game.SCALE) + (y - (mapY * Game.SCALE));
 			} else {
@@ -351,7 +350,7 @@
 		}
 		public function updateRect():void{
 			bounds = mc.getBounds(g.canvas);
-			rect = new Rect(bounds.x, bounds.y, bounds.width, bounds.height);
+			rect = new Rectangle(bounds.x, bounds.y, bounds.width, bounds.height);
 			if(rect.width + rect.height == 0){
 				rect.x = x - 5;
 				rect.y = y - 5;

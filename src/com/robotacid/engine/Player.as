@@ -7,14 +7,12 @@
 	import com.robotacid.phys.Cast;
 	import com.robotacid.engine.Character;
 	import com.robotacid.phys.Collider;
-	import com.robotacid.geom.Dot;
 	import com.robotacid.sound.SoundManager;
 	import com.robotacid.ui.menu.InventoryMenuList;
 	import com.robotacid.util.HiddenInt;
 	import com.robotacid.util.HiddenNumber;
 	import com.robotacid.geom.Line;
 	import com.robotacid.phys.Particle;
-	import com.robotacid.geom.Rect;
 	import com.robotacid.engine.MapRenderer;
 	import com.robotacid.geom.Trig;
 	import com.robotacid.ui.Key;
@@ -43,7 +41,7 @@
 		// properties
 		
 		public var xp:Number;
-		public var mapRect:Rect;
+		//public var mapRect:Rectangle;
 		public var inventory:InventoryMenuList;
 		public var searchCount:int;
 		public var disarmableTraps:Vector.<Trap>;

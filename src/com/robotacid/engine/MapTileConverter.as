@@ -7,7 +7,6 @@
 	import com.robotacid.phys.Block;
 	import com.robotacid.engine.Character;
 	import com.robotacid.engine.Entity;
-	import com.robotacid.geom.Rect;
 	import com.robotacid.phys.Collider;
 	import com.robotacid.util.array.getParams;
 	import com.robotacid.util.array.protectedSplitArray;
@@ -334,9 +333,9 @@
 		
 			if(n == LADDER) return Block.LADDER;
 			if(n == LADDER_TOP) return 0;
-			if(n >= 15 && n <= 23) return Rect.UP | Block.LEDGE;
-			if(n >= 33 && n <= 41) return Rect.UP | Block.LEDGE;
-			if(n >= 24 && n <= 32) return Block.LADDER | Block.LEDGE | Rect.UP;
+			if(n >= 15 && n <= 23) return Block.UP | Block.LEDGE;
+			if(n >= 33 && n <= 41) return Block.UP | Block.LEDGE;
+			if(n >= 24 && n <= 32) return Block.LADDER | Block.LEDGE | Block.UP;
 			if(n > 0) return Block.SOLID | Block.WALL;
 			
 			return 0;

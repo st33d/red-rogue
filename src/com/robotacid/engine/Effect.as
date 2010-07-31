@@ -1,6 +1,5 @@
 ﻿package com.robotacid.engine {
 	import com.robotacid.geom.Pixel;
-	import com.robotacid.geom.Rect;
 	import com.robotacid.phys.Block;
 	import com.robotacid.phys.Collider;
 	import com.robotacid.sound.SoundManager;
@@ -8,6 +7,7 @@
 	import flash.display.DisplayObjectContainer;
 	import flash.display.MovieClip;
 	import flash.display.Sprite;
+	import flash.geom.Rectangle;
 	
 	/**
 	 * ...
@@ -410,7 +410,7 @@
 		}
 		
 		/* Get a random location on the map to teleport to - aims for somewhere not too immediate */
-		public static function getTeleportTarget(startX:int, startY:int, map:Vector.<Vector.<int>>, mapRect:Rect):Pixel{
+		public static function getTeleportTarget(startX:int, startY:int, map:Vector.<Vector.<int>>, mapRect:Rectangle):Pixel{
 			var finish:Pixel = new Pixel(startX, startY);
 			while((Math.abs(startX - finish.x) < MIN_TELEPORT_DIST && Math.abs(startY - finish.y) < MIN_TELEPORT_DIST) || (map[finish.y][finish.x] & Block.WALL) || !mapRect.contains((finish.x + 0.5) * Game.SCALE, (finish.y + 0.5) * Game.SCALE)){
 				finish.x = Math.random() * map[0].length;
