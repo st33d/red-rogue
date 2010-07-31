@@ -106,8 +106,8 @@
 			// OPTION ARRAYS
 			
 			trunk.options.push(inventoryOption);
-			trunk.options.push(optionsOption);
 			trunk.options.push(actionsOption);
+			trunk.options.push(optionsOption);
 			
 			optionsList.options.push(soundOption);
 			optionsList.options.push(changeKeysOption);
