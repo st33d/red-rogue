@@ -4,6 +4,7 @@
 	import com.robotacid.ai.Node;
 	import com.robotacid.dungeon.Content;
 	import com.robotacid.engine.Character;
+	import com.robotacid.engine.CharacterAttributes;
 	import com.robotacid.engine.Effect;
 	import com.robotacid.engine.Minion;
 	import com.robotacid.engine.Stairs;
@@ -87,7 +88,6 @@
 		public var canvas:Sprite;
 		public var tileImage:BitmapData;
 		public var tileImageHolder:Bitmap;
-		public var debrisMapHolder:Sprite;
 		public var itemsHolder:Sprite;
 		public var stairsHolder:Sprite;
 		public var entitiesHolder:Sprite;
@@ -485,11 +485,35 @@
 				minion.brain.clear();
 			}
 			
+			var skinMc:MovieClip;
 			// the overworld behaves differently to the rest of the game
 			if(dungeon.level == 0){
 				lightMap.bitmap.visible = false;
+				miniMap.visible = false;
+				// change the rogue to a colour version and revert the minion if changed
+				var skinClass:Class;
+				skinMc = new library.ColPlayerMC();
+				if(player.name != Character.ROGUE){
+					console.print("rogue reverts to human form");
+				}
+				player.reskin(skinMc, Character.ROGUE, skinMc.width, skinMc.height);
+				if(minion && minion.name != Character.SKELETON){
+					skinClass = CharacterAttributes.NAME_SKINS[Character.SKELETON];
+					skinMc = new skinClass();
+					minion.reskin(skinMc, Character.SKELETON, skinMc.width, skinMc.height);
+					console.print("minion reverts to undead form");
+				}
+				stairsHolder.addChildAt(new library.OverWorldB, 0);
+				
 			} else {
+				if(dungeon.level == 1){
+					// change to black and white rogue
+					skinMc = new library.PlayerMC();
+					player.reskin(skinMc, Character.ROGUE, skinMc.width, skinMc.height);
+					
+				}
 				lightMap.bitmap.visible = true;
+				miniMap.visible = true;
 			}
 			
 			
@@ -609,7 +633,7 @@
 				// cycle for the invisibility effect
 				tileImage.fillRect(tileImage.rect, 0x00000000);
 				renderer.main();
-				lightMap.main();
+				if(dungeon.level > 0) lightMap.main();
 				updateFX();
 				updateShaker();
 				

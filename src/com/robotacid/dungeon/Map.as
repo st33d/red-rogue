@@ -319,8 +319,8 @@
 			
 			bitmap = new DungeonBitmap(0);
 			
-			width = 20;
-			height = 17;
+			width = bitmap.width;
+			height = bitmap.height;
 			layers.push(createGrid(null, width, height));
 			// blocks - start with a full grid
 			layers.push(createGrid(1, width, height));

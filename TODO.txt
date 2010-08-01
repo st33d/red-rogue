@@ -13,22 +13,6 @@ TypeError: Error #1009: Cannot access a property or method of a null object refe
 either the effect target reference is null or the effects list for the target is null
 
 
-Brain.as overhaul:
-
-	patrol behaviour - completely fine, looks great, may need to investigate ladders as playtesters complain of monsters blocking routes still
-	
-	chase behaviour - might need total rewrite, needs a graph of the level to operate properly
-	
-	flee behaviour - same as chase I think
-
-	come up with a means to get the brain object to navigate ladders, some kind of best first search
-	monsters chasing you up ladders - usually initiated whilst in possession of a bow - needs investigation
-	follow ai doesn't understand the concept of ledges - especially the minion
-	strange rapid dithering behaviour on monsters, perhaps due to target switching in Brain
-	monsters are not following a specific target
-
-
-
 *the rune pass through has changed to a hit with no effect - still needs investigation
 
 *pickup bug - very rarely an item will not get removed from the map when being picked up. Error throwing in place

@@ -69,6 +69,9 @@
 		
 		public static const SECRET_FREQ:Number = 0.5;
 		
+		public static const OVERWORLD_WIDTH:int = 20;
+		public static const OVERWORLD_HEIGHT:int = 13;
+		
 		public function DungeonBitmap(level:int) {
 			
 			var bitmapData:BitmapData;
@@ -104,7 +107,7 @@
 		}
 		
 		public function createOverWorld():BitmapData{
-			var overworldMap:BitmapData = new BitmapData(20, 17, true, WALL);
+			var overworldMap:BitmapData = new BitmapData(OVERWORLD_WIDTH, OVERWORLD_HEIGHT, true, WALL);
 			overworldMap.fillRect(new Rectangle(1, 1, overworldMap.width - 2, overworldMap.height - 2), EMPTY);
 			return overworldMap;
 		}

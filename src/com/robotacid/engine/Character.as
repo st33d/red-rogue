@@ -222,7 +222,7 @@
 			// and making them invisible will help the lighting engine conceal their presence.
 			// however - if they are moving, they may "pop" in and out of darkness, so we check around them
 			// for light
-			if(light) inTheDark = false;
+			if(light || g.dungeon.level == 0) inTheDark = false;
 			else{
 				if(dir == 0){
 					if(g.lightMap.darkImage.getPixel32(mapX, mapY) != 0xFF000000) inTheDark = false;
@@ -496,8 +496,11 @@
 			active = false;
 			g.createDebrisRect(rect, 0, 20, debrisType);
 			var method:String = decapitation ? "decapitated" : CharacterAttributes.NAME_DEATH_STRINGS[name];
+			
+			//decapitation = true;
+			
 			if(decapitation){
-				var head:Head = new Head(mc as MovieClip, totalHealth * 0.5, g);
+				var head:Head = new Head(this, totalHealth * 0.5, g);
 				var corpse:Corpse = new Corpse(this, g);
 			}
 			g.console.print(CharacterAttributes.NAME_STRINGS[name] + " " + method + " by " + cause);

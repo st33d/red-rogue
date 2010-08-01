@@ -14,8 +14,6 @@
 		
 		[Embed(source = "assets/banner.png")] public var BannerB:Class;
 		
-		[Embed(source = "assets/assets.swf", symbol = "PlayerMC")] public var PlayerMC:Class;
-		
 		[Embed(source = "assets/assets.swf", symbol = "JumpSound")] public var JumpSound:Class;
 		[Embed(source = "assets/assets.swf", symbol = "StepsSound")] public var StepsSound:Class;
 		[Embed(source = "assets/assets.swf", symbol = "RogueDeathSound")] public var RogueDeathSound:Class;
@@ -50,11 +48,22 @@
 		[Embed(source = "assets/midground/stairs_up.png")] public var StairsUpB:Class;
 		[Embed(source = "assets/midground/stairs_mask.png")] public var StairsMaskB:Class;
 		
+		[Embed(source = "assets/assets.swf", symbol = "PlayerMC")] public var PlayerMC:Class;
+		[Embed(source = "assets/assets.swf", symbol = "ColPlayerMC")] public var ColPlayerMC:Class;
+		
 		[Embed(source = "assets/assets.swf", symbol = "SkeletonMC")] public var SkeletonMC:Class;
 		[Embed(source = "assets/assets.swf", symbol = "KoboldMC")] public var KoboldMC:Class;
 		[Embed(source = "assets/assets.swf", symbol = "GoblinMC")] public var GoblinMC:Class;
 		[Embed(source = "assets/assets.swf", symbol = "OrcMC")] public var OrcMC:Class;
 		[Embed(source = "assets/assets.swf", symbol = "TrollMC")] public var TrollMC:Class;
+		
+		[Embed(source = "assets/assets.swf", symbol = "PlayerHeadMC")] public var PlayerHeadMC:Class;
+		
+		[Embed(source = "assets/assets.swf", symbol = "SkeletonHeadMC")] public var SkeletonHeadMC:Class;
+		[Embed(source = "assets/assets.swf", symbol = "KoboldHeadMC")] public var KoboldHeadMC:Class;
+		[Embed(source = "assets/assets.swf", symbol = "GoblinHeadMC")] public var GoblinHeadMC:Class;
+		[Embed(source = "assets/assets.swf", symbol = "OrcHeadMC")] public var OrcHeadMC:Class;
+		[Embed(source = "assets/assets.swf", symbol = "TrollHeadMC")] public var TrollHeadMC:Class;
 		
 		[Embed(source = "assets/assets.swf", symbol = "RatMC")] public var RatMC:Class;
 		[Embed(source = "assets/assets.swf", symbol = "SpiderMC")] public var SpiderMC:Class;
@@ -84,6 +93,8 @@
 		[Embed(source = "assets/assets.swf", symbol = "SkullMC")] public var SkullMC:Class;
 		
 		[Embed(source = 'assets/trap_revealed.png')] public var TrapRevealedB:Class;
+		
+		[Embed(source = 'assets/overworld.png')] public var OverWorldB:Class;
 		
 		
 		public function armourNameToMCClass(n:int):Class{

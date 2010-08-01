@@ -174,6 +174,15 @@
 			Game.g.library.TrollMC
 		];
 		
+		public static const NAME_HEADS:Array = [
+			Game.g.library.PlayerHeadMC,
+			Game.g.library.SkeletonHeadMC,
+			Game.g.library.KoboldHeadMC,
+			Game.g.library.GoblinHeadMC,
+			Game.g.library.OrcHeadMC,
+			Game.g.library.TrollHeadMC
+		];
+		
 	}
 
 }

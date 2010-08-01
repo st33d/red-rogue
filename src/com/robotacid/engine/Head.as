@@ -2,6 +2,7 @@
 	import com.robotacid.gfx.BlitRect;
 	import com.robotacid.phys.Block;
 	import com.robotacid.phys.Collider;
+	import com.robotacid.util.clips.localToLocal;
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
 	import flash.display.DisplayObject;
@@ -9,6 +10,7 @@
 	import flash.display.Sprite;
 	import flash.filters.GlowFilter;
 	import flash.geom.Matrix;
+	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	
 	/**
@@ -24,6 +26,7 @@
 		
 		public var damage:Number;
 		public var bloodCount:int;
+		public var bounds:Rectangle;
 		
 		public static const GRAVITY:Number = 0.8;
 		public static const DAMPING_Y:Number = 0.99;
@@ -36,24 +39,16 @@
 		
 		public static const BLOOD_DELAY:int = 20;
 		
-		public function Head(victim:MovieClip, damage:Number, g:Game) {
-			// first we get capture the target's head
-			// each decapitatable victim has a marker clip on it called "neck" that we chop at
-			var neckY:int = victim.neck.y + 1;
-			var bounds:Rectangle = victim.getBounds(victim);
-			var data:BitmapData = new BitmapData(Math.ceil(bounds.width), Math.ceil(-bounds.top + neckY), true, 0x00000000);
-			data.draw(victim, new Matrix(1, 0, 0, 1, -bounds.left, -bounds.top));
-			var holder:Sprite = new Sprite();
-			var bitmap:Bitmap = new Bitmap(data);
-			bitmap.x = bounds.left;
-			holder.addChild(bitmap);
-			g.fxHolder.addChild(holder);
-			holder.x = victim.x;
-			holder.y = victim.y + neckY;
-			// now we've got a head, but the width of the actual graphic may be lying
-			var colourBounds:Rectangle = data.getColorBoundsRect(0xFFFFFFFF, 0x00000000, false);
-			bitmap.y = -colourBounds.bottom;
-			super(holder, colourBounds.width, colourBounds.height, g, true);
+		public function Head(victim:Character, damage:Number, g:Game) {
+			mc = new CharacterAttributes.NAME_HEADS[victim.name];
+			var point:Point = new Point();
+			point = localToLocal(point, (victim.mc as MovieClip).neck, g.canvas);
+			mc.x = point.x;
+			mc.y = point.y;
+			bounds = mc.getBounds(mc);
+			holder = g.fxHolder;
+			holder.addChild(mc);
+			super(mc, bounds.width, bounds.height, g, true);
 			callMain = true;
 			weight = 0;
 			bloodCount = BLOOD_DELAY;
@@ -130,16 +125,16 @@
 		
 		/* Update collision Rect / Block */
 		override public function updateRect():void{
-			rect.x = x - width * 0.5;
-			rect.y = y - height * 0.5;
+			rect.x = x + bounds.x;
+			rect.y = y + bounds.y;
 			rect.width = width;
 			rect.height = height;
 		}
 		
 		/* Handles refreshing animation and the position on the canvas */
 		public function updateMC():void{
-			mc.x = (x + 0.1) >> 0;
-			mc.y = ((y + height * 0.5) + 0.1) >> 0;
+			mc.x = x >> 0;
+			mc.y = y >> 0;
 			if(mc.alpha < 1){
 				mc.alpha += 0.1;
 			}

@@ -19,9 +19,6 @@ package com.robotacid.engine {
 	 */
 	public class Corpse extends Collider{
 		
-		public var mask:Shape;
-		public var bodyMc:MovieClip;
-		
 		public var state:int;
 		public var looking:int;
 		public var dir:int;
@@ -47,6 +44,8 @@ package com.robotacid.engine {
 		
 		public static const BOOM_DELAY:int = 90;
 		
+		public static var point:Point = new Point();
+		
 		public function Corpse(victim:Character, g:Game) {
 			boomCount = BOOM_DELAY;
 			state = WALKING;
@@ -56,15 +55,10 @@ package com.robotacid.engine {
 			dir = victim.looking;
 			
 			var mcClass:Class = (Object(victim.mc).constructor as Class);
-			mc = new Sprite();
-			bodyMc = new mcClass();
-			bodyMc.stop();
-			mask = new Shape();
+			mc = new mcClass();
+			(mc as MovieClip).gotoAndStop("corpse_1");
 			mc.x = victim.mc.x;
 			mc.y = victim.mc.y;
-			(mc as Sprite).addChild(bodyMc);
-			(mc as Sprite).addChild(mask);
-			bodyMc.mask = mask;
 			victim.holder.addChild(mc);
 			vx = vy = 0;
 			
@@ -126,7 +120,7 @@ package com.robotacid.engine {
 				if(dir & RIGHT) vx += speed;
 				else if(dir & LEFT) vx -= speed;
 			}
-			updateAnimState();
+			updateAnimState(mc as MovieClip);
 			updateMC();
 			
 			if((collisions & (LEFT | RIGHT)) || (boomCount--) <= 0) kill();
@@ -139,33 +133,30 @@ package com.robotacid.engine {
 			active = false;
 			g.createDebrisRect(rect, 0, 20, Game.BLOOD);
 		}
-		public function updateAnimState():void {
-			if ((looking & LEFT) && bodyMc.scaleX != -1) bodyMc.scaleX = -1;
-			else if ((looking & RIGHT) && bodyMc.scaleX != 1) bodyMc.scaleX = 1;
+		public function updateAnimState(mc:MovieClip):void {
+			if ((looking & LEFT) && mc.scaleX != -1) mc.scaleX = -1;
+			else if ((looking & RIGHT) && mc.scaleX != 1) mc.scaleX = 1;
 			
 			
 			if(state == WALKING && moving){
 				if(moveFrame){
-					if(bodyMc.currentLabel != "walk_1") bodyMc.gotoAndStop("walk_1");
+					if(mc.currentLabel != "corpse_1") mc.gotoAndStop("corpse_1");
 				} else {
-					if(bodyMc.currentLabel != "walk_0") bodyMc.gotoAndStop("walk_0");
+					if(mc.currentLabel != "corpse_0") mc.gotoAndStop("corpse_0");
 				}
 			} else if(state == WALKING && !moving){
-				if(bodyMc.currentLabel != "idle") bodyMc.gotoAndStop("idle");
+				if(mc.currentLabel != "corpse_1") mc.gotoAndStop("corpse_1");
 			} else if(state == FALLING){
-				if(bodyMc.currentLabel != "jump") bodyMc.gotoAndStop("jump");
+				if(mc.currentLabel != "corpse_0") mc.gotoAndStop("corpse_0");
 			}
-			
-			// mask out the head
-			mask.graphics.clear();
-			mask.graphics.beginFill(0xFF0000);
-			mask.graphics.drawRect( -bodyMc.width * 0.5, bodyMc.neck.y, bodyMc.width, bodyMc.height);
-			mask.graphics.endFill();
 			
 			// and spew loads of blood
 			var blit:BlitRect, print:BlitRect;
 			
-			//Game.debug.drawCircle(point.x, point.y, 10);
+			//Game.debug.drawCircle(point.x, point.y, 3);
+			
+			point = localToLocal(point, mc.neck, g.canvas);
+			
 			for(var i:int = 0; i < 5; i++){
 				if(Math.random() > 0.5){
 					blit = g.smallDebrisBrs[Game.BLOOD];
@@ -174,7 +165,7 @@ package com.robotacid.engine {
 					blit = g.bigDebrisBrs[Game.BLOOD];
 					print = g.bigFadeFbrs[Game.BLOOD];
 				}
-				g.addDebris(x, rect.y + (height - bodyMc.neck.y), blit, -1 + Math.random() * 2, -5 -Math.random() * 5, print, true);
+				g.addDebris(point.x, point.y + 5, blit, -1 + Math.random() * 2, -5 -Math.random() * 5, print, true);
 			}
 		}
 		/* Update collision Rect / Block around character */
