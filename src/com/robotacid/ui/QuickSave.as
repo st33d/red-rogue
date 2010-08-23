@@ -8,6 +8,7 @@ package com.robotacid.ui {
 	import com.robotacid.engine.Stairs;
 	import com.robotacid.sound.SoundManager;
 	import com.robotacid.ui.menu.HotKeyMap;
+	import com.robotacid.ui.menu.MenuOptionStack;
 	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
 	import flash.net.SharedObject;
@@ -36,7 +37,7 @@ package com.robotacid.ui {
 			var customKeys:Array = Key.custom;
 			
 			var obj:Object = {};
-			var i:int;
+			var i:int, j:int;
 			
 			obj.customKeys = Key.custom;
 			
@@ -53,7 +54,10 @@ package com.robotacid.ui {
 				// here come the items
 				var items:Vector.<XML> = new Vector.<XML>();
 				for(i = 0; i < g.menu.inventoryList.options.length; i++){
-					items.push(g.menu.inventoryList.options[i].target.toXML());
+					// item may be stacked - load into XML as separate items
+					for(j = 0; j < (g.menu.inventoryList.options[i] as MenuOptionStack).total; j++){
+						items.push(g.menu.inventoryList.options[i].target.toXML());
+					}
 				}
 				obj.items = items;
 				// now the content manager stocks

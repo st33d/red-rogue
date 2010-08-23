@@ -1,3 +1,5 @@
+Rewrite hotkeys to allow binding to any key
+
 Error when crushed after loading:
 
 TypeError: Error #1009: Cannot access a property or method of a null object reference.
@@ -20,10 +22,6 @@ either the effect target reference is null or the effects list for the target is
 thrown rune triggered wrong effect - investigate
 
 clip renderer on small levels (background tiles show through underneath on odd sized small levels)
-
-corpses spawning blood particles deep into the floor somehow
-
-change all for loops to run backwards - it's faster
 
 racial abilities - implement by having a personal effects list, add a new effect source - RACIAL:
 	troll regeneration

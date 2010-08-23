@@ -177,7 +177,7 @@
 			}
 			
 			var itemIndex:int = options.indexOf(itemToOption[item]);
-			if(itemIndex == options.length - 1) selection = 0;
+			
 			options.splice(itemIndex, 1);
 			// a reference to this item may still exist in a hot key map - we need to neutralise it
 			itemToOption[item].active = false;

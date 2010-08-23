@@ -167,6 +167,8 @@
 				} else if(item.type == Item.HEART){
 					if(!hotKeyMapRecord) inventoryList.eatOption.active = g.player.health < g.player.totalHealth;
 					else inventoryList.eatOption.active = true;
+					if(!hotKeyMapRecord) inventoryList.feedMinionOption.active = Boolean(g.minion) && g.minion.health < g.minion.totalHealth;
+					else inventoryList.feedMinionOption.active = true;
 				} else if(item.type == Item.RUNE){
 					inventoryList.eatOption.active = true;
 					inventoryList.feedMinionOption.active = Boolean(g.minion);
@@ -246,7 +248,7 @@
 			} else if(option == inventoryList.eatOption){
 				item = previousMenuList.options[previousMenuList.selection].target;
 				if(item.type == Item.HEART){
-					g.player.applyHealth(CharacterAttributes.NAME_HEALTHS[item.name] + CharacterAttributes.NAME_HEALTH_LEVELS[item.level]);
+					g.player.applyHealth(CharacterAttributes.NAME_HEALTHS[item.name] + CharacterAttributes.NAME_HEALTH_LEVELS[item.name] * item.level);
 				} else if(item.type == Item.RUNE){
 					Item.revealName(item.name, inventoryList);
 					effect = new Effect(item.name, 20, Effect.EATEN, g, g.player);
@@ -262,8 +264,8 @@
 				} else if(item.type == Item.RUNE){
 					Item.revealName(item.name, inventoryList);
 					effect = new Effect(item.name, 20, Effect.EATEN, g, g.minion);
-					inventoryList.removeItem(item);
 				}
+				inventoryList.removeItem(item);
 				g.console.print("minion eats " + item.nameToString());
 			
 			// loading / saving / new game

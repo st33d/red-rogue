@@ -244,7 +244,7 @@
 				if(count-- <= 0){
 					if(char.inTheDark){
 						// we want fleeing characters in the dark to go back to patrolling
-						// but not if they're on a fucking ladder
+						// but not if they're on a ladder
 						if(char.state == Character.CLIMBING){
 							count = 1 + delay * Math.random();
 						} else {
@@ -270,15 +270,15 @@
 			}
 			
 			// debugging colours
-			//if(state == PATROL){
-				//char.mc.transform.colorTransform = new ColorTransform(1, 1, 1, 1, 0, 200);
-			//} else if(state == ATTACK){
-				//char.mc.transform.colorTransform = new ColorTransform(1, 1, 1, 1, 200, 0);
-			//} else if(state == FLEE){
-				//char.mc.transform.colorTransform = new ColorTransform(1, 1, 1, 1, 150, 150);
-			//} else if(state == PAUSE){
-				//char.mc.transform.colorTransform = new ColorTransform(1, 1, 1, 1, 0, 150, 100);
-			//}
+			if(state == PATROL){
+				char.mc.transform.colorTransform = new ColorTransform(1, 1, 1, 1, 0, 200);
+			} else if(state == ATTACK){
+				char.mc.transform.colorTransform = new ColorTransform(1, 1, 1, 1, 200, 0);
+			} else if(state == FLEE){
+				char.mc.transform.colorTransform = new ColorTransform(1, 1, 1, 1, 150, 150);
+			} else if(state == PAUSE){
+				char.mc.transform.colorTransform = new ColorTransform(1, 1, 1, 1, 0, 150, 100);
+			}
 		}
 		
 		/* Abandons any targets and reverts to PATROL state
@@ -309,7 +309,7 @@
 		}
 		
 		/* Chase the player, Pepé Le Pew algorithm */
-		public function chase(target:Character):void {
+		public function chase(target:Character, following:Boolean = false):void {
 			char.actions = 0;
 			//return;
 			var i:int;
@@ -366,7 +366,12 @@
 								
 							} else if(node.y < char.mapY){
 								if(char.canClimb()){
-									char.actions |= UP;
+									if(!following && crushDanger()){
+										state = FLEE;
+										count = delay + Math.random() * delay * 2;
+									} else {
+										char.actions |= UP;
+									}
 								} else {
 									if(char.x < char.tileCenter) char.actions |= LEFT;
 									else if(char.x > char.tileCenter) char.actions |= RIGHT;
@@ -387,7 +392,7 @@
 		}
 		
 		/* Run away from a target, no special algorithms here, it makes the panic look better */
-		public function flee(target:Character):void {
+		public function flee(target:Character, following:Boolean = false):void {
 			// if the character hits a wall, we make them run the other way for a period of time
 			if(dontRunIntoTheWallCount){
 				dontRunIntoTheWallCount--;
@@ -397,17 +402,13 @@
 					char.actions = RIGHT;
 				}
 			} else if(dontRunIntoTheWallCount <= 0){
-				// if the target is overhead, that may mean certain death - limit movement to left or right
-				if(
-					char.rect.y >= target.rect.y + target.rect.height &&
-					!(
-						char.rect.x >= target.rect.x + target.rect.width ||
-						char.rect.x + char.rect.width <= target.rect.x
-					)
-				){
+				// if the target or schedule targer is overhead, that may mean certain death - limit movement to left or right
+				// going down will also help
+				if(!following && crushDanger()){
 					dontRunIntoTheWallCount = delay + Math.random();
 					if(target.x > char.x) char.actions = RIGHT;
 					else char.actions = LEFT;
+					char.actions |= DOWN;
 				} else if(char.canClimb() && !(char.parentBlock && (char.parentBlock.type & Block.LEDGE) && !(char.blockMapType & Block.LADDER))){
 					char.actions = UP;
 				} else if(char.collisions & RIGHT) {
@@ -437,9 +438,9 @@
 			var vy:Number = target.y - char.y;
 			var distSq:Number = vx * vx + vy * vy;
 			if(distSq > FOLLOW_CHASE_EDGE_SQ){
-				chase(target);
+				chase(target, true);
 			} else if(distSq < FOLLOW_FLEE_EDGE_SQ){
-				flee(target);
+				flee(target, true);
 			} else {
 				// face the same direction as the leader - this sets up a charging tactic against
 				// approaching enemies
@@ -566,6 +567,20 @@
 				}
 			}
 			return false;
+		}
+		
+		/* Returns true if the character is in danger of being crushed */
+		public function crushDanger():Boolean{
+			return (char.rect.y + char.rect.height > target.rect.y + target.rect.height &&
+				!(
+					char.rect.x >= target.rect.x + target.rect.width + SCALE * 0.5 ||
+					char.rect.x + char.rect.width + SCALE * 0.5 <= target.rect.x
+				)) ||
+				(char.rect.y + char.rect.height > scheduleTarget.rect.y + scheduleTarget.rect.height &&
+				!(
+					char.rect.x >= scheduleTarget.rect.x + scheduleTarget.rect.width + SCALE * 0.5 ||
+					char.rect.x + char.rect.width + SCALE * 0.5 <= scheduleTarget.rect.x
+				));
 		}
 	}
 	
