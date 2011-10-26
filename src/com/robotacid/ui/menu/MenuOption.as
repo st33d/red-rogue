@@ -9,24 +9,22 @@
 		
 		public var name:String;
 		public var active:Boolean;
-		public var next:MenuList;
+		public var target:MenuList;
 		public var help:String;
+		public var recordable:Boolean; // set to false to prevent a hot key recording of this option
 		
 		// A reference to an object that this option affects
-		public var target:*;
+		public var userData:*;
 		
-		// stepping forward through an option with deactivates assigned will deactivate that
-		// option. Stepping back through this option will reactivate the targeted option.
-		// Use this feature to prevent infinite recursion
-		public var deactivates:Vector.<MenuOption>;
 		// hot key maps need to find paths of similar context when the original path is removed
 		public var context:String;
 		public var hotKeyOption:Boolean = false;
 		
-		public function MenuOption(name:String, next:MenuList = null, active:Boolean = true) {
+		public function MenuOption(name:String, target:MenuList = null, active:Boolean = true) {
 			this.name = name;
-			this.next = next;
+			this.target = target;
 			this.active = active;
+			this.recordable = true;
 		}
 		
 	}

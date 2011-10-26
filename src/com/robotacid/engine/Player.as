@@ -1,9 +1,9 @@
 ﻿package com.robotacid.engine {
 	
 	import com.robotacid.ai.Brain;
-	import com.robotacid.engine.Stairs;
+	import com.robotacid.engine.Portal;
 	import com.robotacid.geom.Pixel;
-	import com.robotacid.phys.Block;
+	import com.robotacid.gfx.CanvasCamera;
 	import com.robotacid.phys.Cast;
 	import com.robotacid.engine.Character;
 	import com.robotacid.phys.Collider;
@@ -12,11 +12,9 @@
 	import com.robotacid.util.HiddenInt;
 	import com.robotacid.util.HiddenNumber;
 	import com.robotacid.geom.Line;
-	import com.robotacid.phys.Particle;
 	import com.robotacid.engine.MapRenderer;
 	import com.robotacid.geom.Trig;
 	import com.robotacid.ui.Key;
-	import com.robotacid.phys.Spring;
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
 	import flash.display.DisplayObject;
@@ -45,11 +43,16 @@
 		public var inventory:InventoryMenuList;
 		public var searchCount:int;
 		public var disarmableTraps:Vector.<Trap>;
+		public var cameraDisplacement:Point;
+		public var camera:CanvasCamera;
 		
 		private var i:int, j:int;
 		
 		// states
 		public var actionsLockout:int;
+		public var portalContact:Portal;
+		
+		public static var portalEntryType:int = Portal.UP;
 		
 		public static const UP:int = 1;
 		public static const RIGHT:int = 2;
@@ -61,10 +64,15 @@
 		public static const DEFAULT_LIGHT_RADIUS:int = 5;
 		public static const SEARCH_DELAY:int = 90;
 		
+		public static const CAMERA_DISPLACE_SPEED:Number = 1;
+		public static const CAMERA_DISPLACEMENT:Number = 70;
+		
 		public static var point:Point = new Point();
 		
-		public function Player(mc:DisplayObject, width:Number, height:Number, entrance:Stairs, g:Game) {
-			super(mc, ROGUE, PLAYER, 1, width, height, g, true);
+		public function Player(mc:DisplayObject, x:Number, y:Number) {
+			super(mc, x, y, ROGUE, PLAYER, 1, false);
+			
+			active = true;
 			
 			// init states
 			dir = RIGHT;
@@ -72,13 +80,12 @@
 			looking = RIGHT | UP;
 			active = true;
 			callMain = false;
-			collision = false;
 			stepNoise = true;
 			
+			cameraDisplacement = new Point();
+			
 			// init properties
-			block.type |= Block.PLAYER;
-			ignore |= Block.PLAYER | Block.MINION;
-			missileIgnore |= Block.PLAYER | Block.MINION;
+			missileIgnore |= Collider.PLAYER | Collider.MINION;
 			
 			g.lightMap.setLight(this, DEFAULT_LIGHT_RADIUS);
 			
@@ -90,37 +97,35 @@
 			g.console.print("welcome rogue");
 			
 			inventory = g.menu.inventoryList;
-			holder = g.playerHolder;
 			
 			Brain.playerCharacters.push(this);
-			
-			// being a character, the rogue automatically gets added to the entities list
-			// so we remove her here
-			g.entities.splice(g.entities.indexOf(this), 1);
-			
 		}
+		
+		override public function createCollider(x:Number, y:Number, properties:int, ignoreProperties:int, state:int = 0, positionByBase:Boolean = true):void {
+			super.createCollider(x, y, properties, ignoreProperties, state, positionByBase);
+			collider.properties |= Collider.PLAYER;
+			collider.ignoreProperties |= Collider.PLAYER | Collider.MINION;
+			collider.stompProperties = Collider.MONSTER;
+			collider.stackCallback = hitFloor;
+		}
+		
+		private function hitFloor():void{
+			g.soundQueue.add("thud");
+		}
+		
 		// Loop
 		override public function main():void{
-			if(state == WALKING || state == FALLING || state == CLIMBING){
+			
+			if(state == WALKING){
 				checkKeys();
 			}
-			if(dir & UP){
-				itemCheck();
-			}
+			
 			super.main();
-			if(state == EXIT){
-				if(x >= rect.x + rect.width * 0.5 + SCALE * 2 || x <= (rect.x + rect.width * 0.5) - SCALE * 2){
-					var exitDir:int = stairs.type == Stairs.DOWN ? 1 : -1;
-					stairs = null;
-					var newLevelStr:String = (exitDir > 0 ? "descended" : "ascended") + " to level " + (g.dungeon.level + exitDir);
-					if(g.dungeon.level == 1 && exitDir < 0) newLevelStr = "ascended to overworld";
-					g.console.print(newLevelStr);
-					g.changeLevel(g.dungeon.level + exitDir);
-				}
-			}
+			
+			// search for traps/secrets
 			if(searchCount){
 				searchCount--;
-				if((actions) || !(state == WALKING || state == FALLING || state == CLIMBING)){
+				if(actions || moving){
 					searchCount = 0;
 					g.console.print("search abandoned");
 				} else if(searchCount == 0){
@@ -128,88 +133,179 @@
 					g.revealTrapsAndSecrets();
 				}
 			}
-		}
-		/* Various things that need to be hidden or killed upon death or finishing a level */
-		public function tidyUp():void {
-			rect = new Block();
-			mc.visible = false;
-			g.mousePressed = false;
-			moving = false;
-			divorce();
-			mapX = mapY = 0;
 			
-		}
-		public function itemCheck():void{
-			for(var i:int = 0; i < g.items.length; i++){
-				if(intersects(g.items[i].rect)){
-					g.console.print("picked up " + g.items[i].nameToString());
-					g.items[i].collect(this);
+			// update exiting a level
+			if(state == EXITING){
+				moving = true;
+				var exitDir:int = portal.type == Portal.DOWN ? 1 : -1;
+				if(portal.type == Portal.DOWN){
+					if(moveCount){
+						if(dir == RIGHT) gfx.x += PORTAL_SPEED;
+						else if(dir == LEFT) gfx.x -= PORTAL_SPEED;
+						gfx.y += PORTAL_SPEED;
+					}
+					if(gfx.y >= (portal.mapY + 1) * Game.SCALE + PORTAL_DISTANCE) portal = null;
+				} else if(portal.type == Portal.UP){
+					if(moveCount){
+						if(dir == RIGHT) gfx.x += PORTAL_SPEED;
+						else if(dir == LEFT) gfx.x -= PORTAL_SPEED;
+						gfx.y -= PORTAL_SPEED;
+					}
+					if(gfx.y <= (portal.mapY + 1) * Game.SCALE - PORTAL_DISTANCE) portal = null;
+				} else if(portal.type == Portal.SIDE){
+					if(dir == RIGHT){
+						gfx.x += PORTAL_SPEED;
+						if(gfx.x > portal.mapX * Game.SCALE + PORTAL_DISTANCE) portal = null;
+					} else if(dir == LEFT){
+						gfx.x -= PORTAL_SPEED;
+						if(gfx.x > (portal.mapX + 1) * Game.SCALE - PORTAL_DISTANCE) portal = null;
+					}
+				}
+				if(!portal){
+					g.world.removeCollider(collider);
+					var newLevelStr:String = (exitDir > 0 ? "descended" : "ascended") + " to level " + (g.dungeon.level + exitDir);
+					if(g.dungeon.level == 1 && exitDir < 0) newLevelStr = "ascended to overworld";
+					g.console.print(newLevelStr);
+					g.changeLevel(g.dungeon.level + exitDir);
+				}
+			} else if(state == ENTERING){
+				
+			} else {
+				if(portalContact){
+					if(!portalContact.rect.intersects(collider) || state != Character.WALKING){
+						portalContact = null;
+						g.menu.exitLevelOption.active = false;
+						g.menu.update();
+					}
+					// restore access to menu
+					if(collider.world && !g.menu.actionsOption.active){
+						g.menu.actionsOption.active = true;
+						g.menu.inventoryOption.active = Boolean(g.menu.inventoryList.options.length);
+						g.menu.update();
+					}
+				} else {
+					// check for portals
+					var portal:Portal;
+					
+					for(i = 0; i < g.portals.length; i++){
+						portal = g.portals[i];
+						if(portal.rect.intersects(collider) && state == Character.WALKING){
+							if(!portalContact){
+								portalContact = portal
+								g.menu.exitLevelOption.active = true;
+								g.menu.update();
+								g.menu.exitLevelOption.userData = portal;
+								break;
+							}
+						}
+					}
 				}
 			}
+			
+			// camera control based on intent and movement
+			if(looking & RIGHT){
+				if(cameraDisplacement.x < CAMERA_DISPLACEMENT){
+					cameraDisplacement.x += CAMERA_DISPLACE_SPEED;
+					if(dir & RIGHT) cameraDisplacement.x += CAMERA_DISPLACE_SPEED;
+				}
+			} else if(looking & LEFT){
+				if(cameraDisplacement.x > -CAMERA_DISPLACEMENT){
+					cameraDisplacement.x -= CAMERA_DISPLACE_SPEED;
+					if(dir & LEFT) cameraDisplacement.x -= CAMERA_DISPLACE_SPEED;
+				}
+			} else {
+				if(cameraDisplacement.x > 0) cameraDisplacement.x -= CAMERA_DISPLACE_SPEED;
+				else if(cameraDisplacement.x < 0) cameraDisplacement.x += CAMERA_DISPLACE_SPEED;
+			}
+			if(looking & DOWN){
+				if(cameraDisplacement.y < CAMERA_DISPLACEMENT){
+					cameraDisplacement.y += CAMERA_DISPLACE_SPEED * 0.5;
+					if(dir & DOWN) cameraDisplacement.y += CAMERA_DISPLACE_SPEED * 0.5;
+				}
+			} else if(looking & UP){
+				if(cameraDisplacement.y > -CAMERA_DISPLACEMENT){
+					cameraDisplacement.y -= CAMERA_DISPLACE_SPEED * 0.5;
+					if(dir & UP) cameraDisplacement.y -= CAMERA_DISPLACE_SPEED * 0.5;
+				}
+			} else {
+				if(cameraDisplacement.y > 0) cameraDisplacement.y -= CAMERA_DISPLACE_SPEED;
+				else if(cameraDisplacement.y < 0) cameraDisplacement.y += CAMERA_DISPLACE_SPEED;
+			}
+			
 		}
+		
+		public function snapCamera():void{
+			renderer.camera.setTarget(
+				collider.x +  collider.width * 0.5 +  cameraDisplacement.x,
+				collider.y +  collider.height * 0.5 +  cameraDisplacement.y
+			);
+			renderer.camera.skipPan();
+		}
+		
+		/* Various things that need to be hidden or killed upon death or finishing a level */
+		public function tidyUp():void {
+			gfx.visible = false;
+			g.mousePressed = false;
+			moving = false;
+			mapX = mapY = 0;
+		}
+		
 		/* Select an item as a weapon or armour */
 		override public function equip(item:Item):Item{
 			if(item.curseState == Item.CURSE_HIDDEN) item.revealCurse();
 			item = inventory.unstack(item);
 			super.equip(item);
-			inventory.updateItem(item);
-			return item;
-		}
-		/* Unselect item as equipped */
-		override public function unequip(item:Item):Item{
-			super.unequip(item);
-			item = inventory.stack(item);
+			// set the active state and name of the missile option in the menu
+			if(item.type == Item.WEAPON){
+				g.menu.missileOption.active = Boolean(item.range & (Item.MISSILE | Item.THROWN));
+				if(item.range & Item.MISSILE) g.menu.missileOption.state = 0;
+				else if(item.range & Item.THROWN) g.menu.missileOption.state = 1;
+			}
 			inventory.updateItem(item);
 			return item;
 		}
 		
-		override public function death(cause:String, decapitation:Boolean = false, aggressor:int = 0):void{
+		/* Unselect item as equipped */
+		override public function unequip(item:Item):Item{
+			super.unequip(item);
+			item = inventory.stack(item);
+			g.menu.missileOption.active = false;
+			inventory.updateItem(item);
+			return item;
+		}
+		
+		override public function death(cause:String = "crushing", decapitation:Boolean = false, aggressor:int = 0):void{
 			if(g.god_mode || !active) return;
 			super.death(cause, decapitation);
-			SoundManager.playSound(g.library.RogueDeathSound);
+			g.soundQueue.add("rogueDeath");
 			if(!active){
 				Brain.playerCharacters.splice(Brain.playerCharacters.indexOf(this), 1);
 				g.menu.death();
 				tidyUp();
 			}
-			g.shake(0, 5);
+			renderer.shake(0, 5);
 		}
 		
-		public function enterLevel(entrance:Stairs):void{
-			// it's best at this point to yank the character out of the collider framework
-			// completely to avoid any collision whilst entering
-			g.colliders.splice(g.colliders.indexOf(this), 1);
-			stairs = entrance;
-			(mc as Sprite).parent.addChild(stairs.mask);
-			mc.cacheAsBitmap = true;
-			mc.mask = stairs.mask;
-			if(stairs.type == Stairs.UP){
-				x -= SCALE * 2;
-				y -= SCALE * 2;
-			} else if(stairs.type == Stairs.DOWN){
-				x += SCALE * 2;
-				y += SCALE * 2;
+		public function exitLevel(portal:Portal):void{
+			// the player must be denied the opportunity to dick about whilst exiting a level
+			g.menu.actionsOption.active = false;
+			g.menu.inventoryOption.active = false;
+			g.menu.update();
+			this.portal = portal;
+			gfx.x = (portal.mapX + 0.5) * Game.SCALE;
+			state = EXITING;
+			// prepare the dungeon generator for what entrance the player will use
+			if(portal.type == Portal.UP){
+				portalEntryType = Portal.DOWN;
+				dir = looking = LEFT;
+			} else if(portal.type == Portal.DOWN){
+				portalEntryType = Portal.UP;
+				dir = looking = RIGHT;
+			} else if(portal.type == Portal.SIDE){
+				portalEntryType = Portal.SIDE;
 			}
-			updateMC();
-			state = ENTER;
 		}
 		
-		public function exitLevel(stairs:Stairs):void{
-			this.stairs = stairs;
-			(mc as Sprite).parent.addChild(stairs.mask);
-			mc.cacheAsBitmap = true;
-			mc.mask = stairs.mask;
-			if(x + width * 0.5 > stairs.rect.x + stairs.rect.width) x = (stairs.rect.x + stairs.rect.width) - width * 0.5;
-			if(x - width * 0.5 < stairs.rect.x) x = stairs.rect.x + width * 0.5;
-			divorce();
-			updateRect();
-			// it's best at this point to yank the character out of the collider framework
-			// completely to avoid any collision with the shell they left behind
-			g.colliders.splice(g.colliders.indexOf(this), 1);
-			updateMC();
-			state = EXIT;
-			Stairs.lastStairsUsedType = stairs.type;
-		}
 		/* Check mouse movement, presses, keys etc. */
 		public function checkKeys():void{
 			// capture input state
@@ -252,35 +348,8 @@
 			
 		}
 		
-		override public function updateAnimState(mc:MovieClip):void {
-			super.updateAnimState(mc);
-		}
-		
-		/* Handles refreshing animation and the position the canvas
-		override public function updateMC():void{
-			mc.x = (x + 0.1) >> 0;
-			mc.y = ((y + height * 0.5) + 0.1) >> 0;
-			if(mc.alpha < 1){
-				mc.alpha += 0.1;
-			}
-			if(weapon){
-				if((mc as MovieClip).weapon){
-					weapon.mc.x = (mc as MovieClip).weapon.x;
-					weapon.mc.y = (mc as MovieClip).weapon.y;
-					if(state == CLIMBING) weapon.mc.visible = false;
-					else weapon.mc.visible = true;
-				}
-			}
-			if(armour){
-				if((mc as MovieClip).hat){
-					armour.mc.x = (mc as MovieClip).hat.x;
-					armour.mc.y = (mc as MovieClip).hat.y;
-				}
-			}
-		}*/
-		
-		override public function applyDamage(n:Number, source:String, critical:Boolean = false, aggressor:int = PLAYER):void {
-			super.applyDamage(n, source, critical);
+		override public function applyDamage(n:Number, source:String, knockback:Number = 0, critical:Boolean = false, aggressor:int = PLAYER):void {
+			super.applyDamage(n, source, knockback, critical);
 			g.playerHealthBar.setValue(health, totalHealth);
 		}
 		
@@ -307,7 +376,7 @@
 			disarmableTraps.push(trap);
 			if(!g.menu.disarmTrapOption.active){
 				g.menu.disarmTrapOption.active = true;
-				g.menu.selection = g.menu.selection;
+				g.menu.update();
 			}
 		}
 		/* Removes a trap that the rogue could possibly disarm and updates the menu */
@@ -315,7 +384,7 @@
 			disarmableTraps.splice(disarmableTraps.indexOf(trap), 1);
 			if(disarmableTraps.length == 0){
 				g.menu.disarmTrapOption.active = false;
-				g.menu.selection = g.menu.selection;
+				g.menu.update();
 			}
 		}
 		/* Disarms any traps on the disarmableTraps list - effectively destroying them */
@@ -326,24 +395,16 @@
 			disarmableTraps.length = 0;
 		}
 		
-		override public function toString():String{
+		public function toString():String{
 			var state_string:String = "";
 			if(state == WALKING){
 				state_string = "WALKING";
-			} else if(state == FALLING){
-				state_string = "FALLING";
-			} else if(state == CLIMBING){
-				state_string = "CLIMBING";
 			} else if(state == DEAD){
 				state_string = "DEAD";
-			} else if(state == ATTACK){
-				state_string = "ATTACK";
+			} else if(state == LUNGING){
+				state_string = "LUNGING";
 			}
-			var xs:String = "" + (x >> 0);
-			while (xs.length < 4) xs = "0" + xs;
-			var ys:String = "" + (y >> 0);
-			while (ys.length < 4) ys = "0" + ys;
-			return "("+xs+","+ys+","+state_string+")";
+			return "("+collider+","+state_string+")";
 		}
 		
 		override public function toXML():XML {

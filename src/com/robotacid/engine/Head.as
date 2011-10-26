@@ -1,17 +1,8 @@
 ﻿package com.robotacid.engine {
 	import com.robotacid.gfx.BlitRect;
-	import com.robotacid.phys.Block;
+	import com.robotacid.gfx.Renderer;
 	import com.robotacid.phys.Collider;
-	import com.robotacid.util.clips.localToLocal;
-	import flash.display.Bitmap;
-	import flash.display.BitmapData;
-	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
-	import flash.display.Sprite;
-	import flash.filters.GlowFilter;
-	import flash.geom.Matrix;
-	import flash.geom.Point;
-	import flash.geom.Rectangle;
 	
 	/**
 	 * A decapitated head that bounces along spewing blood when
@@ -22,15 +13,15 @@
 	 *
 	 * @author Aaron Steed, robotacid.com
 	 */
-	public class Head extends Collider{
+	public class Head extends ColliderEntity{
 		
 		public var damage:Number;
 		public var bloodCount:int;
-		public var bounds:Rectangle;
 		
 		public static const GRAVITY:Number = 0.8;
 		public static const DAMPING_Y:Number = 0.99;
 		public static const DAMPING_X:Number = 0.9;
+		public static const INIT_V:Number = 5;
 		
 		public static const UP:int = 1;
 		public static const RIGHT:int = 2;
@@ -39,105 +30,80 @@
 		
 		public static const BLOOD_DELAY:int = 20;
 		
-		public function Head(victim:Character, damage:Number, g:Game) {
-			mc = new CharacterAttributes.NAME_HEADS[victim.name];
-			var point:Point = new Point();
-			point = localToLocal(point, (victim.mc as MovieClip).neck, g.canvas);
-			mc.x = point.x;
-			mc.y = point.y;
-			bounds = mc.getBounds(mc);
-			holder = g.fxHolder;
-			holder.addChild(mc);
-			super(mc, bounds.width, bounds.height, g, true);
+		public function Head(victim:Character, damage:Number) {
+			gfx = g.library.getCharacterHeadGfx(victim.name);
+			super(gfx, true);
+			createCollider(victim.gfx.x, victim.collider.y + gfx.height, Collider.HEAD | Collider.SOLID, Collider.CORPSE);
+			g.world.restoreCollider(collider);
+			if(victim.dir & RIGHT){
+				collider.vx -= INIT_V;
+			} else if(victim.dir & LEFT){
+				collider.vx += INIT_V;
+			}
+			collider.vy -= INIT_V;
+			collider.dampingX = DAMPING_X;
+			collider.dampingY = DAMPING_Y;
+			collider.gravity = GRAVITY;
+			collider.crushCallback = kill;
 			callMain = true;
-			weight = 0;
 			bloodCount = BLOOD_DELAY;
-			block.type |= Block.HEAD;
-			ignore |= Block.CORPSE;
 			this.damage = damage;
-			inflictsCrush = false;
 		}
 		
 		override public function main():void{
-			if(leftCollider is Character) punt(leftCollider as Character);
-			else if(rightCollider is Character) punt(rightCollider as Character);
-			if(Math.abs(vx) > Collider.TOLERANCE || Math.abs(vy) > Collider.TOLERANCE){
+			
+			mapX = (collider.x + collider.width * 0.5) * INV_SCALE;
+			mapY = (collider.y + collider.height * 0.5) * INV_SCALE;
+			
+			if(collider.leftContact && collider.leftContact.properties & Collider.CHARACTER) punt(collider.leftContact);
+			else if(collider.rightContact && collider.rightContact.properties & Collider.CHARACTER) punt(collider.rightContact);
+			if(Math.abs(collider.vx) > Collider.MOVEMENT_TOLERANCE || Math.abs(collider.vy) > Collider.MOVEMENT_TOLERANCE){
 				if(bloodCount > 0){
 					bloodCount--;
 					var blit:BlitRect, print:BlitRect;
-					if(Math.random() > 0.5){
-						blit = g.smallDebrisBrs[Game.BLOOD];
-						print = g.smallFadeFbrs[Game.BLOOD];
+					if(g.random.value() < 0.5){
+						blit = renderer.smallDebrisBlits[Renderer.BLOOD];
+						print = renderer.smallFadeBlits[Renderer.BLOOD];
 					} else {
-						blit = g.bigDebrisBrs[Game.BLOOD];
-						print = g.bigFadeFbrs[Game.BLOOD];
+						blit = renderer.bigDebrisBlits[Renderer.BLOOD];
+						print = renderer.bigFadeBlits[Renderer.BLOOD];
 					}
-					g.addDebris(x, y, blit, -1 + vx + Math.random(), -Math.random(), print, true);
+					renderer.addDebris(collider.x + collider.width * 0.5, collider.y + collider.height, blit, -1 + collider.vx + g.random.value(), -g.random.value(), print, true);
 				}
 			}
 			soccerCheck();
-			// when crushed - just pop the head and kill it
-			if(((collisions & RIGHT) && (collisions & LEFT)) || ((collisions & UP) && (collisions & DOWN))){
-				kill();
-			}
-			upCollider = rightCollider = downCollider = leftCollider = null;
-			collisions = 0;
-			updateMC();
+			// crush the head when pressed from both sides
+			if((collider.pressure & (RIGHT | LEFT)) == (LEFT | RIGHT) || (collider.pressure & (UP | DOWN)) == (UP | DOWN)) kill();
 		}
 		
 		/* Apply damage to monsters that collide with the Head object */
 		public function soccerCheck():void{
-			if(upCollider && upCollider is Monster) (upCollider as Character).applyDamage(damage, nameToString())
-			if(rightCollider && rightCollider is Monster) (rightCollider as Character).applyDamage(damage, nameToString())
-			if(leftCollider && leftCollider is Monster) (leftCollider as Character).applyDamage(damage, nameToString())
-			if(downCollider && downCollider is Monster) (downCollider as Character).applyDamage(damage, nameToString())
+			if(collider.vy < -Collider.MOVEMENT_TOLERANCE && collider.upContact && collider.upContact.properties & Collider.MONSTER) (collider.upContact.userData as Character).applyDamage(damage, nameToString())
+			else if(collider.vx > Collider.MOVEMENT_TOLERANCE && collider.rightContact && collider.rightContact.properties & Collider.MONSTER) (collider.rightContact.userData as Character).applyDamage(damage, nameToString())
+			else if(collider.vy > Collider.MOVEMENT_TOLERANCE && collider.leftContact && collider.leftContact.properties & Collider.MONSTER) (collider.leftContact.userData as Character).applyDamage(damage, nameToString())
+			else if(collider.vx < -Collider.MOVEMENT_TOLERANCE && collider.downContact && collider.downContact.properties & Collider.MONSTER) (collider.downContact.userData as Character).applyDamage(damage, nameToString())
 		}
 		
-		/* Movement is handled separately to keep all colliders synchronized */
-		override public function move():void {
-			vx *= DAMPING_X;
-			moveX(vx, this);
-			if (parentBlock){
-				checkFloor();
-			}
-			if(!parentBlock){
-				vy = DAMPING_Y * vy + GRAVITY;
-				moveY(vy, this);
-			}
-			
-			mapX = (rect.x + rect.width * 0.5) * INV_SCALE;
-			mapY = (rect.y + rect.height * 0.5) * INV_SCALE;
-		}
-		
-		public function punt(character:Character):void{
-			parentBlock = null;
+		public function punt(kicker:Collider):void{
 			bloodCount = BLOOD_DELAY;
-			if(parent) parent.removeChild(this);
-			vy -= Math.abs(character.vx * 0.5);
-			vx += character.vx * 0.5;
+			collider.vy -= Math.abs(kicker.vx * 0.5);
+			collider.vx += kicker.vx * 0.5;
 		}
 		
 		public function kill():void{
+			renderer.createDebrisRect(collider, 0, 10, Renderer.BLOOD);
+			g.world.removeCollider(collider);
 			active = false;
-			g.createDebrisRect(rect, 0, 10, Game.BLOOD);
-		}
-		
-		
-		/* Update collision Rect / Block */
-		override public function updateRect():void{
-			rect.x = x + bounds.x;
-			rect.y = y + bounds.y;
-			rect.width = width;
-			rect.height = height;
 		}
 		
 		/* Handles refreshing animation and the position on the canvas */
-		public function updateMC():void{
-			mc.x = x >> 0;
-			mc.y = y >> 0;
-			if(mc.alpha < 1){
-				mc.alpha += 0.1;
+		override public function render():void{
+			gfx.x = (collider.x + collider.width * 0.5) >> 0;
+			gfx.y = Math.round(collider.y + collider.height);
+			if(gfx.alpha < 1){
+				gfx.alpha += 0.1;
 			}
+			super.render();
 		}
 		
 		override public function nameToString():String {

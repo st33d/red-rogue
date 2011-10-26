@@ -16,7 +16,6 @@
 		public var equipmentList:MenuList;
 		
 		public var itemList:MenuList;
-		public var bowList:MenuList;
 		public var runeList:MenuList;
 		public var heartList:MenuList;
 		public var enchantmentList:EnchantmentList;
@@ -28,7 +27,6 @@
 		public var feedMinionOption:MenuOption;
 		public var enchantOption:MenuOption
 		public var throwOption:MenuOption;
-		public var shootOption:MenuOption;
 		public var enchantmentsOption:MenuOption;
 		
 		public var itemToOption:Dictionary;
@@ -38,12 +36,12 @@
 			super();
 			this.menu = menu;
 			this.g = g;
+			
 			// MENU LISTS
 			
 			equipmentList = new MenuList();
 			
 			itemList = new MenuList();
-			bowList = new MenuList();
 			runeList = new MenuList();
 			heartList = new MenuList();
 			enchantmentList = new EnchantmentList();
@@ -58,7 +56,6 @@
 			eatOption = new MenuOption("eat");
 			feedMinionOption = new MenuOption("feed minion");
 			throwOption = new MenuOption("throw");
-			shootOption = new MenuOption("shoot");
 			enchantmentsOption = new MenuOption("enchantments", enchantmentList);
 			
 			enchantmentList.pointers = new Vector.<MenuOption>();
@@ -70,12 +67,6 @@
 			itemList.options.push(dropOption);
 			itemList.options.push(equipMinionOption);
 			itemList.options.push(enchantmentsOption);
-			
-			bowList.options.push(equipOption);
-			bowList.options.push(shootOption);
-			bowList.options.push(dropOption);
-			bowList.options.push(equipMinionOption);
-			bowList.options.push(enchantmentsOption);
 			
 			runeList.options.push(enchantOption);
 			runeList.options.push(eatOption);
@@ -108,7 +99,7 @@
 				// first see if this item can go into an existing stack
 				var itemStack:Item;
 				for(i = 0; i < options.length; i++){
-					itemStack = options[i].target as Item;
+					itemStack = options[i].userData as Item;
 					if(item.stackable(itemStack)){
 						itemStack.stacked = true;
 						(options[i] as MenuOptionStack).total++;
@@ -116,8 +107,7 @@
 						// since the new item was copyable - it now goes into the garbage
 						// collector, preserving memory
 						
-						// update the menu and return
-						menu.selection = menu.currentMenuList.selection;
+						menu.update();
 						return itemStack;
 					}
 				}
@@ -125,19 +115,20 @@
 			
 			// set up what can be done with this item
 			if(item.type == Item.ARMOUR || item.type == Item.WEAPON){
-				if(item.type == Item.WEAPON && item.name == Item.BOW) usageOptions = bowList;
-				else usageOptions = itemList;
+				usageOptions = itemList;
+				
 			} else if(item.type == Item.HEART){
 				// health items should be targetable under the same context
 				context = "heart";
 				usageOptions = heartList;
+				
 			} else if(item.type == Item.RUNE){
 				usageOptions = runeList;
 			}
 			
 			itemOption = new MenuOptionStack(item.toString(), usageOptions);
 			itemOption.context = context;
-			itemOption.target = item;
+			itemOption.userData = item;
 			itemOption.help = item.getHelpText();
 			options.push(itemOption);
 			selection = options.length - 1;
@@ -146,8 +137,8 @@
 			// equipment needs to be targetable by runes and so gets added to the equipment list
 			if(item.type == Item.ARMOUR || item.type == Item.WEAPON){
 				equipmentOption = new MenuOptionStack(item.toString());
-				equipmentOption.target = item;
-				equipmentOption.help = item.getHelpText() + "\nstep right to enchant this item";
+				equipmentOption.userData = item;
+				equipmentOption.help = item.getHelpText() + "\npress right to enchant this item";
 				equipmentList.options.push(equipmentOption);
 				equipmentList.selection = equipmentList.options.length - 1;
 				equipmentToOption[item] = equipmentOption;
@@ -159,10 +150,11 @@
 				// this list has just become viable - activate pointers to it
 				for(i = 0; i < pointers.length; i++){
 					pointers[i].active = true;
+					pointers[i].recordable = true;
 				}
 			}
-			// update the menu
-			menu.selection = menu.currentMenuList.selection;
+			
+			menu.update();
 			return item;
 		}
 		
@@ -202,6 +194,7 @@
 				// block all access to this list
 				for(var i:int = 0; i < pointers.length; i++){
 					pointers[i].active = false;
+					pointers[i].recordable = false;
 				}
 			// don't let the inventory option point to a blank space
 			} else if(selection >= options.length){
@@ -209,7 +202,7 @@
 			}
 			
 			// update the menu
-			if(menu.currentMenuList.options.length) menu.selection = menu.currentMenuList.selection;
+			if(menu.currentMenuList.options.length) menu.update();
 			return item;
 		}
 		
@@ -236,7 +229,7 @@
 			
 			var itemStack:Item;
 			for(var i:int = 0; i < options.length; i++){
-				itemStack = options[i].target as Item;
+				itemStack = options[i].userData as Item;
 				
 				//trace(item + " to " + itemStack);
 				
@@ -263,7 +256,7 @@
 				equipmentToOption[item].name = item.toString();
 				equipmentToOption[item].help = item.getHelpText() + "\nstep right to enchant this item";
 			}
-			menu.selection = menu.currentMenuList.selection;
+			menu.update();
 		}
 	}
 

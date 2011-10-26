@@ -1,8 +1,8 @@
 ﻿package com.robotacid.gfx {
-	import com.robotacid.phys.Block;
 	import com.robotacid.phys.Cast;
-	import flash.display.Bitmap;
+	import com.robotacid.phys.Collider;
 	import flash.display.BitmapData;
+	import flash.display.DisplayObject;
 	
 	/**
 	* An FX object that falls off screen
@@ -13,25 +13,27 @@
 		
 		public var mapX:int, mapY:int;
 		public var dx:Number, dy:Number;
-		public var ignore:int;
+		public var ignoreProperties:int;
 		public var px:Number;
 		public var py:Number;
 		public var tempX:Number;
 		public var tempY:Number;
 		public var print:BlitRect;
 		public var smear:Boolean;
+		public var map:Boolean;
 		
 		public static var cast:Cast;
 		
-		public function DebrisFX(x:Number, y:Number, blit:BlitRect, image:BitmapData, imageHolder:Bitmap, g:Game, print:BlitRect = null, smear:Boolean = false) {
-			super(x, y, blit, image, imageHolder, g);
+		public function DebrisFX(x:Number, y:Number, blit:BlitRect, bitmapData:BitmapData, bitmap:DisplayObject, print:BlitRect = null, smear:Boolean = false, map:Boolean = true) {
+			super(x, y, blit, bitmapData, bitmap);
 			this.print = print;
 			this.smear = smear;
+			this.map = map;
 			mapX = x * Game.INV_SCALE;
 			mapY = y * Game.INV_SCALE;
 			px = x;
 			py = y;
-			ignore = Block.CHARACTER | Block.LEDGE | Block.LADDER | Block.HEAD | Block.CORPSE;
+			ignoreProperties = Collider.CHARACTER | Collider.LEDGE | Collider.LADDER | Collider.HEAD | Collider.CORPSE;
 		}
 	
 		override public function main():void{
@@ -42,33 +44,25 @@
 			y += (y-py)+1.0;
 			px = tempX;
 			py = tempY;
-			mapX = x * Game.INV_SCALE;
-			mapY = y * Game.INV_SCALE;
-			// react to scenery
-			// off scroller?
-			if(!g.renderer.contains(x, y)){
-				active = false;
-				return;
-			}
-			// block collision
-			if(g.blockMap[mapY][mapX] > Block.EMPTY && !(g.blockMap[mapY][mapX] & ignore)){
-				// resolve and kill
-				getVector();
-				cast = Cast.ray(px, py, dx, dy, g.blockMap, ignore, g);
-				x = px + cast.distance * dx;
-				y = py + cast.distance * dy;
-				if(print) printFade();
-				if(!smear || cast.side == Block.UP || cast.side == 0) kill();
-			}
-			// collider collision
-			for (var i:int = 0; i < g.colliders.length; i++){
-				if (g.colliders[i].contains(x, y) && !(g.colliders[i].block.type & ignore)){
+			
+			if(map){
+				mapX = x * Game.INV_SCALE;
+				mapY = y * Game.INV_SCALE;
+				// react to scenery
+				// off scroller?
+				if(!g.mapRenderer.contains(x, y)){
+					active = false;
+					return;
+				}
+				// block collision
+				if(g.world.map[mapY][mapX] > Collider.EMPTY && !(g.world.map[mapY][mapX] & ignoreProperties)){
 					// resolve and kill
 					getVector();
-					cast = Cast.ray(px, py, dx, dy, g.blockMap, ignore, g);
+					cast = Cast.ray(px, py, dx, dy, g.world, ignoreProperties);
 					x = px + cast.distance * dx;
 					y = py + cast.distance * dy;
-					kill();
+					if(print) printFade();
+					if(!smear || cast.surface == Collider.UP || cast.surface == 0) kill();
 				}
 			}
 			// render
@@ -89,7 +83,7 @@
 			active = false;
 		}
 		public function printFade():void{
-			g.addFX(x, y, print, g.backFxImage, g.backFxImageHolder);
+			renderer.addFX(x, y, print, null, 0, true);
 		}
 		
 		public function addVelocity(x:Number, y:Number):void{

@@ -42,7 +42,7 @@
 			length = 0;
 			if(xml){
 				for each(var branch:XML in xml.branch){
-					selectionBranch.push(parseInt(branch.@selection));
+					selectionBranch.push(int(branch.@selection));
 					// for each optionBranch step, a fake MenuOption is made with the right
 					// name and context. And so hopefully the course correction will find the
 					// right option and execute
@@ -61,7 +61,7 @@
 		}
 		
 		public function pop(steps:int = 1):void{
-			while(steps){
+			while(steps--){
 				optionBranch.pop();
 				selectionBranch.pop();
 				if(--length <= 0) break;
@@ -72,7 +72,7 @@
 			// first we need to walk back up the menu to the trunk before we can set off
 			// down the hot key route
 			trace("hot keyed");
-			while(menu.branch.length > 1) menu.stepBack();
+			while(menu.branch.length > 1) menu.stepLeft();
 			
 			var j:int;
 			
@@ -90,7 +90,7 @@
 					for(j = 0; j < menu.currentMenuList.options.length; j++){
 						if(menu.currentMenuList.options[j] == optionBranch[i]){
 							selectionBranch[i] = j;
-							menu.selection = j;
+							menu.select(j);
 							break;
 						}
 					}
@@ -114,7 +114,7 @@
 						){
 							optionBranch[i] = menu.currentMenuList.options[j];
 							selectionBranch[i] = j;
-							menu.selection = j;
+							menu.select(j);
 							break;
 						}
 					}
@@ -125,7 +125,7 @@
 							if(menu.currentMenuList.options[j].context == optionBranch[i].context){
 								optionBranch[i] = menu.currentMenuList.options[j];
 								selectionBranch[i] = j;
-								menu.selection = j;
+								menu.select(j);
 								break;
 							}
 						}
@@ -134,8 +134,8 @@
 					if(j == menu.currentMenuList.options.length) return;
 				}
 				
-				menu.selection = selectionBranch[i];
-				menu.stepForward();
+				menu.select(selectionBranch[i]);
+				menu.stepRight();
 			}
 		}
 		

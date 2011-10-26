@@ -55,7 +55,7 @@
 				}
 				if(list[i].indexOf(index) > -1){
 					var compound:Array = list[i].split(index);
-					var num:int = parseInt(compound[1])
+					var num:int = int(compound[1])
 					for(var j:int = 0; j < num; j++){
 						array.push(compound[0]);
 					}

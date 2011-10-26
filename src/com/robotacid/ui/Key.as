@@ -30,7 +30,7 @@ package com.robotacid.ui {
 	import flash.ui.Keyboard;
 	
 	public class Key {
-		private static var initialized:Boolean = false;  // marks whether or not the class has been initialized
+		public static var initialized:Boolean = false;  // marks whether or not the class has been initialized
         private static var keysDown:Array = [];  // stores key codes of all keys pressed
 		public static var custom:Array; // list of customised keys
 		public static var reserved:Array = [];// list of reserved keys

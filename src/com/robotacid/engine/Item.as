@@ -1,7 +1,8 @@
 ﻿package com.robotacid.engine {
 	import com.robotacid.engine.Entity;
-	import com.robotacid.phys.Block;
+	import com.robotacid.gfx.ItemMovieClip;
 	import com.robotacid.phys.Cast;
+	import com.robotacid.phys.Collider;
 	import com.robotacid.ui.menu.InventoryMenuList;
 	import com.robotacid.ui.menu.MenuOptionStack;
 	import com.robotacid.util.HiddenInt;
@@ -19,144 +20,70 @@
 	*
 	* @author Aaron Steed, robotacid.com
 	*/
-	public class Item extends Entity{
+	public class Item extends ColliderEntity{
 		
 		public var type:int;
 		public var level:int;
+		public var nameStr:String;
 		
 		// states
-		public var state:int;
-		public var dropped:Boolean;
+		public var location:int;
 		public var stacked:Boolean;
 		public var curseState:int;
-		public var tempY:Number;
-		public var py:Number;
-		public var floorY:Number;
 		public var twinkleCount:int;
+		public var range:int;
+		public var position:int;
 		
-		// attributes
+		// stats
 		public var damage:Number;
 		public var attack:Number;
-		public var defense:Number;
+		public var defence:Number;
+		public var stun:Number;
+		public var knockback:Number;
+		public var endurance:Number;
+		public var leech:Number;
 		
 		public var effects:Vector.<Effect>;
-		
-		public static const TWINKLE_DELAY:int = 20;
-		
-		// type flags
-		public static const WEAPON:int = 0;
-		public static const ARMOUR:int = 1;
-		public static const RUNE:int = 2;
-		public static const MACGUFFIN:int = 3;
-		public static const SHOES:int = 4;
-		public static const HEART:int = 5;
-		
-		// state flags
-		public static const INVENTORY:int = 1;
-		public static const EQUIPPED:int = 2;
-		public static const MINION_EQUIPPED:int = 3;
-		
-		public static const WEAPON_NAMES:Array = [
-			"dagger", "mace", "sword", "staff", "bow", "hammer"
-		];
-		
-		public static const ARMOUR_NAMES:Array = [
-			"flies", "fedora", "viking helm", "skull", "blood", ""
-		];
-		
-		public static const RUNE_NAMES:Array = [
-			"light",
-			"heal",
-			"poison",
-			"teleport",
-			"undead",
-			"polymorph",
-			"xp"
-		];
-		
-		public static const RUNE_DESCRIPTIONS:Array = [
-			"casts a bright light on all things",
-			"mends wounds over time",
-			"causes sickness and death",
-			"appears and disappears in your hand",
-			"gives life after death",
-			"changes the shape of things",
-			"grants wisdom and strength"
-		];
+		public var missileGfxClass:Class;
+		private var bounds:Rectangle;
 		
 		public static var runeNames:Array;
 		
-		// Attributes
+		public static const TWINKLE_DELAY:int = 20;
 		
-		// the level attributes are multiplied per level of the item and added to the base score
+		// types
+		public static const WEAPON:int = 0;
+		public static const ARMOUR:int = 1;
+		public static const RUNE:int = 2;
+		public static const HEART:int = 3;
 		
-		public static const WEAPON_DAMAGES:Array = [
-			0.25,
-			0.5,
-			1,
-			1.5,
-			0.25,
-			2
-		];
+		// location
+		public static const UNASSIGNED:int = 0;
+		public static const DROPPED:int = 1;
+		public static const INVENTORY:int = 2;
+		public static const EQUIPPED:int = 3;
+		public static const MINION_EQUIPPED:int = 4;
+		public static const FLIGHT:int = 5;
 		
-		public static const WEAPON_DAMAGE_LEVELS:Array = [
-			0.05,
-			0.05,
-			0.1,
-			0.1,
-			0.05,
-			0.15
-		];
+		// ranges
+		public static const MELEE:int = 1 << 0;
+		public static const MISSILE:int = 1 << 1;
+		public static const THROWN:int = 1 << 2;
 		
-		public static const WEAPON_ATTACKS:Array = [
-			0.01,
-			0.01,
-			0.05,
-			0.03,
-			0.01,
-			0.04
-		];
+		// positions
+		public static const HAT:int = 0;
+		public static const FULL_BODY:int = 1;
 		
-		public static const WEAPON_ATTACK_LEVELS:Array = [
-			0.01,
-			0.01,
-			0.02,
-			0.02,
-			0.01,
-			0.02
-		];
-		
-		public static const ARMOUR_DEFENSES:Array = [
-			0.01,
-			0.015,
-			0.02,
-			0.03,
-			0.04,
-			0.01
-		];
-		
-		public static const ARMOUR_DEFENSE_LEVELS:Array = [
-			0.01,
-			0.01,
-			0.015,
-			0.02,
-			0.02,
-			0.01
-		];
-		
-		// item names
+		// item names - keeping these constants because I can refactor them easier than
+		// references to itemStats.json which I may want to change
 		
 		// weapons
 		public static const DAGGER:int = 0;
 		public static const MACE:int = 1;
 		public static const SWORD:int = 2;
 		public static const STAFF:int = 3;
-		public static const BOW:int = 4;
+		public static const SHORT_BOW:int = 4;
 		public static const HAMMER:int = 5;
-		
-		public static function randomWeapon():int{
-			return int(Math.random() * 6);
-		}
 		
 		// armour
 		public static const FLIES:int = 0;
@@ -165,10 +92,6 @@
 		public static const SKULL:int = 3;
 		public static const BLOOD:int = 4;
 		public static const INVISIBILITY:int = 5;
-		
-		public static function randomArmour():int{
-			return int(Math.random() * 6);
-		}
 		
 		// runes
 		public static const LIGHT:int = 0;
@@ -186,130 +109,146 @@
 		
 		public static const CURSE_CHANCE:Number = 0.05;
 		
-		public static var bounds:Rectangle;
-		
 		public static const MAX_LEVEL:int = 20;
+		public static const DROP_GLOW_FILTER:GlowFilter = new GlowFilter(0xFFFFFF, 0.5, 2, 2, 1000);
 		
-		public function Item(mc:DisplayObject, name:int, type:int, level:int, g:Game) {
-			super(mc, g, false, false);
+		[Embed(source = "itemStats.json", mimeType = "application/octet-stream")] public static var statsData:Class;
+		public static var stats:Object;
+		
+		public function Item(mc:DisplayObject, name:int, type:int, level:int) {
+			super(mc, false);
 			this.type = type;
-			if(type == WEAPON){
-				damage = WEAPON_DAMAGES[name] + WEAPON_DAMAGE_LEVELS[name] * level;
-				attack = WEAPON_ATTACKS[name] + WEAPON_ATTACK_LEVELS[name] * level;
-			} else if(type == ARMOUR){
-				defense = ARMOUR_DEFENSES[name] + ARMOUR_DEFENSE_LEVELS[name] * level;
-			}
 			this.name = name;
 			this.level = level;
+			active = false;
+			setStats();
 			curseState = NO_CURSE;
-			holder = g.itemsHolder;
-			state = 0;
+			location = UNASSIGNED;
 			stacked = false;
-			collision = true;
 			callMain = true;
-			twinkleCount = TWINKLE_DELAY + Math.random() * TWINKLE_DELAY;
+			twinkleCount = TWINKLE_DELAY + g.random.range(TWINKLE_DELAY);
 		}
-		override public function main():void {
-			// drop to the floor if hanging in the air
-			if(y < floorY){
-				tempY = y;
-				y += 0.98 * (y - py) + 1.0;
-				py = tempY;
-				if(y > floorY) y = floorY;
-				mc.y = y >> 0;
-				updateRect();
-				mapY = y * Game.INV_SCALE;
-				if(y == floorY){
-					// if on the renderer we need to add this to the scroller, otherwise we take it off
-					// the map to reduce the load
-					if(g.renderer.contains(x, y)) g.renderer.addToRenderedArray(mapX, mapY, layer, this);
-					else remove();
+		
+		public function setStats():void{
+			if(type == WEAPON){
+				nameStr = stats["weapon names"][name];
+				damage = stats["weapon damages"][name] + stats["weapon damage levels"][name] * level;
+				attack = stats["weapon attacks"][name] + stats["weapon attack levels"][name] * level;
+				stun = stats["weapon stuns"][name];
+				knockback = stats["weapon knockbacks"][name];
+				range = stats["weapon ranges"][name];
+				
+				if(name == SHORT_BOW){
+					missileGfxClass = ShortBowArrowMC;
 				}
+				if(true){
+					leech = 0;
+				} else {
+					leech = 0;
+				}
+				
+			} else if(type == ARMOUR){
+				nameStr = stats["armour names"][name];
+				defence = stats["armour defences"][name] + stats["armour defence levels"][name] * level;
+				endurance = stats["armour endurance"][name];
+				position = stats["armour positions"][name];
+				if(name == BLOOD){
+					leech = 0.025 * level;
+				} else {
+					leech = 0;
+				}
+			} else if(type == RUNE){
+				nameStr = stats["rune names"][name];
+			}
+		}
+		
+		/* Initialises the collider for this Entity */
+		override public function createCollider(x:Number, y:Number, properties:int, ignoreProperties:int, state:int = 0, positionByBase:Boolean = true):void{
+			
+			bounds = gfx.getBounds(gfx);
+			if(bounds.width == 0){
+				bounds.x = 0;
+				bounds.y = 0;
+				bounds.width = 8;
+				bounds.height = 8;
+			} else {
+				bounds.x -= 1;
+				bounds.y -= 1;
+				bounds.width += 2;
+				bounds.height += 2;
+			}
+			
+			collider = new Collider(x - bounds.width * 0.5, y - bounds.height, bounds.width, bounds.height, Game.SCALE, properties, ignoreProperties, state);
+			
+			collider.userData = this;
+			mapX = (collider.x + collider.width * 0.5) * Game.INV_SCALE;
+			mapY = (collider.y + collider.height * 0.5) * Game.INV_SCALE;
+		}
+		
+		override public function main():void {
+			if(collider.state == Collider.STACK){
+				if(!g.mapRenderer.contains(collider.x + collider.width * 0.5, collider.y + collider.height * 0.5)) remove();
 			}
 			// concealing the item in the dark will help avoid showing a clipped effect on the edge
 			// of the light map
-			if(g.lightMap.darkImage.getPixel32(mapX, mapY) != 0xFF000000) mc.visible = true;
-			else mc.visible = false;
-			if(mc.visible){
+			if(g.dungeon.level <= 0) gfx.visible = true;
+			else gfx.visible = g.lightMap.darkImage.getPixel32(mapX, mapY) != 0xFF000000;
+			
+			if(gfx.visible){
 				// create a twinkle twinkle effect when the item is on the map to collect
 				if(twinkleCount-- <= 0){
-					g.addFX(rect.x + Math.random() * rect.width, rect.y + Math.random() * rect.height, g.twinkleBc, g.backFxImage, g.backFxImageHolder);
-					twinkleCount = TWINKLE_DELAY + Math.random() * TWINKLE_DELAY;
+					renderer.addFX(collider.x + g.random.range(collider.width), collider.y + g.random.range(collider.height), renderer.twinkleBlit);
+					twinkleCount = TWINKLE_DELAY + g.random.range(TWINKLE_DELAY);
 				}
 			}
 			
-		}
-		public function collect(character:Character):void{
-			if(state == 0){
-				kill();
+			// check for collection by player
+			if((g.player.actions & Collider.UP) && collider.intersects(g.player.collider)){
+				collect(g.player);
 			}
-			state = INVENTORY;
+		}
+		
+		public function collect(character:Character):void{
+			if(location == DROPPED){
+				collider.world.removeCollider(collider);
+				active = false;
+			}
+			location = INVENTORY;
 			if(character is Player){
 				g.menu.inventoryList.addItem(this);
+				g.console.print("picked up " + nameToString());
 			} else character.loot.push(this);
-			mc.filters = [];
-			mc.visible = true;
+			gfx.filters = [];
+			gfx.visible = true;
 		}
+		
 		/* Puts this item on the map */
 		public function dropToMap(mx:int, my:int):void{
 			active = true;
-			state = 0;
+			location = DROPPED;
 			mapX = mx;
 			mapY = my;
-			mc.x = -((mc.width * 0.5) >> 0) + (mx + 0.5) * Game.SCALE;
-			mc.y = - ((mc.height * 0.5) >> 0) + (my + 0.5) * Game.SCALE;
-			var bounds:Rectangle = mc.getBounds(mc);
-			mc.x += -bounds.left;
-			mc.y += -bounds.top;
-			x = mc.x;
-			y = py = floorY = mc.y;
-			layer = MapRenderer.GAME_OBJECT_LAYER;
-			g.itemsHolder.addChild(mc);
-			updateRect();
+			mapZ = MapRenderer.ENTITY_LAYER;
+			setDroppedRender();
+			createCollider((mx + 0.5) * Game.SCALE, (my + 1) * Game.SCALE, Collider.ITEM | Collider.SOLID, 0, Collider.FALL);
 			g.items.push(this);
-			dropGlow();
-			
-			// drop to the floor if hanging in the air - we pre raycast to find floor below
-			if(!(g.blockMap[mapY + 1][mapX] & Block.UP)){
-				var cast:Cast = Cast.vert(x, y, 1, g.blockMap.length, g.blockMap, Block.CHARACTER | Block.HEAD, g);
-				floorY = (cast.block.y - Game.SCALE) + (y - (mapY * Game.SCALE));
-			} else {
-				g.renderer.addToRenderedArray(mapX, mapY, layer, this);
-			}
+			g.world.restoreCollider(collider);
 		}
-		public function kill():void{
-			if(!active) return;
-			var n:int = g.items.indexOf(this);
-			if(n > -1) g.items.splice(n, 1);
-			
-			if(g.items.indexOf(this) > -1) throw new Error("item has double entry on the map-items list");
-			
-			// is this item on the map?
-			if(mc.parent == g.itemsHolder){
-				g.renderer.mapArrayLayers[layer][mapY][mapX] = null;
-				g.renderer.removeFromRenderedArray(mapX, mapY, layer, this);
-			}
-			active = false;
-		}
+		
 		/* Increases current level of item and sets attributes accordingly */
 		public function levelUp(n:int = 1):void{
 			if(!(type == WEAPON || type == ARMOUR)) return;
 			if(level + n < Game.MAX_LEVEL){
 				level += 1;
 			}
-			if(type == WEAPON){
-				damage = WEAPON_DAMAGES[name] + WEAPON_DAMAGE_LEVELS[name] * level;
-				attack = WEAPON_ATTACKS[name] + WEAPON_ATTACK_LEVELS[name] * level;
-			} else if(type == ARMOUR){
-				defense = ARMOUR_DEFENSES[name] + ARMOUR_DEFENSE_LEVELS[name] * level;
-			}
+			setStats();
 		}
-		public function dropGlow():void{
-			var glow:GlowFilter = new GlowFilter(0xFFFFFF, 0.5, 4, 4, 4);
-			if(type == WEAPON && name == BOW){
-				(mc as MovieClip).gotoAndStop(1);
-			}
-			mc.filters = [glow];
+		
+		/* Adjusts the graphics for the Item for being dropped to the map and adds a GlowFilter to make it more
+		 * visible against the grey background */
+		public function setDroppedRender():void{
+			if(gfx is ItemMovieClip) (gfx as ItemMovieClip).setDropRender();
+			gfx.filters = [DROP_GLOW_FILTER];
 		}
 		
 		public function enchantable(runeName:int):Boolean{
@@ -321,64 +260,69 @@
 			return true;
 		}
 		
+		/* Turns this item into a cursed item - it cannot be unequipped by the player other than through Effects */
+		public function applyCurse():void{
+			if(curseState == CURSE_REVEALED) return;
+			
+			curseState = CURSE_HIDDEN;
+			
+			if(location == EQUIPPED || location == MINION_EQUIPPED){
+				revealCurse();
+				if(location == MINION_EQUIPPED){
+					g.console.print("but the minion is unaffected...");
+				}
+			}
+		}
+		
 		public function revealCurse():void{
-			if(state == INVENTORY) g.console.print("the " + nameToString() + " is cursed!");
+			if(location == INVENTORY) g.console.print("the " + nameToString() + " is cursed!");
 			curseState = CURSE_REVEALED;
 		}
 		
-		override public function toString():String {
+		public function toString():String {
 			return nameToString();
 		}
 		
 		override public function nameToString():String {
 			var str:String = "";
-			if(state == EQUIPPED) str += "w: ";
-			else if(state == MINION_EQUIPPED) str += "m: ";
+			if(location == EQUIPPED) str += "w: ";
+			else if(location == MINION_EQUIPPED) str += "m: ";
 			//if(stack > 0) str += stack + "x ";
 			//if(level > 0) str += "+" + level + " ";
 			
 			if(curseState == CURSE_REVEALED) str += "- ";
 			else if(effects) str += "+ ";
 			
-			if(type == RUNE) return str + "rune of "+runeNames[name];
-			if(type == MACGUFFIN) return str + "macguffin";
-			if(type == ARMOUR) return str + ARMOUR_NAMES[name];
-			if(type == WEAPON) return str + WEAPON_NAMES[name];
-			if(type == HEART) return CharacterAttributes.NAME_STRINGS[name] + " heart";
+			if(type == RUNE) return str + "rune of " + runeNames[name];
+			else if(type == ARMOUR) return str + stats["armour names"][name];
+			else if(type == WEAPON) return str + stats["weapon names"][name];
+			else if(type == HEART) return Character.stats["names"][name] + " heart";
 			//if(effect) str += effect.toString();
 			return str
 		}
-		public function updateRect():void{
-			bounds = mc.getBounds(g.canvas);
-			rect = new Rectangle(bounds.x, bounds.y, bounds.width, bounds.height);
-			if(rect.width + rect.height == 0){
-				rect.x = x - 5;
-				rect.y = y - 5;
-				rect.width = rect.height = 10;
-			}
-		}
+		
 		public static function revealName(n:int, inventoryList:InventoryMenuList):void{
 			if(runeNames[n] != "?") return;
-			runeNames[n] = RUNE_NAMES[n];
+			runeNames[n] = stats["rune names"][n];
 			for(var i:int = 0; i < inventoryList.options.length; i++){
-				if((inventoryList.options[i].target as Item).type == RUNE && (inventoryList.options[i].target as Item).name == n){
-					(inventoryList.options[i] as MenuOptionStack).singleName = (inventoryList.options[i].target as Item).nameToString();
+				if((inventoryList.options[i].userData as Item).type == RUNE && (inventoryList.options[i].userData as Item).name == n){
+					(inventoryList.options[i] as MenuOptionStack).singleName = (inventoryList.options[i].userData as Item).nameToString();
 					(inventoryList.options[i] as MenuOptionStack).total = (inventoryList.options[i] as MenuOptionStack).total;
 				}
 			}
 		}
 		override public function remove():void {
 			super.remove();
-			var n:int = g.items.indexOf(this);
-			if(n > -1) g.items.splice(n, 1);
+			g.items.splice(g.items.indexOf(this), 1);
 		}
+		
 		/* Is 'item' essentially identical to this Item, suggesting we can stack the two */
 		public function stackable(item:Item):Boolean{
 			return item != this && item.type == type && item.name == name && item.level == level && !(type == ARMOUR || type == WEAPON);
 		}
 		
 		public function copy():Item{
-			return new Item(new (Object(mc).constructor as Class), name, type, level, g);
+			return new Item(new (Object(gfx).constructor as Class), name, type, level);
 		}
 		
 		public function getHelpText():String{
@@ -388,21 +332,21 @@
 				if(runeNames[name] == "?"){
 					str += "is unknown\nuse it to discover its power";
 				} else {
-					str += RUNE_DESCRIPTIONS[name];
+					str += stats["rune descriptions"][name];
 				}
 				str += "\nrunes can be cast on items, monsters and yourself"
 			} else if(type == ARMOUR){
 				str += "this armour is a \nlevel " + level + " ";
 				if(curseState == CURSE_REVEALED) str += "cursed ";
 				else if(effects) str += "enchanted ";
-				str += ARMOUR_NAMES[name];
+				str += stats["armour names"][name];
 			} else if(type == WEAPON){
 				str += "this weapon is a \nlevel " + level + " ";
 				if(curseState == CURSE_REVEALED) str += "cursed ";
 				else if(effects) str += "enchanted ";
-				str += WEAPON_NAMES[name];
+				str += stats["weapon names"][name];
 			} else if(type == HEART){
-				str += "this level " + level + " " + CharacterAttributes.NAME_STRINGS[name] + " heart\nrestores health when eaten";
+				str += "this level " + level + " " + Character.stats["names"][name] + " heart\nrestores health when eaten";
 			}
 			return str;
 		}
@@ -412,7 +356,7 @@
 			xml.@name = name;
 			xml.@type = type;
 			xml.@level = level;
-			xml.@state = state;
+			xml.@location = location;
 			xml.@curseState = curseState;
 			if(effects && effects.length){
 				for(var i:int = 0; i < effects.length; i++){
@@ -421,6 +365,12 @@
 			}
 			
 			return xml;
+		}
+		
+		override public function render():void {
+			gfx.x = collider.x - bounds.left;
+			gfx.y = collider.y - bounds.top;
+			super.render();
 		}
 	}
 	

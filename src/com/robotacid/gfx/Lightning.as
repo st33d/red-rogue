@@ -1,21 +1,23 @@
 ﻿package com.robotacid.gfx{
 	import com.robotacid.geom.Pixel;
-	import com.robotacid.phys.Block;
+	import com.robotacid.phys.Collider;
 	import com.robotacid.util.array.randomiseArray;
 	import flash.display.Graphics;
 	/**
 	 * Creates a lightning graphic that will travel between two points and return whether
 	 * the path was interrupted by a wall or reached the target
-	 * 
+	 *
 	 * Also operates on two scale levels - the smaller the grid the lightning runs on, the better it looks
 	 * so it's best to run it on a smaller scale than the map wall array scale and convert between the
 	 * two to check blockages
-	 * 
+	 *
 	 * I've optimised the crap out of this object, so apologies if it don't port well
-	 * 
+	 *
 	 * @author Aaron Steed, robotacid.com
 	 */
 	public class Lightning{
+		
+		public static var g:Game;
 		
 		private var i:int;
 		private var best:Number;
@@ -104,15 +106,15 @@
 				gfx.moveTo((SCALE * 0.5) + sx * SCALE, (SCALE * 0.5) + sy * SCALE);
 				dx = node.x - sx;
 				dy = node.y - sy;
-				dx += (Math.random() * -dy * 1.5) + (Math.random() * dy * 1.5);
-				dy += (Math.random() * -dx * 1.5) + (Math.random() * dx * 1.5);
+				dx += g.random.range(-dy) * 1.5 + g.random.range(dy) * 1.5;
+				dy += g.random.range(-dx) * 1.5 + g.random.range(dx) * 1.5;
 				sx += dx;
 				sy += dy;
 				mapX = sx * LIGHTNING_TO_MAP_CONVERSION;
 				mapY = sy * LIGHTNING_TO_MAP_CONVERSION;
-				if(mapX < 0 || mapY < 0 || mapX > mapWidth-1 || mapY > mapHeight-1 || (map[mapY][mapX] & Block.WALL)) break;
+				if(mapX < 0 || mapY < 0 || mapX > mapWidth-1 || mapY > mapHeight-1 || (map[mapY][mapX] & Collider.WALL)) break;
 				gfx.lineTo((SCALE * 0.5) + sx * SCALE, (SCALE * 0.5) + sy * SCALE);
-				lightningBranch(gfx, sx, sy, dx, dy, mapX, mapY, Math.random());
+				lightningBranch(gfx, sx, sy, dx, dy, mapX, mapY, g.random.value());
 				
 			}
 			
@@ -136,12 +138,12 @@
 			y += dy;
 			mapX = x * LIGHTNING_TO_MAP_CONVERSION;
 			mapY = y * LIGHTNING_TO_MAP_CONVERSION;
-			if(mapX < 0 || mapY < 0 || mapX > mapWidth-1 || mapY > mapHeight-1 || (map[mapY][mapX] & Block.WALL)) return;
+			if(mapX < 0 || mapY < 0 || mapX > mapWidth-1 || mapY > mapHeight-1 || (map[mapY][mapX] & Collider.WALL)) return;
 			gfx.lineTo((SCALE * 0.5) + x * SCALE, (SCALE * 0.5) + y * SCALE);
-			if(Math.random() < decay){
-				dx += (Math.random() * -dy * 1.5) + (Math.random() * dy * 1.5);
-				dy += (Math.random() * -dx * 1.5) + (Math.random() * dx * 1.5);
-				lightningBranch(gfx, x, y, dx, dy, mapX, mapY, decay * Math.random());
+			if(g.random.value() < decay){
+				dx += g.random.range(-dy) * 1.5 + g.random.range(dy) * 1.5;
+				dy += g.random.range(-dx) * 1.5 + g.random.range(dx) * 1.5;
+				lightningBranch(gfx, x, y, dx, dy, mapX, mapY, decay * g.random.value());
 			}
 			
 		}

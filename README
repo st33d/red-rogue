@@ -2,8 +2,10 @@ Red Rogue is a platformer-roguelike written in Flex and compiled with FlashDevel
 
 The game is played with arrow keys (or w,a,s,d) and the space bar.
 
-The arrow keys move the player in a fashion like loderunner (no jumping). This is because I have replicated classic Rogue's fighting method of shoving your opponent to death. With the added classic platformer mechanic that anyone can instantly be killed by jumping on their head.
-
-For this reason, permadeath will not be a default option. (Permadeath can fuck right off as far as I'm concerned, it never improved any roguelike for me and never will. But I'll include an option for purists when it's finished. "Ooh, but it's not a roguelike if you even have an optional save mechanic!" you say. Tell you what, download the source, comment out the load option in GameMenu.as, recompile it and piss off you sanctimonious cunt.)
+There is no jump. Landing on an opponent's head causes knockback-stun.
 
 The space bar opens a menu, from there the inventory can be accessed to equip you and your minion, to cast spells, search for traps and other things like saving and loading.
+
+There also default hot-key-bindings, go to the website and click on "instructions" to discover what they are.
+
+If you were more interested in the old revision of the code, you can work with the branch "old".

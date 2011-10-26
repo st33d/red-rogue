@@ -17,6 +17,8 @@
 	 */
 	public class DungeonBitmap extends Bitmap{
 		
+		public static var g:Game;
+		
 		public var level:int;
 		
 		public var rooms:Vector.<Room>;
@@ -69,7 +71,7 @@
 		
 		public static const SECRET_FREQ:Number = 0.5;
 		
-		public static const OVERWORLD_WIDTH:int = 20;
+		public static const OVERWORLD_WIDTH:int = 25;
 		public static const OVERWORLD_HEIGHT:int = 13;
 		
 		public function DungeonBitmap(level:int) {
@@ -84,7 +86,7 @@
 					// so I'm capping it at 7
 					level = level > MAX_LEVEL ? MAX_LEVEL : level;
 					// but we also get some cool levels earlier, so let's randomise
-					level = 1 + level * Math.random();
+					level = 1 + g.random.range(level);
 					level = level < MIN_LEVEL ? MIN_LEVEL : level;
 				}
 				
@@ -109,6 +111,7 @@
 		public function createOverWorld():BitmapData{
 			var overworldMap:BitmapData = new BitmapData(OVERWORLD_WIDTH, OVERWORLD_HEIGHT, true, WALL);
 			overworldMap.fillRect(new Rectangle(1, 1, overworldMap.width - 2, overworldMap.height - 2), EMPTY);
+			adjustedMapRect = new Rectangle(0, 0, overworldMap.width * Game.SCALE, overworldMap.height * Game.SCALE);
 			return overworldMap;
 		}
 		
@@ -123,13 +126,13 @@
 			
 				// create a list of rooms, then randomly assign a sibling
 				rooms = new Vector.<Room>();
-				for(i = 0; i < (roominess * level) + random(level * roominess); i++){
+				for(i = 0; i < (roominess * level) + g.random.rangeInt(level * roominess); i++){
 					rooms.push(new Room());
 				}
 				for(i = 0; i < rooms.length; i++){
 					//for(j = 0; j < 1 + random(1); j++){
 						do{
-							var pick:int = random(rooms.length);
+							var pick:int = g.random.range(rooms.length);
 						} while(pick == i);
 						rooms[i].siblings.push(rooms[pick]);
 					//}
@@ -143,9 +146,9 @@
 				var cellWidth:int = 0;
 				
 				for(i = 0; i < rooms.length; i++){
-					rooms[i].width = MIN_ROOM_WIDTH + random(horizPace);
+					rooms[i].width = MIN_ROOM_WIDTH + g.random.rangeInt(horizPace);
 					if(rooms[i].width > cellWidth) cellWidth = rooms[i].width;
-					rooms[i].height = MIN_ROOM_HEIGHT + random(vertPace);
+					rooms[i].height = MIN_ROOM_HEIGHT + g.random.rangeInt(vertPace);
 					if(rooms[i].height > cellHeight) cellHeight = rooms[i].height;
 				}
 				
@@ -154,14 +157,14 @@
 				
 				// get a grid size for the cells
 				// we basically create a minimum of 2 or a maximum of half the number of cells either way
-				var gridHeight:int = 2 + random((rooms.length / 2) - 2);
+				var gridHeight:int = 2 + g.random.range((rooms.length / 2) - 2);
 				var gridWidth:int = Math.ceil((1.0 * rooms.length) / gridHeight);
 				
 				// let's assign grid numbers
 				var nums:Array = [];
 				for(i = 0; i < gridHeight * gridWidth; i++) nums.push(i);
 				for(i = 0; i < rooms.length; i++){
-					var n:int = random(nums.length);
+					var n:int = g.random.range(nums.length);
 					rooms[i].gridNum = nums[n];
 					nums.splice(n, 1);
 				}
@@ -175,8 +178,8 @@
 					rooms[i].y = (rooms[i].gridNum / gridWidth);
 					rooms[i].y *= cellHeight;
 					// random offset the rooms
-					rooms[i].x += 1 + random((cellWidth - 1) - rooms[i].width);
-					rooms[i].y += 1 + random((cellHeight - 1) - rooms[i].height);
+					rooms[i].x += 1 + g.random.range((cellWidth - 1) - rooms[i].width);
+					rooms[i].y += 1 + g.random.range((cellHeight - 1) - rooms[i].height);
 					// draw the room:
 					data.fillRect(new Rectangle(
 						rooms[i].x, rooms[i].y, rooms[i].width, rooms[i].height
@@ -192,19 +195,19 @@
 						var exit:Pixel = new Pixel();
 						room = rooms[i];
 						do{
-							side = 1 << random(4);
+							side = 1 << g.random.rangeInt(4);
 							if(side & UP){
-								exit.x = room.x + random(room.width);
+								exit.x = room.x + g.random.rangeInt(room.width);
 								exit.y = room.y;
 							} else if(side & RIGHT){
 								exit.x = room.x + room.width - 1;
-								exit.y = room.y + random(room.height);
+								exit.y = room.y + g.random.rangeInt(room.height);
 							} else if(side & DOWN){
-								exit.x = room.x + random(room.width);
+								exit.x = room.x + g.random.rangeInt(room.width);
 								exit.y = room.y + room.height - 1;
 							} else if(side & LEFT){
 								exit.x = room.x;
-								exit.y = room.y + random(room.height);
+								exit.y = room.y + g.random.rangeInt(room.height);
 							}
 						} while(room.touchesDoors(exit) || onEdge(exit, data.width, data.height));
 						room.doors.push(exit);
@@ -212,19 +215,19 @@
 						var entrance:Pixel = new Pixel();
 						room = rooms[i].siblings[j];
 						do{
-							side = 1 << random(4);
+							side = 1 << g.random.rangeInt(4);
 							if(side & UP){
-								entrance.x = room.x + random(room.width);
+								entrance.x = room.x + g.random.rangeInt(room.width);
 								entrance.y = room.y - 1;
 							} else if(side & RIGHT){
 								entrance.x = room.x + room.width;
-								entrance.y = room.y + random(room.height);
+								entrance.y = room.y + g.random.rangeInt(room.height);
 							} else if(side & DOWN){
-								entrance.x = room.x + random(room.width);
+								entrance.x = room.x + g.random.rangeInt(room.width);
 								entrance.y = room.y + room.height;
 							} else if(side & LEFT){
 								entrance.x = room.x - 1;
-								entrance.y = room.y + random(room.height);
+								entrance.y = room.y + g.random.rangeInt(room.height);
 							}
 						} while(room.touchesDoors(entrance) || onEdge(entrance, data.width, data.height));
 						room.doors.push(entrance);
@@ -405,7 +408,7 @@
 			// whilst we're at it we'll delete our node pixels to clean up
 			
 			var visitedNodes:Vector.<Node> = new Vector.<Node>();
-			node = graph[(Math.random() * graph.length) >> 0];
+			node = graph[g.random.rangeInt(graph.length)];
 			node.visited = true;
 			visitedNodes.push(node);
 			pixels[node.x + node.y * mapWidth] = PATH;
@@ -486,9 +489,9 @@
 			// sprinkle some extra ladders in
 			for(i = mapWidth; i < pixels.length - mapWidth; i++){
 				if(pixels[i] == EMPTY && pixels[i - mapWidth] == EMPTY){
-					if(pixels[i - 1] == WALL && pixels[i + 1] == EMPTY && Math.random() < LADDERINESS){
+					if(pixels[i - 1] == WALL && pixels[i + 1] == EMPTY && g.random.value() < LADDERINESS){
 						pixels[i] = LADDER_LEDGE;
-					} else if(pixels[i + 1] == WALL && pixels[i - 1] == EMPTY && Math.random() < LADDERINESS){
+					} else if(pixels[i + 1] == WALL && pixels[i - 1] == EMPTY && g.random.value() < LADDERINESS){
 						pixels[i] = LADDER_LEDGE;
 					}
 				}
@@ -504,7 +507,7 @@
 					if(pixels[i - 1] == EMPTY){
 						// pull out the ladder ledge
 						j = i;
-						for(n = Math.random() * LEDGE_LENGTH; n; n--){
+						for(n = g.random.range(LEDGE_LENGTH); n; n--){
 							if(pixels[j - 1] == EMPTY && pixels[j - 1 - mapWidth] != WALL){
 								pixels[j] = LEDGE;
 								pixels[j - 1] = LADDER_LEDGE;
@@ -512,7 +515,7 @@
 							j--;
 						}
 						// add a bit of extension past it
-						for(n = Math.random() * LEDGE_LENGTH; n; n--){
+						for(n = g.random.range(LEDGE_LENGTH); n; n--){
 							if(pixels[j - 1] == EMPTY && pixels[j - 1 - mapWidth] != WALL){
 								pixels[j - 1] = LEDGE;
 							} else break;
@@ -520,7 +523,7 @@
 						}
 					} else if(pixels[i + 1] == EMPTY){
 						// push out the ladder ledge
-						for(n = Math.random() * LEDGE_LENGTH; n; n--){
+						for(n = g.random.range(LEDGE_LENGTH); n; n--){
 							if(pixels[i + 1] == EMPTY && pixels[i + 1 - mapWidth] != WALL){
 								pixels[i] = LEDGE;
 								pixels[i + 1] = LADDER_LEDGE;
@@ -529,7 +532,7 @@
 						}
 						// add a bit of extension past it
 						j = i;
-						for(n = Math.random() * LEDGE_LENGTH; n; n--){
+						for(n = g.random.range(LEDGE_LENGTH); n; n--){
 							if(pixels[j + 1] == EMPTY && pixels[j + 1 - mapWidth] != WALL){
 								pixels[j + 1] = LEDGE;
 							} else break;
@@ -552,10 +555,10 @@
 			
 			// sprinkle a few more ledges in
 			for(i = mapWidth; i < pixels.length - mapWidth; i++){
-				if(pixels[i] == LADDER && Math.random() < LEDGINESS){
+				if(pixels[i] == LADDER && g.random.value() < LEDGINESS){
 					if(pixels[i - 1] == EMPTY){
 						j = i;
-						for(n = Math.random() * LEDGE_LENGTH; n; n--){
+						for(n = g.random.range(LEDGE_LENGTH); n; n--){
 							if(pixels[j - 1] == EMPTY && pixels[j - 1 - mapWidth] != WALL){
 								pixels[j - 1] = LEDGE;
 							} else if(pixels[j - 1] == LADDER){
@@ -568,7 +571,7 @@
 					}
 					if(pixels[i + 1] == EMPTY){
 						j = i;
-						for(n = Math.random() * LEDGE_LENGTH; n; n--){
+						for(n = g.random.value() * LEDGE_LENGTH; n; n--){
 							if(pixels[j + 1] == EMPTY && pixels[j + 1 - mapWidth] != WALL){
 								pixels[j + 1] = LEDGE;
 							} else if(pixels[j + 1] == LADDER){
@@ -610,7 +613,7 @@
 			// we have a selection of locations, it remains to select from them and dig
 			var num:int = level;
 			while(num > 0 && pits.length > 0){
-				var r:int = Math.random() * pits.length;
+				var r:int = g.random.range(pits.length);
 				pixels[pits[r]] = PIT;
 				for(i = pits[r] + mapWidth; i < pixels.length - mapWidth * 2; i += mapWidth){
 					if(pixels[i] == EMPTY){
@@ -648,14 +651,14 @@
 				}
 			}
 			
-			if(secretsLeft.length && Math.random() < SECRET_FREQ){
-				pos = secretsLeft[(Math.random() * secretsLeft.length) >> 0];
+			if(secretsLeft.length && g.random.value() < SECRET_FREQ){
+				pos = secretsLeft[g.random.rangeInt(secretsLeft.length)];
 				posY = pos / mapWidth;
 				room = new Room();
-				room.width = MIN_ROOM_WIDTH + random(horizPace * 0.5);
-				room.height = MIN_ROOM_HEIGHT + random(vertPace * 0.5);
+				room.width = MIN_ROOM_WIDTH + g.random.rangeInt(horizPace * 0.5);
+				room.height = MIN_ROOM_HEIGHT + g.random.rangeInt(vertPace * 0.5);
 				if(room.height > bitmapData.height - 2) room.height = bitmapData.height - 2;
-				corridorLength = 1 + random(5);
+				corridorLength = 1 + g.random.rangeInt(5);
 				// recreate bitmap
 				temp = new BitmapData(1 + mapWidth + corridorLength + room.width, bitmapData.height, true, WALL);
 				temp.copyPixels(bitmapData, bitmapData.rect, new Point(1 + room.width + corridorLength, 0));
@@ -666,7 +669,7 @@
 					pixels[-i + room.width + corridorLength + posY * bitmapData.width] = EMPTY
 				}
 				room.x = 1;
-				room.y = posY - random(room.height);
+				room.y = posY - g.random.rangeInt(room.height);
 				if(room.y + room.height > bitmapData.height - 1) room.y = bitmapData.height - 1 - room.height;
 				if(room.y < 1) room.y = 1;
 				bitmapData.setVector(bitmapData.rect, pixels);
@@ -676,7 +679,7 @@
 				// they should feel like a cubby hole
 				pixels = bitmapData.getVector(bitmapData.rect);
 				if(posY < room.y + room.height - 1){
-					ladderPos = 1 + random(room.width) + (posY + 1) * bitmapData.width;
+					ladderPos = 1 + g.random.rangeInt(room.width) + (posY + 1) * bitmapData.width;
 					pixels[ladderPos] = LADDER_LEDGE;
 					ledgePos = ladderPos + 1;
 					while(pixels[ledgePos] != WALL){
@@ -684,7 +687,7 @@
 						ledgePos++;
 					}
 					ledgePos = ladderPos - 1;
-					while(pixels[ledgePos] != WALL && Math.random() < 0.5){
+					while(pixels[ledgePos] != WALL && g.random.value() < 0.5){
 						pixels[ledgePos] = LEDGE;
 						ledgePos--;
 					}
@@ -712,14 +715,14 @@
 				}
 			}
 			
-			if(secretsRight.length && Math.random() < SECRET_FREQ){
-				pos = secretsRight[(Math.random() * secretsRight.length) >> 0];
+			if(secretsRight.length && g.random.value() < SECRET_FREQ){
+				pos = secretsRight[g.random.rangeInt(secretsRight.length)];
 				posY = pos / mapWidth;
 				room = new Room();
-				room.width = MIN_ROOM_WIDTH + random(horizPace * 0.5);
-				room.height = MIN_ROOM_HEIGHT + random(vertPace * 0.5);
+				room.width = MIN_ROOM_WIDTH + g.random.rangeInt(horizPace * 0.5);
+				room.height = MIN_ROOM_HEIGHT + g.random.rangeInt(vertPace * 0.5);
 				if(room.height > bitmapData.height - 2) room.height = bitmapData.height - 2;
-				corridorLength = 1 + random(5);
+				corridorLength = 1 + g.random.rangeInt(5);
 				// recreate bitmap
 				temp = new BitmapData(1 + bitmapData.width + corridorLength + room.width, bitmapData.height, true, WALL);
 				temp.copyPixels(bitmapData, bitmapData.rect, new Point());
@@ -730,7 +733,7 @@
 					pixels[mapWidth + i + posY * bitmapData.width] = EMPTY
 				}
 				room.x = mapWidth + corridorLength;
-				room.y = posY - random(room.height);
+				room.y = posY - g.random.rangeInt(room.height);
 				if(room.y + room.height > bitmapData.height - 1) room.y = bitmapData.height - 1 - room.height;
 				if(room.y < 1) room.y = 1;
 				bitmapData.setVector(bitmapData.rect, pixels);
@@ -740,7 +743,7 @@
 				// they should feel like a cubby hole
 				pixels = bitmapData.getVector(bitmapData.rect);
 				if(posY < room.y + room.height - 1){
-					ladderPos = room.x + random(room.width) + (posY + 1) * bitmapData.width;
+					ladderPos = room.x + g.random.rangeInt(room.width) + (posY + 1) * bitmapData.width;
 					pixels[ladderPos] = LADDER_LEDGE;
 					ledgePos = ladderPos - 1;
 					while(pixels[ledgePos] != WALL){
@@ -748,7 +751,7 @@
 						ledgePos--;
 					}
 					ledgePos = ladderPos + 1;
-					while(pixels[ledgePos] != WALL && Math.random() < 0.5){
+					while(pixels[ledgePos] != WALL && g.random.value() < 0.5){
 						pixels[ledgePos] = LEDGE;
 						ledgePos++;
 					}
@@ -764,11 +767,6 @@
 			}
 		}
 		
-		
-		/* integer random method - seeing as I'm going to be caning this sort of stuff */
-		public static function random(n:int):int{
-			return Math.random() * n;
-		}
 		/* is this pixel sitting on the edge of the map? it will likely cause me trouble if it is... */
 		public static function onEdge(pixel:Pixel, width:int, height:int):Boolean{
 			return pixel.x<= 0 || pixel.x >= width-1 || pixel.y <= 0 || pixel.y >= height-1;

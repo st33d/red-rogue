@@ -1,143 +1,104 @@
 ﻿package com.robotacid.engine {
 	import com.robotacid.ai.Brain;
 	import com.robotacid.gfx.BlitSprite;
-	import com.robotacid.phys.Block;
 	import com.robotacid.phys.Cast;
+	import com.robotacid.phys.Collider;
 	import com.robotacid.sound.SoundManager;
 	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
+	import flash.geom.Rectangle;
 	
 	/**
 	* Basic missile class - only moves in straight lines for now
 	*
 	* @author Aaron Steed, robotacid.com
 	*/
-	public class Missile extends Entity{
+	public class Missile extends ColliderEntity{
 		
+		public var type:int;
 		public var dx:Number;
 		public var dy:Number;
 		public var speed:Number;
-		public var tempX:Number, tempY:Number;
-		public var ignore:int;
 		public var effect:Effect;
 		public var sender:Character;
-		public var target:Character;
-		public var failedTarget:Character;
 		public var item:Item;
+		public var clipRect:Rectangle;
 		
-		public static var cast:Cast;
+		protected static var target:Character;
 		
-		public static const ARROW:int = 1;
+		// missile names
+		public static const ITEM:int = 1;
 		public static const RUNE:int = 2;
 		public static const DART:int = 3;
 		
-		public function Missile(mc:DisplayObject, name:int, sender:Character, dx:Number, dy:Number, speed:Number, g:Game, ignore:int = 0, effect:Effect = null, item:Item = null) {
-			super(mc, g, true);
-			this.name = name;
+		public function Missile(mc:DisplayObject, x:Number, y:Number, type:int, sender:Character, dx:Number, dy:Number, speed:Number, ignore:int = 0, effect:Effect = null, item:Item = null, clipRect:Rectangle = null) {
+			super(mc, true);
+			this.type = type;
 			this.sender = sender;
 			this.dx = dx;
 			this.dy = dy;
 			this.speed = speed;
-			this.ignore = ignore;
 			this.effect = effect;
 			this.item = item;
+			this.clipRect = clipRect;
 			callMain = true;
 			
+			createCollider(x, y, Collider.SOLID | Collider.MISSILE, ignore, Collider.HOVER, false);
+			collider.dampingX = 1;
+			collider.dampingY = 1;
+			g.world.restoreCollider(collider);
+			
 			// runes glow when they are converted to missiles
-			if(name == RUNE){
+			if(type == RUNE){
 				g.lightMap.setLight(this, 3, 112);
 			}
 		}
-		override public function main():void {
-			move();
-			if(mc) updateMC();
-		}
 		
-		public function move():void{
-			var vx:Number = speed * dx;
-			var vy:Number = speed * dy;
-			cast = Cast.ray(x, y, vx > 0 ? 1 : -1, vy > 0 ? 1 : -1, g.blockMap, ignore, g);
-			if(cast && cast.block && cast.distance < speed){
-				
-				if(cast.collider){
-					if(cast.collider is Character){
-						target = cast.collider as Character;
-						if(target == failedTarget){
-							x += vx;
-							y += vy;
-						} else {
-							if(name == ARROW){
-								var hitResult:int = sender.hit(target);
-								if(hitResult){
-									hitCharacter(target, hitResult > 1);
-									resolve(cast);
-								} else {
-									failedTarget = target;
-									x += vx;
-									y += vy;
-								}
+		override public function main():void {
+			mapX = (collider.x + collider.width * 0.5) * Game.INV_SCALE;
+			mapY = (collider.y + collider.height * 0.5) * Game.INV_SCALE;
+			collider.vx = speed * dx;
+			collider.vy = speed * dy;
+			collider.awake = Collider.AWAKE_DELAY;
+			if(collider.pressure){
+				var contact:Collider = collider.getContact();
+				if(contact){
+					target = contact.userData as Character;
+					if(target){
+						if(type == ITEM){
+							var hitResult:int = sender.hit(target, Item.MISSILE | Item.THROWN);
+							if(hitResult){
+								hitCharacter(target, hitResult);
 							} else {
-								hitCharacter(target);
-								resolve(cast);
+								// pass through next simulation frame
+								collider.ignoreProperties |= Collider.SOLID;
 							}
+						} else {
+							hitCharacter(target);
 						}
-					} else {
-						resolve(cast);
 					}
 				} else {
-					resolve(cast);
+					kill();
 				}
 			} else {
-				x += vx;
-				y += vy;
 				// check runes for proximity to the mouse for conversion to MouseMissile
-				if(name == RUNE){
-					if((g.canvas.mouseX - x) * (g.canvas.mouseX - x) + (g.canvas.mouseY - y) * (g.canvas.mouseY - y) <= speed){
-						var mouse_missile:MouseMissile = new MouseMissile(mc, name, g, ignore, effect);
-						// we have to stop the mc from being harvested
-						mc = null;
-						// and get this missile out of the equation
+				if(type == RUNE){
+					var mouseVx:Number = renderer.canvas.mouseX - collider.x;
+					var mouseVy:Number = renderer.canvas.mouseY - collider.y;
+					if(mouseVx * mouseVx + mouseVy * mouseVy <= speed){
+						var mouseMissile:MouseMissile = new MouseMissile(gfx, collider.x, collider.y, type, collider.ignoreProperties, effect);
+						collider.world.removeCollider(collider);
 						active = false;
+						return;
 					}
 				}
+				// repair contact filter from failed hits
+				collider.ignoreProperties &= ~(Collider.SOLID);
 			}
-			mapX = x * Game.INV_SCALE;
-			mapY = y * Game.INV_SCALE;
-				
 		}
 		
-		public function resolve(cast:Cast):void{
-			var vx:Number = speed * dx;
-			var vy:Number = speed * dy;
-			// resolve
-			if(vx > 0 && cast.block.x <= x + vx){
-				x = cast.block.x - 1;
-			}
-			if(vx < 0 && cast.block.x + cast.block.width > x + vx){
-				x = cast.block.x + cast.block.width;
-			}
-			if(vy > 0 && cast.block.y <= y + vy){
-				y = cast.block.y - 1;
-			}
-			if(vy < 0 && cast.block.y + cast.block.height > y + vy){
-				y = cast.block.y + cast.block.height;
-			}
-			kill();
-		}
-		
-		public function kill(side:int = 0):void{
-			if(!active) return;
-			if(name == RUNE || name == DART){
-				g.createSparks(x - dx, y - dy, -dx, -dy, 10);
-			}
-			active = false;
-		}
-		public function updateMC():void {
-			mc.x = x >> 0;
-			mc.y = y >> 0;
-		}
-		public function hitCharacter(character:Character, critical:Boolean = false):void{
-			if(name == ARROW){
+		public function hitCharacter(character:Character, hitResult:int = 0):void{
+			if(type == ITEM){
 				// need to make sure that monsters hit by arrows fly into battle mode
 				if(character is Monster && (character as Monster).brain.state == Brain.PATROL){
 					(character as Monster).brain.state == Brain.ATTACK;
@@ -145,23 +106,67 @@
 				}
 				// would help if the player can see what they're doing to the target
 				if(sender is Player) sender.victim = character;
-				if(critical) g.shake(0, 5);
+				if(hitResult & Character.CRITICAL) renderer.shake(0, 5);
 				if(item.effects) character.applyWeaponEffects(item);
-				character.applyDamage(Item.WEAPON_DAMAGES[Item.BOW] * (critical ? 2 : 1), "arrow");
-				g.createDebrisSpurt(x, y, dx > 0 ? 5 : -5, 5, character.debrisType);
-				SoundManager.playSound(g.library.HitSound);
-			} else if(name == RUNE){
+				var thrownWeapon:Boolean = Boolean(item.range & Item.THROWN);
+				var hitDamage:Number = item.damage + (thrownWeapon ? sender.damage : 0);
+				if(hitResult & Character.CRITICAL) hitDamage *= 2;
+				var enduranceDamping:Number = 1.0 - (target.endurance + (target.armour ? target.armour.endurance : 0));
+				if(enduranceDamping < 0) enduranceDamping = 0;
+				var hitKnockback:Number = (item.knockback + (thrownWeapon ? sender.knockback : 0)) * enduranceDamping;
+				if(dx < 0) hitKnockback = -hitKnockback;
+				character.applyDamage(hitDamage, "arrow", hitKnockback, Boolean(hitResult & Character.CRITICAL));
+				if(sender.leech){
+					var leechValue:Number = sender.leech > 1 ? 1 : sender.leech;
+					sender.applyHealth(leechValue * hitDamage);
+				}
+				if(hitResult & Character.STUN){
+					var hitStun:Number = (item.stun + (thrownWeapon ? sender.stun : 0)) * enduranceDamping;
+					if(hitStun) character.applyStun(hitStun);
+				}
+				renderer.createDebrisSpurt(collider.x + collider.width * 0.5, collider.y + collider.height * 0.5, dx > 0 ? 5 : -5, 5, character.debrisType);
+				g.soundQueue.add("hit");
+				
+			} else if(type == RUNE){
 				if(character.type & Character.STONE) return;
 				Item.revealName(effect.name, g.menu.inventoryList);
 				g.console.print(effect.nameToString() + " cast upon " + character.nameToString());
 				effect.apply(character);
-				SoundManager.playSound(g.library.RuneHitSound);
-			} else if(name == DART){
+				g.soundQueue.add("runeHit");
+			} else if(type == DART){
 				if(character.type & Character.STONE) return;
 				g.console.print(effect.nameToString() + " dart hits " + character.nameToString());
 				effect.apply(character);
-				SoundManager.playSound(g.library.RuneHitSound);
+				g.soundQueue.add("runeHit");
 			}
+			kill();
+		}
+		
+		public function kill(side:int = 0):void{
+			if(!active) return;
+			if(type == RUNE || type == DART){
+				renderer.createSparks(collider.x + collider.width * 0.5, collider.y + collider.height * 0.5, -dx, -dy, 10);
+			}
+			collider.world.removeCollider(collider);
+			active = false;
+			if(item && (item.range & Item.THROWN)){
+				item.dropToMap(mapX, mapY);
+			}
+		}
+		
+		override public function render():void {
+			var clipTemp:Rectangle;
+			if(clipRect){
+				clipTemp = clipRect.clone();
+				clipTemp.x -= renderer.bitmap.x;
+				clipTemp.y -= renderer.bitmap.y;
+			}
+			gfx.x = collider.x >> 0;
+			gfx.y = collider.y >> 0;
+			matrix = gfx.transform.matrix;
+			matrix.tx -= renderer.bitmap.x;
+			matrix.ty -= renderer.bitmap.y;
+			renderer.bitmapData.draw(gfx, matrix, gfx.transform.colorTransform, null, clipTemp);
 		}
 	}
 	

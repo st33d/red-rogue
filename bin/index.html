@@ -66,7 +66,7 @@ function()
 		var attributes = {
 			id:"mappingdemo"
 		};
-		swfobject.embedSWF("game.swf", "altContent", "640", "480", "10.0.0", "expressInstall.swf", flashvars, params, attributes);
+		swfobject.embedSWF("game.swf?nocache=" + Date.now().toString(), "altContent", "640", "480", "10.0.0", "expressInstall.swf", flashvars, params, attributes);
 	</script>
 <link rel="stylesheet" type="text/css" href="styles.css"/>
 </head>
@@ -85,13 +85,17 @@ function()
 		</div>
 		<p><a href="javascript:toggleElement('#instructions');">Instructions</a></p>
 		<div id="instructions">
-			<p>Use cursor keys or w,a,s,d to move. Press space bar to access the menu screen and pause the game. Keys can be redefined from there.</p>
-			<p>Run into monsters to attack, or jump on their heads to instantly kill them. Press up to pick up loot.</p>
-			<p>Equip loot from the inventory menu.</p>
+			<p>Use cursor keys or w,a,s,d to move. Press space bar to access the menu screen and pause the game. Keys and hot-keys can be redefined from there.</p>
+			<p>Default bindings for hot-keys are E:exit the level, F:shoot/throw current weapon, Z:search for traps, X:disarm trap, C:summon minion</p>
+			<p>Run into monsters to attack, or jump on their heads to knockback-stun them. If a character is stomped with no room to move, they are instantly killed (crushed).
+			<p>Press up to pick up loot.</p>
+			<p>Equip yourself and your minion with loot from the inventory menu.</p>
+			<p>Use magic by exploring the options available with runes you collect in your inventory menu. Runes have different effects on different things - it's up to you to figure it out.</p>
 		</div>
 		<p><a href="javascript:toggleElement('#log');">Log</a></p>
 		<div id="log"></div>
 		<p><a href="http://github.com/st33d/red-rogue">Source code</a></p>
+		<p><a href="http://forums.tigsource.com/index.php?topic=8467.0">Red Rogue is in a state of progressive development.</a></p>
 	</div>
 
 </body>

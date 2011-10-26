@@ -7,23 +7,23 @@
 	 */
 	public class MenuOptionStack extends MenuOption{
 		
-		private var Total:int;
+		private var _total:int;
 		
 		public var singleName:String;
 		
 		public function MenuOptionStack(name:String, next:MenuList = null, active:Boolean = true) {
 			super(name, next, active);
 			singleName = name;
-			Total = 1;
+			_total = 1;
 		}
 		
 		public function get total():int{
-			return Total;
+			return _total;
 		}
 		
 		public function set total(n:int):void{
-			Total = n;
-			name = (Total > 1 ? Total + " x " : "") + singleName;
+			_total = n;
+			name = (_total > 1 ? _total + " x " : "") + singleName;
 		}
 		
 	}

@@ -1,6 +1,5 @@
 ﻿package com.robotacid.engine {
 	import com.robotacid.ai.Brain;
-	import com.robotacid.phys.Block;
 	import com.robotacid.phys.Collider;
 	import flash.display.DisplayObject;
 	import flash.display.Sprite;
@@ -15,21 +14,21 @@
 	 */
 	public class Monster extends Character{
 		
-		public var brain:Brain;
-		
 		// Heart items are this game's equivalent of health potions
 		// they are harvested randomly during a kill
 		// more likely is it that a bare handed player will pluck a heart
 		public static const CARDIAC_SURGERY_CHANCE:Number = 0.1;
 		public static const BARE_HANDED_CARDIAC_SURGERY_CHANCE:Number = 0.2;
 		
-		public function Monster(mc:DisplayObject, name:int, level:int, items:Vector.<Item>, width:Number, height:Number, g:Game) {
-			super(mc, name, MONSTER, level, width, height, g);
+		public function Monster(mc:DisplayObject, x:Number, y:Number, name:int, level:int, items:Vector.<Item>){
+			super(mc, x, y, name, MONSTER, level, false);
 			
-			block.type |= Block.MONSTER;
-			missileIgnore |= Block.MONSTER;
+			// we do want monsters on the Entities list, but not just yet
+			addToEntities = true;
 			
-			brain = new Brain(this, Brain.MONSTER, g);
+			missileIgnore |= Collider.MONSTER;
+			
+			brain = new Brain(this, Brain.MONSTER);
 			
 			Brain.monsterCharacters.push(this);
 			
@@ -41,21 +40,26 @@
 					}
 				}
 			}
-			
+		}
+		
+		override public function createCollider(x:Number, y:Number, properties:int, ignoreProperties:int, state:int = 0, positionByBase:Boolean = true):void {
+			super.createCollider(x, y, properties, ignoreProperties, state, positionByBase);
+			collider.properties |= Collider.MONSTER;
+			collider.stompProperties = Collider.PLAYER | Collider.MINION;
 		}
 		
 		override public function main():void {
 			// offscreen check
-			if(!g.renderer.intersects(rect, SCALE * 2)){
+			if(!g.mapRenderer.intersects(collider, SCALE * 2)){
 				remove();
 				return;
 			}
-			brain.main();
+			if(state == WALKING) brain.main();
 			super.main();
 		}
 		
-		override public function applyDamage(n:Number, source:String, critical:Boolean = false, aggressor:int = 0):void {
-			super.applyDamage(n, source, critical, aggressor);
+		override public function applyDamage(n:Number, source:String, knockback:Number = 0, critical:Boolean = false, aggressor:int = 0):void {
+			super.applyDamage(n, source, knockback, critical, aggressor);
 			// poison effects on multiple characters could cause the bar to flicker between victims,
 			// so we focus on the last person who was attacked physically
 			if(active && this == g.player.victim){
@@ -64,25 +68,25 @@
 			}
 		}
 		
-		override public function death(cause:String, decapitation:Boolean = false, aggressor:int = 0):void {
+		override public function death(cause:String = "crushing", decapitation:Boolean = false, aggressor:int = 0):void {
 			if(!active) return;
 			for(var i:int = 0; i < loot.length; i++){
-				if(loot[i].state == Item.EQUIPPED){
+				if(loot[i].location == Item.EQUIPPED){
 					unequip(loot[i]);
 				}
 				loot[i].dropToMap(mapX, mapY);
-				g.entities.push(loot[i]);
 			}
 			loot = new Vector.<Item>();
 			super.death(cause, decapitation);
 			g.enemyHealthBar.deactivate();
 			if(aggressor == PLAYER){
 				var surgeryChance:Number = CARDIAC_SURGERY_CHANCE + (g.player.weapon == null ? BARE_HANDED_CARDIAC_SURGERY_CHANCE : 0);
-				if(Math.random() < surgeryChance){
-					var heartMc:Sprite = new g.library.HeartMC();
-					var heart:Item = new Item(heartMc, name, Item.HEART, level, g);
+				if(g.random.value() < surgeryChance){
+					var heartMc:Sprite = new HeartMC();
+					var heart:Item = new Item(heartMc, name, Item.HEART, level);
 					heart.collect(g.player);
-					g.console.print("rogue tore out a" + (name == CharacterAttributes.NAME_STRINGS[ORC] ? "n " : " ") + heart.nameToString());
+					var victimName:String = Character.stats["names"][name];
+					g.console.print("rogue tore out a" + ((victimName.charAt(0).search(/aeiou/i) == 0) ? "n " : " ") + heart.nameToString());
 				}
 			}
 			Brain.monsterCharacters.splice(Brain.monsterCharacters.indexOf(this), 1);

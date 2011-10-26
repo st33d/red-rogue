@@ -1,21 +1,27 @@
 ﻿package com.robotacid.engine {
+	import com.robotacid.ai.Brain;
 	import com.robotacid.geom.Pixel;
-	import com.robotacid.phys.Block;
+	import com.robotacid.gfx.ItemMovieClip;
+	import com.robotacid.gfx.Renderer;
 	import com.robotacid.phys.Collider;
 	import com.robotacid.sound.SoundManager;
 	import com.robotacid.ui.menu.InventoryMenuList;
+	import flash.display.DisplayObject;
 	import flash.display.DisplayObjectContainer;
 	import flash.display.MovieClip;
 	import flash.display.Sprite;
 	import flash.geom.Rectangle;
 	
 	/**
-	 * ...
-	 * @author steed
+	 * An object that applies spell effects to characters and items
+	 * 
+	 * @author Aaron Steed, robotacid.com
 	 */
 	public class Effect {
 		
-		public var g:Game;
+		public static var g:Game;
+		public static var renderer:Renderer;
+		
 		public var active:Boolean;
 		public var name:int;
 		public var level:int;
@@ -25,8 +31,6 @@
 		
 		public var healthStep:Number;
 		public var targetTotalHealth:Number;
-		
-		public static const NAMES:Array = Item.RUNE_NAMES;
 		
 		public static const LIGHT:int = Item.LIGHT;
 		public static const HEAL:int = Item.HEAL;
@@ -46,8 +50,7 @@
 		public static const MIN_TELEPORT_DIST:int = 10;
 		public static const TELEPORT_COUNTDOWN_STEP:int = 600 / 20;
 		
-		public function Effect(name:int, level:int, source:int, g:Game, target:Character = null, count:int = 0) {
-			this.g = g;
+		public function Effect(name:int, level:int, source:int, target:Character = null, count:int = 0) {
 			this.name = name;
 			this.level = level;
 			this.source = source;
@@ -57,7 +60,7 @@
 		}
 		
 		public function copy():Effect{
-			return new Effect(name, level, source, g);
+			return new Effect(name, level, source);
 		}
 		
 		public function main():void{
@@ -109,22 +112,8 @@
 				// this here is the constant chaos caused by wearing teleport armour
 				// more so if the armour is cursed and ironically will require a teleport rune to remove it
 				if(count-- <= 0){
-					g.createTeleportSparkRect(target.rect, 20);
-					SoundManager.playSound(g.library.TeleportSound);
-					target.divorce();
-					var dest:Pixel = getTeleportTarget(target.mapX, target.mapY, g.blockMap, g.renderer.mapRect);
-					target.x = (dest.x + 0.5) * Game.SCALE;
-					target.y = (dest.y + 0.5) * Game.SCALE;
-					target.updateRect();
-					target.updateMC();
-					target.awake = Collider.AWAKE_DELAY;
-					if(target is Player){
-						g.lightMap.blackOut();
-						g.camera.main();
-						g.camera.skipScroll();
-					}
+					teleportCharacter(target);
 					count = (21 - level) * TELEPORT_COUNTDOWN_STEP;
-					g.createTeleportSparkRect(target.rect, 20);
 				}
 			}
 		}
@@ -142,30 +131,24 @@
 				// here we randomise the item
 				// first we pull it out of the menu - randomising its skin is a messy business
 				if(inventoryList) item = inventoryList.removeItem(item);
-				var new_name:int = item.name;
-				var newMcClass:Class;
-				var newMc:Sprite;
-				if(item.type == Item.WEAPON){
-					while(new_name == item.name || new_name == Item.BOW) new_name = Math.random() * 6;
-					newMcClass = g.library.weaponNameToMCClass(new_name);
-					newMc = new newMcClass();
-				} else if(item.type == Item.ARMOUR){
-					while(new_name == item.name) new_name = Math.random() * 6;
-					newMcClass = g.library.armourNameToMCClass(new_name);
-					newMc = new newMcClass();
-				}
-				var holder:DisplayObjectContainer = item.mc.parent;
+				
+				var newName:int = item.name;
+				while(newName == item.name) newName = g.random.range(6);
+				var newGfx:DisplayObject = g.library.getItemGfx(newName, item.type);
+				var holder:DisplayObjectContainer = item.gfx.parent;
 				if(holder){
-					holder.removeChild(item.mc);
-					holder.addChild(newMc);
-					newMc.x = item.mc.x;
-					newMc.y = item.mc.y;
+					holder.removeChild(item.gfx);
+					holder.addChild(newGfx);
 				}
-				item.mc = newMc;
-				item.name = new_name;
+				item.gfx = newGfx;
+				if(item.gfx is ItemMovieClip) (item.gfx as ItemMovieClip).setEquipRender();
+				item.name = newName;
+				item.setStats();
+				
 				// now we try putting it back in
 				if(inventoryList) inventoryList.addItem(item);
 				return item;
+				
 			} else if(name == XP){
 				// just raises the level of the item
 				while(level--) item.levelUp();
@@ -182,7 +165,7 @@
 						if(item.effects[i].level < Game.MAX_LEVEL){
 							upgrade = true;
 							while(level-- && item.effects[i].level < Game.MAX_LEVEL){
-								if((item.state == Item.EQUIPPED || Item.MINION_EQUIPPED) && item.type == Item.ARMOUR) item.effects[i].levelUp();
+								if((item.location == Item.EQUIPPED || Item.MINION_EQUIPPED) && item.type == Item.ARMOUR) item.effects[i].levelUp();
 								else item.effects[i].level++;
 							}
 							break;
@@ -191,24 +174,22 @@
 				}
 				if(!upgrade){
 					item.effects.push(this);
-					if(item.state == Item.EQUIPPED && item.type == Item.ARMOUR) apply(g.player);
-					else if(item.state == Item.MINION_EQUIPPED && item.type == Item.ARMOUR) apply(g.minion);
+					if(item.location == Item.EQUIPPED && item.type == Item.ARMOUR) apply(g.player);
+					else if(item.location == Item.MINION_EQUIPPED && item.type == Item.ARMOUR) apply(g.minion);
 				}
 			} else {
-				// upon enchanting this item, there is a chance it may become cursed
-				if(Math.random() < Item.CURSE_CHANCE) item.curseState = Item.CURSE_HIDDEN;
 				item.effects = new Vector.<Effect>();
 				item.effects.push(this);
-				if(item.state == Item.EQUIPPED){
-					if(item.type == Item.ARMOUR) apply(g.player);
-					if(item.curseState == Item.CURSE_HIDDEN) item.revealCurse();
-				} else if(item.state == Item.MINION_EQUIPPED){
-					if(item.type == Item.ARMOUR) apply(g.minion);
-					if(item.curseState == Item.CURSE_HIDDEN){
-						item.revealCurse();
-						g.console.print("but the minion is unaffected...");
+				if(item.type == Item.ARMOUR){
+					if(item.location == Item.EQUIPPED){
+						apply(g.player);
+					} else if(item.location == Item.MINION_EQUIPPED){
+						apply(g.minion);
 					}
 				}
+				
+				// upon enchanting this item for the first time, there is a chance it may become cursed
+				if(g.random.value() < Item.CURSE_CHANCE) item.applyCurse();
 			}
 			
 			if(inventoryList) inventoryList.updateItem(item);
@@ -216,15 +197,17 @@
 			if(name == TELEPORT && inventoryList){
 				// this is possibly the biggest pisstake of all the spells, casting teleport on an item
 				// in your inventory (suprise, surprise) teleports it to another location in the dungeon
-				if(item.state & Item.EQUIPPED){
+				if(item.location & Item.EQUIPPED){
 					item = g.player.unequip(item);
+					renderer.createTeleportSparkRect(g.player.collider, 10);
+				} else if(item.location & Item.MINION_EQUIPPED){
+					item = g.minion.unequip(item);
+					renderer.createTeleportSparkRect(g.minion.collider, 10);
 				}
 				item = inventoryList.removeItem(item);
-				var dest:Pixel = getTeleportTarget(g.player.mapX, g.player.mapY, g.blockMap, g.renderer.mapRect);
+				var dest:Pixel = getTeleportTarget(g.player.mapX, g.player.mapY, g.world.map, g.mapRenderer.mapRect);
 				item.dropToMap(dest.x, dest.y);
-				g.entities.push(item);
-				g.createTeleportSparkRect(g.player.rect, 10);
-				SoundManager.playSound(g.library.TeleportSound);
+				g.soundQueue.add("teleport");
 			}
 			
 			return item;
@@ -280,37 +263,17 @@
 					count = (21 - level) * TELEPORT_COUNTDOWN_STEP;
 					callMain = true;
 				} else {
-					if(Math.random() < 0.05 * level){
-						g.createTeleportSparkRect(target.rect, 20);
-						target.divorce();
-						var dest:Pixel = getTeleportTarget(target.mapX, target.mapY, g.blockMap, g.renderer.mapRect);
-						target.x = (dest.x + 0.5) * Game.SCALE;
-						target.y = (dest.y + 0.5) * Game.SCALE;
-						target.updateRect();
-						target.updateMC();
-						target.awake = Collider.AWAKE_DELAY;
-						if(target is Player){
-							g.lightMap.blackOut();
-							g.camera.main();
-							g.camera.skipScroll();
-						}
-						g.createTeleportSparkRect(target.rect, 20);
-						SoundManager.playSound(g.library.TeleportSound);
+					if(g.random.value() < 0.05 * level){
+						teleportCharacter(target);
 					}
 					// all other sources of teleport do not embed, they are one time effects only
 					return;
 				}
 			} else if(name == POLYMORPH){
 				if(source == EATEN || source == THROWN){
-					var newSkin:Class = Object(target.mc).constructor;
-					var newSkinName:int;
-					for(var i:int = 0; i < 100; i++){
-						newSkinName = (Math.random() * CharacterAttributes.NAME_SKINS.length) >> 0;
-						newSkin = CharacterAttributes.NAME_SKINS[newSkinName];
-						if(newSkin != Object(target.mc).constructor) break;
-					}
-					var newSkinMc:MovieClip = new newSkin();
-					target.reskin(newSkinMc, newSkinName, newSkinMc.width, newSkinMc.height);
+					var newName:int = target.name;
+					while(newName == target.name) newName = g.random.range(6);
+					target.changeName(newName);
 					return;
 				}
 			} else if(name == XP){
@@ -329,16 +292,6 @@
 			if(callMain) g.effects.push(this);
 		}
 		
-		/* Used when upgrading an existing effect */
-		public function levelUp(n:int = 1):void{
-			var tempTarget:Character = target;
-			if(tempTarget) dismiss();
-			if(level + n < Game.MAX_LEVEL){
-				level += 1;
-			}
-			if(tempTarget) apply(tempTarget);
-		}
-		
 		/* Removes the effect from the target */
 		public function dismiss(buffer:Boolean = false):void{
 			
@@ -352,29 +305,24 @@
 			} else if(name == UNDEAD){
 				// this rune's effect comes in to play when the target is killed and is not undead
 				if(!target.active && !buffer && !target.undead && !target.crushed){
-					if(Math.random() < 0.05 * level){
+					if(g.random.value() < 0.05 * level){
 						var mc:MovieClip;
 						if(source == THROWN || source == WEAPON){
 							// replenish the health of an exisiting minion
 							if(g.minion){
 								g.minion.applyHealth(g.minion.totalHealth);
 								g.console.print("minion is repaired");
-								g.createTeleportSparkRect(g.minion.rect, 20);
+								renderer.createTeleportSparkRect(g.minion.collider, 20);
 							} else {
-								mc = new g.library.SkeletonMC();
-								mc.x = target.x;
-								mc.y =  -mc.height * 0.5 + (target.mapY + 1) * Game.SCALE;
-								g.entitiesHolder.addChild(mc);
-								g.minion = new Minion(mc, Character.SKELETON, mc.width, mc.height, g);
+								mc = new MinionMC();
+								g.minion = new Minion(mc, target.collider.x + target.collider.width * 0.5, target.collider.y + target.collider.height, Character.SKELETON);
 								g.console.print("undead minion summoned");
 							}
 						} else if(source == ARMOUR || source == EATEN){
-							mc = new g.library.SkeletonMC();
 							target.active = true;
 							target.applyHealth(target.totalHealth);
 							g.console.print(target.nameToString()+" returns as undead");
-							target.reskin(mc, Character.SKELETON, mc.width, mc.height);
-							target.undead = true;
+							target.changeName(Character.SKELETON);
 						}
 					}
 				}
@@ -396,8 +344,34 @@
 			target = null;
 		}
 		
+		/* Used when upgrading an existing effect */
+		public function levelUp(n:int = 1):void{
+			var tempTarget:Character = target;
+			if(tempTarget) dismiss();
+			if(level + n < Game.MAX_LEVEL){
+				level += 1;
+			}
+			if(tempTarget) apply(tempTarget);
+		}
+		
+		/* Effects a teleportation upon a character */
+		private function teleportCharacter(target:Character):void{
+			renderer.createTeleportSparkRect(target.collider, 20);
+			var dest:Pixel = getTeleportTarget(target.mapX, target.mapY, g.world.map, g.mapRenderer.mapRect);
+			target.collider.x = -target.collider.width * 0.5 + (dest.x + 0.5) * Game.SCALE;
+			target.collider.y = -target.collider.height + (dest.y + 1) * Game.SCALE;
+			if(target is Player){
+				g.lightMap.blackOut();
+				(target as Player).snapCamera();
+			} else if(target is Monster){
+				(target as Monster).brain.clear();
+			}
+			renderer.createTeleportSparkRect(target.collider, 20);
+			g.soundQueue.add("teleport");
+		}
+		
 		public function nameToString():String{
-			return NAMES[name];
+			return Item.stats["rune names"][name];
 		}
 		
 		public function toXML():XML{
@@ -412,9 +386,9 @@
 		/* Get a random location on the map to teleport to - aims for somewhere not too immediate */
 		public static function getTeleportTarget(startX:int, startY:int, map:Vector.<Vector.<int>>, mapRect:Rectangle):Pixel{
 			var finish:Pixel = new Pixel(startX, startY);
-			while((Math.abs(startX - finish.x) < MIN_TELEPORT_DIST && Math.abs(startY - finish.y) < MIN_TELEPORT_DIST) || (map[finish.y][finish.x] & Block.WALL) || !mapRect.contains((finish.x + 0.5) * Game.SCALE, (finish.y + 0.5) * Game.SCALE)){
-				finish.x = Math.random() * map[0].length;
-				finish.y = Math.random() * map.length;
+			while((Math.abs(startX - finish.x) < MIN_TELEPORT_DIST && Math.abs(startY - finish.y) < MIN_TELEPORT_DIST) || (map[finish.y][finish.x] & Collider.WALL) || !mapRect.contains((finish.x + 0.5) * Game.SCALE, (finish.y + 0.5) * Game.SCALE)){
+				finish.x = g.random.range(map[0].length);
+				finish.y = g.random.range(map.length);
 			}
 			return finish;
 		}

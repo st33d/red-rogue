@@ -1,8 +1,10 @@
 ﻿package com.robotacid.dungeon {
 	import com.robotacid.engine.Character;
 	import com.robotacid.engine.MapTileConverter;
-	import com.robotacid.engine.Stairs;
+	import com.robotacid.engine.Player;
+	import com.robotacid.engine.Portal;
 	import com.robotacid.geom.Pixel;
+	import com.robotacid.gfx.Renderer;
 	import com.robotacid.util.array.randomiseArray;
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
@@ -20,12 +22,13 @@
 	public class Map {
 		
 		public var g:Game;
+		public var renderer:Renderer;
 		public var level:int;
 		public var width:int;
 		public var height:int;
 		public var start:Pixel;
-		public var entrance:Pixel;
-		public var exit:Pixel;
+		public var stairsUp:Pixel;
+		public var stairsDown:Pixel;
 		
 		public var bitmap:DungeonBitmap;
 		
@@ -39,22 +42,29 @@
 		public static const ENTITIES:int = 2;
 		public static const FOREGROUND:int = 3;
 		
+		public static const BACKGROUND_WIDTH:int = 8;
+		public static const BACKGROUND_HEIGHT:int = 8;
+		
 		public static const ITEMS:Array = [38, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51];
 		
-		public function Map(level:int, g:Game) {
+		public function Map(level:int, g:Game, renderer:Renderer) {
 			this.g = g;
+			this.renderer = renderer;
 			this.level = level;
 			layers = [];
 			if(level){
-				bitmap = new DungeonBitmap(level);
-				width = bitmap.width;
-				height = bitmap.height;
-				convertDungeonBitmap(bitmap.bitmapData);
-				//createTestBed();
-				createBackground();
+				if(level > 0){
+					bitmap = new DungeonBitmap(level);
+					width = bitmap.width;
+					height = bitmap.height;
+					convertDungeonBitmap(bitmap.bitmapData);
+				} else {
+					createTestBed();
+				}
 			} else {
 				createOverworld();
 			}
+			createBackground();
 			//bitmap.scaleX = bitmap.scaleY = 4;
 			//g.addChild(bitmap);
 			
@@ -66,8 +76,11 @@
 		 * bugs out into the open (which is nigh on fucking impossible in a procedural world)
 		 */
 		public function createTestBed():void{
-			width = 50;
-			height = 50;
+			
+			bitmap = new DungeonBitmap(0);
+			
+			width = bitmap.width;
+			height = bitmap.height;
 			layers.push(createGrid(null, width, height));
 			// blocks - start with a full grid
 			layers.push(createGrid(1, width, height));
@@ -75,22 +88,41 @@
 			layers.push(createGrid(null, width, height));
 			// foreground
 			layers.push(createGrid(null, width, height));
-			fill(0, 5, 5, 40, 40, layers[BLOCKS]);
+			fill(0, 1, 0, width-2, height-1, layers[BLOCKS]);
 			
 			// insert test code for items and such here
-			//layers[ENTITIES][44][4] = 54;
+			//layers[ENTITIES][9][7] = 62;
 			//layers[ENTITIES][44][6] = 22;
 			//layers[ENTITIES][44][8] = 22;
 			
 			// access points
-			setEntrance(12, 44);
-			setExit(10, 44);
-			setStart();
+			setStairsUp(width / 2, height - 2);
+			setStairsDown(width - 3, height - 2);
 			
-			//layers[BLOCKS][44][14] = 1;
-			//layers[ENTITIES][44][14] = 60;
+			// create trap
+			//setValue(13, height - 5, BLOCKS, 1);
+			//setValue(13, height - 1, ENTITIES, 56);
 			
-			createSecretWall(14, 44);
+			setValue(11, height - 2, BLOCKS, MapTileConverter.LADDER);
+			setValue(11, height - 3, BLOCKS, MapTileConverter.LADDER);
+			setValue(11, height - 4, BLOCKS, MapTileConverter.LADDER);
+			
+			// monster debug
+			//createCharacter(10, height - 2, 2, 1);
+			//createCharacter(9, height - 2, 2, 1);
+			//createCharacter(8, height - 2, 2, 1);
+			//createCharacter(5, height - 2, 2, 1);
+			//createCharacter(4, height - 2, 2, 1);
+			//createCharacter(3, height - 2, 2, 1);
+			//createCharacter(2, height - 2, 2, 1);
+			//createCharacter(15, height - 2, 2, 1);
+			
+			// critter debug
+			//setValue(5, height - 2, ENTITIES, 62);
+			
+			
+			
+			createSecretWall(15, height - 2);
 			
 			
 			//layers[BLOCKS][40][10] = 1;
@@ -282,8 +314,8 @@
 			critterNum = Math.sqrt(width * height) * 0.5;
 			breaker = 0;
 			while(critterNum){
-				r = 1 + Math.random() * (bitmap.height - 1);
-				c = 1 + Math.random() * (bitmap.width - 1);
+				r = 1 + g.random.range(bitmap.height - 1);
+				c = 1 + g.random.range(bitmap.width - 1);
 				if(!layers[Map.ENTITIES][r][c] && layers[Map.BLOCKS][r][c] != 1 && (bitmap.bitmapData.getPixel32(c, r + 1) == DungeonBitmap.LEDGE || layers[Map.BLOCKS][r + 1][c] == 1)){
 						
 					layers[Map.ENTITIES][r][c] = MapTileConverter.RAT;
@@ -294,8 +326,8 @@
 			critterNum = Math.sqrt(width * height) * 0.5;
 			breaker = 0;
 			while(critterNum){
-				r = 1 + Math.random() * (bitmap.height - 1);
-				c = 1 + Math.random() * (bitmap.width - 1);
+				r = 1 + g.random.range(bitmap.height - 1);
+				c = 1 + g.random.range(bitmap.width - 1);
 				if(!layers[Map.ENTITIES][r][c] && layers[Map.BLOCKS][r][c] != 1 && layers[Map.BLOCKS][r - 1][c] == 1 && bitmap.bitmapData.getPixel32(c, r - 1) != DungeonBitmap.PIT){
 						
 					layers[Map.ENTITIES][r][c] = MapTileConverter.SPIDER;
@@ -331,13 +363,12 @@
 			fill(0, 1, 0, width-2, height-1, layers[BLOCKS]);
 			
 			// create the grindstone and healstone
-			layers[BLOCKS][height-2][3] = 1;
-			layers[ENTITIES][height-2][3] = 60;
-			layers[BLOCKS][height-2][17] = 1;
-			layers[ENTITIES][height-2][17] = 61;
+			layers[BLOCKS][height-2][1] = 1;
+			layers[ENTITIES][height-2][1] = 60;
+			layers[BLOCKS][height-2][width - 2] = 1;
+			layers[ENTITIES][height-2][width - 2] = 61;
 			
-			setExit(10, height-2);
-			setStart();
+			setStairsDown(12, height-2);
 		}
 		
 		/* Creates the entrance and exit to the level.
@@ -347,29 +378,29 @@
 		 */
 		public function createAccessPoints():void{
 			var highest:int = int.MAX_VALUE;
-			var entranceRoom:Room;
+			var stairsUp:Room;
 			var ex:int, ey:int;
 			var breaker:int = 0;
 			var rooms:Vector.<Room> = bitmap.rooms;
 			for(i = 0; i < rooms.length; i++){
 				if(rooms[i].y < highest){
-					entranceRoom = rooms[i];
+					stairsUp = rooms[i];
 					highest = rooms[i].y;
 				}
 			}
 			// we start at the top of the rooms and work our way down
-			ey = entranceRoom.y;
+			ey = stairsUp.y + 1;
 			do{
 				if(breaker++ > 1000){
-					throw new Error("failed to create entrance");
+					throw new Error("failed to create up stairs");
 					break;
 				}
-				ex = entranceRoom.x + random(entranceRoom.width);
+				ex = stairsUp.x + g.random.rangeInt(stairsUp.width);
 				// the room dimensions may have extended below
 				if(layers[BLOCKS][ey + 1][ex] == 0) ey++;
-				if(layers[BLOCKS][ey][ex] == 1) ey = entranceRoom.y;
+				if(layers[BLOCKS][ey][ex] == 1) ey = stairsUp.y;
 			} while(!goodStairsPosition(ex, ey));
-			setEntrance(ex, ey);
+			setStairsUp(ex, ey);
 			
 			var lowest:int = int.MIN_VALUE;
 			var exitRoom:Room;
@@ -381,56 +412,73 @@
 			}
 			ey = exitRoom.y;
 			// an exit on a ledge looks crap, so we try hard to avoid this
-			var tryToAvoidExitOnLedge:int = 200;
+			var tryToAvoidStairsDownOnLedge:int = 200;
 			do{
 				if(breaker++ > 1000){
-					throw new Error("failed to create exit");
+					throw new Error("failed to create down stairs");
 					break;
 				}
-				ex = exitRoom.x + random(exitRoom.width);
+				ex = exitRoom.x + g.random.rangeInt(exitRoom.width);
 				// the room dimensions may have extended below
 				if(layers[BLOCKS][ey + 1][ex] == 0 || bitmap.bitmapData.getPixel32(ex, ey + 1) == DungeonBitmap.LEDGE || bitmap.bitmapData.getPixel32(ex, ey + 1) == DungeonBitmap.LADDER_LEDGE) ey++;
 				if(layers[BLOCKS][ey][ex] == 1) ey = exitRoom.y;
-			} while(!goodStairsPosition(ex, ey, (tryToAvoidExitOnLedge--) > 0));
-			setExit(ex, ey);
-			
-			setStart();
+			} while(!goodStairsPosition(ex, ey, (tryToAvoidStairsDownOnLedge--) > 0));
+			setStairsDown(ex, ey);
 		}
 		
 		/* Getting a good position for the stairs is complex - hence the mess in this method */
-		public function goodStairsPosition(x:int, y:int, exit:Boolean = false):Boolean{
+		public function goodStairsPosition(x:int, y:int, down:Boolean = false):Boolean{
 			var pos:uint = bitmap.bitmapData.getPixel32(x, y);
-			var pos_below:uint = bitmap.bitmapData.getPixel32(x, y + 1);
+			var posBelow:uint = bitmap.bitmapData.getPixel32(x, y + 1);
+			var posLeft:uint =  bitmap.bitmapData.getPixel32(x - 1, y);
+			var posRight:uint =  bitmap.bitmapData.getPixel32(x + 1, y);
 			if(bitmap.leftSecretRoom && bitmap.leftSecretRoom.contains(x, y)) return false;
 			if(bitmap.rightSecretRoom && bitmap.rightSecretRoom.contains(x, y)) return false;
-			return (pos_below == DungeonBitmap.WALL || (pos_below == DungeonBitmap.LEDGE && !exit)) && (pos == DungeonBitmap.EMPTY || pos == DungeonBitmap.LEDGE);
+			return (
+				(posLeft != DungeonBitmap.WALL && posRight != DungeonBitmap.WALL) &&
+				(posBelow == DungeonBitmap.WALL || (posBelow == DungeonBitmap.LEDGE && !down)) &&
+				(pos == DungeonBitmap.EMPTY || pos == DungeonBitmap.LEDGE)
+			);
+		}
+		
+		public function createCharacter(x:int, y:int, name:int, level:int):void{
+			var characterXML:XML = <character />;
+			characterXML.@name = name;
+			characterXML.@type = Character.MONSTER;
+			characterXML.@level = level;
+			layers[ENTITIES][y][x] = Content.convertXMLToObject(x, y, characterXML);
+		}
+		
+		public function setValue(x:int, y:int, z:int, value:*):void{
+			layers[z][y][x] = value;
+		}
+		
+		public function getValue(x:int, y:int, z:int):*{
+			return layers[z][y][x];
 		}
 		
 		/* Creates a stairway up */
-		public function setEntrance(x:int, y:int):void{
+		public function setStairsUp(x:int, y:int):void{
 			layers[ENTITIES][y][x] = MapTileConverter.STAIRS_UP;
-			entrance = new Pixel(x, y);
+			stairsUp = new Pixel(x, y);
+			if(Player.portalEntryType == Portal.UP){
+				start = stairsUp;
+			}
 		}
 		
 		/* Creates a stairway down */
-		public function setExit(x:int, y:int):void{
+		public function setStairsDown(x:int, y:int):void{
 			layers[ENTITIES][y][x] = MapTileConverter.STAIRS_DOWN;
-			exit = new Pixel(x, y);
+			stairsDown = new Pixel(x, y);
+			if(Player.portalEntryType == Portal.DOWN){
+				start = stairsDown;
+			}
 		}
 		
 		/* Creates a secret wall that can be broken through */
 		public function createSecretWall(x:int, y:int):void{
 			layers[ENTITIES][y][x] = MapTileConverter.SECRET_WALL;
 			layers[BLOCKS][y][x] = 1;
-		}
-		
-		/* Lines up the start position with where the player should logically be entering this level */
-		public function setStart():void{
-			if(Stairs.lastStairsUsedType == Stairs.DOWN){
-				start = entrance;
-			} else if(Stairs.lastStairsUsedType == Stairs.UP){
-				start = exit;
-			}
 		}
 		
 		/* This adds dart traps to the level */
@@ -455,9 +503,9 @@
 			}
 			
 			while(numTraps > 0 && trapPositions.length > 0){
-				var trapIndex:int = trapPositions.length * Math.random();
+				var trapIndex:int = g.random.range(trapPositions.length);
 				var trapPos:Pixel = trapPositions[trapIndex];
-				layers[ENTITIES][trapPos.y][trapPos.x] = Math.random() < 0.5 ? MapTileConverter.POISON_DART : MapTileConverter.TELEPORT_DART;
+				layers[ENTITIES][trapPos.y][trapPos.x] = g.random.value() < 0.5 ? MapTileConverter.POISON_DART : MapTileConverter.TELEPORT_DART;
 				numTraps--;
 				trapPositions.splice(trapIndex, 1);
 				
@@ -494,20 +542,29 @@
 			return a;
 		}
 		
+		/* Creates a random parallax background */
 		public function createBackground():void{
-			var r:int, c:int;
-			for(r = 0; r < height; r++){
-				for(c = 0; c < width; c++){
-					if((r & 1) == 0 && (c & 1) == 0){
-						layers[BACKGROUND][r][c] = 9 + random(4);
+			var bitmapData:BitmapData;
+			if(level == 0){
+				var bitmap:Bitmap = new g.library.OverworldB;
+				bitmapData = bitmap.bitmapData;
+			} else if(level >= 1){
+				bitmapData = new BitmapData(Game.SCALE * BACKGROUND_WIDTH, Game.SCALE * BACKGROUND_HEIGHT, true, 0x00000000);
+				var source:BitmapData;
+				var point:Point = new Point();
+				var x:int, y:int;
+				for(y = 0; y < BACKGROUND_HEIGHT * 0.5; y ++){
+					for(x = 0; x < BACKGROUND_WIDTH * 0.5; x ++){
+						source = renderer.backgroundBitmaps[g.random.rangeInt(renderer.backgroundBitmaps.length)].bitmapData;
+						point.x = x * Game.SCALE * 2;
+						point.y = y * Game.SCALE * 2;
+						bitmapData.copyPixels(source, source.rect, point);
 					}
 				}
 			}
+			renderer.backgroundBitmapData = bitmapData;
 		}
-		/* integer random method - seeing as I'm going to be caning this sort of stuff */
-		public static function random(n:int):int{
-			return Math.random() * n;
-		}
+		
 		/* is this pixel sitting on the edge of the map? it will likely cause me trouble if it is... */
 		public static function onEdge(pixel:Pixel, width:int, height:int):Boolean{
 			return pixel.x<= 0 || pixel.x >= width-1 || pixel.y <= 0 || pixel.y >= height-1;

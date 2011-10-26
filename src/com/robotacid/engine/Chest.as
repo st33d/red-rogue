@@ -1,38 +1,42 @@
 ﻿package com.robotacid.engine {
+	import com.robotacid.phys.Collider;
 	import com.robotacid.sound.SoundManager;
 	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
 	import flash.geom.Rectangle;
 	
 	/**
-	 * ...
+	 * Item container
+	 *
 	 * @author Aaron Steed, robotacid.com
 	 */
 	public class Chest extends Entity{
 		
 		public var twinkleCount:int;
+		public var rect:Rectangle;
 		public var contents:Vector.<Item>;
 		
 		public static const TWINKLE_DELAY:int = 20;
 		public static const OPEN_ID:int = 53;
 		
-		public function Chest(mc:DisplayObject, items:Vector.<Item>, g:Game, open:Boolean = false) {
-			super(mc, g, false, false);
+		public function Chest(mc:DisplayObject, x:Number, y:Number, items:Vector.<Item>) {
+			super(mc, false, false);
 			
-			var bounds:Rectangle = mc.getBounds(mc);
-			//mc.x += -bounds.left;
-			//mc.y += -bounds.top;
-			x = mc.x;
-			y = mc.y;
+			mc.x = x;
+			mc.y = y;
+			
+			mapX = x * Game.INV_SCALE;
+			mapY = y * Game.INV_SCALE;
+			
 			// for the sake of brevity - an open chest is an empty chest
-			if(!open){
+			if(items){
 				contents = items;
-				//g.items.push(this);
-				bounds = mc.getBounds(mc);
-				rect = new Rectangle(x + bounds.left, y + bounds.top, bounds.width, bounds.height);
+				rect = mc.getBounds(mc);
+				rect.x += x;
+				rect.y += y;
 				callMain = true;
 			}
-			(mc as MovieClip).gotoAndStop(open ? "open" : "closed");
+			(mc as MovieClip).gotoAndStop(contents ? "closed" : "open");
 		}
 		
 		override public function main():void {
@@ -41,26 +45,30 @@
 			if(g.lightMap.darkImage.getPixel32(mapX, mapY) != 0xFF000000){
 				// create a twinkle twinkle effect so the player knows this is a collectable
 				if(twinkleCount-- <= 0){
-					g.addFX(rect.x + Math.random() * rect.width, rect.y + Math.random() * rect.height, g.twinkleBc, g.backFxImage, g.backFxImageHolder);
-					twinkleCount = TWINKLE_DELAY + Math.random() * TWINKLE_DELAY;
+					renderer.addFX(rect.x + g.random.range(rect.width), rect.y + g.random.range(rect.height), renderer.twinkleBlit);
+					twinkleCount = TWINKLE_DELAY + g.random.range(TWINKLE_DELAY);
 				}
+			}
+			
+			// check for collection by player
+			if((g.player.actions & Collider.UP) && rect.intersects(g.player.collider)){
+				collect(g.player);
 			}
 		}
 		
 		public function collect(character:Character):void{
-			(mc as MovieClip).gotoAndStop("open");
+			(gfx as MovieClip).gotoAndStop("open");
 			tileId = ""+OPEN_ID;
 			for(var i:int = 0; i < contents.length; i++){
 				character.loot.push(contents[i]);
 				if(character is Player){
 					g.menu.inventoryList.addItem(contents[i]);
+					g.console.print("picked up " + contents[i].nameToString());
 				}
 			}
-			SoundManager.playSound(g.library.ChestOpenSound);
+			g.soundQueue.add("chestOpen");
 			contents = null;
 			callMain = false;
-			var n:int = g.items.indexOf(this);
-			if(n > -1) g.items.splice(n, 1);
 		}
 		
 		override public function nameToString():String {

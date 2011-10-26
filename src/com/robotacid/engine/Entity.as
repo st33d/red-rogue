@@ -1,66 +1,65 @@
 ﻿package com.robotacid.engine {
+	import com.robotacid.gfx.Renderer;
 	import flash.display.DisplayObject;
 	import flash.display.DisplayObjectContainer;
+	import flash.geom.Matrix;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	
 	/**
-	 * ...
+	 * Base game object
+	 * 
 	 * @author Aaron Steed, robotacid.com
 	 */
-	public class Entity extends Point{
+	public class Entity {
 		
-		public var mc:DisplayObject;
-		public var g:Game;
+		public static var g:Game;
+		public static var renderer:Renderer;
+		
+		public var gfx:DisplayObject;
+		public var mask:DisplayObject;
 		public var active:Boolean;
+		public var addToEntities:Boolean;
 		public var callMain:Boolean;
-		public var collision:Boolean;
-		public var rect:Rectangle;
 		
 		public var name:int;
 		public var light:int;
 		public var lightCols:Vector.<uint>;
 		public var tileId:String;
 		public var free:Boolean = false;
-		public var mapX:int, mapY:int;
+		public var mapX:int, mapY:int, mapZ:int;
 		public var initX:int, initY:int;
-		public var layer:int;
-		
-		public var holder:DisplayObjectContainer;
 		
 		// these are debug tools for differentiating between objects and their instantiation order
-		public static var objectCount:int = 0;
-		public var objectNum:int;
+		public static var entityCount:int = 0;
+		public var entityNum:int;
+		
+		public static var matrix:Matrix = new Matrix();
 		
 		public static const SCALE:Number = Game.SCALE;
 		public static const INV_SCALE:Number = Game.INV_SCALE;
 		
-		public function Entity(mc:DisplayObject, g:Game, free:Boolean = false, active:Boolean = true) {
-			super(mc.x, mc.y);
-			this.mc = mc;
-			this.g = g;
+		public function Entity(gfx:DisplayObject, free:Boolean = false, addToEntities:Boolean = true) {
+			this.gfx = gfx;
 			this.free = free;
-			this.active = active;
-			collision = false;
+			this.addToEntities = addToEntities;
+			active = true;
 			callMain = false;
 			light = 0;
-			mapX = x * INV_SCALE;
-			mapY = y * INV_SCALE;
-			objectNum = objectCount++;
-			if(active) g.entities.push(this);
-			
+			entityNum = entityCount++;
+			if(addToEntities) g.entities.push(this);
 		}
 		
 		public function main():void{
 			
 		}
 		
-		public function intersects(rect:Rectangle):Boolean{
-			return this.rect.intersects(rect);
-		}
-		
-		public function contains(x:Number, y:Number):Boolean {
-			return rect.contains(x, y);
+		/* Called to make this object visible */
+		public function render():void{
+			matrix = gfx.transform.matrix;
+			matrix.tx -= renderer.bitmap.x;
+			matrix.ty -= renderer.bitmap.y;
+			renderer.bitmapData.draw(gfx, matrix, gfx.transform.colorTransform);
 		}
 		
 		public function unpause():void{
@@ -74,13 +73,13 @@
 			if(active){
 				active = false;
 				// if there is already content on the id map, then we convert that content into an array
-				if(g.renderer.mapArrayLayers[layer][mapY][mapX]){
-					if(g.renderer.mapArrayLayers[layer][mapY][mapX] is Array){
-						g.renderer.mapArrayLayers[layer][mapY][mapX].push(this);
+				if(g.mapRenderer.mapArrayLayers[mapZ][mapY][mapX]){
+					if(g.mapRenderer.mapArrayLayers[mapZ][mapY][mapX] is Array){
+						g.mapRenderer.mapArrayLayers[mapZ][mapY][mapX].push(this);
 					} else {
-						g.renderer.mapArrayLayers[layer][mapY][mapX] = [g.renderer.mapArrayLayers[layer][mapY][mapX], this];
+						g.mapRenderer.mapArrayLayers[mapZ][mapY][mapX] = [g.mapRenderer.mapArrayLayers[mapZ][mapY][mapX], this];
 					}
-				} else g.renderer.mapArrayLayers[layer][mapY][mapX] = this;
+				} else g.mapRenderer.mapArrayLayers[mapZ][mapY][mapX] = this;
 			}
 		}
 		

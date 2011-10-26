@@ -8,8 +8,12 @@
 	 */
 	public class Console extends TextBox{
 		
-		public function Console(_width:Number, lines:int, backgroundCol:uint = 0xFF111111, borderCol:uint = 0xFF999999, fontCol:uint = 0xFFDDDDDD) {
-			super(_width, lines, backgroundCol, borderCol, fontCol);
+		public var maxLines:int;
+		
+		public function Console(_width:Number, _height:Number, maxLines:int, backgroundCol:uint = 0xFF111111, borderCol:uint = 0xFF999999, fontCol:uint = 0xFFDDDDDD) {
+			super(_width, _height, backgroundCol, borderCol, fontCol);
+			this.maxLines = maxLines;
+			wordWrap = false;
 		}
 		
 		public function print(str:String):void{
@@ -25,7 +29,8 @@
 			if(consoleLines > maxLines){
 				_text = _text.substr(_text.indexOf("\n") + 1);
 			}
-			drawText();
+			updateText();
+			draw();
 			try{
 				ExternalInterface.call("printToLog", str);
 			}catch(e:Error){}

@@ -3,79 +3,85 @@
 	import flash.display.BitmapData;
 	import flash.display.Shape;
 	import flash.display.Sprite;
+	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	
 	/**
-	 * ...
-	 * @author steed
+	 * Illustrates the area explored by Player and where important features are such as stairs and discovered traps/secrets
+	 * 
+	 * The bitmapData image is updated by the LightMap object
+	 * 
+	 * @author Aaron Steed, robotacid.com
 	 */
 	public class MiniMap extends Sprite{
 		
 		public var g:Game;
-		public var mapHolder:Sprite;
-		public var map:Bitmap;
-		public var data:BitmapData;
-		public var player:Bitmap;
-		public var stairsUp:Bitmap;
-		public var stairsDown:Bitmap;
 		
-		public static const WIDTH:int = 41;
+		public var view:Rectangle;
+		public var window:Bitmap;
+		public var bitmapData:BitmapData;
+		public var features:Vector.<MinimapFeature>;
+		
+		public static const WIDTH:int = 55;
 		public static const HEIGHT:int = 41;
+		
+		private static var point:Point = new Point();
+		private static var i:int;
+		private static var feature:MinimapFeature;
 		
 		public function MiniMap(blockMap:Vector.<Vector.<int>>, g:Game):void{
 			this.g = g;
 			
-			mapHolder = new Sprite();
-			addChild(mapHolder);
+			MinimapFeature.minimap = this;
 			
-			data = new BitmapData(blockMap[0].length, blockMap.length, true, 0x00000000);
-			map = new Bitmap(data);
-			mapHolder.addChild(map);
+			bitmapData = new BitmapData(blockMap[0].length, blockMap.length, true, 0x00000000);
+			window = new Bitmap(new BitmapData(WIDTH, HEIGHT, true, 0x00000000));
+			addChild(window);
 			
-			var stairsUpData:BitmapData = new BitmapData(3, 3, true, 0x00000000);
-			stairsUpData.setPixel32(1, 0, 0xFFFFFFFF);
-			stairsUpData.fillRect(new Rectangle(0, 1, 3, 1), 0xFFFFFFFF);
-			stairsUp = new Bitmap(stairsUpData);
-			stairsUp.visible = false;
-			mapHolder.addChild(stairsUp);
-			
-			var stairsDownData:BitmapData = new BitmapData(3, 3, true, 0x00000000);
-			stairsDownData.setPixel32(1, 2, 0xFFFFFFFF);
-			stairsDownData.fillRect(new Rectangle(0, 1, 3, 1), 0xFFFFFFFF);
-			stairsDown = new Bitmap(stairsDownData);
-			stairsDown.visible = false;
-			mapHolder.addChild(stairsDown);
-			
-			var playerData:BitmapData = new BitmapData(3, 3, true, 0xFFFFFFFF);
-			playerData.setPixel32(1, 1, 0x00000000);
-			player = new Bitmap(playerData);
-			addChild(player);
-			
-			var shape:Shape = new Shape();
-			shape.graphics.beginFill(0xFFFFFF);
-			shape.graphics.drawRect( -20, -20, 41, 41);
-			shape.graphics.endFill();
-			addChild(shape);
-			mapHolder.cacheAsBitmap = true;
-			shape.cacheAsBitmap = true;
-			mapHolder.mask = shape;
+			var playerBitmapData:BitmapData = new BitmapData(3, 3, true, 0xFFFFFFFF);
+			playerBitmapData.setPixel32(1, 1, 0x00000000);
+			var playerBitmap:Bitmap = new Bitmap(playerBitmapData);
+			playerBitmap.x = -1 + (WIDTH * 0.5) >> 0;
+			playerBitmap.y = -1 + (HEIGHT * 0.5) >> 0;
+			addChild(playerBitmap);
 			
 			var borderdata:BitmapData = new BitmapData(WIDTH, HEIGHT, true, 0xFF999999);
 			borderdata.fillRect(new Rectangle(1, 1, WIDTH - 2, HEIGHT - 2), 0x00000000);
 			var border:Bitmap = new Bitmap(borderdata);
-			border.x = border.y = -20;
 			addChild(border);
 			
+			features = new Vector.<MinimapFeature>();
+			view = new Rectangle(0, 0, WIDTH, HEIGHT);
 		}
+		
+		public function addFeature(x:Number, y:Number, dx:Number, dy:Number, bitmapData:BitmapData):MinimapFeature{
+			var feature:MinimapFeature = new MinimapFeature(x, y, dx, dy, bitmapData);
+			features.push(feature);
+			return feature;
+		}
+		
 		public function newMap(blockMap:Vector.<Vector.<int>>):void{
-			data = new BitmapData(blockMap[0].length, blockMap.length, true, 0x00000000);
-			map.bitmapData = data;
-			stairsUp.visible = false;
-			stairsDown.visible = false;
+			bitmapData = new BitmapData(blockMap[0].length, blockMap.length, true, 0x00000000);
+			features.length = 0;
 		}
-		public function update():void{
-			mapHolder.x = -g.player.mapX+1;
-			mapHolder.y = -g.player.mapY+1;
+		public function render():void {
+			view.x = g.player.mapX - int(WIDTH * 0.5);
+			view.y = g.player.mapY - int(HEIGHT * 0.5);
+			window.bitmapData.fillRect(window.bitmapData.rect, 0x66000000);
+			window.bitmapData.copyPixels(bitmapData, view, point, null, null, true);
+			for(i = features.length - 1; i > -1; i--) {
+				feature = features[i];
+				if(feature.active) {
+					if(
+						feature.x + feature.dx + feature.bitmapData.width >= view.x &&
+						feature.y + feature.dy + feature.bitmapData.height >= view.y &&
+						feature.x + feature.dx <= view.x + view.width &&
+						feature.y + feature.dy <= view.y + view.height
+					)
+					feature.render();
+				}
+				else features.splice(i, 1);
+			}
 		}
 		
 	}

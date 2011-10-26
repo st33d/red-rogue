@@ -1,6 +1,6 @@
 ﻿package com.robotacid.gfx {
-	import flash.display.Bitmap;
 	import flash.display.BitmapData;
+	import flash.display.DisplayObject;
 	import flash.geom.Point;
 	
 	/**
@@ -12,21 +12,22 @@
 	*/
 	public class FX extends Point{
 		
+		public static var g:Game;
+		public static var renderer:Renderer;
+		
 		public var blit:BlitRect;
-		public var g:Game
 		public var frame:int;
 		public var active:Boolean;
-		public var imageHolder:Bitmap;
-		public var image:BitmapData;
+		public var bitmap:DisplayObject;
+		public var bitmapData:BitmapData;
 		public var dir:Point;
 		public var looped:Boolean;
 		
-		public function FX(x:Number, y:Number, blit:BlitRect, image:BitmapData, imageHolder:Bitmap, g:Game, dir:Point = null, delay:int = 0, looped:Boolean = false) {
+		public function FX(x:Number, y:Number, blit:BlitRect, bitmapData:BitmapData, bitmap:DisplayObject, dir:Point = null, delay:int = 0, looped:Boolean = false) {
 			super(x, y);
 			this.blit = blit;
-			this.image = image;
-			this.imageHolder = imageHolder;
-			this.g = g;
+			this.bitmapData = bitmapData;
+			this.bitmap = bitmap;
 			this.dir = dir;
 			this.looped = looped;
 			frame = 0 - delay;
@@ -35,14 +36,14 @@
 		
 		public function main():void {
 			if(frame > -1){
-				blit.x = ( -imageHolder.x) + x;
-				blit.y = ( -imageHolder.y) + y;
+				blit.x = ( -bitmap.x) + x;
+				blit.y = ( -bitmap.y) + y;
 				// just trying to ease the collosal rendering requirements going on
 				if(blit.x + blit.dx + blit.width >= 0 &&
 					blit.y + blit.dy + blit.height >= 0 &&
-					blit.x + blit.dx <= imageHolder.width &&
-					blit.y + blit.dy <= imageHolder.height){
-					blit.render(image, frame++);
+					blit.x + blit.dx <= bitmap.width &&
+					blit.y + blit.dy <= bitmap.height){
+					blit.render(bitmapData, frame++);
 				} else {
 					frame++;
 				}

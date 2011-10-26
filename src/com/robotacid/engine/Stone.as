@@ -2,11 +2,17 @@
 	import com.robotacid.ai.Brain;
 	import com.robotacid.dungeon.Map;
 	import com.robotacid.engine.Character;
+	import com.robotacid.gfx.Renderer;
+	import com.robotacid.phys.Collider;
 	import com.robotacid.sound.SoundManager;
+	import com.robotacid.ui.MinimapFeature;
 	import flash.display.Bitmap;
+	import flash.display.BitmapData;
 	import flash.display.DisplayObject;
+	import flash.display.MovieClip;
 	import flash.display.Sprite;
 	import flash.geom.Matrix;
+	import flash.geom.Rectangle;
 	
 	/**
 	 * ...
@@ -16,6 +22,8 @@
 		
 		public var side:int;
 		public var revealed:Boolean;
+		
+		private var minimapFeature:MinimapFeature;
 		
 		public static const SECRET_WALL:int = 0;
 		public static const HEALTH:int = 1;
@@ -30,61 +38,83 @@
 			0
 		];
 		
-		public function Stone(mc:DisplayObject, name:int, width:int, height:int, g:Game) {
-			super(mc, name, STONE, 0, width, height, g, true);
+		public function Stone(x:Number, y:Number, name:int) {
+			if(name == HEALTH) gfx = new HeartFadeMC();
+			else if(name == GRIND){
+				gfx = new GrindWheelMC();
+				(gfx as MovieClip).stop();
+			}
+			else gfx = new MovieClip();
+			gfx.x = x;
+			gfx.y = y;
+			super(gfx, x, y, name, STONE, 0);
+			collider.pushDamping = 0;
 			health = STONE_NAME_HEALTHS[name];
-			defense = 0;
+			defence = 0;
 			callMain = false;
-			debrisType = name == HEALTH ? Game.BLOOD : Game.STONE;
+			debrisType = name == HEALTH ? Renderer.BLOOD : Renderer.STONE;
 			free = false;
-			weight = 20;
-			crushable = false;
 			if(name == SECRET_WALL){
 				revealed = false;
-				if(x >= g.renderer.mapRect.x + g.renderer.mapRect.width * 0.5){
+				if(x >= g.mapRenderer.mapRect.x + g.mapRenderer.mapRect.width * 0.5){
 					side = RIGHT;
 				} else {
 					side = LEFT;
 				}
+				// the 1px edge the collider needs to be attackable can be stood upon unless the vertical
+				// surfaces are turned off
+				collider.properties &= ~(UP | DOWN);
+				gfx.visible = false;
 			}
 		}
 		
-		override public function applyDamage(n:Number, source:String, critical:Boolean = false, aggressor:int = PLAYER):void {
-			if(name == SECRET_WALL) super.applyDamage(n, source, critical);
+		override public function createCollider(x:Number, y:Number, properties:int, ignoreProperties:int, state:int = 0, positionByBase:Boolean = true):void {
+			collider = new Collider(x - 1, y, Game.SCALE + 2, Game.SCALE, Game.SCALE, Collider.CHARACTER | Collider.SOLID, Collider.CORPSE | Collider.ITEM, Collider.HOVER);
+			collider.userData = this;
+		}
+		
+		override public function applyDamage(n:Number, source:String, knockback:Number = 0, critical:Boolean = false, aggressor:int = PLAYER):void {
+			var mc:MovieClip = gfx as MovieClip;
+			if(name == SECRET_WALL) super.applyDamage(n, source, 0, critical);
 			else if(name == HEALTH){
-				g.player.applyHealth(n);
+				if(g.minion){
+					g.player.applyHealth(n * 0.5);
+					g.minion.applyHealth(n * 0.5);
+				} else {
+					g.player.applyHealth(n);
+				}
+				mc.gotoAndPlay("hit");
 			} else if(name == GRIND){
 				g.player.addXP(GRIND_XP_REWARD);
+				var frame:int = 1 + (mc.currentFrame  % mc.totalFrames);
+				mc.gotoAndStop(frame);
 			}
-		}
-		
-		/* Update collision Rect / Block around character */
-		override public function updateRect():void{
-			rect.x = x;
-			rect.y = y;
-			rect.width = width;
-			rect.height = height;
 		}
 		
 		/* The secret wall is the only stone that can be destroyed, so only its death is dealt with here */
-		override public function death(cause:String, decapitation:Boolean = false, aggressor:int = PLAYER):void {
+		override public function death(cause:String = "crushed", decapitation:Boolean = false, aggressor:int = PLAYER):void {
 			active = false;
-			g.createDebrisRect(rect, 0, 100, debrisType);
+			renderer.createDebrisRect(collider, 0, 100, debrisType);
 			g.console.print("secret revealed");
-			g.shake(0, 3);
-			SoundManager.playSound(g.library.KillSound);
+			renderer.shake(0, 3);
+			g.soundQueue.add("kill");
 			g.player.addXP(SECRET_XP_REWARD * g.dungeon.level);
-			g.blockMap[mapY][mapX] = 0;
-			g.renderer.removeFromRenderedArray(mapX, mapY, Map.BLOCKS, null);
-			g.renderer.removeFromRenderedArray(mapX, mapY, Map.ENTITIES, null);
-			g.renderer.removeTile(Map.BLOCKS, mapX, mapY);
+			g.world.map[mapY][mapX] = 0;
+			g.mapRenderer.removeFromRenderedArray(mapX, mapY, Map.BLOCKS, null);
+			g.mapRenderer.removeFromRenderedArray(mapX, mapY, Map.ENTITIES, null);
+			g.mapRenderer.removeTile(Map.BLOCKS, mapX, mapY);
 			// adjust the mapRect to show new content
 			if(mapX < g.player.mapX){
-				g.renderer.mapRect.x = 0;
-				g.renderer.mapRect.width += g.dungeon.bitmap.leftSecretWidth;
+				g.mapRenderer.mapRect.x = 0;
+				g.mapRenderer.mapRect.width += g.dungeon.bitmap.leftSecretWidth;
 			} else if(mapX > g.player.mapX){
-				g.renderer.mapRect.width += g.dungeon.bitmap.rightSecretWidth;
+				g.mapRenderer.mapRect.width += g.dungeon.bitmap.rightSecretWidth;
 			}
+			if(minimapFeature) {
+				minimapFeature.active = false;
+				minimapFeature = null;
+			}
+			collider.world.removeCollider(collider);
 		}
 		
 		/* A search action can reveal to the player where a secret wall is */
@@ -97,9 +127,24 @@
 			matrix.tx += side == RIGHT ? -((SCALE * 0.5) - 1) : 1 + (SCALE * 1.5);
 			matrix.ty += SCALE * 0.5;
 			trapRevealedB.transform.matrix = matrix;
-			(mc as Sprite).addChild(trapRevealedB);
+			(gfx as Sprite).addChild(trapRevealedB);
+			var bitmapData:BitmapData = new BitmapData(3, 3, true, 0x00000000);
+			bitmapData.setPixel32(1, 0, 0xFFAA0000);
+			bitmapData.fillRect(new Rectangle(0, 1, 3, 1), 0xFFAA0000);
+			bitmapData.setPixel32(1, 2, 0xFFAA0000);
+			minimapFeature = g.miniMap.addFeature(mapX, mapY, -1, -1, bitmapData);
+			gfx.visible = true;
 			revealed = true;
 		}
+		
+		/* Called to make this object visible */
+		override public function render():void{
+			matrix = gfx.transform.matrix;
+			matrix.tx -= renderer.bitmap.x;
+			matrix.ty -= renderer.bitmap.y;
+			renderer.bitmapData.draw(gfx, matrix, gfx.transform.colorTransform);
+		}
+		
 	}
 
 }

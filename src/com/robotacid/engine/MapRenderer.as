@@ -24,20 +24,16 @@
 		public var mapRowsIndexLayers:Vector.<Vector.<int>>;
 		public var mapColsIndex:Vector.<int>;
 		public var mapColsIndexLayers:Vector.<Vector.<int>>;
-		public var tileLayers:Array;
-		public var tileLayers_behind:Array;
 		public var signage:Array;
-		public var tiles:Sprite;
-		public var tileHolder:Sprite;
 		public var layers:int;
 		public var currentLayer:int;
 		public var stage:Sprite;
 		public var scrollX:Boolean;
 		public var scrollY:Boolean;
-		public var image:BitmapData;
-		public var imageHolder:Bitmap;
-		public var imageLayers:Vector.<BitmapData>;
-		public var imageHolderLayers:Vector.<Bitmap>;
+		public var bitmapData:BitmapData;
+		public var bitmap:Bitmap;
+		public var bitmapDataLayers:Vector.<BitmapData>;
+		public var bitmapLayers:Vector.<Bitmap>;
 		public var scale:Number;
 		public var width:int;
 		public var height:int;
@@ -67,7 +63,7 @@
 		private var n:int;
 		
 		public static const BLOCK_LAYER:int = 1;
-		public static const GAME_OBJECT_LAYER:int = 2;
+		public static const ENTITY_LAYER:int = 2;
 		public static const TEXT_LAYER:int = 2;
 		
 		public static const HORIZ:int = 1;
@@ -75,35 +71,32 @@
 		
 		public static const TOTAL_LAYERS:int = 4;
 		
-		public function MapRenderer(g:Game, stage:Sprite, tileHolder:Sprite, scale:Number, width:int, height:int, stageWidth:int, stageHeight:int){
+		public function MapRenderer(g:Game, stage:Sprite, scale:Number, width:int, height:int, stageWidth:int, stageHeight:int){
 			this.stage = stage;
-			this.tileHolder = tileHolder;
 			this.scale = scale;
 			SCALE = 1.0 / scale;
 			this.width = width;
 			this.height = height;
 			this.stageWidth = stageWidth;
 			this.stageHeight = stageHeight;
-			converter = new MapTileConverter(g, this);
+			converter = new MapTileConverter(this, g, Game.renderer);
 			scrollX = true;
 			scrollY = true;
 			setBorder([1, 0, 3, 1], [1, 0, 3, 1]);
 			tilesWidth = Math.ceil(stageWidth / scale);
 			tilesHeight = Math.ceil(stageHeight / scale);
-			tileLayers = [];
-			tileLayers_behind = [];
 			mapArrayLayers = [];
 			renderedArrayLayers = [];
 			mapRowsIndexLayers = new Vector.<Vector.<int>>(TOTAL_LAYERS, true);
 			mapColsIndexLayers = new Vector.<Vector.<int>>(TOTAL_LAYERS, true);
 			updateLayer = new Vector.<Boolean>(TOTAL_LAYERS, true);
-			imageLayers = new Vector.<BitmapData>(TOTAL_LAYERS, true);
-			imageHolderLayers = new Vector.<Bitmap>(TOTAL_LAYERS, true);
+			bitmapDataLayers = new Vector.<BitmapData>(TOTAL_LAYERS, true);
+			bitmapLayers = new Vector.<Bitmap>(TOTAL_LAYERS, true);
 			topLeftLayers = new Vector.<Pixel>(TOTAL_LAYERS, true);
 			bottomRightLayers = new Vector.<Pixel>(TOTAL_LAYERS, true);
 			currentLayer = 0;
 			layers = 0;
-			masterLayer = GAME_OBJECT_LAYER;
+			masterLayer = ENTITY_LAYER;
 			scrollTopleftX=0;
 			scrollTopleftY=0;
 			scrollBottomrightX=0;
@@ -125,40 +118,14 @@
 				borderY[i] = yLayers[i];
 			}
 		}
-		/* Add a reference array layer to the scroller
-		 * image and imageHolder properties tells the scroller that this layer consists Blit objects
 		
-		public function addLayer(mapLayer:Array, image:BitmapData = null, imageHolder:Bitmap = null):void {
-			if(tileLayers.length == layers){
-				//tileLayers_behind.push(tileHolder.createEmptyMovieClip("tiles_behind"+layers, layers*10));
-				var temp:Sprite = new Sprite();
-				tileHolder.addChild(temp);
-				tileLayers.push(temp);
-			}
-			imageLayers.push(image);
-			imageHolderLayers.push(imageHolder);
-			mapArrayLayers.push(mapLayer);
-			renderedArrayLayers.push([]);
-			mapRowsIndexLayers.push([]);
-			mapColsIndexLayers.push([]);
-			topLeftLayers.push(new Pixel());
-			bottomRightLayers.push(new Pixel());
-			updateLayer.push(true);
-			layers++;
-		} */
 		/* A block version of addLayer to take advantage of the Vector datatype */
-		public function setLayers(mapLayers:Array, tiles:Array, images:Array, imageHolders:Array):void{
+		public function setLayers(mapLayers:Array, bitmapDatas:Array, bitmaps:Array):void{
 			mapArrayLayers = mapLayers;
 			for(var i:int = 0; i < TOTAL_LAYERS; i++){
 				renderedArrayLayers[i] = [];
-				if(tiles[i]) this.tileLayers[i] = tiles[i];
-				else{
-					var temp:Sprite = new Sprite();
-					tileHolder.addChild(temp);
-					tileLayers[i] = temp;
-				}
-				imageLayers[i] = images[i];
-				imageHolderLayers[i] = imageHolders[i];
+				bitmapDataLayers[i] = bitmapDatas[i];
+				bitmapLayers[i] = bitmaps[i];
 				topLeftLayers[i] = new Pixel();
 				bottomRightLayers[i] = new Pixel();
 				updateLayer[i] = true;
@@ -173,112 +140,38 @@
 			this.height = height;
 			mapRect = new Rectangle(0, 0, width * scale, height * scale);
 		}
-		/* Force the scroller to use tileLayer as the mount for the next layer
-		 * instead of generating its own layer internally
-		 */
-		public function addTileLayer(tileLayer:Sprite):void{
-			tileLayers.push(tileLayer);
-		}
 		/* Add signs for the map */
 		public function setSignage(signage:Array):void{
 			this.signage = signage;
 		}
 		/* Change the layer the scroller is operating on */
 		public function changeLayer(n:int):void{
-			tiles = tileLayers[n];
 			mapArray = mapArrayLayers[n];
 			renderedArray = renderedArrayLayers[n];
 			mapRowsIndex = mapRowsIndexLayers[n];
 			mapColsIndex = mapColsIndexLayers[n];
-			image = imageLayers[n];
-			imageHolder = imageHolderLayers[n];
+			bitmapData = bitmapDataLayers[n];
+			bitmap = bitmapLayers[n];
 			topLeft = topLeftLayers[n];
 			bottomRight = bottomRightLayers[n];
 			currentLayer = n;
 		}
+		
 		/* Turn on / off scrolling behaviour on a layer */
 		public function setLayerUpdate(n:int, setting:Boolean):void{
 			updateLayer[n] = setting;
 		}
-		/* Convert all numbers to tiles / clips on a given layer twice over
-		 * to generate a scrollable layer
-		 */
-		public function renderScrollLayer(n:int, type:int):void {
-			changeLayer(n);
-			tiles = new Sprite();
-			var r:int, c:int;
-			for (r = 0; r < height; r++) {
-				for (c = 0; c < width; c++) {
-					converter.createTile(c, r);
-				}
-			}
-			if(type == HORIZ) {
-				tiles.x = Game.SCALE * width;
-			} else if(type == VERT) {
-				tiles.y = Game.SCALE * height;
-			}
-			tileLayers[n].addChild(tiles);
-			tiles = new Sprite();
-			for (r = 0; r < height; r++) {
-				for (c = 0; c < width; c++) {
-					converter.createTile(c, r);
-				}
-			}
-			tileLayers[n].addChild(tiles);
-			setLayerUpdate(n, false);
-		}
-		/* Renders layer n, then converts it to BitmapData tiles, attaches Bitmaps
-		 * to layer n, then sets that layer to no longer update
-		 */
-		public function layerToBitmap(n:Number):void{
-			changeLayer(n);
-			tiles = new Sprite();
-			// the maximum bitmap size in Flash
-			var max:int = 2880;
-			var pixelWidth:int = width * scale;
-			var pixelHeight:int = height * scale;
-			var captureWidth:int = max;
-			var captureHeight:int = max;
-			var bitmaps:Array = [];
-			var r:int, c:int;
-			for (r = 0; r < height; r++) {
-				for (c = 0; c < width; c++) {
-					converter.createTile(c, r);
-				}
-			}
-			var matrix:Matrix = new Matrix();
-			for(r = 0; r < pixelHeight; r += max) {
-				captureWidth = max;
-				for(c = 0; c < pixelWidth; c += max) {
-					if(c + captureWidth > pixelWidth) captureWidth = pixelWidth - c;
-					if(r + captureHeight > pixelHeight) captureHeight = pixelHeight - r;
-					var bitmapdata:BitmapData = new BitmapData(captureWidth, captureHeight, true, 0x00FFFFFF);
-					matrix.tx = -c;
-					matrix.ty = -r;
-					bitmapdata.draw(tiles, matrix);
-					var bitmap:Bitmap = new Bitmap(bitmapdata);
-					bitmap.x = c;
-					bitmap.y = r;
-					bitmaps.push(bitmap);
-					// debug gfx: (draw a green square at the top left of each bitmap and a red one at bottom right)
-					//bitmapdata.fillRect(new Rectangle(0, 0, 10, 10), 0xFF00FF00);
-					//bitmapdata.fillRect(new Rectangle(captureWidth-10, captureHeight-10, 10, 10), 0xFFFF0000);
-				}
-			}
-			tiles = tileLayers[n];
-			for(var i:int = 0; i < bitmaps.length; i++) {
-				tiles.addChild(bitmaps[i]);
-			}
-			updateLayer[n] = false;
-		}
+		
 		/* Gets rid of a tile (coins, enemies, etc) */
 		public function removeTile(layer:int, x:int, y:int):void{
 			mapArrayLayers[layer][y][x] = null;
 		}
+		
 		/* Puts a tile on the map (useful for enemies with AI that change their map locale) */
 		public function addTile(layer:int, x:int, y:int, id:*):void{
 			mapArrayLayers[layer][y][x] = id;
 		}
+		
 		/* Draw the edge of the scroll border and the stage edge */
 		public function draw(gfx:Graphics):void{
 			gfx.moveTo(scrollTopleftX, scrollTopleftY);
@@ -292,19 +185,23 @@
 			gfx.lineTo( -stage.x, -stage.y+stageHeight);
 			gfx.lineTo( -stage.x, -stage.y);
 		}
+		
 		/* Return true if a point is inside the edge of the scrolling area */
 		public function contains(x:Number, y:Number):Boolean{
 			return x < scrollBottomrightX - 1 && x >= scrollTopleftX && y < scrollBottomrightY - 1 && y >= scrollTopleftY;
 		}
+		
 		/* Return true if a rect intersects the scrolling area */
 		public function intersects(b:Rectangle, border:Number = 0):Boolean{
 			return !(scrollTopleftX - border > b.x + (b.width - 1) || scrollBottomrightX - 1 + border < b.x || scrollTopleftY - border > b.y + (b.height - 1) || scrollBottomrightY - 1 + border < b.y);
 		}
+		
 		/* Reset the lastStageX and lastStageY to indicate no scroll should occur */
 		public function reset():void{
 			lastStageX = (stage.x * SCALE) >> 0;
 			lastStageY = (stage.y * SCALE) >> 0;
 		}
+		
 		/* Paint the initial view when a level starts and initialise the scrolling arrays */
 		public function init(x:int, y:int):void{
 			
@@ -351,23 +248,7 @@
 				}
 			}
 		}
-		/* iterate through the map and generate tiles marked with "F", for synchronized and "difficult" items
-		public function renderForced():void {
-			for(var i:int = 0; i < layers; i++) {
-				changeLayer(i);
-				for(var r:int = 0; r < height; r++) {
-					for(var c:int = 0; c < width; c++) {
-						if(!(mapArray[r][c] >= 0 || mapArray[r][c] <= 0)) {
-							if(mapArray[r][c] is String && mapArray[r][c].search(/F/) > -1) {
-								mapArray[r][c] = mapArray[r][c].replace(/F/, "");
-								converter.createTile(c, r, true);
-								mapArray[r][c] = 0;
-							}
-						}
-					}
-				}
-			}
-		}*/
+		
 		/* iterate through the map and generate tiles of the given id */
 		public function renderElement(n:int):void {
 			for(var i:int = 0; i < layers; i++) {
@@ -571,15 +452,15 @@
 					}
 					// if this layer is a blitting layer, we iterate through the renderedArray and blit all that
 					// we find to the appropriate blitting image
-					if(image){
+					if(bitmapData){
 						var r:int, c:int;
 						for(r = 0; r < renderedArray.length; r++){
 							for(c = 0; c < renderedArray[r].length; c++){
 								if(renderedArray[r][c]){
 									//trace(currentLayer+" "+renderedArray[r][c]);
-									renderedArray[r][c].x = -imageHolder.x + (topLeft.x + c) * scale;
-									renderedArray[r][c].y = -imageHolder.y + (topLeft.y + r) * scale;
-									renderedArray[r][c].render(image);
+									renderedArray[r][c].x = -bitmap.x + (topLeft.x + c) * scale;
+									renderedArray[r][c].y = -bitmap.y + (topLeft.y + r) * scale;
+									renderedArray[r][c].render(bitmapData);
 								}
 								
 							}
@@ -610,7 +491,7 @@
 		protected function popCol():void{
 			for(var y:int = 0; y < mapRowsIndex.length; y++){
 				if(renderedArray[y][mapColsIndex.length - 1]) {
-					if(!image){
+					if(!bitmapData){
 						// is this a stack of objects to remove?
 						if(renderedArray[y][mapColsIndex.length - 1] is Array){
 							tempArray = renderedArray[y][mapColsIndex.length - 1];
@@ -629,7 +510,7 @@
 		protected function shiftCol():void{
 			for(var y:int = 0; y < mapRowsIndex.length; y++){
 				if(renderedArray[y][0] != null) {
-					if(!image){
+					if(!bitmapData){
 						// is this a stack of objects to remove?
 						if(renderedArray[y][0] is Array){
 							tempArray = renderedArray[y][0];
@@ -666,7 +547,7 @@
 		protected function popRow():void{
 			for(var x:int = 0; x < mapColsIndex.length; x++){
 				if(renderedArray[renderedArray.length - 1][x] != null) {
-					if(!image){
+					if(!bitmapData){
 						// is this a stack of objects to remove?
 						if(renderedArray[renderedArray.length - 1][x] is Array){
 							tempArray = renderedArray[renderedArray.length - 1][x];
@@ -685,7 +566,7 @@
 		protected function shiftRow():void{
 			for(var x:int = 0; x < mapColsIndex.length; x++){
 				if(renderedArray[0][x] != null) {
-					if(!image){
+					if(!bitmapData){
 						// is this a stack of objects to remove?
 						if(renderedArray[0][x] is Array){
 							tempArray = renderedArray[0][x];

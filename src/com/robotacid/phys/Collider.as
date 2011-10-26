@@ -1,369 +1,249 @@
-﻿package com.robotacid.phys {
-	import com.robotacid.engine.Entity;
-	import com.robotacid.engine.Player;
-	import flash.display.DisplayObject;
+package com.robotacid.phys {
+
 	import flash.display.Graphics;
-	import flash.display.Sprite;
+	import flash.geom.Rectangle;
 	
 	/**
-	 * A block that can move or be moved
-	 * Serves as a superclass to the Player, monsters, FreeBlocks and MovingBlocks
+	 * A crate-like collision object.
 	 *
-	 * Stacked movement is achieved through a child-parent system
-	 * When a Collider lands on another Collider, it becomes a child of that Collider,
-	 * moving when its parent moves. It's not a perfect system, but the best I could come
-	 * up with to deal with the problem of moving platforms and pushing stacks of crates.
+	 * Movement is separated into X axis and Y axis separately for speed and sanity
+	 *
+	 * Collisions are handled recursively, allowing the Collider to push queues of Colliders.
+	 *
+	 * The Collider has several states to reflect how it may need to be handled.
+	 *
+	 * The stackCallback is for assigning to a function that signals a Collider has hit the floor.
+	 *
+	 * The crushCallback is for assigning to a function that signals a Collider has been crushed. A crush
+	 * callback must call CollisionWorld.removeCollider as it is assumed the callback will want access to
+	 * the world before the collider is destroyed
 	 *
 	 * @author Aaron Steed, robotacid.com
 	 */
-	
-	public class Collider extends Entity{
+	public class Collider extends Rectangle {
 		
-		public var vx:Number, vy:Number;
-		
-		public var platform:Boolean;
-		public var children:Vector.<Collider>;
+		public var world:CollisionWorld;
 		public var parent:Collider;
-		public var parentBlock:Block;
+		public var mapCollider:Collider;
+		public var children:Vector.<Collider>;
+		public var userData:*;
+		public var stackCallback:Function;
+		public var crushCallback:Function;
+		public var stompCallback:Function;
+		public var upContact:Collider;
+		public var rightContact:Collider;
+		public var downContact:Collider;
+		public var leftContact:Collider;
 		
-		public var collisions:int;
-		
-		/* basically a block object we can access through rect */
-		public var block:Block;
-		
-		/* A Collider will ignore all blocks with properties present in this variable */
-		public var ignore:int;
-		
+		public var state:int;
+		public var properties:int;
+		public var ignoreProperties:int;
+		public var stompProperties:int;
+		public var vx:Number;
+		public var vy:Number;
+		public var gravity:Number;
+		public var dampingX:Number;
+		public var dampingY:Number;
+		public var pushDamping:Number;
+		public var pressure:int;
+		public var crushed:Boolean;
 		public var awake:int;
+		public var boundsPressure:Boolean;
 		
-		public var width:Number;
-		public var height:Number;
+		/* Establishes a minimum movement policy */
+		public static const MOVEMENT_TOLERANCE:Number = 0.0001;
 		
-		public var weight:int;
-		
-		public var upCollider:Collider;
-		public var rightCollider:Collider;
-		public var leftCollider:Collider;
-		public var downCollider:Collider;
-		
-		/* To give Characters a chance of surviving a glancing blow to the head, we make their heads slippy */
-		public var inflictsCrush:Boolean;
-		public var crushable:Boolean;
-		
-		// there needs to be a limit to how little an object can move
-		public static const TOLERANCE:Number = 0.0001;
-		
-		/* The size lip the collider will walk up when travelling left or right */
-		public static const LIP_HEIGHT:Number = 2;
-		
-		// This value needs to be at a maximum value of the smallest side a Collider has been given in the game
-		// otherwise that small Collider will curiously sink into other objects
-		// The value is variable for on the fly optimisation
-		public static var scanStep:Number = 5;
+		/* Used for compensate for floating point value drift */
+		public static const INTERVAL_TOLERANCE:Number = CollisionWorld.INTERVAL_TOLERANCE;
 		
 		/* Echoing Box2D, colliders sleep when inactive to prevent method calls that aren't needed */
-		public static var AWAKE_DELAY:int = 10;
+		public static var AWAKE_DELAY:int = 3;
 		
-		public function Collider(mc:DisplayObject, width:Number, height:Number, g:Game, active:Boolean = false) {
-			super(mc, g, true, active);
-			this.width = width;
-			this.height = height;
-			block = new Block(x, y, width, height, Block.SOLID);
-			rect = block;
-			updateRect();
-			parent = null;
-			children = new Vector.<Collider>();
-			if(active) g.colliders.push(this);
-			ignore = 0;
-			weight = 1;
-			platform = false;
-			awake = AWAKE_DELAY;
+		private static var tempCollider:Collider;
+		
+		public static const DEFAULT_GRAVITY:Number = 0.8;
+		public static const DEFAULT_DAMPING_X:Number = 0.45;
+		public static const DEFAULT_DAMPING_Y:Number = 0.99;
+		public static const DEFAULT_PUSH_DAMPING:Number = 1;
+		
+		// states
+		public static const FALL:int = 0;
+		public static const STACK:int = 1;
+		public static const HOVER:int = 2;
+		public static const MAP_COLLIDER:int = 3;
+		
+		/* No block here */
+		public static const EMPTY:int = 0;
+		
+		// properties 0 to 3 are the sides of a Rectangle
+		public static const UP:int = 1 << 0;
+		public static const RIGHT:int = 1 << 1;
+		public static const DOWN:int = 1 << 2;
+		public static const LEFT:int = 1 << 3;
+		// equivalent to (UP | RIGHT | LEFT | DOWN) the compiler won't allow calculated constants as default params
+		public static const SOLID:int = 15;
+		
+		/* A Collider that doesn't move */
+		public static const STATIC:int = 1 << 4;
+		/* A Collider that can break */
+		public static const BREAKABLE:int = 1 << 5;
+		/* A free moving crate style Collider - for puzzles */
+		public static const FREE:int = 1 << 6;
+		/* A Collider that moves on its own */
+		public static const MOVING:int = 1 << 7;
+		/* This Collider is the collision space of a monster */
+		public static const MONSTER:int = 1 << 8;
+		/* This Collider is the collision space of the player */
+		public static const PLAYER:int = 1 << 9;
+		/* A Collider whose upper edge resists colliders moving down but not in any other direction */
+		public static const LEDGE:int = 1 << 10;
+		/* Dungeon walls */
+		public static const WALL:int = 1 << 11;
+		/* This Collider is either a monster or the player */
+		public static const CHARACTER:int = 1 << 12;
+		/* This Collider is a decapitated head */
+		public static const HEAD:int = 1 << 13;
+		/* This is an area that is a ladder */
+		public static const LADDER:int = 1 << 14;
+		/* This Collider is a slave of the player */
+		public static const MINION:int = 1 << 15;
+		/* This Collider is an animation for the decapitation of Characters */
+		public static const CORPSE:int = 1 << 16;
+		/* This Collider is a projectile */
+		public static const MISSILE:int = 1 << 17;
+		/* This Collider is a collectable item */
+		public static const ITEM:int = 1 << 18;
+		/* This Collider is a wall that can be attacked */
+		public static const STONE:int = 1 << 19;
+		
+		public function Collider(x:Number = 0, y:Number = 0, width:Number = 0, height:Number = 0, scale:Number = 0, properties:int = SOLID, ignoreProperties:int = 0, state:int = 0){
+			super(x, y, width, height);
+			this.properties = properties;
+			this.ignoreProperties = ignoreProperties;
+			this.state = state;
+			
 			vx = vy = 0;
-			inflictsCrush = false;
-			crushable = false;
-		}
-		
-		public function updateRect():void{
-			rect.x = x;
-			rect.y = y;
-		}
-		
-		/* Move the collider horizontally and push any Colliders it encounters in its way
-		 * also moves any children of this collider
-		 */
-		public function moveX(xm:Number, source:Collider = null):Number{
-			if(Math.abs(xm) < TOLERANCE) return 0;
-			var r:Number;
-			var c:Number;
-			var test:Cast;
-			var colliderMoved:Number = 0;
-			var length:int = 2 + Math.abs(xm) * INV_SCALE;
-			// horizontal movement
-			// moving right
-			if(xm > 0){
-				// test grid intervals
-				for(r = rect.y; r < rect.y + rect.height + SCALE; r += scanStep){
-					
-					// cast for obstacles
-					test = Cast.horiz(rect.x + rect.width - 1, r < rect.y + rect.height - 1 ? r : rect.y + rect.height - 1, 1, length, g.blockMap, ignore, g);
-					if(test){
-						// moving against a collider
-						if(test.collider && test.collider != this){
-							if(test.collider.parent != this && parent != test.collider){
-								if(rect.x + rect.width + xm >= test.block.x){
-									
-									test.collider.collisions |= Block.LEFT;
-									collisions |= Block.RIGHT;
-									test.collider.leftCollider = this;
-									rightCollider = test.collider;
-									
-									// move collider as much as it was bitten into
-									if(!(test.collider.collisions & Block.RIGHT) && test.collider.weight < weight){
-										colliderMoved = test.collider.moveX(xm - (test.block.x - (rect.x + rect.width)), source);
-									}
-									// if the collider has met a static wall, reduce possible movement
-									// and adopt collision status
-									if((test.collider.collisions & Block.RIGHT) || test.collider.weight >= weight){
-										if(colliderMoved != 0){
-											xm -= xm - colliderMoved;
-										} else {
-											xm = test.collider.rect.x - (rect.x + rect.width);
-										}
-									}
-								}
-							}
-						// moving against static walls
-						} else if(test.block){
-							if(rect.x + rect.width + xm >= test.block.x){
-								xm = test.block.x - (rect.x + rect.width);
-								collisions |= Block.RIGHT;
-							}
-						}
-					}
-				}
-			// moving left
-			} else if(xm < 0){
-				// test grid intervals
-				for(r = rect.y; r < rect.y + rect.height + SCALE; r += scanStep){
-					
-					// cast for obstacles
-					test = Cast.horiz(rect.x, r < rect.y + rect.height - 1 ? r : rect.y + rect.height - 1, -1, length, g.blockMap, ignore, g);
-					
-					if(test){
-						// moving against a collider
-						if(test.collider && test.collider != this){
-							if(test.collider.parent != this && parent != test.collider){
-								if(rect.x + xm < test.block.x + test.block.width){
-									
-									test.collider.collisions |= Block.RIGHT;
-									collisions |= Block.LEFT;
-									test.collider.rightCollider = this;
-									leftCollider = test.collider;
-									
-									// move collider as much as it was bitten into
-									if(!(test.collider.collisions & Block.LEFT) && test.collider.weight < weight){
-										colliderMoved = test.collider.moveX(xm - ((test.block.x + test.block.width) - rect.x), source);
-									}
-									// if the collider has met a static wall, reduce possible movement
-									// and adopt collision status
-									if((test.collider.collisions & Block.LEFT) || test.collider.weight >= weight){
-										if (colliderMoved != 0){
-											xm -= xm - colliderMoved;
-										} else {
-											xm = (test.collider.rect.x + test.collider.rect.width) - rect.x;
-										}
-									}
-								}
-							}
-						// moving against static walls
-						} else if(test.block){
-							if (rect.x + xm < test.block.x + test.block.width){
-								xm = (test.block.x + test.block.width) - rect.x;
-								collisions |= Block.LEFT;
-							}
-						}
-					}
-				}
-			}
-			x += xm;
-			updateRect();
-			// move children - ie: blocks stacked on top of this Collider
-			for (var i:int = 0; i < children.length; i++){
-				children[i].moveX(xm, source);
-			}
+			gravity = DEFAULT_GRAVITY;
+			dampingX = DEFAULT_DAMPING_X;
+			dampingY = DEFAULT_DAMPING_Y;
+			pushDamping = DEFAULT_PUSH_DAMPING;
 			awake = AWAKE_DELAY;
-			return xm;
+			boundsPressure = false;
+			
+			children = new Vector.<Collider>();
+			
+			if(state != MAP_COLLIDER){
+				// create a dummy surface for interacting with the map
+				mapCollider = new Collider(0, 0, scale, scale, scale, SOLID, 0, MAP_COLLIDER);
+			}
 		}
 		
-		/* Move the collider vertically and push any Colliders it encounters in its way
-		 * also moves any children of this collider
+		public function main():void{
+			if(state == STACK || state == FALL){
+				
+				vx *= dampingX;
+				if((vx > 0 ? vx : -vx) > MOVEMENT_TOLERANCE) moveX(vx);
+				
+				// check for ignoring parent
+				if(parent && (parent.properties & ignoreProperties)){
+					parent.removeChild(this);
+				}
+				
+				if(!parent || vy < -MOVEMENT_TOLERANCE){
+					vy = vy * dampingY + gravity;
+					if((vy > 0 ? vy : -vy) > MOVEMENT_TOLERANCE) moveY(vy);
+				} else if(vy > MOVEMENT_TOLERANCE){
+					vy = 0;
+				}
+				
+				if(parent){
+					if(state != STACK){
+						state = STACK;
+						if(Boolean(stackCallback)) stackCallback();
+					}
+					
+				} else if(state != FALL){
+					state = FALL;
+				}
+				
+			} else if(state == HOVER){
+				
+				vx *= dampingX;
+				vy *= dampingY;
+				if((vx > 0 ? vx : -vx) > MOVEMENT_TOLERANCE) moveX(vx);
+				if((vy > 0 ? vy : -vy) > MOVEMENT_TOLERANCE) moveY(vy);
+				
+			} else if(state == MAP_COLLIDER){
+				
+				if((vx > 0 ? vx : -vx) > MOVEMENT_TOLERANCE) moveX(vx);
+				if((vy > 0 ? vy : -vy) > MOVEMENT_TOLERANCE) moveY(vy);
+			}
+			
+			// will put the collider to sleep if it doesn't move
+			if((vx > 0 ? vx : -vx) < MOVEMENT_TOLERANCE && (vy > 0 ? vy : -vy) < MOVEMENT_TOLERANCE && (awake)) awake--;
+		}
+		
+		public function drag(vx:Number, vy:Number):void{
+			moveX(vx);
+			moveY(vy);
+		}
+		
+		/* =================================================================
+		 * Sorting callbacks for colliding with objects in the correct order
+		 * =================================================================
 		 */
-		public function moveY(ym:Number, source:Collider = null):Number{
-			if(Math.abs(ym) < TOLERANCE) return 0;
-			var r:Number;
-			var c:Number;
-			var test:Cast;
-			var colliderMoved:Number = 0;
-			var length:int = 2 + Math.abs(ym) * INV_SCALE;
-			// vertical movement
-			// moving down
-			if(ym > 0){
-				// test grid intervals
-				for(c = rect.x; c < rect.x + rect.width + SCALE; c += scanStep){
-					
-					// cast for obstacles
-					test = Cast.vert(c < rect.x + rect.width - 1 ? c : rect.x + rect.width - 1, rect.y + rect.height - 1, 1, length, g.blockMap, ignore, g);
-					
-					if(test){
-						// moving against a collider
-						if(test.collider && test.collider != this){
-							if(test.collider.parent != this && parent != test.collider){
-								if(rect.y + rect.height + ym >= test.block.y){
-									
-									test.collider.collisions |= Block.UP;
-									collisions |= Block.DOWN;
-									test.collider.upCollider = this;
-									downCollider = test.collider;
-									
-									// move collider as much as it was bitten into
-									if(!(test.collider.collisions & Block.DOWN) && test.collider.weight < weight){
-										colliderMoved = test.collider.moveY(ym - (test.block.y - (rect.y + rect.height)), source);
-									}
-									// if the collider has met a static wall, reduce possible movement
-									// and adopt collision status
-									if((test.collider.collisions & Block.DOWN) || test.collider.weight >= weight){
-										if(colliderMoved != 0){
-											ym -= ym - colliderMoved;
-										} else {
-											ym = test.collider.rect.y - (rect.y + rect.height);
-										}
-									}
-									
-									// become a child of the collider - moving when it moves
-									if(!platform){
-										// add to platforms
-										if (parent){
-											parent.removeChild(this);
-										}
-										test.collider.addChild(this);
-									}
-								}
-							}
-						// moving against static walls
-						} else if(test.block){
-							if(rect.y + rect.height + ym >= test.block.y){
-								ym = test.block.y - (rect.y + rect.height);
-								collisions |= Block.DOWN;
-								// add to platforms
-								
-								if(parent != null){
-									parent.removeChild(this);
-								}
-								parentBlock = test.block;
-								parent = null;
-								if(ym <= 0) vy = 0;
-							}
-						}
-					}
-				}
-			// moving up
-			} else if(ym < 0){
-				// test grid intervals
-				for(c = rect.x; c < rect.x + rect.width + SCALE; c += scanStep){
-					
-					// cast for obstacles
-					test = Cast.vert(c < rect.x + rect.width - 1 ? c : rect.x + rect.width - 1, rect.y, -1, length, g.blockMap, ignore, g);
-					
-					if(test){ // a map height condition goes well in here to catch falling off the map
-						// moving against a collider
-						if(test.collider && test.collider != this){
-							if(test.collider.parent != this && parent != test.collider){
-								if (rect.y + ym < test.block.y + test.block.height){
-									
-									test.collider.collisions |= Block.DOWN;
-									collisions |= Block.UP;
-									test.collider.downCollider = this;
-									upCollider = test.collider;
-									
-									// move collider as much as it was bitten into
-									if(!(test.collider.collisions & Block.UP) && test.collider.weight < weight){
-										colliderMoved = test.collider.moveY(ym - ((test.block.y + test.block.height) - rect.y), source);
-									}
-									// if the collider has met a static wall, reduce possible movement
-									// and adopt collision status
-									if((test.collider.collisions & Block.UP) || test.collider.weight >= weight){
-										if(colliderMoved != 0){
-											ym -= ym - colliderMoved;
-										} else {
-											ym = (test.collider.rect.y + test.block.height) - rect.y;
-										}
-									}
-									// object being pushed up adopts this Collider as it's new platform
-									if(!test.collider.platform){
-										if(test.collider.parent){
-											test.collider.parent.removeChild(test.collider);
-										}
-										addChild(test.collider);
-									}
-								}
-							}
-						// moving against static walls
-						} else if(test.block){
-							if(rect.y + ym < test.block.y + test.block.height){
-								ym = (test.block.y + test.block.height) - rect.y;
-								collisions |= Block.UP;
-							}
-						}
-					}
-				}
-			}
-			y += ym;
-			updateRect();
-			// move children - ie: blocks stacked on top of this Collider
-			for(var i:int = 0; i < children.length; i++){
-				children[i].moveY(ym, source);
-			}
-			awake = AWAKE_DELAY;
-			
-			// head bumping on ceiling when jumping
-			if(!platform && (collisions & Block.UP) && vy < 0) vy = 0;
-			
-			return ym;
+		public static function sortLeftWards(a:Collider, b:Collider):Number{
+			if(a.x < b.x) return -1;
+			else if(a.x > b.x) return 1;
+			return 0;
 		}
 		
-		/* add a child collider to this collider - it will move when this collider moves */
+		public static function sortRightWards(a:Collider, b:Collider):Number{
+			if(a.x > b.x) return -1;
+			else if(a.x < b.x) return 1;
+			return 0;
+		}
+		
+		public static function sortTopWards(a:Collider, b:Collider):Number{
+			if(a.y < b.y) return -1;
+			else if(a.y > b.y) return 1;
+			return 0;
+		}
+		
+		public static function sortBottomWards(a:Collider, b:Collider):Number{
+			if(a.y > b.y) return -1;
+			else if(a.y < b.y) return 1;
+			return 0;
+		}
+		
+		/* add a child Collider to this Collider - it will move when this collider moves */
 		public function addChild(collider:Collider):void{
 			collider.parent = this;
-			collider.parentBlock = block;
 			collider.vy = 0;
-			children.push(collider);
+			// optimisation:
+			// children must be ordered leftwards so their parent can
+			// move them with out them colliding into each other
+			if(children.length){
+				if(children.length == 1){
+					if(collider.x < children[0].x){
+						children.unshift(collider);
+					} else {
+						children.push(collider);
+					}
+				} else {
+					children.push(collider);
+					children.sort(sortLeftWards);
+				}
+			} else {
+				children[0] = collider;
+			}
 		}
 		
 		/* remove a child collider from children */
 		public function removeChild(collider:Collider):void{
 			collider.parent = null;
-			collider.parentBlock = null;
-			children.splice(children.lastIndexOf(collider), 1);
-		}
-		
-		/* Check the floor is still beneath us */
-		public function checkFloor():void{
-			// test if we've walked beyond a block's width or if that block is breakable and has ceased to be
-			if(parentBlock && (parentBlock.x > rect.x + rect.width - 1 || parentBlock.x + parentBlock.width - 1 < rect.x)){
-				if(parent){
-					parent.removeChild(this);
-				}
-				parentBlock = null;
-				vy = 0;
-			} else {
-				collisions |= Block.DOWN;
-			}
-		}
-		
-		/* Override to synchronise collider movement */
-		public function move():void{
-			// will put the collider to sleep if it doesn't move
-			//if((vx > 0 ? vx : -vx) < TOLERANCE && (vy > 0 ? vy : -vy) < TOLERANCE && (awake)) awake--;
+			children.splice(children.indexOf(collider), 1);
+			collider.awake = AWAKE_DELAY;
 		}
 		
 		/* Get rid of children and parent - used to remove the collider from the game and clear current interaction */
@@ -372,46 +252,577 @@
 				parent.removeChild(this);
 				vy = 0;
 			}
-			for (var i:int = 0; i < children.length; i++) {
-				children[i].parent = null;
-				children[i].parentBlock = null;
-				children[i].vy = 0;
+			var collider:Collider;
+			for(var i:int = 0; i < children.length; i++){
+				collider = children[i];
+				collider.parent = null;
+				collider.vy = 0;
+				collider.awake = AWAKE_DELAY;
 			}
 			children.length = 0;
-			parentBlock = null;
 			awake = AWAKE_DELAY;
+		}
+		
+		/* Creates a parent Collider out of thin air for this Collider - there are edge cases where this is desirable */
+		public function createParent(properties:int):void{
+			if(parent) parent.removeChild(this);
+			mapCollider.x = x - width * 0.5;
+			mapCollider.y = world.bounds.y + world.bounds.height;
+			mapCollider.properties = properties;
+			mapCollider.addChild(this);
+		}
+		
+		public function moveX(vx:Number, source:Collider = null):Number{
+			if((vx > 0 ? vx : -vx) < MOVEMENT_TOLERANCE) return 0;
+			var i:int;
+			var obstacles:Vector.<Collider>;
+			var collider:Collider;
+			var obstacleShouldMove:Number;
+			var obstacleActuallyMoved:Number;
+			var mapX:int;
+			var mapY:int;
+			var n:Number;
+			var minX:int;
+			var minY:int;
+			var maxX:int;
+			var maxY:int;
+			var property:int;
+			var tempDamping:Number;
+			if(vx > 0){
+				
+				// =============================================================================
+				// collision with map:
+				if(state != MAP_COLLIDER){
+					// inline Math.ceil on X axis
+					n = (x + width + vx - INTERVAL_TOLERANCE) * world.invScale;
+					maxX = n != n >> 0 ? (n >> 0) + 1 : n >> 0;
+					maxY = (y + height - INTERVAL_TOLERANCE) * world.invScale;
+					n = (x + width - INTERVAL_TOLERANCE) * world.invScale;
+					minX = n != n >> 0 ? (n >> 0) + 1 : n >> 0;
+					if(minX >= world.width) minX = world.width - 1;
+					if(maxX >= world.width) maxX = world.width - 1;
+					minY = y * world.invScale;
+					
+					scanForwards:
+					for(mapX = minX; mapX <= maxX; mapX++){
+						for(mapY = minY; mapY <= maxY; mapY++){
+							property = world.map[mapY][mapX];
+							if(mapX * world.scale < x + width + vx && (property & LEFT) && !(property & ignoreProperties)){
+								vx -= (x + width + vx) - mapX * world.scale;
+								this.vx = 0;
+								pressure |= RIGHT;
+								break scanForwards;
+							}
+						}
+					}
+				}
+				
+				// =============================================================================
+				// collision with other Colliders:
+				// check there's still velocity to justify a check
+				if((vx > 0 ? vx : -vx) > MOVEMENT_TOLERANCE){
+					obstacles = world.getCollidersIn(new Rectangle(x + width, y, vx, height), this, LEFT, ignoreProperties);
+					// small optimisation here - sorting needs to be avoided
+					if(obstacles.length > 2 ) obstacles.sort(sortLeftWards);
+					else if(obstacles.length == 2){
+						if(obstacles[0].x > obstacles[1].x){
+							tempCollider = obstacles[0];
+							obstacles[0] = obstacles[1];
+							obstacles[1] = tempCollider;
+						}
+					}
+					for(i = 0; i < obstacles.length; i++){
+						collider = obstacles[i];
+						// because the vx may get altered over this loop, we need to still check for overlap
+						if(collider.x < x + width + vx){
+							// bypass colliders we're already inside and platform vs platform
+							if(collider.x > x + width - INTERVAL_TOLERANCE && !(state == MAP_COLLIDER && collider.state == MAP_COLLIDER)){
+								
+								obstacleShouldMove = (x + width + vx) - collider.x;
+								if(collider.state == MAP_COLLIDER) obstacleActuallyMoved = 0;
+								else if(collider.pushDamping == 1 || state == MAP_COLLIDER) obstacleActuallyMoved = collider.moveX(obstacleShouldMove, this);
+								else obstacleActuallyMoved = collider.moveX(obstacleShouldMove * collider.pushDamping, this);
+								
+								if(collider.state != MAP_COLLIDER){
+									collider.pressure |= LEFT;
+									if(state != MAP_COLLIDER){
+										collider.leftContact = this;
+										rightContact = collider;
+									}
+								}
+								
+								if(state != MAP_COLLIDER){
+									if(obstacleActuallyMoved < obstacleShouldMove){
+										vx -= obstacleShouldMove - obstacleActuallyMoved;
+										// kill energy when recursively hitting bounds
+										if(collider.vx == 0) this.vx = 0;
+									}
+									pressure |= RIGHT;
+								} else {
+									if(obstacleActuallyMoved < obstacleShouldMove){
+										collider.crushed = true;
+										collider.pressure |= LEFT;
+									}
+								}
+							}
+						} else break;
+					}
+				}
+				
+				// =============================================================================
+				// collision with bounds:
+				if(state != MAP_COLLIDER && x + width + vx > world.bounds.x + world.bounds.width){
+					vx -= (x + width + vx) - (world.bounds.x + world.bounds.width);
+					this.vx = 0;
+					if(boundsPressure) pressure |= RIGHT;
+				}
+			} else if(vx < 0){
+				
+				// =============================================================================
+				// collision with map:
+				if(state != MAP_COLLIDER){
+					// inline Math.floor on X axis
+					n = (x + vx) * world.invScale - 1;
+					maxX = n << 0;
+					maxY = (y + height - INTERVAL_TOLERANCE) * world.invScale;
+					n = x * world.invScale - 1;
+					minX = n << 0;
+					if(minX < 0) minX = 0;
+					if(maxX < 0) maxX = 0;
+					minY = y * world.invScale;
+					
+					scanBackwards:
+					for(mapX = minX; mapX >= maxX; mapX--){
+						for(mapY = minY; mapY <= maxY; mapY++){
+							property = world.map[mapY][mapX];
+							if((mapX + 1) * world.scale > x + vx && (property & RIGHT) && !(property & ignoreProperties)){
+								vx -= (x + vx) - ((mapX + 1) * world.scale);
+								this.vx = 0;
+								pressure |= LEFT;
+								break scanBackwards;
+							}
+						}
+					}
+				}
+				
+				// =============================================================================
+				// collision with other Colliders:
+				// check there's still velocity to justify a check
+				if((vx > 0 ? vx : -vx) > MOVEMENT_TOLERANCE){
+					obstacles = world.getCollidersIn(new Rectangle(x + vx, y, -vx, height), this, RIGHT, ignoreProperties);
+					// small optimisation here - sorting needs to be avoided
+					if(obstacles.length > 2 ) obstacles.sort(sortRightWards);
+					else if(obstacles.length == 2){
+						if(obstacles[0].x < obstacles[1].x){
+							tempCollider = obstacles[0];
+							obstacles[0] = obstacles[1];
+							obstacles[1] = tempCollider;
+						}
+					}
+					for(i = 0; i < obstacles.length; i++){
+						collider = obstacles[i];
+						// because the vx may get altered over this loop, we need to still check for overlap
+						if(collider.x + collider.width > x + vx){
+							// bypass colliders we're already inside and platform vs platform
+							if(collider.x + collider.width - INTERVAL_TOLERANCE < x && !(state == MAP_COLLIDER && collider.state == MAP_COLLIDER)){
+								
+								obstacleShouldMove = (x + vx) - (collider.x + collider.width);
+								if(collider.state == MAP_COLLIDER) obstacleActuallyMoved = 0;
+								else if(collider.pushDamping == 1 || state == MAP_COLLIDER) obstacleActuallyMoved = collider.moveX(obstacleShouldMove, this);
+								else obstacleActuallyMoved = collider.moveX(obstacleShouldMove * collider.pushDamping, this);
+								
+								if(collider.state != MAP_COLLIDER){
+									collider.pressure |= RIGHT;
+									if(state != MAP_COLLIDER){
+										collider.rightContact = this;
+										leftContact = collider;
+									}
+								}
+								
+								if(state != MAP_COLLIDER){
+									if(obstacleActuallyMoved > obstacleShouldMove){
+										vx += obstacleActuallyMoved - obstacleShouldMove;
+										// kill energy when recursively hitting bounds
+										if(collider.vx == 0) this.vx = 0;
+									}
+									pressure |= LEFT;
+								} else {
+									if(obstacleActuallyMoved > obstacleShouldMove){
+										collider.crushed = true;
+									}
+								}
+							}
+						} else break;
+					}
+				}
+				
+				// =============================================================================
+				// collision with bounds:
+				if(state != MAP_COLLIDER && x + vx < world.bounds.x){
+					vx += world.bounds.x - (x + vx);
+					this.vx = 0;
+					if(boundsPressure) pressure |= LEFT;
+				}
+			}
+			x += vx;
+			
+			// if the collider has a parent, check it is still sitting on it
+			if(parent && (x + width <= parent.x || x >= parent.x + parent.width)){
+				parent.removeChild(this);
+			}
+			// if the collider has children, move them
+			if(children.length){
+				if(vx > 0){
+					for(i = children.length - 1; i > -1; i--){
+						collider = children[i];
+						collider.moveX(vx);
+					}
+				} else if(vx < 0){
+					for(i = 0; i < children.length; i++){
+						collider = children[i];
+						collider.moveX(vx);
+					}
+				}
+			}
+			awake = AWAKE_DELAY;
+			return vx;
+		}
+		
+		public function moveY(vy:Number, source:Collider = null):Number{
+			if((vy > 0 ? vy : -vy) < MOVEMENT_TOLERANCE) return 0;
+			var i:int, j:int;
+			var obstacles:Vector.<Collider>;
+			var stompees:Vector.<Collider>;
+			var collider:Collider;
+			var obstacleShouldMove:Number;
+			var obstacleActuallyMoved:Number;
+			var mapX:int;
+			var mapY:int;
+			var n:Number;
+			var minX:int;
+			var minY:int;
+			var maxX:int;
+			var maxY:int;
+			var property:int;
+			if(vy > 0){
+				
+				// =============================================================================
+				// collision with map:
+				if(state != MAP_COLLIDER){
+					// inline Math.ceil on Y axis
+					n = (y + height + vy - INTERVAL_TOLERANCE) * world.invScale;
+					maxY = n != n >> 0 ? (n >> 0) + 1 : n >> 0;
+					maxX = (x + width - INTERVAL_TOLERANCE) * world.invScale;
+					n = (y + height - INTERVAL_TOLERANCE) * world.invScale;
+					minY = n != n >> 0 ? (n >> 0) + 1 : n >> 0;
+					if(minY >= world.height) minY = world.height - 1;
+					if(maxY >= world.height) maxY = world.height - 1;
+					minX = x * world.invScale;
+					
+					scanForwards:
+					for(mapY = minY; mapY <= maxY; mapY++){
+						for(mapX = minX; mapX <= maxX; mapX++){
+							property = world.map[mapY][mapX];
+							if(mapY * world.scale < y + height + vy && (property & UP) && !(property & ignoreProperties)){
+								vy -= (y + height + vy) - mapY * world.scale;
+								this.vy = 0;
+								pressure |= DOWN;
+								// create a dummy collider surface to stand on
+								if(parent != mapCollider){
+									if(parent) parent.removeChild(this);
+									mapCollider.x = mapX * world.scale;
+									mapCollider.y = mapY * world.scale;
+									mapCollider.properties = property;
+									mapCollider.addChild(this);
+								}
+								break scanForwards;
+							}
+						}
+					}
+				}
+				
+				// =============================================================================
+				// collision with other Colliders:
+				// check there's still velocity to justify a check
+				if((vy > 0 ? vy : -vy) > MOVEMENT_TOLERANCE){
+					obstacles = world.getCollidersIn(new Rectangle(x, y + height, width, vy), this, UP, ignoreProperties);
+					// small optimisation here - sorting needs to be avoided
+					if(obstacles.length > 2 ) obstacles.sort(sortTopWards);
+					else if(obstacles.length == 2){
+						if(obstacles[0].y > obstacles[1].y){
+							tempCollider = obstacles[0];
+							obstacles[0] = obstacles[1];
+							obstacles[1] = tempCollider;
+						}
+					}
+					for(i = 0; i < obstacles.length; i++){
+						collider = obstacles[i];
+						// because the vy may get altered over this loop, we need to still check for overlap
+						if(collider.y < y + height + vy){
+							// bypass colliders we're already inside and platform vs platform
+							if(collider.y > y + height - INTERVAL_TOLERANCE && !(state == MAP_COLLIDER && collider.state == MAP_COLLIDER)){
+								
+								obstacleShouldMove = (y + height + vy) - collider.y;
+								if(collider.state == MAP_COLLIDER) obstacleActuallyMoved = 0;
+								else if(collider.pushDamping == 1 || state == MAP_COLLIDER) obstacleActuallyMoved = collider.moveY(obstacleShouldMove, this);
+								else obstacleActuallyMoved = collider.moveY(obstacleShouldMove * collider.pushDamping, this);
+								
+								if(collider.state != MAP_COLLIDER){
+									collider.pressure |= UP;
+									if(state != MAP_COLLIDER){
+										collider.upContact = this;
+										downContact = collider;
+									}
+								}
+								
+								if(state != MAP_COLLIDER){
+									
+									// ==========================================================================
+									// STOMP LOGIC
+									// this is specific to Red Rogue, used by Characters to perform their stomp-stun attack
+									if(stompProperties && Boolean(collider.stompCallback)){
+										
+										n = collider.x + collider.width * 0.5;
+										if(n < x + width * 0.5){
+											collider.moveX(x - (collider.x + collider.width + MOVEMENT_TOLERANCE));
+										} else {
+											collider.moveX((x + width + MOVEMENT_TOLERANCE) - collider.x);
+										}
+										// if the collider is not STACKed, kick it downwards
+										if(collider.state != Collider.STACK){
+											collider.moveY(obstacleShouldMove, this);
+											collider.state = Collider.FALL;
+										}
+										// scan, the stomp may not have pushed the collider free - it is doomed
+										stompees = world.getCollidersIn(new Rectangle(x, y + vy, width, height), this, stompProperties);
+										for(j = 0; j < stompees.length; j++){
+											tempCollider = stompees[j];
+											if(tempCollider == collider) collider.crushed = true;
+										}
+										// stomp callback only when the victim's center is under our base - be generous
+										if(!collider.crushed && (n < x || n > x + width - INTERVAL_TOLERANCE)) collider.stompCallback(this);
+										
+									} else {
+										if(obstacleActuallyMoved < obstacleShouldMove){
+											vy -= obstacleShouldMove - obstacleActuallyMoved;
+											// kill energy when recursively hitting bounds
+											if(collider.vy == 0) this.vy = 0;
+										}
+										pressure |= DOWN;
+									
+										// make this Collider a child of the obstacle
+										if(collider != parent){
+											if(parent) parent.removeChild(this);
+											collider.addChild(this);
+										}
+									}
+								} else {
+									if(obstacleActuallyMoved < obstacleShouldMove){
+										collider.crushed = true;
+									}
+								}
+							}
+						} else break;
+					}
+				}
+				
+				// =============================================================================
+				// collision with bounds:
+				if(state != MAP_COLLIDER && y + height + vy > world.bounds.y + world.bounds.height){
+					vy -= (y + height + vy) - (world.bounds.y + world.bounds.height);
+					this.vy = 0;
+					if(boundsPressure) pressure |= DOWN;
+				}
+			} else if(vy < 0){
+				
+				// =============================================================================
+				// collision with map:
+				if(state != MAP_COLLIDER){
+					// inline Math.floor on X axis
+					n = (y + vy) * world.invScale - 1;
+					maxY = n << 0;
+					maxX = (x + width - INTERVAL_TOLERANCE) * world.invScale;
+					n = y * world.invScale - 1;
+					minY = n << 0;
+					if(minY < 0) minY = 0;
+					if(maxY < 0) maxY = 0;
+					minX = x * world.invScale;
+					
+					scanBackwards:
+					for(mapY = minY; mapY >= maxY; mapY--){
+						for(mapX = minX; mapX <= maxX; mapX++){
+							property = world.map[mapY][mapX];
+							if((mapY + 1) * world.scale > y + vy && (property & DOWN) && !(property & ignoreProperties)){
+								vy -= (y + vy) - ((mapY + 1) * world.scale);
+								this.vy = 0;
+								pressure |= UP;
+								break scanBackwards;
+							}
+						}
+					}
+				}
+				
+				// =============================================================================
+				// collision with other Colliders:
+				// check there's still velocity to justify a check
+				if((vy > 0 ? vy : -vy) > MOVEMENT_TOLERANCE){
+					obstacles = world.getCollidersIn(new Rectangle(x, y + vy, width, -vy), this, DOWN, ignoreProperties);
+					// small optimisation here - sorting needs to be avoided
+					if(obstacles.length > 2 ) obstacles.sort(sortBottomWards);
+					else if(obstacles.length == 2){
+						if(obstacles[0].y < obstacles[1].y){
+							tempCollider = obstacles[0];
+							obstacles[0] = obstacles[1];
+							obstacles[1] = tempCollider;
+						}
+					}
+					for(i = 0; i < obstacles.length; i++){
+						collider = obstacles[i];
+						// because the vy may get altered over this loop, we need to still check for overlap
+						if(collider.y + collider.height > y + vy){
+							// bypass colliders we're already inside and platform vs platform
+							if(collider.y + collider.height - INTERVAL_TOLERANCE < y && !(state == MAP_COLLIDER && collider.state == MAP_COLLIDER)){
+								
+								obstacleShouldMove = (y + vy) - (collider.y + collider.height);
+								if(collider.state == MAP_COLLIDER) obstacleActuallyMoved = 0;
+								else if(collider.pushDamping == 1 || state == MAP_COLLIDER) obstacleActuallyMoved = collider.moveY(obstacleShouldMove, this);
+								else obstacleActuallyMoved = collider.moveY(obstacleShouldMove * collider.pushDamping, this);
+								
+								if(collider.state != MAP_COLLIDER){
+									collider.pressure |= DOWN;
+									if(state != MAP_COLLIDER){
+										collider.downContact = this;
+										upContact = collider;
+									}
+								}
+								
+								if(state != MAP_COLLIDER){
+									if(obstacleActuallyMoved > obstacleShouldMove){
+										vy += obstacleActuallyMoved - obstacleShouldMove;
+										// kill energy when recursively hitting bounds
+										if(collider.vy == 0) this.vy = 0;
+									}
+									pressure |= UP;
+								} else {
+									if(obstacleActuallyMoved > obstacleShouldMove){
+										collider.crushed = true;
+									}
+								}
+								// make the obstacle a child of this Collider
+								if(collider.state != MAP_COLLIDER && collider.parent != this && collider.pushDamping > 0){
+									if(collider.parent) collider.parent.removeChild(collider);
+									addChild(collider);
+								}
+							}
+						} else break;
+					}
+				}
+				
+				// =============================================================================
+				// collision with bounds:
+				if(state != MAP_COLLIDER && y + vy < world.bounds.y){
+					vy += world.bounds.y - (y + vy);
+					this.vy = 0;
+					if(boundsPressure) pressure |= UP;
+				}
+			}
+			y += vy;
+			
+			// move children - ie: blocks stacked on top of this Collider
+			// stacked children should not be moved when travelling up - this Collider is already taking care of that
+			// by pushing them, climbing children on the other hand must be moved
+			if(vy > 0){
+				for(i = 0; i < children.length; i++){
+					collider = children[i];
+					collider.moveY(vy);
+				}
+			// if there is a parent, is it still below?
+			} else if(vy < 0){
+				if(parent && parent != source && parent.y > y + height + INTERVAL_TOLERANCE){
+					parent.removeChild(this);
+				}
+				for(i = 0; i < children.length; i++){
+					collider = children[i];
+					if(collider.state == HOVER){
+						children[i].moveY(vy);
+					}
+				}
+			}
+			awake = AWAKE_DELAY;
+			return vy;
+		}
+		
+		/* Return a recent contact */
+		public function getContact():Collider{
+			if(upContact) return upContact;
+			else if(rightContact) return rightContact;
+			else if(downContact) return downContact;
+			else if(leftContact) return leftContact;
+			return null
 		}
 		
 		/* Draw debug diagram */
 		public function draw(gfx:Graphics):void{
-			if(awake == 0) return;
-			gfx.drawRect(rect.x, rect.y, rect.width, rect.height);
-			if(parent != null){
-				gfx.moveTo(rect.x + rect.width * 0.5, rect.y + rect.height * 0.5);
-				gfx.lineTo(parent.rect.x + parent.rect.width * 0.5, parent.rect.y + parent.rect.height * 0.5);
+			gfx.lineStyle(2, 0x33AA66);
+			gfx.drawRect(x, y, width, height);
+			if(awake){
+				gfx.drawRect(x + width * 0.4, y + height * 0.4, width * 0.2, height * 0.2);
 			}
-			if(collisions){
-				if(collisions & Block.UP){
-					gfx.moveTo(rect.x + 5, rect.y + 5);
-					gfx.lineTo(rect.x + rect.width - 5, rect.y + 5);
+			if(parent != null){
+				gfx.moveTo(x + width * 0.5, y + height * 0.5);
+				gfx.lineTo(parent.x + parent.width * 0.5, parent.y + parent.height * 0.5);
+			}
+			if(state == STACK){
+				gfx.drawCircle(x + width * 0.5, y + height - height * 0.25, Math.min(width, height) * 0.25);
+			} else if(state == FALL){
+				gfx.drawCircle(x + width * 0.5, y + height * 0.5, Math.min(width, height) * 0.25);
+			}
+			if(pressure){
+				if(pressure & UP){
+					gfx.moveTo(x + width * 0.2, y + height * 0.2);
+					gfx.lineTo(x + width * 0.8, y + height * 0.2);
 				}
-				if(collisions & Block.RIGHT){
-					gfx.moveTo(rect.x + rect.width- 5, rect.y + 5);
-					gfx.lineTo(rect.x + rect.width - 5, rect.y + rect.height - 5);
+				if(pressure & RIGHT){
+					gfx.moveTo(x + width * 0.8, y + height * 0.2);
+					gfx.lineTo(x + width * 0.8, y + height * 0.8);
 				}
-				if(collisions & Block.DOWN){
-					gfx.moveTo(rect.x + 5, rect.y + rect.height - 5);
-					gfx.lineTo(rect.x + rect.width - 5, rect.y + rect.height - 5);
+				if(pressure & DOWN){
+					gfx.moveTo(x + width * 0.2, y + height * 0.8);
+					gfx.lineTo(x + width * 0.8, y + height * 0.8);
 				}
-				if(collisions & Block.LEFT){
-					gfx.moveTo(rect.x + 5, rect.y + 5);
-					gfx.lineTo(rect.x + 5, rect.y + rect.height - 5);
+				if(pressure & LEFT){
+					gfx.moveTo(x + width * 0.2, y + height * 0.2);
+					gfx.lineTo(x + width * 0.2, y + height * 0.8);
 				}
 			}
 		}
+		
 		override public function toString():String {
-			return "["+super.toString()+block.toString()+"]";
+			return "(x:"+x+" y:"+y+" width:"+width+" height:"+height+" type:"+propertiesToString(properties)+")";
+		}
+		
+		/* Returns all properties of this block as a string */
+		public static function propertiesToString(type:int):String{
+			if (type == EMPTY) return "EMPTY";
+			var n:int, s:String = "";
+			for (var i:int = 0; i < 12; i++){
+				n = type & (1 << i);
+				if (s == "UP|RIGHT|DOWN|LEFT|") s = "SOLID|";
+				if (n == UP) s += "UP|";
+				else if (n == RIGHT) s += "RIGHT|";
+				else if (n == DOWN) s += "DOWN|";
+				else if (n == LEFT) s += "LEFT|";
+				else if (n == STATIC) s += "STATIC|";
+				else if (n == BREAKABLE) s += "BREAKABLE|";
+				else if (n == FREE) s += "FREE|";
+				else if (n == MOVING) s += "MOVING|";
+				else if (n == MONSTER) s += "MONSTER|";
+				else if (n == PLAYER) s += "PLAYER|";
+				else if (n == LEDGE) s += "LEDGE|";
+				else if (n == WALL) s += "WALL|";
+				else if (n == CHARACTER) s += "CHARACTER|";
+			}
+			return s.substr(0, s.length - 1);
 		}
 	}
-	
 }

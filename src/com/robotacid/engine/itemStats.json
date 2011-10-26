@@ -1,0 +1,124 @@
+{
+	"weapon names":[
+		"dagger",
+		"mace",
+		"sword",
+		"staff",
+		"short bow",
+		"hammer"
+	],
+	"armour names":[
+		"flies",
+		"fedora",
+		"viking helm",
+		"skull",
+		"blood",
+		""
+	],
+	"rune names":[
+		"light",
+		"heal",
+		"poison",
+		"teleport",
+		"undead",
+		"polymorph",
+		"xp"
+	],
+	"rune descriptions":[
+		"casts a bright light on all things",
+		"mends wounds over time",
+		"causes sickness and death",
+		"appears and disappears in your hand",
+		"will not let dead bones rest",
+		"changes the shape of things",
+		"grants wisdom and strength"
+	],
+	"weapon ranges":[
+		5,
+		1,
+		1,
+		1,
+		2,
+		1
+	],
+	"weapon damages":[
+		0.25,
+		0.5,
+		1,
+		1.5,
+		0.25,
+		2
+	],
+	"weapon damage levels":[
+		0.05,
+		0.05,
+		0.1,
+		0.1,
+		0.05,
+		0.15
+	],
+	"weapon attacks":[
+		0.01,
+		0.01,
+		0.05,
+		0.03,
+		0.01,
+		0.04
+	],
+	"weapon attack levels":[
+		0.01,
+		0.01,
+		0.02,
+		0.02,
+		0.01,
+		0.02
+	],
+	"armour positions":[
+		1,
+		0,
+		0,
+		0,
+		1,
+		1
+	],
+	"armour defences":[
+		0.01,
+		0.015,
+		0.02,
+		0.03,
+		0.04,
+		0.01
+	],
+	"armour defence levels":[
+		0.01,
+		0.01,
+		0.015,
+		0.02,
+		0.02,
+		0.01
+	],
+	"weapon knockbacks":[
+		0,
+		0,
+		0,
+		0,
+		0,
+		0
+	],
+	"weapon stuns":[
+		0,
+		0,
+		0,
+		0,
+		0,
+		0
+	],
+	"armour endurance":[
+		0,
+		0,
+		0,
+		0,
+		0,
+		0
+	]
+}

@@ -2,10 +2,10 @@ package com.robotacid.ui {
 	import com.robotacid.ai.Brain;
 	import com.robotacid.dungeon.Content;
 	import com.robotacid.engine.Character;
-	import com.robotacid.engine.CharacterAttributes;
 	import com.robotacid.engine.Effect;
 	import com.robotacid.engine.Item;
-	import com.robotacid.engine.Stairs;
+	import com.robotacid.engine.Player;
+	import com.robotacid.engine.Portal;
 	import com.robotacid.sound.SoundManager;
 	import com.robotacid.ui.menu.HotKeyMap;
 	import com.robotacid.ui.menu.MenuOptionStack;
@@ -47,8 +47,8 @@ package com.robotacid.ui {
 				obj.playerData = true;
 				// we only save on stairs but the level doesn't change till the animation
 				// finishes, so we have to take a reading from the player's state
-				obj.dungeonLevel = g.dungeon.level + (Stairs.lastStairsUsedType == Stairs.DOWN ? 1 : -1);
-				obj.lastStairsUsedType = Stairs.lastStairsUsedType;
+				obj.dungeonLevel = g.dungeon.level + (Player.portalEntryType == Portal.UP ? 1 : -1);
+				obj.lastStairsUsedType = Player.portalEntryType;
 				obj.player = g.player.toXML();
 				obj.minion = g.minion ? g.minion.toXML() : null;
 				// here come the items
@@ -56,7 +56,7 @@ package com.robotacid.ui {
 				for(i = 0; i < g.menu.inventoryList.options.length; i++){
 					// item may be stacked - load into XML as separate items
 					for(j = 0; j < (g.menu.inventoryList.options[i] as MenuOptionStack).total; j++){
-						items.push(g.menu.inventoryList.options[i].target.toXML());
+						items.push(g.menu.inventoryList.options[i].userData.toXML());
 					}
 				}
 				obj.items = items;
@@ -119,30 +119,26 @@ package com.robotacid.ui {
 					g.reset();
 					// then restructure player and the minion
 					var playerXML:XML = obj.player;
-					g.player.level = parseInt(playerXML.@level);
 					// the character may have been reskinned, so we just force a reskin anyway
-					var skin:Class = CharacterAttributes.NAME_SKINS[parseInt(playerXML.@name)];
-					var skinMc:MovieClip = new skin();
-					g.player.reskin(skinMc, parseInt(playerXML.@name), skinMc.width, skinMc.height);
-					g.player.xp = parseFloat(playerXML.@xp);
-					g.player.health = parseFloat(playerXML.@health);
+					g.player.changeName(int(playerXML.@name));
+					g.player.level = int(playerXML.@level);
+					g.player.xp = Number(playerXML.@xp);
+					g.player.health = Number(playerXML.@health);
 					g.player.applyHealth(0);
 					g.player.addXP(0);
 					
 					for each(enchantment in playerXML.effect){
-						effect = new Effect(parseInt(enchantment.@name), parseInt(enchantment.@level), parseInt(enchantment.@source), g, g.player, parseInt(enchantment.@count));
+						effect = new Effect(int(enchantment.@name), int(enchantment.@level), int(enchantment.@source), g.player, int(enchantment.@count));
 					}
 					if(obj.minion){
 						var minonXML:XML = obj.minion;
-						g.minion.level = parseInt(minonXML.@level);
+						g.minion.level = int(minonXML.@level);
 						// the character may have been reskinned, so we just force a reskin anyway
-						skin = CharacterAttributes.NAME_SKINS[parseInt(minonXML.@name)];
-						skinMc = new skin();
-						g.minion.reskin(skinMc, parseInt(minonXML.@name), skinMc.width, skinMc.height);
-						g.minion.health = parseFloat(minonXML.@health);
+						g.minion.changeName(int(minonXML.@name));
+						g.minion.health = Number(minonXML.@health);
 						g.minion.applyHealth(0);
 						for each(enchantment in minonXML.effect){
-							effect = new Effect(parseInt(enchantment.@name), parseInt(enchantment.@level), parseInt(enchantment.@source), g, g.minion, parseInt(enchantment.@count));
+							effect = new Effect(int(enchantment.@name), int(enchantment.@level), int(enchantment.@source), g.minion, int(enchantment.@count));
 						}
 					} else {
 						g.minion.active = false;
@@ -166,33 +162,19 @@ package com.robotacid.ui {
 						name = xml.@name;
 						level = xml.@level;
 						type = xml.@type;
-						if(type == Item.RUNE){
-							mc = new g.library.RuneMC();
-						} else if(type == Item.ARMOUR){
-							className = g.library.armourNameToMCClass(name);
-							mc = new className();
-						} else if(type == Item.WEAPON){
-							className = g.library.weaponNameToMCClass(name);
-							mc = new className();
-						} else if(type == Item.HEART){
-							mc = new g.library.HeartMC();
-						}
-						item = new Item(mc, name, type, level, g);
-						item.holder = g.itemsHolder;
-						item.state = xml.@state;
+						item = new Item(g.library.getItemGfx(name, type), name, type, level);
+						item.location = xml.@location;
 						item.curseState = xml.@curseState;
 						// is this item enchanted?
 						for each(enchantment in xml.effect){
-							effect = new Effect(enchantment.@name, enchantment.@level, 0, g);
+							effect = new Effect(enchantment.@name, enchantment.@level, 0);
 							effect.enchant(item);
 						}
 						g.menu.inventoryList.addItem(item);
-						if(item.state == Item.EQUIPPED){
+						if(item.location == Item.EQUIPPED){
 							g.player.equip(item);
-							g.player.updateMC();
-						} else if(item.state == Item.MINION_EQUIPPED){
+						} else if(item.location == Item.MINION_EQUIPPED){
 							g.minion.equip(item);
-							g.minion.updateMC();
 						}
 					}
 					// restock the content manager
@@ -210,9 +192,9 @@ package com.robotacid.ui {
 						}
 					}
 					
-					Stairs.lastStairsUsedType = obj.lastStairsUsedType;
+					Player.portalEntryType = obj.lastStairsUsedType;
 					// call for a new level
-					g.changeLevel(parseInt(obj.dungeonLevel), true);
+					g.changeLevel(int(obj.dungeonLevel), true);
 				}
 				
 				// load the hotkeymaps

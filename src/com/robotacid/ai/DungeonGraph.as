@@ -147,9 +147,9 @@ package com.robotacid.ai {
 			// of adding them to arrays and sifting through those arrays all the time
 			searchId++;
 			
-			if (start == finish || !start || !finish) return null;
+			if(start == finish || !start || !finish) return null;
 			
-			var i:int, j:int, k:int, c:int, lowest:int;
+			var i:int, j:int, c:int, lowest:int;
 			var current:Node, adjacentNode:Node;
 			
 			start.setH(finish);
@@ -169,7 +169,7 @@ package com.robotacid.ai {
 				lowest = int.MAX_VALUE;
 				c = -1;
 				for(j = 0; j < open.length; j++) {
-					if (open[j].f < lowest) {
+					if(open[j].f < lowest) {
 						lowest = open[j].f;
 						c = j;
 					}
@@ -179,7 +179,7 @@ package com.robotacid.ai {
 				if(current.h < closestGoodNode.h) closestGoodNode = current;
 				current.closedId = searchId;
 				current.openId = 0;
-				if (current == finish) {
+				if(current == finish) {
 					found = true;
 					break;
 				}
@@ -207,6 +207,93 @@ package com.robotacid.ai {
 			var path:Vector.<Node> = new Vector.<Node>();
 			var pathNode:Node = finish;
 			if(!found) pathNode = closestGoodNode;
+			
+			while(pathNode != start){
+				path.push(pathNode);
+				pathNode = pathNode.parent;
+			}
+			
+			// it is possible that when no route is found, the start node is the closest
+			// node to the target, and so the start node is returned for the Brain to work with
+			if(path.length == 0){
+				path.push(start);
+			}
+			
+			return path;
+		}
+		
+		
+		
+		/* Returns a vector of nodes describing a route from the start Node away from the target Node
+		 *
+		 * This algorithm, we'll call Brown*, is simply A* but with the heuristic rearranged to send
+		 * the path efficiently away from the target. Because the goal is unknown, it would require
+		 * a search of the entire map to satisfy a Brown* search.
+		 * 
+		 * For this reason, KEEP THE SEARCH STEPS LOW, it will use all of them, unlike A* */
+		public function getEscapePath(start:Node, target:Node, steps:int = 10):Vector.<Node> {
+			
+			// the searchId allows the algorithm to mark Nodes as closed or open instead
+			// of adding them to arrays and sifting through those arrays all the time
+			searchId++;
+			
+			if(!start || !target) return null;
+			
+			var i:int, j:int, c:int, lowest:int;
+			var current:Node, adjacentNode:Node;
+			
+			start.setH(target);
+			start.h = -start.h;
+			open = new Vector.<Node>();
+			open.push(start);
+			
+			// blacklist the target node
+			target.closedId = searchId;
+			target.openId = 0;
+			
+			var farthestGoodNode:Node = start;
+			
+			for(i = 0; i < steps; i++){
+				
+				if(open.length == 0) break;
+				
+				// get nearest open node
+				lowest = int.MAX_VALUE;
+				c = -1;
+				for(j = 0; j < open.length; j++) {
+					if(open[j].w < lowest) {
+						lowest = open[j].w;
+						c = j;
+					}
+				}
+				current = open.splice(c, 1)[0];
+				
+				if(current.h > farthestGoodNode.h) farthestGoodNode = current;
+				current.closedId = searchId;
+				current.openId = 0;
+				for(j = 0; j < current.connections.length; j++){
+					adjacentNode = current.connections[j];
+					if(adjacentNode.closedId != searchId){
+						if(adjacentNode.openId != searchId) {
+							open.push(adjacentNode);
+							adjacentNode.openId = searchId;
+							adjacentNode.closedId = 0;
+							adjacentNode.parent = current;
+							adjacentNode.setW(target);
+						} else {
+							// double check open nodes for a farther route
+							if(adjacentNode.g > current.g - current.mDist(adjacentNode)){
+								adjacentNode.parent = current;
+								adjacentNode.setW(target);
+							}
+						}
+					}
+				}
+			}
+			
+			// construct a path
+			var path:Vector.<Node> = new Vector.<Node>();
+			var pathNode:Node = farthestGoodNode;
 			
 			while(pathNode != start){
 				path.push(pathNode);

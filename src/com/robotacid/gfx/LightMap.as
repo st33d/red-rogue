@@ -4,7 +4,6 @@
 	import com.robotacid.engine.Entity;
 	import com.robotacid.engine.Entity;
 	import com.robotacid.engine.Player;
-	import com.robotacid.phys.Block;
 	import com.robotacid.util.Bresenham;
 	import com.robotacid.util.HiddenInt;
 	import flash.display.Bitmap;
@@ -14,20 +13,22 @@
 	import flash.geom.Rectangle;
 	
 	/**
-	 * ...
+	 * Uses the shadow-casting algorithm to create a lit area around designated objects in the game
+	 *
 	 * @author Aaron Steed, robotacid.com
 	 */
 	public class LightMap {
 		
 		private var i:int;
 		
-		public var g:Game;
+		public static var g:Game;
+		public static var renderer:Renderer;
+		
 		public var blockMap:Vector.<Vector.<int>>;
 		public var rect:Rectangle;
 		public var darkImage:BitmapData;
 		public var fadeImage:BitmapData;
 		public var edgeImage:BitmapData;
-		public var bitmap:Bitmap;
 		public var entities:Vector.<Entity>;
 		public var horizEdge:Rectangle;
 		public var vertEdge:Rectangle;
@@ -56,10 +57,11 @@
 			[1,  0,  0,  1, -1,  0,  0, -1]
 		];
 		
-		public static const FADE_STEP:uint = 0X44000000;
-		public static const THRESHOLD:uint = 0XF1000000;
-		public static const WALL_COL:uint = 0XFFFFFFFF;
-		public static const MINIMap_COL:uint = 0x99FFFFFF;
+		public static const FADE_STEP:uint = 0x44000000;
+		public static const THRESHOLD:uint = 0xF1000000;
+		public static const WALL_COL:uint = 0xFFFFFFFF;
+		public static const MINIMAP_EMPTY_COL:uint = 0x99FFFFFF;
+		public static const MINIMAP_WALL_COL:uint = 0xDD000000;
 		
 		public static const UP:int = 1;
 		public static const RIGHT:int = 2;
@@ -72,23 +74,20 @@
 		public static const INV_SCALE:Number = Game.INV_SCALE;
 		
 		
-		public function LightMap(blockMap:Vector.<Vector.<int>>, g:Game) {
-			this.g = g;
+		public function LightMap(blockMap:Vector.<Vector.<int>>) {
 			this.blockMap = blockMap;
 			width = blockMap[0].length;
 			height = blockMap.length;
-			rect = new Rectangle(0, 0, g.renderer.tilesWidth + g.renderer.borderX[g.renderer.masterLayer] * 2, g.renderer.tilesHeight + g.renderer.borderY[g.renderer.masterLayer] * 2);
+			rect = new Rectangle(0, 0, g.mapRenderer.tilesWidth + g.mapRenderer.borderX[g.mapRenderer.masterLayer] * 2, g.mapRenderer.tilesHeight + g.mapRenderer.borderY[g.mapRenderer.masterLayer] * 2);
 			darkImage = new BitmapData(width, height, true, 0xFF000000);
 			fadeImage = new BitmapData(rect.width, rect.height, true, FADE_STEP);
-			bitmap = new Bitmap(darkImage);
-			bitmap.scaleX = 16;
-			bitmap.scaleY = 16;
 			entities = new Vector.<Entity>();
 			getTables(MAX_RADIUS);
 			vertEdge = new Rectangle(0, 0, 2, 16);
 			horizEdge = new Rectangle(0, 0, 16, 2);
 			wallRect = new Rectangle(0, 0, 16, 16);
-			edgeImage = g.tileImage;
+			edgeImage = renderer.bitmapData;
+			renderer.lightBitmap.bitmapData = darkImage;
 		}
 		
 		public function newMap(blockMap:Vector.<Vector.<int>>):void{
@@ -96,8 +95,8 @@
 			this.blockMap = blockMap;
 			width = blockMap[0].length;
 			height = blockMap.length;
-			rect = new Rectangle(0, 0, g.renderer.tilesWidth + g.renderer.borderX[g.renderer.masterLayer] * 2, g.renderer.tilesHeight + g.renderer.borderY[g.renderer.masterLayer] * 2);
-			bitmap.bitmapData = darkImage = new BitmapData(width, height, true, 0xFF000000);
+			rect = new Rectangle(0, 0, g.mapRenderer.tilesWidth + g.mapRenderer.borderX[g.mapRenderer.masterLayer] * 2, g.mapRenderer.tilesHeight + g.mapRenderer.borderY[g.mapRenderer.masterLayer] * 2);
+			renderer.lightBitmap.bitmapData = darkImage = new BitmapData(width, height, true, 0xFF000000);
 			fadeImage = new BitmapData(rect.width, rect.height, true, FADE_STEP);
 		}
 		
@@ -105,8 +104,8 @@
 			
 			//bitmap.visible = false;
 			
-			p.x = (g.renderer.scrollTopleftX * INV_SCALE) >> 0;
-			p.y = (g.renderer.scrollTopleftY * INV_SCALE) >> 0;
+			p.x = (g.mapRenderer.scrollTopleftX * INV_SCALE) >> 0;
+			p.y = (g.mapRenderer.scrollTopleftY * INV_SCALE) >> 0;
 			rect.x = rect.y = 0;
 			darkImage.copyPixels(fadeImage, rect, p, null, null, true);
 			// flash can't fade to black properly, so we threshold test against the value
@@ -114,7 +113,7 @@
 			rect.x = p.x; rect.y = p.y;
 			darkImage.threshold(darkImage, rect, p, ">=", THRESHOLD, 0xff000000);
 			var radius:int, entity:Entity;
-			for(var i:int = 0; i < entities.length; i++){
+			for(var i:int = entities.length - 1; i > -1; i--){
 				entity = entities[i];
 				if(entity.active){
 					radius = entity.light;
@@ -123,7 +122,6 @@
 					}
 				} else {
 					entities.splice(i, 1);
-					i--;
 				}
 			}
 		}
@@ -149,23 +147,23 @@
 			
 			// edge lighting code
 			if(entity.mapX > 0 && (blockMap[entity.mapY][entity.mapX - 1] & WALL)){
-				vertEdge.x = -g.backFxImageHolder.x + EDGE_OFFSET + (entity.mapX - 1) * SCALE;
-				vertEdge.y = -g.backFxImageHolder.y + entity.mapY * SCALE;
+				vertEdge.x = -renderer.bitmap.x + EDGE_OFFSET + (entity.mapX - 1) * SCALE;
+				vertEdge.y = -renderer.bitmap.y + entity.mapY * SCALE;
 				edgeImage.fillRect(vertEdge, EDGE_COL);
 			}
 			if(entity.mapY > 0 && (blockMap[entity.mapY - 1][entity.mapX] & WALL)){
-				horizEdge.x = -g.backFxImageHolder.x + entity.mapX * SCALE;
-				horizEdge.y = -g.backFxImageHolder.y + EDGE_OFFSET + (entity.mapY - 1) * SCALE;
+				horizEdge.x = -renderer.bitmap.x + entity.mapX * SCALE;
+				horizEdge.y = -renderer.bitmap.y + EDGE_OFFSET + (entity.mapY - 1) * SCALE;
 				edgeImage.fillRect(horizEdge, EDGE_COL);
 			}
 			if(entity.mapX < width - 1 && (blockMap[entity.mapY][entity.mapX + 1] & WALL)){
-				vertEdge.x = -g.backFxImageHolder.x + (entity.mapX + 1) * SCALE;
-				vertEdge.y = -g.backFxImageHolder.y + entity.mapY * SCALE;
+				vertEdge.x = -renderer.bitmap.x + (entity.mapX + 1) * SCALE;
+				vertEdge.y = -renderer.bitmap.y + entity.mapY * SCALE;
 				edgeImage.fillRect(vertEdge, EDGE_COL);
 			}
 			if(entity.mapY < height - 1 && (blockMap[entity.mapY + 1][entity.mapX] & WALL)){
-				horizEdge.x = -g.backFxImageHolder.x + entity.mapX * SCALE;
-				horizEdge.y = -g.backFxImageHolder.y + (entity.mapY + 1) * SCALE;
+				horizEdge.x = -renderer.bitmap.x + entity.mapX * SCALE;
+				horizEdge.y = -renderer.bitmap.y + (entity.mapY + 1) * SCALE;
 				edgeImage.fillRect(horizEdge, EDGE_COL);
 			}
 		}
@@ -224,30 +222,30 @@
 									
 									if(!(blockMap[mapY][mapX] & WALL)){
 										if(mapX > 0 && (blockMap[mapY][mapX - 1] & WALL)){
-											vertEdge.x = -g.backFxImageHolder.x + EDGE_OFFSET + (mapX - 1) * SCALE;
-											vertEdge.y = -g.backFxImageHolder.y + mapY * SCALE;
+											vertEdge.x = -renderer.bitmap.x + EDGE_OFFSET + (mapX - 1) * SCALE;
+											vertEdge.y = -renderer.bitmap.y + mapY * SCALE;
 											edgeImage.fillRect(vertEdge, EDGE_COL - col);
 										}
 										if(mapY > 0 && (blockMap[mapY - 1][mapX] & WALL)){
-											horizEdge.x = -g.backFxImageHolder.x + mapX * SCALE;
-											horizEdge.y = -g.backFxImageHolder.y + EDGE_OFFSET + (mapY - 1) * SCALE;
+											horizEdge.x = -renderer.bitmap.x + mapX * SCALE;
+											horizEdge.y = -renderer.bitmap.y + EDGE_OFFSET + (mapY - 1) * SCALE;
 											edgeImage.fillRect(horizEdge, EDGE_COL - col);
 										}
 										if(mapX < width - 1 && (blockMap[mapY][mapX + 1] & WALL)){
-											vertEdge.x = -g.backFxImageHolder.x + (mapX + 1) * SCALE;
-											vertEdge.y = -g.backFxImageHolder.y + mapY * SCALE;
+											vertEdge.x = -renderer.bitmap.x + (mapX + 1) * SCALE;
+											vertEdge.y = -renderer.bitmap.y + mapY * SCALE;
 											edgeImage.fillRect(vertEdge, EDGE_COL - col);
 										}
 										if(mapY < height - 1 && (blockMap[mapY + 1][mapX] & WALL)){
-											horizEdge.x = -g.backFxImageHolder.x + mapX * SCALE;
-											horizEdge.y = -g.backFxImageHolder.y + (mapY + 1) * SCALE;
+											horizEdge.x = -renderer.bitmap.x + mapX * SCALE;
+											horizEdge.y = -renderer.bitmap.y + (mapY + 1) * SCALE;
 											edgeImage.fillRect(horizEdge, EDGE_COL - col);
 										}
 									}
 									
-									
 									if(updateMinimap){
-										if(!(blockMap[mapY][mapX] & WALL)) g.miniMap.data.setPixel32(mapX, mapY, MINIMap_COL);
+										if(!(blockMap[mapY][mapX] & WALL)) g.miniMap.bitmapData.setPixel32(mapX, mapY, MINIMAP_EMPTY_COL);
+										else if(blockMap[mapY][mapX] & WALL) g.miniMap.bitmapData.setPixel32(mapX, mapY, MINIMAP_WALL_COL);
 									}
 								}
 								
@@ -277,8 +275,7 @@
 			}
 		}
 		
-		
-		/* Add a GameObject to the lighting queue */
+		/* Add an Entity to the lighting queue */
 		public function setLight(entity:Entity, radius:int, strength:int = 255):void{
 			
 			entity.light = radius < 0 ? 0 : radius;
@@ -307,6 +304,7 @@
 			}
 			entity.lightCols[0] = 0xFF000000 - (0x01000000 * strength);
 		}
+		
 		/* Create look up tables */
 		public function getTables(radius:int):void{
 			dists = Map.createGrid(0, 1 + radius * 2, 1 + radius * 2);

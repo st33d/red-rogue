@@ -1,39 +1,16 @@
-Rewrite hotkeys to allow binding to any key
+more ledges need padding
 
-Error when crushed after loading:
-
-TypeError: Error #1009: Cannot access a property or method of a null object reference.
-	at com.robotacid.engine::Effect/dismiss()[C:\Documents and Settings\Aaron\My Documents\Flash\platform rogue\163\src\com\robotacid\engine\Effect.as:384]
-	at com.robotacid.engine::Character/removeEffects()[C:\Documents and Settings\Aaron\My Documents\Flash\platform rogue\163\src\com\robotacid\engine\Character.as:585]
-	at com.robotacid.engine::Character/death()[C:\Documents and Settings\Aaron\My Documents\Flash\platform rogue\163\src\com\robotacid\engine\Character.as:508]
-	at com.robotacid.engine::Player/death()[C:\Documents and Settings\Aaron\My Documents\Flash\platform rogue\163\src\com\robotacid\engine\Player.as:167]
-	at com.robotacid.engine::Character/processActions()[C:\Documents and Settings\Aaron\My Documents\Flash\platform rogue\163\src\com\robotacid\engine\Character.as:487]
-	at com.robotacid.engine::Character/main()[C:\Documents and Settings\Aaron\My Documents\Flash\platform rogue\163\src\com\robotacid\engine\Character.as:221]
-	at com.robotacid.engine::Player/main()[C:\Documents and Settings\Aaron\My Documents\Flash\platform rogue\163\src\com\robotacid\engine\Player.as:109]
-	at Game/main()[C:\Documents and Settings\Aaron\My Documents\Flash\platform rogue\163\src\Game.as:565]
-	
-either the effect target reference is null or the effects list for the target is null
-
-
-*the rune pass through has changed to a hit with no effect - still needs investigation
-
-*pickup bug - very rarely an item will not get removed from the map when being picked up. Error throwing in place
-
-thrown rune triggered wrong effect - investigate
-
-clip renderer on small levels (background tiles show through underneath on odd sized small levels)
-
-racial abilities - implement by having a personal effects list, add a new effect source - RACIAL:
-	troll regeneration
-	shadow monster - all walls are ledges
+AI issues:
+	walks into wall constantly when too close
+	monster AI jitter on ladder observed - investigate
+	can get stuck on the edge of a ledge where the character's center point is not inside a node
+	possible dithering when a monster may get caught between meta-heuristic paths of equal value
 
 help on menu has not been fully written out
 
 level generator overhaul:
 	distribution tactics -
-		where to place monsters
-		where to place chests
-		where to place traps
+		distribution bubbles
 
 the overworld (accessible from level 1 and portals):
 	backdrop - single screen full colour (contrast to black and white dungeon)
@@ -42,78 +19,5 @@ the overworld (accessible from level 1 and portals):
 	the healstone
 		code done - create graphic
 
-build demo 5
 
-elaborate on previous milestones:
-	more monsters - new monsters each level
-	more items - shoes, crying, etc
-	more runes - as many as I can think of
-	more traps - same again
-	boss fights - room blocking trolls and the macguffin holding demon
-	balancing - call out for play testers
-	more easter eggs (konami code and collosal cave code need to have their effect assigned)
-
-move towards final build - update final build on a regular basis
-
-
-EXTRA ELEMENTS TO DO:
-
-	tutorial:
-		the game needs a teaching mode
-	
-	title screen:
-		
-	
-	ui:
-		more apple:
-			fade in and out the menu
-			roll the console printer and set an event queue for print
-			smooth roll the options and smoothly move the current selection left and right
-				for left and right, we can have a screen grab of the menulist that's being discarded fade out in the slide and have the new menulist fade in
-				for this I would create a transistion menu change (as well as a state change - rendering and state change would need to be isolated from each other - probably for the best I think)
-				
-	spells:
-		confusion (flip controls - will require changing the key constants to internal variables, for the player, flip the screen also) - this could work as a charm spell on monsters, making them additional minions
-		haste (just need to boost attack times and movement speed)
-		slow (just need to cripple attack times and movement speed)
-		chaos (random effect, and will need to modify GameMenu to show random names)
-		identify (detail information about monsters or the player or add a random ability to an item)
-		thorns (reflect damage)
-		power (attacks have a chance to throw the victim into a wall or other monsters)
-		fear (overrides enemy AI - but what does it do to you? makes you hallucinate? that would be pretty funny)
-		
-	monsters:
-		story - an old man that spouts lines of generative story to the console and bars the player's progress out of the first room until they kill him (story killed by rogue)
-		wraiths - shadow monsters (can walk through walls)
-		mimic (that chest just bit me!
-			even better - high level mimics mimic stairways!)
-		vampire (steals health and adds it to its own)
-		leprechaun (steals items when it attacks)
-		floating eyes (casts paralysis? - this is a dangerous effect to have as rune, maybe combo with slow)
-		graded monsters (simply harder or weaker)
-			ogre - big fucker, perhaps be bigger than corridors
-			hobgoblins - bigger goblins
-		umber hulk - insectoid monster with confusion attack
-		slimes - worse than kobolds?
-		tengu - teleporting demon
-		balrog - a red character, players should shit themselves when confronted with one
-		
-		champion monsters (how do I illustrate this?), will possess magic items and can rally surrounding monsters to mob the player
-		
-	sounds:
-		menu move - can get around chained menu actions by having a sound toggle in the menu code
-		
-	graphics:
-		background wall features
-		foreground (would I be able to render the fx before the tile layers? it seems the only way it could work)
-		random detritus (could it go on the block layer without harming it?)
-		
-	ai:
-		rally - a monster could see the character and could call other monsters to aid, there should be a rallying pose and a shockwave type graphic, implying he's just told everyone on screen to mob the player
-		
-	help:
-	
-	stats:
-		should the items and characters be reading their base stats and per level stats from something
-		like an xml file? Or am I just going to end up dumping all the xml into pretty much what I've got
-		in the classes already?
+rally - a monster could see the character and could call other monsters to aid, there should be a rallying pose and a shockwave type graphic, implying he's just told everyone on screen to mob the player

@@ -36,6 +36,13 @@
 			return str;
 		}
 		
+		/* Change all options within to point to a given target */
+		public function changeTargets(target:MenuList):void{
+			for(var i:int = 0; i < options.length; i++){
+				options[i].target = target;
+			}
+		}
+		
 	}
 	
 }

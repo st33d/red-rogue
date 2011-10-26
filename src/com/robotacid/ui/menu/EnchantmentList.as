@@ -3,33 +3,41 @@
 	import com.robotacid.ui.menu.MenuList;
 	
 	/**
-	 * ...
+	 * Manages a dead list of enchantment names for the player to review an item's enchantments
+	 * 
 	 * @author Aaron Steed, robotacid.com
 	 */
 	public class EnchantmentList extends MenuList{
 		
 		public function EnchantmentList(options:Vector.<MenuOption> = null) {
 			super(options);
-			
 		}
 		
 		public function update(item:Item):void{
 			var i:int;
+			
+			// set options active/false
 			if(pointers){
 				for(i = 0; i < pointers.length; i++){
 					pointers[i].active = Boolean(item.effects || item.curseState == Item.CURSE_REVEALED);
 				}
 			}
-			
 			if(!item.effects && item.curseState != Item.CURSE_REVEALED) return;
 			
 			options = new Vector.<MenuOption>();
+			
+			// cursed?
 			if(item.curseState == Item.CURSE_REVEALED) options.push(new MenuOption("cursed", null, false));
-			var str:String;
-			for(i = 0; i < item.effects.length; i++){
-				str = item.effects[i].nameToString() + " " + item.effects[i].level;
-				options.push(new MenuOption(str, null, false));
+			
+			// enchantments?
+			if(item.effects){
+				var str:String;
+				for(i = 0; i < item.effects.length; i++){
+					str = item.effects[i].nameToString() + " " + item.effects[i].level;
+					options.push(new MenuOption(str, null, false));
+				}
 			}
+			
 			selection = 0;
 		}
 		
