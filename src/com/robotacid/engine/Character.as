@@ -745,9 +745,9 @@
 						}
 					}
 					if(infravision == 1){
-						renderer.lightBitmap.alpha = 0.9;
+						renderer.lightBitmap.alpha = 0.86;
 					} else if(infravision == 2){
-						renderer.lightBitmap.alpha = 0.6;
+						renderer.lightBitmap.alpha = 0.44;
 					}
 				} else {
 					renderer.lightBitmap.alpha = 1;
