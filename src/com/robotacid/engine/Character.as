@@ -68,7 +68,7 @@
 		public var stun:Number;
 		public var knockback:Number;
 		public var endurance:Number;
-		public var infravision:Boolean;
+		public var infravision:int;
 		public var leech:Number;
 		
 		private var hitResult:int;
@@ -129,7 +129,7 @@
 		public static const STUN_DECAY:Number = 1.0 / 90; // The denominator is maximum duration of stun in frames
 		
 		public static const DEFAULT_COL:ColorTransform = new ColorTransform();
-		public static const INFRAVISION_COL:ColorTransform = new ColorTransform(1, 0, 0, 1, 255);
+		public static const INFRAVISION_COLS:Vector.<ColorTransform> = Vector.<ColorTransform>([DEFAULT_COL, new ColorTransform(1, 0, 0, 1, 255), new ColorTransform(1, 0.7, 0.7, 1, 50)]);
 		
 		public static var p:Point = new Point();
 		
@@ -178,9 +178,9 @@
 			debrisType = name == SKELETON ? Renderer.BONE : Renderer.BLOOD;
 			
 			if(true){
-				setInfravision(false);
+				setInfravision(0);
 			} else {
-				setInfravision(false);
+				setInfravision(0);
 			}
 			
 			if(true){
@@ -223,7 +223,7 @@
 				if(!inTheDark){
 					gfx.transform.colorTransform = DEFAULT_COL;
 				} else {
-					gfx.transform.colorTransform = INFRAVISION_COL;
+					gfx.transform.colorTransform = INFRAVISION_COLS[g.player.infravision];
 				}
 			} else {
 				if(!inTheDark){
@@ -596,6 +596,9 @@
 				}
 				armour.gfx.x = armour.gfx.y = 0;
 			}
+			
+			item.addSpecial(this);
+			
 			item.location = Item.EQUIPPED;
 			(gfx as Sprite).addChild(item.gfx);
 			if(item.gfx is ItemMovieClip) (item.gfx as ItemMovieClip).setEquipRender();
@@ -612,7 +615,6 @@
 					break;
 				}
 			}
-			item.location = Item.INVENTORY;
 			if(item == armour){
 				if(item.effects){
 					for(i = 0; i < item.effects.length; i++){
@@ -623,6 +625,9 @@
 			}
 			if(item == weapon) weapon = null;
 			
+			item.removeSpecial(this);
+			
+			item.location = Item.INVENTORY;
 			// some items may hide the character
 			gfx.visible = true;
 			
@@ -726,24 +731,36 @@
 		/* Activate the infravision stat on a Character - affects Minion, Monster and Player differently
 		 * Player's see the lightMap differently and see monsters in the dark in red, monsters get superior
 		 * vision in their Brain calculations */
-		public function setInfravision(value:Boolean):void{
+		public function setInfravision(value:int):void{
 			if(value == infravision) return;
 			var i:int, character:Character;
 			infravision = value;
 			if(this is Player){
 				if(infravision){
-					renderer.lightBitmap.alpha = 0.9;
+					for(i = 0; i < g.entities.length; i++){
+						character = g.entities[i] as Character;
+						if(character){
+							character.gfx.visible = true;
+							if(character.inTheDark) character.gfx.transform.colorTransform = INFRAVISION_COLS[infravision];
+						}
+					}
+					if(infravision == 1){
+						renderer.lightBitmap.alpha = 0.9;
+					} else if(infravision == 2){
+						renderer.lightBitmap.alpha = 0.6;
+					}
 				} else {
 					renderer.lightBitmap.alpha = 1;
 					for(i = 0; i < g.entities.length; i++){
 						character = g.entities[i] as Character;
 						if(character){
 							character.gfx.transform.colorTransform = DEFAULT_COL;
+							if(character.inTheDark) character.gfx.visible = false;
 						}
 					}
 				}
 			} else {
-				brain.losBorder = infravision ? Brain.INFRAVISION_LOS_BORDER : Brain.DEFAULT_LOS_BORDER;
+				brain.losBorder = Brain.DEFAULT_LOS_BORDER + infravision * Brain.INFRAVISION_LOS_BORDER_BONUS;
 			}
 		}
 		

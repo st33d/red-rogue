@@ -1,3 +1,7 @@
+goggles
+
+bats
+
 more ledges need padding
 
 AI issues:

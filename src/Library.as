@@ -39,7 +39,7 @@
 		[Embed(source = 'assets/trap_revealed.png')] public var TrapRevealedB:Class;
 		
 		public const WEAPON_GFX_CLASSES:Array = [DaggerMC, MaceMC, SwordMC, StaffMC, ItemMovieClip, HammerMC];
-		public const ARMOUR_GFX_CLASSES:Array = [FliesMC, FedoraMC, VikingHelmMC, ItemMovieClip, ItemMovieClip, ItemMovieClip];
+		public const ARMOUR_GFX_CLASSES:Array = [FliesMC, FedoraMC, VikingHelmMC, ItemMovieClip, ItemMovieClip, ItemMovieClip, ItemMovieClip];
 		public const CHARACTER_GFX_CLASSES:Array = [RogueMC, MinionMC, KoboldMC, GoblinMC, OrcMC, TrollMC];
 		public const CHARACTER_HEAD_GFX_CLASSES:Array = [RogueHeadMC, MinionHeadMC, KoboldHeadMC, GoblinHeadMC, OrcHeadMC, TrollHeadMC];
 		

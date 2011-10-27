@@ -216,7 +216,7 @@
 			var itemXML:XML = <item />;
 			var enchantments:int = -2 + g.random.range(dungeonLevel);
 			var name:int;
-			var level:int =  1 + g.random.range(dungeonLevel);
+			var level:int =  Math.max(1 + g.random.range(dungeonLevel), 20);
 			var nameRange:int;
 			if(type == Item.ARMOUR){
 				nameRange = Item.stats["armour names"].length;

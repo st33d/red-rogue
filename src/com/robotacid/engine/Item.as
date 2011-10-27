@@ -92,6 +92,7 @@
 		public static const SKULL:int = 3;
 		public static const BLOOD:int = 4;
 		public static const INVISIBILITY:int = 5;
+		public static const GOGGLES:int = 6;
 		
 		// runes
 		public static const LIGHT:int = 0;
@@ -192,7 +193,7 @@
 			// concealing the item in the dark will help avoid showing a clipped effect on the edge
 			// of the light map
 			if(g.dungeon.level <= 0) gfx.visible = true;
-			else gfx.visible = g.lightMap.darkImage.getPixel32(mapX, mapY) != 0xFF000000;
+			else gfx.visible = g.lightMap.darkImage.getPixel32(mapX, mapY) != 0xFF000000 || g.player.infravision > 1;
 			
 			if(gfx.visible){
 				// create a twinkle twinkle effect when the item is on the map to collect
@@ -274,9 +275,30 @@
 			}
 		}
 		
+		/* Reveals that this item is cursed in the menu */
 		public function revealCurse():void{
 			if(location == INVENTORY) g.console.print("the " + nameToString() + " is cursed!");
 			curseState = CURSE_REVEALED;
+		}
+		
+		/* Adds special abilities to a Character when equipped */
+		public function addSpecial(character:Character):void{
+			if(leech) character.leech += leech;
+			if(type == ARMOUR){
+				if(name == GOGGLES){
+					character.setInfravision(character.infravision + 1);
+				}
+			}
+		}
+		
+		/* Removes previously added abilities from a Character */
+		public function removeSpecial(character:Character):void{
+			if(leech) character.leech -= leech;
+			if(type == ARMOUR){
+				if(name == GOGGLES){
+					character.setInfravision(character.infravision - 1);
+				}
+			}
 		}
 		
 		public function toString():String {

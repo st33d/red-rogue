@@ -13,7 +13,8 @@
 		"viking helm",
 		"skull",
 		"blood",
-		""
+		"",
+		"goggles"
 	],
 	"rune names":[
 		"light",
@@ -79,7 +80,8 @@
 		0,
 		0,
 		1,
-		1
+		1,
+		0
 	],
 	"armour defences":[
 		0.01,
@@ -87,6 +89,7 @@
 		0.02,
 		0.03,
 		0.04,
+		0.01,
 		0.01
 	],
 	"armour defence levels":[
@@ -95,6 +98,7 @@
 		0.015,
 		0.02,
 		0.02,
+		0.01,
 		0.01
 	],
 	"weapon knockbacks":[
@@ -114,6 +118,7 @@
 		0
 	],
 	"armour endurance":[
+		0,
 		0,
 		0,
 		0,

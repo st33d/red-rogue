@@ -87,7 +87,7 @@
 		public static const MINION_SEARCH_STEPS:int = 20;
 		
 		public static const DEFAULT_LOS_BORDER:Number = 100;
-		public static const INFRAVISION_LOS_BORDER:Number = 300;
+		public static const INFRAVISION_LOS_BORDER_BONUS:Number = 200;
 		
 		public static const FOLLOW_CHASE_EDGE:Number = Game.SCALE * 1.5;
 		public static const FOLLOW_FLEE_EDGE:Number = Game.SCALE * 1;
@@ -199,7 +199,7 @@
 					// we test LOS when the player is within a square area near the monster - this is cheaper
 					// than doing a radial test and we don't want all monsters calling LOS all the time
 					// we also avoid suprise attacks by avoiding checks from monsters in the dark - unless they have infravision
-					} else if(!char.inTheDark || char.infravision){
+					} else if(!char.inTheDark || (char.infravision)){
 						if(!(scheduleTarget.armour && scheduleTarget.armour.name == Item.INVISIBILITY)){
 							if(
 								scheduleTargetPos.x < charPos.x  + losBorder && scheduleTargetPos.x > charPos.x - losBorder &&

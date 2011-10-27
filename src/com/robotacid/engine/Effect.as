@@ -133,7 +133,19 @@
 				if(inventoryList) item = inventoryList.removeItem(item);
 				
 				var newName:int = item.name;
-				while(newName == item.name) newName = g.random.range(6);
+				var nameRange:int;
+				if(item.type == Item.ARMOUR){
+					nameRange = Item.stats["armour names"].length;
+				} else if(item.type == Item.WEAPON){
+					nameRange = Item.stats["weapon names"].length;
+				}
+				// limit change by dungeon level - catch possible infinite loop
+				if(nameRange > g.dungeon.level) nameRange = g.dungeon.level;
+				if(item.name == 0 && g.dungeon.level == 0 || g.dungeon.level == 1){
+					item.name = 1;
+				} else {
+					while(newName == item.name) newName = g.random.range(nameRange);
+				}
 				var newGfx:DisplayObject = g.library.getItemGfx(newName, item.type);
 				var holder:DisplayObjectContainer = item.gfx.parent;
 				if(holder){
