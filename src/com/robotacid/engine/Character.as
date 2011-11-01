@@ -56,6 +56,7 @@
 		public var inTheDark:Boolean;
 		public var debrisType:int;
 		public var missileIgnore:int;
+		public var infravisionRenderState:int;
 		
 		// stats
 		public var speed:Number;
@@ -163,6 +164,11 @@
 		
 		/* Initialise a character's abilities and statistics */
 		public function setStats():void{
+			// the character's equipment needs to be removed whilst stats are applied
+			var weaponTemp:Item, armourTemp:Item;
+			if(weapon) weaponTemp = unequip(weapon);
+			if(armour) armourTemp = unequip(armour);
+			
 			health = stats["healths"][name] + stats["health levels"][name] * level;
 			totalHealth = health;
 			attack = stats["attacks"][name] + stats["attack levels"][name] * level;
@@ -188,6 +194,10 @@
 			} else {
 				leech = 0;
 			}
+			
+			// re-equip
+			if(weaponTemp) equip(weaponTemp);
+			if(armourTemp) equip(armourTemp);
 		}
 		
 		override public function createCollider(x:Number, y:Number, properties:int, ignoreProperties:int, state:int = 0, positionByBase:Boolean = true):void {
@@ -219,18 +229,15 @@
 					else inTheDark = true;
 				}
 			}
-			if(g.player.infravision){
-				if(!inTheDark){
-					gfx.transform.colorTransform = DEFAULT_COL;
-				} else {
-					gfx.transform.colorTransform = INFRAVISION_COLS[g.player.infravision];
-				}
-			} else {
-				if(!inTheDark){
-					gfx.visible = true;
-				} else {
-					gfx.visible = false;
-				}
+			
+			// set visibility - account for player infravision and changes to their infravision
+			// this is handled here instead of at the rendering stage to save us the cost of the method call
+			// to get into the rendering method
+			gfx.visible = !inTheDark || (g.player.infravision);
+			var targetInfravisionRenderState:int = !inTheDark ? 0 : g.player.infravision;
+			if(infravisionRenderState != targetInfravisionRenderState){
+				gfx.transform.colorTransform = INFRAVISION_COLS[targetInfravisionRenderState];
+				infravisionRenderState = targetInfravisionRenderState;
 			}
 		}
 		
@@ -597,7 +604,7 @@
 				armour.gfx.x = armour.gfx.y = 0;
 			}
 			
-			item.addSpecial(this);
+			item.addBuff(this);
 			
 			item.location = Item.EQUIPPED;
 			item.user = this;
@@ -626,13 +633,10 @@
 			}
 			if(item == weapon) weapon = null;
 			
-			item.removeSpecial(this);
+			item.removeBuff(this);
 			
 			item.location = Item.INVENTORY;
 			item.user = null;
-			// some items may hide the character
-			gfx.visible = true;
-			
 			return item;
 		}
 		
@@ -741,13 +745,6 @@
 			infravision = value;
 			if(this is Player){
 				if(infravision){
-					for(i = 0; i < g.entities.length; i++){
-						character = g.entities[i] as Character;
-						if(character){
-							character.gfx.visible = true;
-							if(character.inTheDark) character.gfx.transform.colorTransform = INFRAVISION_COLS[infravision];
-						}
-					}
 					if(infravision == 1){
 						renderer.lightBitmap.alpha = 0.86;
 					} else if(infravision == 2){
@@ -755,13 +752,6 @@
 					}
 				} else {
 					renderer.lightBitmap.alpha = 1;
-					for(i = 0; i < g.entities.length; i++){
-						character = g.entities[i] as Character;
-						if(character){
-							character.gfx.transform.colorTransform = DEFAULT_COL;
-							if(character.inTheDark) character.gfx.visible = false;
-						}
-					}
 				}
 			} else {
 				brain.losBorder = Brain.DEFAULT_LOS_BORDER + infravision * Brain.INFRAVISION_LOS_BORDER_BONUS;
@@ -770,11 +760,6 @@
 		
 		public function changeName(name:int, gfx:MovieClip = null):void{
 			if(this.name == name && !gfx) return;
-			
-			// the character's equipment needs to be removed whilst stats are applied
-			var weaponTemp:Item, armourTemp:Item;
-			if(weapon) weaponTemp = unequip(weapon);
-			if(armour) armourTemp = unequip(armour);
 			
 			// change gfx
 			this.name = name;
@@ -793,19 +778,12 @@
 			createCollider(collider.x + collider.width * 0.5, collider.y + collider.height, collider.properties, collider.ignoreProperties, Collider.FALL);
 			if(restore) g.world.restoreCollider(collider);
 			
-			// attach equipment to new gfx
-			if(weapon) (gfx as Sprite).addChild(weapon.gfx);
-			if(armour) (gfx as Sprite).addChild(armour.gfx);
-			
-			// change stats
+			// change stats - items will be equipped to the new graphic in the setStats method
 			var originalHealthRatio:Number = health / totalHealth;
 			setStats();
 			health = 0;
 			applyHealth(originalHealthRatio * totalHealth);
 			
-			// re-equip
-			if(weaponTemp) equip(weaponTemp);
-			if(armourTemp) equip(armourTemp);
 		}
 		
 		override public function toXML():XML {

@@ -292,6 +292,7 @@
 					
 				// nothing to walk forward to - call the SELECT event
 				} else {
+					dirStack.length = 0;
 					// if the Menu is recording a path for a hot key, then we store that
 					// hot key here:
 					if(hotKeyMapRecord){
@@ -652,6 +653,8 @@
 							animatingSelection = false;
 							blood.length = 0;
 							moveReset = MOVE_DELAY;
+							// flush the direction stack again to avoid leaping off selecting things after the anim
+							dirStack.length = 0;
 						}
 					}
 					var maskRect:Rectangle = new Rectangle(Math.max(animAreaX - menuSword.x, 0), 0, menuSword.width, menuSword.height);

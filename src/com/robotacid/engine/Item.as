@@ -302,7 +302,7 @@
 		}
 		
 		/* Adds special abilities to a Character when equipped */
-		public function addSpecial(character:Character):void{
+		public function addBuff(character:Character):void{
 			if(leech) character.leech += leech;
 			if(type == ARMOUR){
 				if(name == GOGGLES){
@@ -312,7 +312,7 @@
 		}
 		
 		/* Removes previously added abilities from a Character */
-		public function removeSpecial(character:Character):void{
+		public function removeBuff(character:Character):void{
 			if(leech) character.leech -= leech;
 			if(type == ARMOUR){
 				if(name == GOGGLES){

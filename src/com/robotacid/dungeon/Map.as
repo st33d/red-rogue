@@ -400,53 +400,65 @@
 		 * stairs down somewhere at the bottom of the level
 		 */
 		public function createAccessPoints():void{
-			var highest:int = int.MAX_VALUE;
-			var stairsUp:Room;
+			var index:int = 0;
+			var stairsUpRoom:Room;
 			var ex:int, ey:int;
-			var breaker:int = 0;
+			var tries:int = 0;
 			var rooms:Vector.<Room> = bitmap.rooms;
-			for(i = 0; i < rooms.length; i++){
-				if(rooms[i].y < highest){
-					stairsUp = rooms[i];
-					highest = rooms[i].y;
-				}
-			}
+			rooms.sort(sortRoomsTopWards);
+			stairsUpRoom = rooms[index];
 			// we start at the top of the rooms and work our way down
-			ey = stairsUp.y + 1;
+			ey = stairsUpRoom.y + 1;
 			do{
-				if(breaker++ > 1000){
-					throw new Error("failed to create up stairs");
-					break;
+				if(tries++ > 200){
+					if(index == rooms.length - 1) throw new Error("failed to create up stairs");
+					else {
+						tries = 0;
+						index++;
+						stairsUpRoom = rooms[index];
+					}
 				}
-				ex = stairsUp.x + g.random.rangeInt(stairsUp.width);
+				ex = stairsUpRoom.x + g.random.rangeInt(stairsUpRoom.width);
 				// the room dimensions may have extended below
 				if(layers[BLOCKS][ey + 1][ex] == 0) ey++;
-				if(layers[BLOCKS][ey][ex] == 1) ey = stairsUp.y;
+				if(layers[BLOCKS][ey][ex] == 1) ey = stairsUpRoom.y;
 			} while(!goodStairsPosition(ex, ey));
 			setStairsUp(ex, ey);
 			
-			var lowest:int = int.MIN_VALUE;
-			var exitRoom:Room;
-			for(i = 0; i < rooms.length; i++){
-				if(rooms[i].y > lowest){
-					exitRoom = rooms[i];
-					lowest = rooms[i].y;
-				}
-			}
-			ey = exitRoom.y;
+			index = 0;
+			var stairsDownRoom:Room;
+			rooms.sort(sortRoomsBottomWards);
+			stairsDownRoom = rooms[index];
+			ey = stairsDownRoom.y;
 			// an exit on a ledge looks crap, so we try hard to avoid this
 			var tryToAvoidStairsDownOnLedge:int = 200;
 			do{
-				if(breaker++ > 1000){
-					throw new Error("failed to create down stairs");
-					break;
+				if(tries++ > 200){
+					if(index == rooms.length - 1) throw new Error("failed to create down stairs");
+					else {
+						tries = 0;
+						index++;
+						stairsDownRoom = rooms[index];
+					}
 				}
-				ex = exitRoom.x + g.random.rangeInt(exitRoom.width);
+				ex = stairsDownRoom.x + g.random.rangeInt(stairsDownRoom.width);
 				// the room dimensions may have extended below
 				if(layers[BLOCKS][ey + 1][ex] == 0 || bitmap.bitmapData.getPixel32(ex, ey + 1) == DungeonBitmap.LEDGE || bitmap.bitmapData.getPixel32(ex, ey + 1) == DungeonBitmap.LADDER_LEDGE) ey++;
-				if(layers[BLOCKS][ey][ex] == 1) ey = exitRoom.y;
+				if(layers[BLOCKS][ey][ex] == 1) ey = stairsDownRoom.y;
 			} while(!goodStairsPosition(ex, ey, (tryToAvoidStairsDownOnLedge--) > 0));
 			setStairsDown(ex, ey);
+		}
+		
+		private function sortRoomsTopWards(a:Room, b:Room):Number{
+			if(a.y < b.y) return -1;
+			else if(a.y > b.y) return 1;
+			return 0;
+		}
+		
+		private function sortRoomsBottomWards(a:Room, b:Room):Number{
+			if(a.y > b.y) return -1;
+			else if(a.y < b.y) return 1;
+			return 0;
 		}
 		
 		/* Getting a good position for the stairs is complex - hence the mess in this method */

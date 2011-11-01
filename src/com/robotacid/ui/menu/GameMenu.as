@@ -269,26 +269,36 @@
 			var option:MenuOption = currentMenuList.options[selection];
 			var item:Item, n:int, i:int, effect:Effect;
 			
-			// equipping items on the player
+			// equipping items on the player - toggle logic follows
 			if(option == inventoryList.equipOption){
 				item = previousMenuList.options[previousMenuList.selection].userData;
-				if(item.user && item.user == g.player){
+				if(item.location == Item.EQUIPPED && item.user == g.player){
 					item = g.player.unequip(item);
 				} else {
-					if(item.user && item.user == g.minion){
-						item = g.minion.unequip(item);
+					if(item.type == Item.WEAPON){
+						if(g.player.weapon) g.player.unequip(g.player.weapon);
+						if(g.minion && g.minion.weapon && g.minion.weapon == item) g.minion.unequip(g.minion.weapon);
+					}
+					if(item.type == Item.ARMOUR){
+						if(g.player.armour) g.player.unequip(g.player.armour);
+						if(g.minion && g.minion.armour && g.minion.armour == item) g.minion.unequip(g.minion.armour);
 					}
 					item = g.player.equip(item);
 				}
 			
-			// equipping items on minions
+			// equipping items on minions - toggle logic follows
 			} else if(option == inventoryList.equipMinionOption){
 				item = previousMenuList.options[previousMenuList.selection].userData;
-				if(item.user && item.user == g.minion){
+				if(item.location == Item.EQUIPPED && item.user == g.minion){
 					item = g.minion.unequip(item);
 				} else {
-					if(item.user && item.user == g.player){
-						item = g.player.unequip(item);
+					if(item.type == Item.WEAPON){
+						if(g.minion.weapon) g.minion.unequip(g.minion.weapon);
+						if(g.player.weapon && g.player.weapon == item) g.player.unequip(g.player.weapon);
+					}
+					if(item.type == Item.ARMOUR){
+						if(g.minion.armour) g.minion.unequip(g.minion.armour);
+						if(g.player.armour && g.player.armour == item) g.player.unequip(g.player.armour);
 					}
 					item = g.minion.equip(item);
 				}

@@ -359,6 +359,7 @@
 		/* Effects a teleportation upon a character */
 		private function teleportCharacter(target:Character):void{
 			renderer.createTeleportSparkRect(target.collider, 20);
+			target.collider.divorce();
 			var dest:Pixel = getTeleportTarget(target.mapX, target.mapY, g.world.map, g.mapRenderer.mapRect);
 			target.collider.x = -target.collider.width * 0.5 + (dest.x + 0.5) * Game.SCALE;
 			target.collider.y = -target.collider.height + (dest.y + 1) * Game.SCALE;
