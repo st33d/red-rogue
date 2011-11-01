@@ -177,9 +177,12 @@
 			
 			previousTextBox = new TextBox(LIST_WIDTH, 1 + LINE_SPACING + TextBox.BORDER_ALLOWANCE * 2, 0x66111111, 0xFF999999, 0xFFDDDDDD);
 			previousTextBox.alpha = 0.7;
+			previousTextBox.wordWrap = false;
 			currentTextBox = new TextBox(LIST_WIDTH, 1 + LINE_SPACING + TextBox.BORDER_ALLOWANCE * 2, 0x66111111, 0xFF999999, 0xFFDDDDDD);
+			currentTextBox.wordWrap = false;
 			nextTextBox = new TextBox(LIST_WIDTH, 1 + LINE_SPACING + TextBox.BORDER_ALLOWANCE * 2, 0x66111111, 0xFF999999, 0xFFDDDDDD);
 			nextTextBox.alpha = 0.7;
+			nextTextBox.wordWrap = false;
 			capture = new CaptureBitmap();
 			capture.visible = false;
 			menuSword = new Game.g.library.MenuSwordB();
