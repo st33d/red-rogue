@@ -236,7 +236,7 @@
 						
 						var neighbours:Vector.<Pixel> = new Vector.<Pixel>(4, true);
 						// this randomisation keeps the search from being weighted
-						randomiseArray(directions);
+						randomiseArray(directions, g.random);
 						var m:int = 0;
 						do{
 							data.setPixel32(exit.x, exit.y, TUNNELLING);

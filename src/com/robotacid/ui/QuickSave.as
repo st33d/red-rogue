@@ -171,9 +171,9 @@ package com.robotacid.ui {
 							effect.enchant(item);
 						}
 						g.menu.inventoryList.addItem(item);
-						if(item.location == Item.EQUIPPED){
+						if(xml.@user == "rogue"){
 							g.player.equip(item);
-						} else if(item.location == Item.MINION_EQUIPPED){
+						} else if(xml.@user == "minion"){
 							g.minion.equip(item);
 						}
 					}

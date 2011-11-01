@@ -28,6 +28,7 @@
 		public var count:int;
 		public var target:Character;
 		public var source:int;
+		public var applicable:Boolean;
 		
 		public var healthStep:Number;
 		public var targetTotalHealth:Number;
@@ -39,6 +40,7 @@
 		public static const UNDEAD:int = Item.UNDEAD;
 		public static const POLYMORPH:int = Item.POLYMORPH;
 		public static const XP:int = Item.XP;
+		public static const LEECH:int = Item.LEECH_RUNE;
 		
 		public static const WEAPON:int = Item.WEAPON;
 		public static const ARMOUR:int = Item.ARMOUR;
@@ -46,6 +48,7 @@
 		public static const EATEN:int = 4;
 		
 		public static const DECAY_DELAY_PER_LEVEL:int = 30 * 3;
+		public static const LEECH_DAMAGE_PER_LEVEL:Number = 0.1;
 		
 		public static const MIN_TELEPORT_DIST:int = 10;
 		public static const TELEPORT_COUNTDOWN_STEP:int = 600 / 20;
@@ -54,6 +57,7 @@
 			this.name = name;
 			this.level = level;
 			this.source = source;
+			applicable = true;
 			if(target){
 				apply(target, count);
 			}
@@ -123,7 +127,7 @@
 		 * When items are in the inventory,
 		 * there's some direct fiddling with the inventory list
 		 */
-		public function enchant(item:Item, inventoryList:InventoryMenuList = null):Item{
+		public function enchant(item:Item, inventoryList:InventoryMenuList = null, user:Character = null):Item{
 			
 			source = item.type;
 			
@@ -147,13 +151,7 @@
 					while(newName == item.name) newName = g.random.range(nameRange);
 				}
 				var newGfx:DisplayObject = g.library.getItemGfx(newName, item.type);
-				var holder:DisplayObjectContainer = item.gfx.parent;
-				if(holder){
-					holder.removeChild(item.gfx);
-					holder.addChild(newGfx);
-				}
 				item.gfx = newGfx;
-				if(item.gfx is ItemMovieClip) (item.gfx as ItemMovieClip).setEquipRender();
 				item.name = newName;
 				item.setStats();
 				
@@ -166,42 +164,36 @@
 				while(level--) item.levelUp();
 				inventoryList.updateItem(item);
 				return item;
+				
 			}
 			
 			// this is the embedding routine
 			// repeat enchants must upgrade existing effects or risk a clusterfuck of effects firing all the time
 			if(item.effects){
-				var upgrade:Boolean = false;
+				var effect:Effect;
 				for(var i:int = 0; i < item.effects.length; i++){
-					if(item.effects[i].name == name){
-						if(item.effects[i].level < Game.MAX_LEVEL){
-							upgrade = true;
-							while(level-- && item.effects[i].level < Game.MAX_LEVEL){
-								if((item.location == Item.EQUIPPED || Item.MINION_EQUIPPED) && item.type == Item.ARMOUR) item.effects[i].levelUp();
-								else item.effects[i].level++;
+					effect = item.effects[i];
+					if(effect.name == name){
+						if(effect.level < Game.MAX_LEVEL){
+							while(level-- && effect.level < Game.MAX_LEVEL){
+								effect.level++;
 							}
 							break;
 						}
 					}
 				}
-				if(!upgrade){
-					item.effects.push(this);
-					if(item.location == Item.EQUIPPED && item.type == Item.ARMOUR) apply(g.player);
-					else if(item.location == Item.MINION_EQUIPPED && item.type == Item.ARMOUR) apply(g.minion);
-				}
 			} else {
 				item.effects = new Vector.<Effect>();
 				item.effects.push(this);
-				if(item.type == Item.ARMOUR){
-					if(item.location == Item.EQUIPPED){
-						apply(g.player);
-					} else if(item.location == Item.MINION_EQUIPPED){
-						apply(g.minion);
-					}
-				}
 				
 				// upon enchanting this item for the first time, there is a chance it may become cursed
 				if(g.random.value() < Item.CURSE_CHANCE) item.applyCurse();
+			}
+			
+			// leech enchantments merely alter the leech stat on an item, conferring no active effect
+			if(name == LEECH){
+				applicable = false;
+				item.setStats();
 			}
 			
 			if(inventoryList) inventoryList.updateItem(item);
@@ -209,13 +201,8 @@
 			if(name == TELEPORT && inventoryList){
 				// this is possibly the biggest pisstake of all the spells, casting teleport on an item
 				// in your inventory (suprise, surprise) teleports it to another location in the dungeon
-				if(item.location & Item.EQUIPPED){
-					item = g.player.unequip(item);
-					renderer.createTeleportSparkRect(g.player.collider, 10);
-				} else if(item.location & Item.MINION_EQUIPPED){
-					item = g.minion.unequip(item);
-					renderer.createTeleportSparkRect(g.minion.collider, 10);
-				}
+				// at least if it was cursed this is a good thing
+				if(user) renderer.createTeleportSparkRect(user.collider, 10);
 				item = inventoryList.removeItem(item);
 				var dest:Pixel = getTeleportTarget(g.player.mapX, g.player.mapY, g.world.map, g.mapRenderer.mapRect);
 				item.dropToMap(dest.x, dest.y);
@@ -296,6 +283,16 @@
 					target.levelUp();
 				}
 				return;
+			} else if(name == LEECH){
+				if(source == EATEN || source == THROWN){
+					var item:Item = new Item(new ItemMovieClip(Item.LEECH_WEAPON, Item.WEAPON), Item.LEECH_WEAPON, Item.WEAPON, target.level);
+					item.applyCurse();
+					item.curseState = Item.CURSE_REVEALED;
+					item.collect(target, false);
+					if(target.weapon) target.unequip(target.weapon);
+					target.equip(item);
+				}
+				return;
 			}
 			if(!target.effects) target.effects = new Vector.<Effect>();
 			target.effects.push(this);
@@ -328,6 +325,9 @@
 							} else {
 								mc = new MinionMC();
 								g.minion = new Minion(mc, target.collider.x + target.collider.width * 0.5, target.collider.y + target.collider.height, Character.SKELETON);
+								g.world.restoreCollider(g.minion.collider);
+								g.minion.collider.state = Collider.FALL;
+								g.minion.state = Character.WALKING;
 								g.console.print("undead minion summoned");
 							}
 						} else if(source == ARMOUR || source == EATEN){
@@ -354,16 +354,6 @@
 			if(n > -1) g.effects.splice(n, 1);
 			
 			target = null;
-		}
-		
-		/* Used when upgrading an existing effect */
-		public function levelUp(n:int = 1):void{
-			var tempTarget:Character = target;
-			if(tempTarget) dismiss();
-			if(level + n < Game.MAX_LEVEL){
-				level += 1;
-			}
-			if(tempTarget) apply(tempTarget);
 		}
 		
 		/* Effects a teleportation upon a character */

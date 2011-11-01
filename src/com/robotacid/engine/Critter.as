@@ -25,6 +25,7 @@ package com.robotacid.engine {
 		
 		public static const RAT:int = 0;
 		public static const SPIDER:int = 1;
+		public static const BAT:int = 2;
 		
 		public static const PATROL:int = 0;
 		public static const PAUSE:int = 1;
@@ -36,8 +37,8 @@ package com.robotacid.engine {
 		
 		public static const DAMPING_X:Number = Character.DAMPING_X;
 		
-		public function Critter(mc:DisplayObject, x:Number, y:Number, name:int){
-			super(mc);
+		public function Critter(gfx:DisplayObject, x:Number, y:Number, name:int){
+			super(gfx);
 			this.name = name;
 			if(name == RAT){
 				delay = 12;
@@ -55,6 +56,14 @@ package com.robotacid.engine {
 				topOfThreadY = y - SCALE * 0.5;
 				createCollider(x, y, Collider.HEAD | Collider.SOLID, Collider.HEAD, Collider.HOVER);
 				collider.dampingY = collider.dampingX;
+			} else if(name == BAT){
+				delay = 30;
+				speed = 1;
+				state = PATROL;
+				patrolAreaSet = true;
+				dir = g.random.value() < 0.5 ? LEFT : RIGHT;
+				createCollider(x, y, Collider.HEAD | Collider.SOLID, Collider.HEAD, Collider.FALL, false);
+				(gfx as MovieClip).gotoAndPlay("fly");
 			}
 			count = delay;
 			callMain = true;
@@ -82,25 +91,39 @@ package com.robotacid.engine {
 					patrol();
 				} else (setPatrolArea(g.world.map));
 				if(count-- <= 0){
-					count = delay + g.random.range(delay);
-					state = PAUSE;
+					if(name == BAT && !(collider.pressure & UP)){
+						dir = UP;
+						
+					} else {
+						count = delay + g.random.range(delay);
+						state = PAUSE;
+						if(name == BAT){
+							(gfx as MovieClip).gotoAndStop("idle");
+							collider.state = Collider.HOVER;
+						}
+					}
 				}
 				if(dir) collider.awake = Collider.AWAKE_DELAY;
-				if(dir == RIGHT) collider.vx += speed;
-				else if(dir == LEFT) collider.vx -= speed;
-				else if(dir == DOWN) collider.vy += speed;
-				else if(dir == UP) collider.vy -= speed;
+				if(dir & RIGHT) collider.vx += speed;
+				if(dir & LEFT) collider.vx -= speed;
+				if(dir & DOWN) collider.vy += speed;
+				if(dir & UP) collider.vy -= speed;
 			} else if(state == PAUSE){
 				if(count-- <= 0){
 					count = delay + g.random.range(delay);
 					state = PATROL;
+					if(name == BAT){
+						(gfx as MovieClip).gotoAndPlay("fly");
+						collider.state = Collider.FALL;
+						dir = g.random.value() < 0.5 ? LEFT : RIGHT;
+					}
 				}
 			}
 			var contact:Collider = collider.getContact();
 			if(contact){
 				if(name == RAT){
 					if(Math.abs(contact.vx) > Collider.MOVEMENT_TOLERANCE || collider.upContact || collider.downContact) kill();
-				} else if(name == SPIDER){
+				} else if(name == SPIDER || name == BAT){
 					kill();
 				}
 			}
@@ -120,9 +143,18 @@ package com.robotacid.engine {
 			if(name == RAT){
 				if(collider.x + collider.width >= patrolMax || (collider.pressure & RIGHT)) dir = LEFT;
 				if(collider.x <= patrolMin || (collider.pressure & LEFT)) dir = RIGHT;
+				
 			} else if(name == SPIDER){
 				if(collider.y + collider.height >= patrolMax || (collider.pressure & DOWN)) dir = UP;
 				if(collider.y <= patrolMin || (collider.pressure & UP)) dir = DOWN;
+				
+			} else if(name == BAT){
+				if(collider.x + collider.width >= patrolMax || (collider.pressure & RIGHT)) dir = LEFT;
+				if(collider.x <= patrolMin || (collider.pressure & LEFT)) dir = RIGHT;
+				//if((gfx as MovieClip).currentFrame > (gfx as MovieClip).totalFrames * 0.2) dir |= UP;
+				if(g.random.value() > 0.2) dir |= UP;
+				else dir &= ~UP;
+				
 			}
 		}
 		
@@ -166,7 +198,7 @@ package com.robotacid.engine {
 			
 			if(name == RAT){
 				gfx.x = (collider.x + collider.width * 0.5) >> 0;
-				gfx.y = Math.round(collider.y + collider.height);
+				gfx.y = (collider.y + collider.height + 0.5) >> 0;
 				if ((dir & LEFT) && gfx.scaleX != 1) gfx.scaleX = 1;
 				else if ((dir & RIGHT) && gfx.scaleX != -1) gfx.scaleX = -1;
 			} else if(name == SPIDER){
@@ -181,6 +213,9 @@ package com.robotacid.engine {
 				mc.graphics.beginFill(0xFFFFFF, 0.5);
 				mc.graphics.drawRect(0, topOfThreadY - collider.y, 1, collider.y - topOfThreadY);
 				mc.graphics.endFill();
+			} else if(name == BAT){
+				gfx.x = (collider.x + collider.width * 0.5) >> 0;
+				gfx.y = (collider.y + 0.5) >> 0;
 			}
 			super.render();
 		}

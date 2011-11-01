@@ -205,6 +205,7 @@
 			SoundManager.addSound(new RuneHitSound, "runeHit", 0.8);
 			SoundManager.addSound(new TeleportSound, "teleport", 0.8);
 			SoundManager.addSound(new HitSound, "hit", 0.6);
+			SoundManager.addSound(new MusicSound1, "music1", 1.0);
 			soundQueue = new SoundQueue();
 			
 			if (stage) init();
@@ -467,6 +468,7 @@
 					console.print("minion reverts to undead form");
 				}
 				mapRenderer.setLayerUpdate(MapRenderer.BLOCK_LAYER, false);
+				SoundManager.fadeMusic("music1", -SoundManager.DEFAULT_FADE_STEP);
 				
 			} else if(dungeon.level == -1){
 				renderer.lightBitmap.visible = false;
@@ -475,6 +477,7 @@
 				if(dungeon.level == 1){
 					// change to black and white rogue
 					player.changeName(Character.ROGUE, new RogueMC);
+					if(!SoundManager.currentMusic) SoundManager.fadeMusic("music1");
 				}
 				renderer.lightBitmap.visible = true;
 				miniMap.visible = true;
@@ -493,6 +496,7 @@
 			minion.prepareToEnter(entrance);
 			player.enterLevel(entrance);
 			player.snapCamera();
+			SoundManager.playMusic("music1");
 		}
 		
 		private function addListeners():void{

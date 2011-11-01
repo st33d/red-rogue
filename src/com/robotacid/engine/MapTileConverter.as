@@ -100,6 +100,7 @@
 		
 		public static const RAT:int = 62;
 		public static const SPIDER:int = 63;
+		public static const BAT:int = 64;
 		
 		// These references are technically illegal. Game.g doesn't even exist yet, but some how the
 		// compiler is letting the issue slide so long as I don't static reference Game
@@ -166,10 +167,11 @@
 			Sprite,
 			StairsUpMC,
 			StairsDownMC,
-			Sprite,
+			Sprite,//60
 			Sprite,
 			RatMC,
-			SpiderMC
+			SpiderMC,
+			BatMC
 		];
 		
 		public function MapTileConverter(r:MapRenderer, g:Game, renderer:Renderer) {
@@ -302,6 +304,8 @@
 				item = new Critter(mc, (x + 0.5) * Game.SCALE, (y + 1) * Game.SCALE, Critter.RAT);
 			} else if(id == 63){
 				item = new Critter(mc, (x + 0.5) * Game.SCALE, (y + 0.5) * Game.SCALE, Critter.SPIDER);
+			} else if(id == 64){
+				item = new Critter(mc, (x + 0.5) * Game.SCALE, y * Game.SCALE, Critter.BAT);
 			}
 			
 			

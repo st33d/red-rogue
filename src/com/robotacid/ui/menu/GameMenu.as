@@ -29,6 +29,8 @@
 		public var debugList:MenuList;
 		
 		public var giveItemList:GiveItemMenuList;
+		public var sureList:MenuList;
+		public var soundList:MenuList;
 		
 		public var inventoryOption:MenuOption;
 		public var actionsOption:MenuOption;
@@ -44,7 +46,6 @@
 		public var loadOption:MenuOption;
 		public var saveOption:MenuOption;
 		public var newGameOption:MenuOption;
-		public var sureList:MenuList;
 		public var sureOption:MenuOption;
 		
 		public var onOffList:MenuList;
@@ -70,6 +71,7 @@
 			debugList = new MenuList();
 			
 			giveItemList = new GiveItemMenuList(this, g);
+			soundList = new MenuList();
 			
 			onOffList = new MenuList();
 			sureList = new MenuList();
@@ -97,8 +99,10 @@
 			initHotKeyMenuOption(trunk);
 			hotKeyOption.help = "set up a key to perform a menu action the hot key will work even if the menu is hidden the hot key will also adapt to menu changes";
 			
-			var soundOption:MenuOption = new MenuOption("sound", onOffList);
+			var soundOption:MenuOption = new MenuOption("sound", soundList);
 			soundOption.help = "toggle sound";
+			var sfxOption:MenuOption = new MenuOption("sfx", onOffList);
+			var musicOption:MenuOption = new MenuOption("music", onOffList);
 			var fullScreenOption:MenuOption = new MenuOption("fullscreen", onOffList);
 			fullScreenOption.help = "toggle fullscreen.\nthe flash player only allows use of the cursor keys and space when fullscreen.";
 			loadOption = new MenuOption("load", sureList);
@@ -145,6 +149,9 @@
 			actionsList.options.push(missileOption);
 			
 			debugList.options.push(giveItemOption);
+			
+			soundList.options.push(sfxOption);
+			soundList.options.push(musicOption);
 			
 			sureList.options.push(sureOption);
 			
@@ -210,8 +217,8 @@
 			if(option.userData is Item){
 				var item:Item = option.userData;
 				if(item.type == Item.WEAPON || item.type == Item.ARMOUR){
-					inventoryList.equipOption.state = item.location == Item.EQUIPPED ? 1 : 0;
-					inventoryList.equipMinionOption.state = (g.minion && item.location == Item.MINION_EQUIPPED) ? 1 : 0;
+					inventoryList.equipOption.state = (item.user && item.user == g.player) ? 1 : 0;
+					inventoryList.equipMinionOption.state = (item.user && item.user == g.minion) ? 1 : 0;
 					inventoryList.equipMinionOption.active = Boolean(g.minion);
 					inventoryList.enchantmentList.update(item);
 					// cursed items disable equipping items of that type, they cannot be dropped either
@@ -239,8 +246,11 @@
 					}
 				}
 				renderMenu();
-			} else if(option.name == "sound"){
+			} else if(option.name == "sfx"){
 				onOffOption.state = SoundManager.sfx ? 0 : 1;
+				renderMenu();
+			} else if(option.name == "music"){
+				onOffOption.state = SoundManager.music ? 0 : 1;
 				renderMenu();
 			} else if(option.name == "fullscreen"){
 				onOffOption.state = stage.displayState == "normal" ? 1 : 0;
@@ -262,16 +272,11 @@
 			// equipping items on the player
 			if(option == inventoryList.equipOption){
 				item = previousMenuList.options[previousMenuList.selection].userData;
-				if(item.location == Item.EQUIPPED){
-					g.player.unequip(item);
+				if(item.user && item.user == g.player){
+					item = g.player.unequip(item);
 				} else {
-					if(item.type == Item.WEAPON){
-						if(g.player.weapon) g.player.unequip(g.player.weapon);
-						if(g.minion && g.minion.weapon && g.minion.weapon == item) g.minion.unequip(g.minion.weapon);
-					}
-					if(item.type == Item.ARMOUR){
-						if(g.player.armour) g.player.unequip(g.player.armour);
-						if(g.minion && g.minion.armour && g.minion.armour == item) g.minion.unequip(g.minion.armour);
+					if(item.user && item.user == g.minion){
+						item = g.minion.unequip(item);
 					}
 					item = g.player.equip(item);
 				}
@@ -279,16 +284,11 @@
 			// equipping items on minions
 			} else if(option == inventoryList.equipMinionOption){
 				item = previousMenuList.options[previousMenuList.selection].userData;
-				if(item.location == Item.MINION_EQUIPPED){
-					g.minion.unequip(item);
+				if(item.user && item.user == g.minion){
+					item = g.minion.unequip(item);
 				} else {
-					if(item.type == Item.WEAPON){
-						if(g.minion.weapon) g.minion.unequip(g.minion.weapon);
-						if(g.player.weapon && g.player.weapon == item) g.player.unequip(g.player.weapon);
-					}
-					if(item.type == Item.ARMOUR){
-						if(g.minion.armour) g.minion.unequip(g.minion.armour);
-						if(g.player.armour && g.player.armour == item) g.player.unequip(g.player.armour);
+					if(item.user && item.user == g.player){
+						item = g.player.unequip(item);
 					}
 					item = g.minion.equip(item);
 				}
@@ -296,12 +296,7 @@
 			// dropping items
 			} else if(option == inventoryList.dropOption){
 				item = previousMenuList.options[previousMenuList.selection].userData;
-				if(item.location == Item.EQUIPPED){
-					item = g.player.unequip(item);
-				}
-				if(g.minion && item.location == Item.MINION_EQUIPPED){
-					item = g.minion.unequip(item);
-				}
+				if(item.user) item = item.user.unequip(item);
 				item = inventoryList.removeItem(item);
 				item.dropToMap(g.player.mapX, g.player.mapY);
 				
@@ -344,9 +339,14 @@
 			
 			} else if(option == onOffOption){
 				
-				// turning off sound
-				if(previousMenuList.options[previousMenuList.selection].name == "sound"){
+				// turning off sfx
+				if(previousMenuList.options[previousMenuList.selection].name == "sfx"){
 					SoundManager.sfx = onOffOption.state == 1;
+				
+				// turning off music
+				} else if(previousMenuList.options[previousMenuList.selection].name == "music"){
+					if(SoundManager.music) SoundManager.turnOffMusic();
+					else SoundManager.turnOnMusic();
 					
 				// toggle fullscreen
 				} else if(previousMenuList.options[previousMenuList.selection].name == "fullscreen"){
@@ -376,7 +376,13 @@
 				
 				Item.revealName(rune.name, inventoryList);
 				
-				item = effect.enchant(item, inventoryList);
+				// items need to be unequipped and then equipped again to apply their new settings to a Character
+				var user:Character = item.user;
+				if(user) item = user.unequip(item);
+				
+				item = effect.enchant(item, inventoryList, user);
+				
+				if(user && item.location == Item.INVENTORY) item = user.equip(item);
 				
 				rune = inventoryList.removeItem(rune);
 				g.console.print(item.nameToString() + " enchanted with " + rune.nameToString());

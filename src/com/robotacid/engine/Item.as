@@ -33,6 +33,7 @@
 		public var twinkleCount:int;
 		public var range:int;
 		public var position:int;
+		public var user:Character;
 		
 		// stats
 		public var damage:Number;
@@ -62,8 +63,7 @@
 		public static const DROPPED:int = 1;
 		public static const INVENTORY:int = 2;
 		public static const EQUIPPED:int = 3;
-		public static const MINION_EQUIPPED:int = 4;
-		public static const FLIGHT:int = 5;
+		public static const FLIGHT:int = 4;
 		
 		// ranges
 		public static const MELEE:int = 1 << 0;
@@ -84,6 +84,7 @@
 		public static const STAFF:int = 3;
 		public static const SHORT_BOW:int = 4;
 		public static const HAMMER:int = 5;
+		public static const LEECH_WEAPON:int = 6;
 		
 		// armour
 		public static const FLIES:int = 0;
@@ -102,6 +103,7 @@
 		public static const UNDEAD:int = 4;
 		public static const POLYMORPH:int = 5;
 		public static const XP:int = 6;
+		public static const LEECH_RUNE:int = 7;
 		
 		// curse states
 		public static const NO_CURSE:int = 0;
@@ -112,6 +114,9 @@
 		
 		public static const MAX_LEVEL:int = 20;
 		public static const DROP_GLOW_FILTER:GlowFilter = new GlowFilter(0xFFFFFF, 0.5, 2, 2, 1000);
+		/* There are five health stealing opportunities: being a vampire, the leech weapon, blood armour and leech enchantment
+		 * counts as two - but we're going to treat it as four and divide 1.0 by 20 * 4 */
+		public static const LEECH_PER_LEVEL:Number = 0.0125;
 		
 		[Embed(source = "itemStats.json", mimeType = "application/octet-stream")] public static var statsData:Class;
 		public static var stats:Object;
@@ -127,10 +132,12 @@
 			location = UNASSIGNED;
 			stacked = false;
 			callMain = true;
+			user = null;
 			twinkleCount = TWINKLE_DELAY + g.random.range(TWINKLE_DELAY);
 		}
 		
 		public function setStats():void{
+			var i:int, effect:Effect;
 			if(type == WEAPON){
 				nameStr = stats["weapon names"][name];
 				damage = stats["weapon damages"][name] + stats["weapon damage levels"][name] * level;
@@ -142,10 +149,16 @@
 				if(name == SHORT_BOW){
 					missileGfxClass = ShortBowArrowMC;
 				}
-				if(true){
-					leech = 0;
+				if(name == LEECH_WEAPON){
+					leech = LEECH_PER_LEVEL * level;
 				} else {
 					leech = 0;
+				}
+				if(effects){
+					for(i = 0; i < effects.length; i++){
+						effect = effects[i];
+						if(effect.name == Effect.LEECH) leech += LEECH_PER_LEVEL * effect.level;
+					}
 				}
 				
 			} else if(type == ARMOUR){
@@ -154,10 +167,17 @@
 				endurance = stats["armour endurance"][name];
 				position = stats["armour positions"][name];
 				if(name == BLOOD){
-					leech = 0.025 * level;
+					leech = LEECH_PER_LEVEL * level;
 				} else {
 					leech = 0;
 				}
+				if(effects){
+					for(i = 0; i < effects.length; i++){
+						effect = effects[i];
+						if(effect.name == Effect.LEECH) leech += LEECH_PER_LEVEL * effect.level;
+					}
+				}
+				
 			} else if(type == RUNE){
 				nameStr = stats["rune names"][name];
 			}
@@ -209,7 +229,7 @@
 			}
 		}
 		
-		public function collect(character:Character):void{
+		public function collect(character:Character, print:Boolean = true):void{
 			if(location == DROPPED){
 				collider.world.removeCollider(collider);
 				active = false;
@@ -217,7 +237,7 @@
 			location = INVENTORY;
 			if(character is Player){
 				g.menu.inventoryList.addItem(this);
-				g.console.print("picked up " + nameToString());
+				if(print) g.console.print("picked up " + nameToString());
 			} else character.loot.push(this);
 			gfx.filters = [];
 			gfx.visible = true;
@@ -267,9 +287,9 @@
 			
 			curseState = CURSE_HIDDEN;
 			
-			if(location == EQUIPPED || location == MINION_EQUIPPED){
+			if(location == EQUIPPED){
 				revealCurse();
-				if(location == MINION_EQUIPPED){
+				if(user && user == g.minion){
 					g.console.print("but the minion is unaffected...");
 				}
 			}
@@ -307,8 +327,8 @@
 		
 		override public function nameToString():String {
 			var str:String = "";
-			if(location == EQUIPPED) str += "w: ";
-			else if(location == MINION_EQUIPPED) str += "m: ";
+			if(user && user == g.player) str += "w: ";
+			else if(user && user == g.minion) str += "m: ";
 			//if(stack > 0) str += stack + "x ";
 			//if(level > 0) str += "+" + level + " ";
 			
@@ -380,6 +400,7 @@
 			xml.@level = level;
 			xml.@location = location;
 			xml.@curseState = curseState;
+			xml.@user = user ? user.trueNameToString() : "";
 			if(effects && effects.length){
 				for(var i:int = 0; i < effects.length; i++){
 					xml.appendChild(effects[i].toXML());

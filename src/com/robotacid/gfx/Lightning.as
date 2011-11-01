@@ -68,7 +68,7 @@
 		 * in reaching its target or was blocked by a wall */
 		public function strike(gfx:Graphics, map:Vector.<Vector.<int>>, startX:Number, startY:Number, finishX:Number, finishY:Number):Boolean{
 			// by randomising the search order of nodes we avoid paths being weighted
-			randomiseArray(pos);
+			randomiseArray(pos, g.random);
 			
 			sx = startX * INV_SCALE;
 			sy = startY * INV_SCALE;

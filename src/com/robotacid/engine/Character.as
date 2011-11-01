@@ -600,6 +600,7 @@
 			item.addSpecial(this);
 			
 			item.location = Item.EQUIPPED;
+			item.user = this;
 			(gfx as Sprite).addChild(item.gfx);
 			if(item.gfx is ItemMovieClip) (item.gfx as ItemMovieClip).setEquipRender();
 			return item;
@@ -628,6 +629,7 @@
 			item.removeSpecial(this);
 			
 			item.location = Item.INVENTORY;
+			item.user = null;
 			// some items may hide the character
 			gfx.visible = true;
 			
@@ -716,8 +718,10 @@
 		
 		public function applyWeaponEffects(item:Item):void{
 			if(item.effects){
+				var effect:Effect;
 				for(var i:int = 0; i < item.effects.length; i++){
-					item.effects[i].copy().apply(this);
+					effect = item.effects[i];
+					if(effect.applicable) effect.copy().apply(this);
 				}
 			}
 		}
@@ -767,6 +771,11 @@
 		public function changeName(name:int, gfx:MovieClip = null):void{
 			if(this.name == name && !gfx) return;
 			
+			// the character's equipment needs to be removed whilst stats are applied
+			var weaponTemp:Item, armourTemp:Item;
+			if(weapon) weaponTemp = unequip(weapon);
+			if(armour) armourTemp = unequip(armour);
+			
 			// change gfx
 			this.name = name;
 			if(!gfx){
@@ -793,6 +802,10 @@
 			setStats();
 			health = 0;
 			applyHealth(originalHealthRatio * totalHealth);
+			
+			// re-equip
+			if(weaponTemp) equip(weaponTemp);
+			if(armourTemp) equip(armourTemp);
 		}
 		
 		override public function toXML():XML {
@@ -812,6 +825,12 @@
 		}
 		
 		override public function nameToString():String {
+			return stats["names"][name];
+		}
+		
+		public function trueNameToString():String {
+			if(this is Player) return "rogue";
+			else if(this is Minion) return "minion";
 			return stats["names"][name];
 		}
 		

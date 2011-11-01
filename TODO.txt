@@ -1,8 +1,8 @@
-goggles
+Prompt class
 
-bats
+marquee-rocker scroll on TextBox
 
-more ledges need padding
+collider removal on death bug - occurs with quickening - stumped
 
 AI issues:
 	walks into wall constantly when too close
@@ -15,13 +15,5 @@ help on menu has not been fully written out
 level generator overhaul:
 	distribution tactics -
 		distribution bubbles
-
-the overworld (accessible from level 1 and portals):
-	backdrop - single screen full colour (contrast to black and white dungeon)
-	the grindstone
-		code done - create graphic
-	the healstone
-		code done - create graphic
-
 
 rally - a monster could see the character and could call other monsters to aid, there should be a rallying pose and a shockwave type graphic, implying he's just told everyone on screen to mob the player

@@ -89,7 +89,6 @@
 			}
 			item = inventory.unstack(item);
 			super.equip(item);
-			item.location = Item.MINION_EQUIPPED;
 			inventory.updateItem(item);
 			return item;
 		}

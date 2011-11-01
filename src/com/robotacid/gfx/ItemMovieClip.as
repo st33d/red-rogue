@@ -63,6 +63,9 @@ package com.robotacid.gfx {
 				if(name == Item.SHORT_BOW){
 					gfx = new ShortBowMC();
 					addChild(gfx);
+				} else if(name == Item.LEECH_WEAPON){
+					gfx = new LeechMC();
+					addChild(gfx);
 				}
 			}
 		}
@@ -87,6 +90,8 @@ package com.robotacid.gfx {
 				}
 			} else if(_type == Item.WEAPON){
 				if(_name == Item.SHORT_BOW){
+					if(mc.currentLabel != "idle") mc.gotoAndStop("idle");
+				} else if(_name == Item.LEECH_WEAPON){
 					if(mc.currentLabel != "idle") mc.gotoAndStop("idle");
 				}
 			}
@@ -156,7 +161,10 @@ package com.robotacid.gfx {
 				
 			} else if(_type == Item.WEAPON){
 				if(_name == Item.SHORT_BOW){
-					if(mc.currentLabel != (character.gfx as MovieClip).currentLabel) (character.gfx as MovieClip).gotoAndStop(mc.currentLabel);
+					if(mc.currentLabel != characterMc.currentLabel) mc.gotoAndStop(characterMc.currentLabel);
+					
+				} else if(_name == Item.LEECH_WEAPON){
+					if(mc.currentLabel != characterMc.currentLabel) mc.gotoAndStop(characterMc.currentLabel);
 				}
 			}
 		}
