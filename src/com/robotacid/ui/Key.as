@@ -33,7 +33,8 @@ package com.robotacid.ui {
 		public static var initialized:Boolean = false;  // marks whether or not the class has been initialized
         private static var keysDown:Array = [];  // stores key codes of all keys pressed
 		public static var custom:Array; // list of customised keys
-		public static var reserved:Array = [];// list of reserved keys
+		public static var reserved:Array = []; // list of reserved keys
+		public static var lockOut:Boolean = false; // used to brick the Key class
 		public static var stage:Stage;
 		public static var keysPressed:int = 0;
 		public static const NUMBER_0:int = 48;
@@ -115,12 +116,7 @@ package com.robotacid.ui {
         * custom key index is being pressed
         */
         public static function customDown(index:int):Boolean {
-            if (!initialized) {
-                // throw an error if isDown is used
-                // prior to Key class initialization
-                throw new Error("Key class has yet been initialized.");
-            }
-            return custom != null && Boolean(keysDown[custom[index]]);
+            return !lockOut && custom != null && Boolean(keysDown[custom[index]]);
         }
 		
         /**
@@ -128,12 +124,7 @@ package com.robotacid.ui {
         * keyCode passed is being pressed
         */
         public static function isDown(keyCode:int):Boolean {
-            if (!initialized) {
-                // throw an error if isDown is used
-                // prior to Key class initialization
-                throw new Error("Key class has yet been initialized.");
-            }
-            return Boolean(keysDown[keyCode]);
+            return !lockOut && Boolean(keysDown[keyCode]);
         }
 		
 		/* Tests whether a pattern of key codes matches the recent key log

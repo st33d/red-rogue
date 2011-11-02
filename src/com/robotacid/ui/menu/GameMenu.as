@@ -254,7 +254,7 @@
 				onOffOption.state = SoundManager.music ? 0 : 1;
 				renderMenu();
 			} else if(option.name == "fullscreen"){
-				onOffOption.state = stage.displayState == "normal" ? 1 : 0;
+				onOffOption.state = g.stage.displayState == "normal" ? 1 : 0;
 				renderMenu();
 			} else if(option == inventoryList.enchantOption){
 				var runeName:int = inventoryList.options[inventoryList.selection].userData.name;
@@ -362,11 +362,13 @@
 				// toggle fullscreen
 				} else if(previousMenuList.options[previousMenuList.selection].name == "fullscreen"){
 					if(onOffOption.state == 1){
-						var dialog:Dialog = new Dialog(
-							"activate fullscreen",
-							"flash's security restrictions require you to click okay to continue\n\nThese restrictions also limit keyboard input to cursor keys and space. Press Esc to exit fullscreen.",
-							200, 120, fullscreen
-						);
+						if(!Game.dialog){
+							Game.dialog = new Dialog(
+								"activate fullscreen",
+								"flash's security restrictions require you to click okay to continue\n\nThese restrictions also limit keyboard input to cursor keys and space. Press Esc to exit fullscreen.",
+								200, 120, fullscreen
+							);
+						}
 					} else {
 						stage.displayState = "normal";
 						stage.scaleMode = StageScaleMode.NO_SCALE;
@@ -448,9 +450,9 @@
 		
 		/* Activates fullscreen mode */
 		private function fullscreen():void{
-			stage.fullScreenSourceRect = new Rectangle(0, 0, Game.WIDTH * 2, Game.HEIGHT * 2);
-			stage.scaleMode = StageScaleMode.SHOW_ALL;
-			stage.displayState = "fullScreen";
+			g.stage.fullScreenSourceRect = new Rectangle(0, 0, Game.WIDTH * 2, Game.HEIGHT * 2);
+			g.stage.scaleMode = StageScaleMode.SHOW_ALL;
+			g.stage.displayState = "fullScreen";
 		}
 		
 	}

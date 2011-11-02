@@ -76,6 +76,7 @@
 		public static var renderer:Renderer;
 		public static var debug:Graphics;
 		public static var debugStay:Graphics;
+		public static var dialog:Dialog;
 		
 		// core engine objects
 		public var player:Player;
@@ -688,11 +689,8 @@
 			mousePressed = false;
 		}
 		
-		
-		public var testCounter:int = 0;
-		
-		
 		private function keyPressed(e:KeyboardEvent):void{
+			if(Key.lockOut) return;
 			if(Key.customDown(MENU_KEY)){
 				pauseGame();
 			}
