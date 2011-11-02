@@ -178,11 +178,14 @@
 			previousTextBox = new TextBox(LIST_WIDTH, 1 + LINE_SPACING + TextBox.BORDER_ALLOWANCE * 2, 0x66111111, 0xFF999999, 0xFFDDDDDD);
 			previousTextBox.alpha = 0.7;
 			previousTextBox.wordWrap = false;
+			previousTextBox.marquee = true;
 			currentTextBox = new TextBox(LIST_WIDTH, 1 + LINE_SPACING + TextBox.BORDER_ALLOWANCE * 2, 0x66111111, 0xFF999999, 0xFFDDDDDD);
 			currentTextBox.wordWrap = false;
+			currentTextBox.marquee = true;
 			nextTextBox = new TextBox(LIST_WIDTH, 1 + LINE_SPACING + TextBox.BORDER_ALLOWANCE * 2, 0x66111111, 0xFF999999, 0xFFDDDDDD);
 			nextTextBox.alpha = 0.7;
 			nextTextBox.wordWrap = false;
+			nextTextBox.marquee = true;
 			capture = new CaptureBitmap();
 			capture.visible = false;
 			menuSword = new Game.g.library.MenuSwordB();
@@ -601,6 +604,21 @@
 					keysLocked |= keysDown;
 				} else if(keysHeldCount == 0 && moveCount == 0){
 					dirStack.push(keysDown);
+				}
+			}
+			// animate marquees
+			if(parent && dir == 0 && dirStack.length == 0){
+				if(previousTextBox.visible){
+					previousTextBox.updateMarquee();
+					setDisabledLines(previousMenuList, previousTextBox);
+				}
+				if(currentTextBox.visible){
+					currentTextBox.updateMarquee();
+					setDisabledLines(currentMenuList, currentTextBox);
+				}
+				if(nextTextBox.visible){
+					nextTextBox.updateMarquee();
+					setDisabledLines(nextMenuList, nextTextBox);
 				}
 			}
 			// check if there are directions loaded into the dirStack

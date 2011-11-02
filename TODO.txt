@@ -1,10 +1,4 @@
-Prompt class
-
-marquee-rocker scroll on TextBox - limit render area too
-
 collider removal on death bug - occurs with quickening - stumped
-
-faliure to create stairs - propagate failed dungeon state
 
 AI issues:
 	walks into wall constantly when too close

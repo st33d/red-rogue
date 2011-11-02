@@ -6,6 +6,7 @@
 	import com.robotacid.engine.Player;
 	import com.robotacid.engine.Portal;
 	import com.robotacid.sound.SoundManager;
+	import com.robotacid.ui.Dialog;
 	import com.robotacid.ui.QuickSave;
 	import flash.display.StageScaleMode;
 	import flash.events.Event;
@@ -361,9 +362,11 @@
 				// toggle fullscreen
 				} else if(previousMenuList.options[previousMenuList.selection].name == "fullscreen"){
 					if(onOffOption.state == 1){
-						stage.fullScreenSourceRect = new Rectangle(0, 0, Game.WIDTH * 2, Game.HEIGHT * 2);
-						stage.scaleMode = StageScaleMode.SHOW_ALL;
-						stage.displayState = "fullScreen";
+						var dialog:Dialog = new Dialog(
+							"activate fullscreen",
+							"flash's security restrictions require you to click okay to continue\n\nThese restrictions also limit keyboard input to cursor keys and space. Press Esc to exit fullscreen.",
+							200, 120, fullscreen
+						);
 					} else {
 						stage.displayState = "normal";
 						stage.scaleMode = StageScaleMode.NO_SCALE;
@@ -441,6 +444,13 @@
 			}
 			inventoryOption.active = false;
 			update();
+		}
+		
+		/* Activates fullscreen mode */
+		private function fullscreen():void{
+			stage.fullScreenSourceRect = new Rectangle(0, 0, Game.WIDTH * 2, Game.HEIGHT * 2);
+			stage.scaleMode = StageScaleMode.SHOW_ALL;
+			stage.displayState = "fullScreen";
 		}
 		
 	}

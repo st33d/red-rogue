@@ -76,6 +76,7 @@ package com.robotacid.ui {
 		public var alignVert:String;				// align_vert: vertical alignment of the text
 		public var lineSpacing:int;					// line_spacing: distance between each line of copy
 		public var wordWrap:Boolean;				// turns wordWrap on and off
+		public var marquee:Boolean;					// sets up marquee scroll for lines that exceed the width (wordWrap must be false)
 		public var backgroundCol:uint;
 		public var borderCol:uint;
 		public var fontCol:uint;
@@ -91,6 +92,9 @@ package com.robotacid.ui {
 		protected var _height:int;
 		protected var _text:String;
 		protected var borderRect:Rectangle;
+		protected var boundsRect:Rectangle;
+		protected var maskRect:Rectangle;
+		protected var marqueeLines:Vector.<TextBoxMarquee>;
 		
 		public static const BORDER_ALLOWANCE:int = 2;
 		
@@ -104,6 +108,7 @@ package com.robotacid.ui {
 			alignVert = "top";
 			_colorInt = 0xFFFFFF;
 			wordWrap = true;
+			marquee = false;
 			tracking = 2;
 			leading = 1;
 			whitespaceLength = 4;
@@ -113,6 +118,8 @@ package com.robotacid.ui {
 			lines = [];
 			
 			borderRect = new Rectangle(1, 1, _width - 2, _height - 2);
+			boundsRect = new Rectangle(2, 2, _width - 4, _height - 4);
+			maskRect = new Rectangle(0, 0, 1, 1);
 			super(new BitmapData(_width, _height, true, 0x00000000), "auto", false);
 			drawBorder();
 		}
@@ -167,6 +174,7 @@ package com.robotacid.ui {
 			_width = width;
 			_height = height;
 			borderRect = new Rectangle(1, 1, _width - 2, _height - 2);
+			boundsRect = new Rectangle(2, 2, _width - 4, _height - 4);
 			bitmapData = new BitmapData(width, height, true, 0x00000000);
 			updateText();
 			draw();
@@ -270,7 +278,7 @@ package com.robotacid.ui {
 				// if the length of the current line exceeds the width, we splice it into the next line
 				// effecting word wrap
 				
-				if(currentLineWidth > _width && wordWrap){
+				if(currentLineWidth > _width - (BORDER_ALLOWANCE * 2) && wordWrap){
 					// in the case where the word is larger than the text field we take back the last character
 					// and jump to a new line with it
 					if(wordBeginning == 0 && currentLine[currentLine.length - 1]){
@@ -308,6 +316,16 @@ package com.robotacid.ui {
 			lines.push(currentLine);
 			textLines.push(currentTextLine);
 			lineWidths.push(currentLineWidth);
+			
+			// set up marquees (if active)
+			if(!wordWrap && marquee){
+				marqueeLines = new Vector.<TextBoxMarquee>();
+				var offset:int;
+				for(i = 0; i < lineWidths.length; i++){
+					offset = (_width - BORDER_ALLOWANCE * 2) - lineWidths[i];
+					marqueeLines[i] = offset < 0 ? new TextBoxMarquee(offset) : null;
+				}
+			}
 		}
 		
 		/* Render */
@@ -328,6 +346,11 @@ package com.robotacid.ui {
 			
 			for(i = 0; i < lines.length; i++, point.y += lineSpacing){
 				x = BORDER_ALLOWANCE;
+				
+				if(marquee){
+					if(marqueeLines[i]) x += marqueeLines[i].offset;
+				}
+				
 				wordBeginning = 0;
 				for(j = 0; j < lines[i].length; j++){
 					char = lines[i][j];
@@ -355,7 +378,38 @@ package com.robotacid.ui {
 						}
 						point.x = alignX + x;
 						point.y = alignY + y + leading;
-						bitmapData.copyPixels(char, char.rect, point, null, null, true);
+						// mask characters that are outside the boundsRect
+						if(
+							point.x < boundsRect.x ||
+							point.y < boundsRect.y ||
+							point.x + char.rect.width >= boundsRect.x + boundsRect.width ||
+							point.y + char.rect.height >= boundsRect.y + boundsRect.height
+						){
+							// are they even in the bounds rect?
+							if(
+								point.x + char.rect.width > boundsRect.x &&
+								boundsRect.x + boundsRect.width > point.x &&
+								point.y + char.rect.height > boundsRect.y &&
+								boundsRect.y + boundsRect.height > point.y
+							){
+								// going to make a glib assumption that the TextBox won't be smaller than a single character
+								maskRect.x = point.x >= boundsRect.x ? 0 : point.x - boundsRect.x;
+								maskRect.y = point.y >= boundsRect.y ? 0 : point.y - boundsRect.y;
+								maskRect.width = point.x + char.rect.width <= boundsRect.x + boundsRect.width ? char.rect.width : (boundsRect.x + boundsRect.width) - point.x;
+								maskRect.height = point.y + char.rect.height <= boundsRect.y + boundsRect.height ? char.rect.height : (boundsRect.y + boundsRect.height) - point.y;
+								if(point.x < boundsRect.x){
+									maskRect.x = boundsRect.x - point.x;
+									point.x = boundsRect.x;
+								}
+								if(point.y < boundsRect.y){
+									maskRect.y = boundsRect.y - point.y;
+									point.y = boundsRect.y;
+								}
+								bitmapData.copyPixels(char, maskRect, point, null, null, true);
+							}
+						} else {
+							bitmapData.copyPixels(char, char.rect, point, null, null, true);
+						}
 						x += char.width;
 					} else {
 						x += whitespaceLength;
@@ -366,6 +420,26 @@ package com.robotacid.ui {
 			}
 			
 			if(_color) transform.colorTransform = _color;
+		}
+		
+		/* Update lines that have been assigned TextBoxMarquees */
+		public function updateMarquee():void{
+			var marquee:TextBoxMarquee;
+			for(var i:int = 0; i < marqueeLines.length; i++){
+				marquee = marqueeLines[i];
+				if(marquee) marquee.main();
+			}
+			draw();
+		}
+		
+		/* Reset the offsets on the TextBoxMarquees */
+		public function resetMarquee():void{
+			var marquee:TextBoxMarquee;
+			for(var i:int = 0; i < marqueeLines.length; i++){
+				marquee = marqueeLines[i];
+				if(marquee) marquee.offset = 0;
+			}
+			draw();
 		}
 		
 		/* Draws a background coloured alpha shape over a line of text.

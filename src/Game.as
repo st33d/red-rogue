@@ -24,6 +24,7 @@
 	import com.robotacid.sound.SoundManager;
 	import com.robotacid.sound.SoundQueue;
 	import com.robotacid.ui.Console;
+	import com.robotacid.ui.Dialog;
 	import com.robotacid.ui.menu.GameMenu;
 	import com.robotacid.ui.ProgressBar;
 	import com.robotacid.ui.QuickSave;
@@ -272,7 +273,7 @@
 				focusPrompt = new Sprite();
 				focusPrompt.graphics.beginFill(0x000000);
 				focusPrompt.graphics.drawRect(0, 0, WIDTH, HEIGHT);
-				var focusText:TextBox = new TextBox(100, 10, 0x00000000, 0x00000000, 0xFFAA0000);
+				var focusText:TextBox = new TextBox(100, 12, 0x00000000, 0x00000000, 0xFFAA0000);
 				focusText.text = "click to play";
 				focusText.bitmapData.colorTransform(focusText.bitmapData.rect, new ColorTransform(1, 0, 0, 1, -85));
 				focusPrompt.addChild(focusText);
@@ -707,6 +708,7 @@
 			}*/
 		}
 		
+		/* When the flash object loses focus we put up a splash screen to encourage players to click to play */
 		private function onFocusLost(e:Event = null):void{
 			if(state == UNFOCUSED) return;
 			previousState = state;
@@ -715,9 +717,16 @@
 			addChild(focusPrompt);
 		}
 		
+		/* When focus returns we remove the splash screen -
+		 * 
+		 * WARNING: Activating fullscreen mode causes this method to be fired twice by the Flash Player
+		 * for some unknown reason.
+		 * 
+		 * Any modification to this method should take this into account and protect against repeat calls
+		 */
 		private function onFocus(e:Event = null):void{
 			if(focusPrompt.parent) focusPrompt.parent.removeChild(focusPrompt);
-			state = previousState;
+			if(state == UNFOCUSED) state = previousState;
 		}
 	}
 	
