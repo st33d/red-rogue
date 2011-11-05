@@ -59,7 +59,7 @@
 		}
 		
 		override public function main():void {
-			if(rect.intersects(g.player.collider)){
+			if(rect.intersects(g.player.collider) && !g.player.indifferent){
 				if(!contact){
 					contact = true;
 					resolveCollision();

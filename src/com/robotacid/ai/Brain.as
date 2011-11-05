@@ -183,6 +183,9 @@
 					}
 				}
 				
+				// indifferent characters do not look for a fight
+				if(char.indifferent) return;
+				
 				// here's where we look for targets
 				// any enemy touching us counts as a target, but we also look for targets
 				// rather than checking all enemy characters, we check one at a time each frame

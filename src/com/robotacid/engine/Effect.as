@@ -48,7 +48,12 @@
 		public static const EATEN:int = 4;
 		
 		public static const DECAY_DELAY_PER_LEVEL:int = 30 * 3;
-		public static const LEECH_DAMAGE_PER_LEVEL:Number = 0.1;
+		/* There are 3 damage reflection opportunities: being a cactuar, the thorns spell, bees and knives armour - knives
+		 * reflect twice as much as bees - so we divide 1.0 by 20 * 4 */
+		public static const THORNS_PER_LEVEL:Number = 0.0125;
+		/* There are 5 health stealing opportunities: being a vampire, the leech weapon, blood armour and leech enchantment
+		 * counts as two - but we're going to treat it as four and divide 1.0 by 20 * 4 */
+		public static const LEECH_PER_LEVEL:Number = 0.0125;
 		
 		public static const MIN_TELEPORT_DIST:int = 10;
 		public static const TELEPORT_COUNTDOWN_STEP:int = 600 / 20;

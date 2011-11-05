@@ -51,7 +51,7 @@
 			}
 			
 			// check for collection by player
-			if((g.player.actions & Collider.UP) && rect.intersects(g.player.collider)){
+			if((g.player.actions & Collider.UP) && rect.intersects(g.player.collider) && !g.player.indifferent){
 				collect(g.player);
 			}
 		}

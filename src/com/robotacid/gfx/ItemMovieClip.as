@@ -58,6 +58,9 @@ package com.robotacid.gfx {
 				} else if(name == Item.GOGGLES){
 					gfx = new GogglesMC();
 					addChild(gfx);
+				} else if(name == Item.INDIFFERENCE){
+					gfx = new IndifferenceMC();
+					addChild(gfx);
 				}
 			} else if(type == Item.WEAPON){
 				if(name == Item.SHORT_BOW){
@@ -86,6 +89,8 @@ package com.robotacid.gfx {
 				if(_name == Item.SKULL){
 					if(mc.currentLabel != "idle") mc.gotoAndStop("idle");
 				} else if(_name == Item.GOGGLES){
+					if(mc.currentLabel != "idle") mc.gotoAndStop("idle");
+				} else if(_name == Item.INDIFFERENCE){
 					if(mc.currentLabel != "idle") mc.gotoAndStop("idle");
 				}
 			} else if(_type == Item.WEAPON){
@@ -127,6 +132,10 @@ package com.robotacid.gfx {
 					}
 				} else if(_name == Item.SKULL){
 					if(mc.currentLabel != characterMc.currentLabel) mc.gotoAndStop(characterMc.currentLabel);
+					
+				} else if(_name == Item.INDIFFERENCE){
+					if(mc.currentLabel != characterMc.currentLabel) mc.gotoAndStop(characterMc.currentLabel);
+					mc.parent.parent.alpha = Item.INDIFFERENCE_ALPHA;
 					
 				} else if(_name == Item.GOGGLES){
 					if(mc.currentLabel != characterMc.currentLabel) mc.gotoAndStop(characterMc.currentLabel);

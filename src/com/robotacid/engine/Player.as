@@ -257,7 +257,7 @@
 			super.equip(item);
 			// set the active state and name of the missile option in the menu
 			if(item.type == Item.WEAPON){
-				g.menu.missileOption.active = Boolean(item.range & (Item.MISSILE | Item.THROWN));
+				g.menu.missileOption.active = !indifferent && Boolean(item.range & (Item.MISSILE | Item.THROWN));
 				if(item.range & Item.MISSILE) g.menu.missileOption.state = 0;
 				else if(item.range & Item.THROWN) g.menu.missileOption.state = 1;
 			}
@@ -269,7 +269,7 @@
 		override public function unequip(item:Item):Item{
 			super.unequip(item);
 			item = inventory.stack(item);
-			g.menu.missileOption.active = false;
+			if(item.type == Item.WEAPON) g.menu.missileOption.active = false;
 			inventory.updateItem(item);
 			return item;
 		}

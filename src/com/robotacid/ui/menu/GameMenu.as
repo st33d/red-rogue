@@ -5,12 +5,15 @@
 	import com.robotacid.engine.Missile;
 	import com.robotacid.engine.Player;
 	import com.robotacid.engine.Portal;
+	import com.robotacid.gfx.Renderer;
 	import com.robotacid.sound.SoundManager;
 	import com.robotacid.ui.Dialog;
 	import com.robotacid.ui.QuickSave;
 	import flash.display.StageScaleMode;
 	import flash.events.Event;
 	import flash.geom.Rectangle;
+	import flash.net.navigateToURL;
+	import flash.net.URLRequest;
 	
 	/**
 	 * This is a situ-specific menu specially for this game
@@ -28,6 +31,7 @@
 		public var optionsList:MenuList;
 		public var actionsList:MenuList;
 		public var debugList:MenuList;
+		public var creditsList:MenuList;
 		
 		public var giveItemList:GiveItemMenuList;
 		public var sureList:MenuList;
@@ -48,6 +52,9 @@
 		public var saveOption:MenuOption;
 		public var newGameOption:MenuOption;
 		public var sureOption:MenuOption;
+		
+		public var steedOption:MenuOption;
+		public var nateOption:MenuOption;
 		
 		public var onOffList:MenuList;
 		public var onOffOption:ToggleMenuOption;
@@ -70,6 +77,7 @@
 			optionsList = new MenuList();
 			actionsList = new MenuList();
 			debugList = new MenuList();
+			creditsList = new MenuList();
 			
 			giveItemList = new GiveItemMenuList(this, g);
 			soundList = new MenuList();
@@ -90,6 +98,8 @@
 			actionsOption.help = "perform actions like searching for traps and going up and down stairs";
 			debugOption = new MenuOption("debug", debugList);
 			debugOption.help = "debug tools for allowing access to game elements that are hard to find in a procedurally generated world"
+			var creditsOption:MenuOption = new MenuOption("credits", creditsList);
+			creditsOption.help = "those involved with making the game.\nthis part of the menu will be moved to the title screen when i've made it."
 			
 			giveItemOption = new MenuOption("give item", giveItemList);
 			giveItemOption.help = "put a custom item in the player's inventory";
@@ -112,6 +122,7 @@
 			saveOption.help = "save the menu state player status is saved automatically when using stairs";
 			newGameOption = new MenuOption("new game", sureList);
 			newGameOption.help = "start a new game";
+			
 			exitLevelOption = new MenuOption("exit level", null, false);
 			exitLevelOption.help = "exit this level when standing next to a stairway";
 			summonOption = new MenuOption("summon");
@@ -124,6 +135,11 @@
 			missileOption.help = "shoot/throw a missile using one's equipped weapon";
 			missileOption.context = "missile";
 			
+			steedOption = new MenuOption("aaron steed - code/art/design");
+			steedOption.help = "opens a window to aaron steed's site - robotacid.com";
+			nateOption = new MenuOption("nathan gallardo - music");
+			nateOption.help = "opens a window to nathan gallardo's site (where this game's OST is available) - icefishingep.tk";
+			
 			
 			onOffOption = new ToggleMenuOption(["off", "on"]);
 			sureOption = new MenuOption("sure?");
@@ -134,6 +150,7 @@
 			trunk.options.push(actionsOption);
 			trunk.options.push(optionsOption);
 			trunk.options.push(debugOption);
+			trunk.options.push(creditsOption);
 			
 			optionsList.options.push(soundOption);
 			optionsList.options.push(fullScreenOption);
@@ -150,6 +167,9 @@
 			actionsList.options.push(missileOption);
 			
 			debugList.options.push(giveItemOption);
+			
+			creditsList.options.push(steedOption);
+			creditsList.options.push(nateOption);
 			
 			soundList.options.push(sfxOption);
 			soundList.options.push(musicOption);
@@ -275,6 +295,13 @@
 				item = previousMenuList.options[previousMenuList.selection].userData;
 				if(item.location == Item.EQUIPPED && item.user == g.player){
 					item = g.player.unequip(item);
+					// indifference armour is one-shot
+					if(item.name == Item.INDIFFERENCE){
+						g.console.print("indifference crumbles");
+						Game.renderer.createDebrisRect(g.player.collider, 0, 10, Renderer.STONE);
+						item = inventoryList.removeItem(item);
+						item = null;
+					}
 				} else {
 					if(item.type == Item.WEAPON){
 						if(g.player.weapon) g.player.unequip(g.player.weapon);
@@ -283,6 +310,10 @@
 					if(item.type == Item.ARMOUR){
 						if(g.player.armour) g.player.unequip(g.player.armour);
 						if(g.minion && g.minion.armour && g.minion.armour == item) g.minion.unequip(g.minion.armour);
+						// indifference armour is one-shot
+						if(item.name == Item.INDIFFERENCE){
+							g.console.print("indifference is fragile");
+						}
 					}
 					item = g.player.equip(item);
 				}
@@ -292,6 +323,13 @@
 				item = previousMenuList.options[previousMenuList.selection].userData;
 				if(item.location == Item.EQUIPPED && item.user == g.minion){
 					item = g.minion.unequip(item);
+					// indifference armour is one-shot
+					if(item.name == Item.INDIFFERENCE){
+						g.console.print("indifference crumbles");
+						Game.renderer.createDebrisRect(g.minion.collider, 0, 10, Renderer.STONE);
+						item = inventoryList.removeItem(item);
+						item = null;
+					}
 				} else {
 					if(item.type == Item.WEAPON){
 						if(g.minion.weapon) g.minion.unequip(g.minion.weapon);
@@ -300,6 +338,11 @@
 					if(item.type == Item.ARMOUR){
 						if(g.minion.armour) g.minion.unequip(g.minion.armour);
 						if(g.player.armour && g.player.armour == item) g.player.unequip(g.player.armour);
+						// indifference armour is one-shot
+						if(item.name == Item.INDIFFERENCE){
+							g.console.print("indifference is fragile");
+							g.minion.brain.clear();
+						}
 					}
 					item = g.minion.equip(item);
 				}
@@ -381,7 +424,6 @@
 				item = inventoryList.removeItem(item);
 				g.player.shoot(Missile.RUNE, new Effect(item.name, 20, Effect.THROWN));
 			
-			
 			// enchanting items
 			} else if(previousMenuList.options[previousMenuList.selection] == inventoryList.enchantOption){
 				item = option.userData;
@@ -431,6 +473,13 @@
 			// creating an item
 			} else if(option == giveItemList.createOption){
 				giveItemList.createItem();
+			
+			// credits
+			} else if(option == steedOption){
+				navigateToURL(new URLRequest("http://robotacid.com"), "_blank");
+				
+			} else if(option == nateOption){
+				navigateToURL(new URLRequest("http://icefishingep.tk"), "_blank");
 			}
 			
 		}

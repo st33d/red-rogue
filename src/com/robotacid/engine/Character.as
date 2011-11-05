@@ -71,6 +71,8 @@
 		public var endurance:Number;
 		public var infravision:int;
 		public var leech:Number;
+		public var thorns:Number;
+		public var indifferent:Boolean;
 		
 		private var hitResult:int;
 		
@@ -188,12 +190,17 @@
 			} else {
 				setInfravision(0);
 			}
-			
 			if(true){
-				leech = 0;
+				leech = Effect.LEECH_PER_LEVEL * level;
 			} else {
 				leech = 0;
 			}
+			if(true){
+				thorns = 0;
+			} else {
+				thorns = 0;
+			}
+			indifferent = false;
 			
 			// re-equip
 			if(weaponTemp) equip(weaponTemp);
@@ -211,6 +218,7 @@
 		override public function main():void{
 			
 			move();
+			if(!active) return;
 			
 			// lighting check - if the monster is in total darkness, we need not tend to their animation
 			// and making them invisible will help the lighting engine conceal their presence.
@@ -294,28 +302,41 @@
 								
 								hitResult = hit(target, Item.MELEE);
 								if(hitResult){
+									// nudge
 									if(!(target.type & STONE)) target.collider.pushDamping = 1;
+									// effects
 									if(weapon && weapon.effects && target.active && !(target.type & STONE)){
 										target.applyWeaponEffects(weapon);
 									}
 									var meleeWeapon:Boolean = Boolean(weapon && (weapon.range & Item.MELEE));
-									var hitDamage:Number = damage + (meleeWeapon ? weapon.damage : 0);
-									if(hitResult & CRITICAL) hitDamage *= 2;
+									// knockback
 									var enduranceDamping:Number = 1.0 - (target.endurance + (target.armour ? target.armour.endurance : 0));
 									if(enduranceDamping < 0) enduranceDamping = 0;
 									var hitKnockback:Number = (knockback + (meleeWeapon ? weapon.knockback : 0)) * enduranceDamping;
 									if(dir & LEFT) hitKnockback = -hitKnockback;
-									target.applyDamage(hitDamage, nameToString(), hitKnockback, Boolean(hitResult & CRITICAL), type);
-									if(leech){
-										var leechValue:Number = leech > 1 ? 1 : leech;
-										applyHealth(leechValue * hitDamage);
-									}
+									// stun
 									if(hitResult & STUN){
 										var hitStun:Number = (stun + (meleeWeapon ? weapon.stun : 0)) * enduranceDamping;
 										if(hitStun) target.applyStun(hitStun);
 									}
+									// damage
+									var hitDamage:Number = damage + (meleeWeapon ? weapon.damage : 0);
+									if(hitResult & CRITICAL) hitDamage *= 2;
+									target.applyDamage(hitDamage, nameToString(), hitKnockback, Boolean(hitResult & CRITICAL), type);
+									// leech
+									if(leech){
+										var leechValue:Number = leech > 1 ? 1 : leech;
+										applyHealth(leechValue * hitDamage);
+									}
+									// thorns
+									if(target.thorns){
+										renderer.createDebrisRect(collider, 0, 10, debrisType);
+										applyDamage(hitDamage * target.thorns, target.nameToString(), 0, false, target.type);
+									}
+									
 									g.soundQueue.add("hit");
 									
+									// blood
 									p.x = gfx.x + (mc.weapon ? mc.weapon.x : 0);
 									p.y = gfx.y + (mc.weapon ? mc.weapon.y : 0);
 									if(dir & RIGHT){
@@ -589,6 +610,8 @@
 		
 		/* Select an item as a weapon or armour */
 		public function equip(item:Item):Item{
+			item.location = Item.EQUIPPED;
+			item.user = this;
 			if(item.type == Item.WEAPON){
 				if(weapon) return null;
 				weapon = item;
@@ -606,8 +629,6 @@
 			
 			item.addBuff(this);
 			
-			item.location = Item.EQUIPPED;
-			item.user = this;
 			(gfx as Sprite).addChild(item.gfx);
 			if(item.gfx is ItemMovieClip) (item.gfx as ItemMovieClip).setEquipRender();
 			return item;
@@ -616,6 +637,8 @@
 		/* Unselect item as equipped */
 		public function unequip(item:Item):Item{
 			if(item != armour && item != weapon) return null;
+			item.location = Item.INVENTORY;
+			item.user = null;
 			var i:int;
 			for(i = 0; i < (gfx as MovieClip).numChildren; i++){
 				if((gfx as MovieClip).getChildAt(i) == item.gfx){
@@ -635,8 +658,6 @@
 			
 			item.removeBuff(this);
 			
-			item.location = Item.INVENTORY;
-			item.user = null;
 			return item;
 		}
 		
@@ -648,6 +669,7 @@
 		
 		/* Determine if we have hit another character */
 		public function hit(character:Character, range:int):int{
+			if(indifferent) return MISS;
 			attackCount = 0;
 			var attackRoll:Number = g.random.value();
 			if(attackRoll >= CRITICAL_HIT)

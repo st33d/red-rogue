@@ -16,6 +16,9 @@
 	 * You'll notice that I'm shifting between XML and normal objects a lot. The logic behind this
 	 * is that if I need to find out what's going on in a level, a quick print out of the XML renders
 	 * an easily readable itinerary. And it takes up less room in the shared object.
+	 * 
+	 * (On a recent project I've switched to JSON, but it's a lot of work to switch and
+	 * I think the XML node structure probably suits this game)
 	 *
 	 * @author Aaron Steed, robotacid.com
 	 */
@@ -30,112 +33,145 @@
 		public static const TOTAL_LEVELS:int = 20;
 		
 		public function Content() {
-			chestsByLevel = new Vector.<Vector.<XML>>(TOTAL_LEVELS);
-			monstersByLevel = new Vector.<Vector.<XML>>(TOTAL_LEVELS);
+			chestsByLevel = new Vector.<Vector.<XML>>(TOTAL_LEVELS + 1);
+			monstersByLevel = new Vector.<Vector.<XML>>(TOTAL_LEVELS + 1);
 			init();
 		}
 		
 		public function init():void{
-			var equipment:Vector.<XML> = new Vector.<XML>();
-			var runes:Vector.<XML> = new Vector.<XML>();
-			var i:int, j:int;
-			for(i = 0; i < TOTAL_LEVELS; i++){
-				var quantity:int;
-				var dungeonLevel:int = i + 1;
-				// min: level / 2, max: (level + 2) / 2
-				quantity = Math.ceil((dungeonLevel + g.random.range(3)) * 0.5);
-				while(quantity--){
-					equipment.push(createItemXML(dungeonLevel, g.random.value() < 0.5 ? Item.WEAPON : Item.ARMOUR));
-				}
-				// min: level / 2, max: (level + 1) / 2
-				quantity = Math.ceil((dungeonLevel + g.random.range(2)) * 0.5);
-				while(quantity--){
-					runes.push(createItemXML(dungeonLevel, Item.RUNE));
-				}
-				// min: 5 + level * 2, max: 10 + level 3
-				quantity = 5 + g.random.range(6) + dungeonLevel * (2 + g.random.range(2));
-				monstersByLevel[i] = new Vector.<XML>();
-				while(quantity--){
-					monstersByLevel[i].push(createCharacterXML(dungeonLevel, Character.MONSTER));
-				}
-				
-				// equipment needs to be distributed amongst monsters and
-				// runes need to go in chests
-				var equippedMonsters:int = g.random.range(equipment.length);
-				if(monstersByLevel[i].length < equippedMonsters) equippedMonsters = monstersByLevel[i].length;
-				while(equippedMonsters--){
-					monstersByLevel[i][equippedMonsters].appendChild(equipment.shift());
-					
-					// bonus equipment - if the order of the items alternates between
-					// weapons and armour, we take it as a sign to double equip the
-					// monster
-					if(equippedMonsters){
-						monstersByLevel[i][equippedMonsters].appendChild(equipment.shift());
-						equippedMonsters--;
-					}
-				}
-				chestsByLevel[i] = new Vector.<XML>();
-				// the rest goes in chests, upto 3 items can go in a chest
-				while(equipment.length || runes.length){
-					var chestQuantity:int = 1 + g.random.range(3);
-					if(chestQuantity > equipment.length + runes.length) chestQuantity = equipment.length + runes.length;
-					var chest:XML = <chest />;
-					while(chestQuantity){
-						if(g.random.value() < 0.5){
-							if(runes.length){
-								chest.appendChild(runes.shift());
-								chestQuantity--;
-							}
-						} else {
-							if(equipment.length){
-								chest.appendChild(equipment.shift());
-								chestQuantity--;
-							}
-						}
-					}
-					chestsByLevel[i].push(chest);
-				}
+			var obj:Object;
+			for(var level:int = 0; level <= TOTAL_LEVELS; level++){
+				obj = getLevelContent(level);
+				monstersByLevel[level] = obj.monsters;
+				chestsByLevel[level] = obj.chests;
 			}
 		}
 		
-		public function populateLevel(dungeonLevel:int, bitmap:DungeonBitmap, layers:Array):void{
+		// Equations for quantities on levels
+		
+		// min: level / 2, max: (level + 2) / 2
+		public function equipmentQuantityPerLevel(level:int):int{
+			if(level <= 0) return 0;
+			if(level > TOTAL_LEVELS) level = TOTAL_LEVELS;
+			var n:int = (level + g.random.range(3)) * 0.5;
+			return n == (n >> 0) ? n : (n >> 0) + 1;
+		}
+		
+		// min: level / 2, max: (level + 1) / 2
+		public function runeQuantityPerLevel(level:int):int{
+			if(level <= 0) return 0;
+			if(level > TOTAL_LEVELS) level = TOTAL_LEVELS;
+			var n:int = (level + g.random.range(2)) * 0.5;
+			return n == (n >> 0) ? n : (n >> 0) + 1;
+		}
+		
+		// min: 5 + level * 2, max: 10 + level 3
+		public function monsterQuantityPerLevel(level:int):int{
+			if(level <= 0) return 0;
+			if(level > TOTAL_LEVELS) level = TOTAL_LEVELS;
+			return 5 + g.random.range(6) + level * (2 + g.random.range(2));
+		}
+		
+		/* Create a satisfactory amount of monsters and loot for a level
+		 * 
+		 * Returns a list of monster XMLs and chest XMLs with loot therein */
+		public function getLevelContent(level:int):Object{
+			if(level > TOTAL_LEVELS) level = TOTAL_LEVELS;
+			var monsters:Vector.<XML> = new Vector.<XML>();
+			var chests:Vector.<XML> = new Vector.<XML>();
+			var obj:Object = {monsters:monsters, chests:chests};
+			if(level <= 0) return obj;
+			
+			var equipment:Vector.<XML> = new Vector.<XML>();
+			var runes:Vector.<XML> = new Vector.<XML>();
+			
+			var quantity:int;
+			quantity = equipmentQuantityPerLevel(level);
+			while(quantity--){
+				equipment.push(createItemXML(level, g.random.value() < 0.5 ? Item.WEAPON : Item.ARMOUR));
+			}
+			quantity = runeQuantityPerLevel(level);
+			while(quantity--){
+				runes.push(createItemXML(level, Item.RUNE));
+			}
+			quantity = monsterQuantityPerLevel(level)
+			while(quantity--){
+				monsters.push(createCharacterXML(level, Character.MONSTER));
+			}
+			
+			// equipment needs to be distributed amongst monsters and
+			// runes need to go in chests
+			var equippedMonsters:int = 1 + g.random.range(equipment.length - 1);
+			if(monsters.length < equippedMonsters) equippedMonsters = monsters.length;
+			var loot:XML;
+			while(equippedMonsters--){
+				loot = equipment.shift();
+				
+				// never give monsters armour of indifference - there's no way to get it off them
+				if(int(loot.@type) == Item.ARMOUR && int(loot.@name) == Item.INDIFFERENCE) continue;
+				
+				monsters[equippedMonsters].appendChild(loot);
+				
+				// bonus equipment - if the order of the items alternates between
+				// weapons and armour, we take it as a sign to double equip the monster
+				if((equippedMonsters) && loot.@type != equipment[0].@type){
+					monsters[equippedMonsters].appendChild(equipment.shift());
+					equippedMonsters--;
+				}
+			}
+			// the rest goes in chests, upto 3 items can go in a chest
+			while(equipment.length || runes.length){
+				var chestQuantity:int = 1 + g.random.range(3);
+				if(chestQuantity > equipment.length + runes.length) chestQuantity = equipment.length + runes.length;
+				var chest:XML = <chest />;
+				while(chestQuantity){
+					if(g.random.value() < 0.5){
+						if(runes.length){
+							chest.appendChild(runes.shift());
+							chestQuantity--;
+						}
+					} else {
+						if(equipment.length){
+							chest.appendChild(equipment.shift());
+							chestQuantity--;
+						}
+					}
+				}
+				chests.push(chest);
+			}
+			return obj;
+		}
+		
+		public function populateLevel(level:int, bitmap:DungeonBitmap, layers:Array):void{
 			var r:int, c:int;
-			var level:int = dungeonLevel - 1;
 			var i:int;
-			//trace("populating..."+dungeonLevel);
-			//for(i = 0; i < monstersByLevel[level].length; i++){
-				//trace(monstersByLevel[level][i].toXMLString());
-			//}
-			//for(i = 0; i < chestsByLevel[level].length; i++){
-				//trace(chestsByLevel[level][i].toXMLString());
-			//}
-			if(level < TOTAL_LEVELS){
-				// just going to go for a random drop for now.
-				// I intend to figure out a distribution pattern later
-				while(monstersByLevel[level].length){
-					r = 1 + g.random.range(bitmap.height - 1);
-					c = 1 + g.random.range(bitmap.width - 1);
-					if(!layers[Map.ENTITIES][r][c] && layers[Map.BLOCKS][r][c] != 1 && (bitmap.bitmapData.getPixel32(c, r + 1) == DungeonBitmap.LEDGE || layers[Map.BLOCKS][r + 1][c] == 1)){
-						//trace(monstersByLevel[level][0].toXMLString());
-						layers[Map.ENTITIES][r][c] = convertXMLToObject(c, r, monstersByLevel[level].shift());
-					}
-				}
-				while(chestsByLevel[level].length){
-					r = 1 + g.random.range(bitmap.height - 2);
-					c = 1 + g.random.range(bitmap.width - 2);
-					if(layers[Map.ENTITIES][r + 1][c] != MapTileConverter.PIT && !layers[Map.ENTITIES][r][c] && layers[Map.BLOCKS][r][c] != 1 && (bitmap.bitmapData.getPixel32(c, r + 1) == DungeonBitmap.LEDGE || layers[Map.BLOCKS][r + 1][c] == 1)){
-						//trace(chestsByLevel[level][0].toXMLString());
-						layers[Map.ENTITIES][r][c] = convertXMLToObject(c, r, chestsByLevel[level].shift());
-					}
-				}
+			var monsters:Vector.<XML> = monstersByLevel[level];
+			var chests:Vector.<XML> = chestsByLevel[level];
+			if(level <= TOTAL_LEVELS){
+				monsters = monstersByLevel[level];
+				chests = chestsByLevel[level];
 			} else {
-				// TO DO!!
-				
-				
-				// content for levels 21+ will have to be generated on the fly
-				// the aim is to let the player dig for more random items should they
-				// desire to - but they should encounter the level cap on their items
-				// and character before long
+				var obj:Object = getLevelContent(level);
+				monsters = obj.monsters;
+				chests = obj.chests;
+			}
+			// just going to go for a random drop for now.
+			// I intend to figure out a distribution pattern later
+			while(monstersByLevel[level].length){
+				r = 1 + g.random.range(bitmap.height - 1);
+				c = 1 + g.random.range(bitmap.width - 1);
+				if(!layers[Map.ENTITIES][r][c] && layers[Map.BLOCKS][r][c] != 1 && (bitmap.bitmapData.getPixel32(c, r + 1) == DungeonBitmap.LEDGE || layers[Map.BLOCKS][r + 1][c] == 1)){
+					//trace(monstersByLevel[level][0].toXMLString());
+					layers[Map.ENTITIES][r][c] = convertXMLToObject(c, r, monstersByLevel[level].shift());
+				}
+			}
+			while(chestsByLevel[level].length){
+				r = 1 + g.random.range(bitmap.height - 2);
+				c = 1 + g.random.range(bitmap.width - 2);
+				if(layers[Map.ENTITIES][r + 1][c] != MapTileConverter.PIT && !layers[Map.ENTITIES][r][c] && layers[Map.BLOCKS][r][c] != 1 && (bitmap.bitmapData.getPixel32(c, r + 1) == DungeonBitmap.LEDGE || layers[Map.BLOCKS][r + 1][c] == 1)){
+					//trace(chestsByLevel[level][0].toXMLString());
+					layers[Map.ENTITIES][r][c] = convertXMLToObject(c, r, chestsByLevel[level].shift());
+				}
 			}
 		}
 		
@@ -143,9 +179,9 @@
 		 * again if the level is re-visited */
 		public function recycleLevel():void{
 			var i:int;
-			var level:int = g.dungeon.level - 1;
+			var level:int = g.dungeon.level;
 			// no recycling the overworld
-			if(level < 0) return;
+			if(level <= 0) return;
 			// first we check the active list of entities
 			for(i = 0; i < g.entities.length; i++){
 				recycleEntity(g.entities[i], level);

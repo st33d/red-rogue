@@ -67,7 +67,7 @@
 		public function render():void {
 			view.x = g.player.mapX - int(WIDTH * 0.5);
 			view.y = g.player.mapY - int(HEIGHT * 0.5);
-			window.bitmapData.fillRect(window.bitmapData.rect, 0x66000000);
+			window.bitmapData.fillRect(window.bitmapData.rect, 0x66666666);
 			window.bitmapData.copyPixels(bitmapData, view, point, null, null, true);
 			for(i = features.length - 1; i > -1; i--) {
 				feature = features[i];

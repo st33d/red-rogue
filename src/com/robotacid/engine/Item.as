@@ -1,4 +1,5 @@
 ﻿package com.robotacid.engine {
+	import com.robotacid.ai.Brain;
 	import com.robotacid.engine.Entity;
 	import com.robotacid.gfx.ItemMovieClip;
 	import com.robotacid.phys.Cast;
@@ -43,6 +44,7 @@
 		public var knockback:Number;
 		public var endurance:Number;
 		public var leech:Number;
+		public var thorns:Number;
 		
 		public var effects:Vector.<Effect>;
 		public var missileGfxClass:Class;
@@ -94,6 +96,9 @@
 		public static const BLOOD:int = 4;
 		public static const INVISIBILITY:int = 5;
 		public static const GOGGLES:int = 6;
+		public static const BEES:int = 7;
+		public static const KNIVES:int = 8;
+		public static const INDIFFERENCE:int = 9;
 		
 		// runes
 		public static const LIGHT:int = 0;
@@ -111,12 +116,9 @@
 		public static const CURSE_REVEALED:int = 2;
 		
 		public static const CURSE_CHANCE:Number = 0.05;
-		
 		public static const MAX_LEVEL:int = 20;
 		public static const DROP_GLOW_FILTER:GlowFilter = new GlowFilter(0xFFFFFF, 0.5, 2, 2, 1000);
-		/* There are five health stealing opportunities: being a vampire, the leech weapon, blood armour and leech enchantment
-		 * counts as two - but we're going to treat it as four and divide 1.0 by 20 * 4 */
-		public static const LEECH_PER_LEVEL:Number = 0.0125;
+		public static const INDIFFERENCE_ALPHA:Number = 0.5;
 		
 		[Embed(source = "itemStats.json", mimeType = "application/octet-stream")] public static var statsData:Class;
 		public static var stats:Object;
@@ -150,14 +152,14 @@
 					missileGfxClass = ShortBowArrowMC;
 				}
 				if(name == LEECH_WEAPON){
-					leech = LEECH_PER_LEVEL * level;
+					leech = Effect.LEECH_PER_LEVEL * level;
 				} else {
 					leech = 0;
 				}
 				if(effects){
 					for(i = 0; i < effects.length; i++){
 						effect = effects[i];
-						if(effect.name == Effect.LEECH) leech += LEECH_PER_LEVEL * effect.level;
+						if(effect.name == Effect.LEECH) leech += Effect.LEECH_PER_LEVEL * effect.level;
 					}
 				}
 				
@@ -167,14 +169,21 @@
 				endurance = stats["armour endurance"][name];
 				position = stats["armour positions"][name];
 				if(name == BLOOD){
-					leech = LEECH_PER_LEVEL * level;
+					leech = Effect.LEECH_PER_LEVEL * level;
 				} else {
 					leech = 0;
+				}
+				if(name == BEES){
+					thorns = Effect.THORNS_PER_LEVEL * level;
+				} else if(name == KNIVES){
+					thorns = Effect.THORNS_PER_LEVEL * level * 2;
+				} else {
+					thorns = 0;
 				}
 				if(effects){
 					for(i = 0; i < effects.length; i++){
 						effect = effects[i];
-						if(effect.name == Effect.LEECH) leech += LEECH_PER_LEVEL * effect.level;
+						if(effect.name == Effect.LEECH) leech += Effect.LEECH_PER_LEVEL * effect.level;
 					}
 				}
 				
@@ -224,7 +233,7 @@
 			}
 			
 			// check for collection by player
-			if((g.player.actions & Collider.UP) && collider.intersects(g.player.collider)){
+			if((g.player.actions & Collider.UP) && collider.intersects(g.player.collider) && !g.player.indifferent){
 				collect(g.player);
 			}
 		}
@@ -303,10 +312,33 @@
 		
 		/* Adds special abilities to a Character when equipped */
 		public function addBuff(character:Character):void{
+			var i:int, brain:Brain;
 			if(leech) character.leech += leech;
+			if(thorns) character.thorns += thorns;
 			if(type == ARMOUR){
 				if(name == GOGGLES){
 					character.setInfravision(character.infravision + 1);
+				} else if(name == INDIFFERENCE){
+					// indifference cancels collision with monsters and makes monsters ignore the user
+					character.gfx.alpha = INDIFFERENCE_ALPHA;
+					character.collider.properties |= Collider.CORPSE;
+					character.indifferent = true;
+					if(character.type == Character.PLAYER || character.type == Character.MINION){
+						character.collider.ignoreProperties |= Collider.MONSTER | Collider.HEAD;
+						for(i = 0; i < Brain.monsterCharacters.length; i++){
+							brain = Brain.monsterCharacters[i].brain;
+							if(brain && brain.target == user) brain.clear();
+						}
+						if(character.type == Character.PLAYER && character.weapon){
+							g.menu.missileOption.active = false;
+						}
+					} else if(character.type == Character.MONSTER){
+						character.collider.ignoreProperties |= Collider.PLAYER | Collider.HEAD;
+						for(i = 0; i < Brain.playerCharacters.length; i++){
+							brain = Brain.playerCharacters[i].brain;
+							if(brain && brain.target == user) brain.clear();
+						}
+					}
 				}
 			}
 		}
@@ -314,9 +346,26 @@
 		/* Removes previously added abilities from a Character */
 		public function removeBuff(character:Character):void{
 			if(leech) character.leech -= leech;
+			if(thorns){
+				character.thorns -= thorns;
+				trace(character.thorns);
+			}
 			if(type == ARMOUR){
 				if(name == GOGGLES){
 					character.setInfravision(character.infravision - 1);
+				} else if(name == INDIFFERENCE){
+					// indifference cancels collision with monsters and makes monsters ignore the user
+					character.indifferent = false;
+					// character alpha should return to normal (there's few lines in the Character object that see to this)
+					character.collider.properties &= ~Collider.CORPSE;
+					if(character.type == Character.PLAYER || character.type == Character.MINION){
+						character.collider.ignoreProperties &= ~(Collider.MONSTER | Collider.HEAD);
+						if(character.type == Character.PLAYER && character.weapon){
+							g.menu.missileOption.active = Boolean(character.weapon.range & (MISSILE | THROWN));
+						}
+					} else if(character.type == Character.MONSTER){
+						character.collider.ignoreProperties &= ~(Collider.PLAYER | Collider.HEAD);
+					}
 				}
 			}
 		}
@@ -406,7 +455,6 @@
 					xml.appendChild(effects[i].toXML());
 				}
 			}
-			
 			return xml;
 		}
 		

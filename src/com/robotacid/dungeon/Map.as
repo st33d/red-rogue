@@ -15,7 +15,11 @@
 	/**
 	 * This is the random map generator
 	 *
-	 * The layout for every dungeon is calculated in here
+	 * The layout for every dungeon is calculated in here.
+	 * 
+	 * DungeonBitmap creates the passage ways and creates a connectivity graph to place ladders and ledges
+	 * the convertDungeonBitmap method converts that data into references to graphics and entities
+	 * within that method Content.populateLevel distributes monsters and treasure
 	 *
 	 * @author Aaron Steed, robotacid.com
 	 */

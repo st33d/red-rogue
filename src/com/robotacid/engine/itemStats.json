@@ -15,7 +15,10 @@
 		"skull",
 		"blood",
 		"",
-		"goggles"
+		"goggles",
+		"bees",
+		"knives",
+		"indifference"
 	],
 	"rune names":[
 		"light",
@@ -89,6 +92,9 @@
 		0,
 		1,
 		1,
+		0,
+		1,
+		1,
 		0
 	],
 	"armour defences":[
@@ -98,7 +104,10 @@
 		0.03,
 		0.04,
 		0.01,
-		0.01
+		0.01,
+		0.01,
+		0.02,
+		0.03
 	],
 	"armour defence levels":[
 		0.01,
@@ -107,7 +116,10 @@
 		0.02,
 		0.02,
 		0.01,
-		0.01
+		0.01,
+		0.02,
+		0.02,
+		0.02
 	],
 	"weapon knockbacks":[
 		0,
@@ -128,6 +140,9 @@
 		0
 	],
 	"armour endurance":[
+		0,
+		0,
+		0,
 		0,
 		0,
 		0,

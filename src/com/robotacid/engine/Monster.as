@@ -32,11 +32,13 @@
 			
 			Brain.monsterCharacters.push(this);
 			
+			// tool up
 			if(items){
 				loot = items;
 				for(var i:int = 0; i < loot.length; i++){
-					if(loot[i].type == Item.WEAPON || loot[i].type == Item.ARMOUR){
+					if((!weapon && loot[i].type == Item.WEAPON) || (!armour && loot[i].type == Item.ARMOUR)){
 						equip(loot[i]);
+						if(weapon && armour) break;
 					}
 				}
 			}
