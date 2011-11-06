@@ -494,6 +494,8 @@
 				}
 			}
 			inventoryOption.active = false;
+			missileOption.active = false;
+			disarmTrapOption.active = false;
 			update();
 		}
 		

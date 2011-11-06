@@ -1,5 +1,3 @@
-chaos wall
-
 thorns rune
 
 portal rune

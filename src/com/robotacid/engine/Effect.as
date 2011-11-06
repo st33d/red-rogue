@@ -41,6 +41,7 @@
 		public static const POLYMORPH:int = Item.POLYMORPH;
 		public static const XP:int = Item.XP;
 		public static const LEECH:int = Item.LEECH_RUNE;
+		public static const THORNS:int = Item.THORNS;
 		
 		public static const WEAPON:int = Item.WEAPON;
 		public static const ARMOUR:int = Item.ARMOUR;
@@ -117,6 +118,21 @@
 						dismiss();
 					}
 				}
+			} else if(name == THORNS){
+				// we have it as a given being in main() that this effect came from
+				// weapon, eaten or thrown
+				if(count-- <= 0){
+					if(level > 0){
+						target.thorns -= THORNS_PER_LEVEL;
+						level--;
+						if(level == 0){
+							if(target is Player) g.console.print("the " + nameToString() + " wears off");
+							dismiss();
+						} else {
+							count = DECAY_DELAY_PER_LEVEL;
+						}
+					}
+				}
 			} else if(name == TELEPORT){
 				// this here is the constant chaos caused by wearing teleport armour
 				// more so if the armour is cursed and ironically will require a teleport rune to remove it
@@ -187,6 +203,7 @@
 						}
 					}
 				}
+				if(i == item.effects.length) item.effects.push(this);
 			} else {
 				item.effects = new Vector.<Effect>();
 				item.effects.push(this);
@@ -195,10 +212,15 @@
 				if(g.random.value() < Item.CURSE_CHANCE) item.applyCurse();
 			}
 			
-			// leech enchantments merely alter the leech stat on an item, conferring no active effect
+			// non-applicable enchantments merely alter a stat on an item, conferring no active effect
 			if(name == LEECH){
 				applicable = false;
 				item.setStats();
+			} else if(name == THORNS){
+				if(item.type == Item.ARMOUR){
+					applicable = false;
+					item.setStats();
+				}
 			}
 			
 			if(inventoryList) inventoryList.updateItem(item);
@@ -298,6 +320,12 @@
 					target.equip(item);
 				}
 				return;
+			} else if(name == THORNS){
+				if(source == EATEN || source == THROWN || source == WEAPON){
+					target.thorns += level * THORNS_PER_LEVEL;
+					this.count = count > 0 ? count : DECAY_DELAY_PER_LEVEL;
+					callMain = true;
+				}
 			}
 			if(!target.effects) target.effects = new Vector.<Effect>();
 			target.effects.push(this);
@@ -343,6 +371,9 @@
 						}
 					}
 				}
+			} else if(name == THORNS){
+				// remove floating point errors
+				if(Math.abs(target.thorns) < 0.00001) target.thorns = 0;
 			}
 			active = false;
 			

@@ -224,7 +224,6 @@ package com.robotacid.engine {
 		}
 		
 		override public function remove():void {
-			trace("remove", mapX, mapY);
 			g.chaosWalls.splice(g.chaosWalls.indexOf(this), 1);
 			super.remove();
 		}

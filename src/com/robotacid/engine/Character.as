@@ -166,6 +166,7 @@
 		
 		/* Initialise a character's abilities and statistics */
 		public function setStats():void{
+			var i:int, effect:Effect;
 			// the character's equipment needs to be removed whilst stats are applied
 			var weaponTemp:Item, armourTemp:Item;
 			if(weapon) weaponTemp = unequip(weapon);
@@ -191,7 +192,7 @@
 				setInfravision(0);
 			}
 			if(true){
-				leech = Effect.LEECH_PER_LEVEL * level;
+				leech = 0;
 			} else {
 				leech = 0;
 			}
@@ -200,6 +201,15 @@
 			} else {
 				thorns = 0;
 			}
+			
+			// reapply effects
+			if(effects){
+				for(i = 0; i < effects.length; i++){
+					effect = effects[i];
+					if(effect.name == Effect.THORNS) thorns += Effect.THORNS_PER_LEVEL * effect.level;
+				}
+			}
+			
 			indifferent = false;
 			
 			// re-equip
@@ -331,7 +341,7 @@
 									// thorns
 									if(target.thorns){
 										renderer.createDebrisRect(collider, 0, 10, debrisType);
-										applyDamage(hitDamage * target.thorns, target.nameToString(), 0, false, target.type);
+										applyDamage(hitDamage * (target.thorns <= 1 ? target.thorns : 1), target.nameToString(), 0, false, target.type);
 									}
 									
 									g.soundQueue.add("hit");

@@ -109,6 +109,7 @@
 		public static const POLYMORPH:int = 5;
 		public static const XP:int = 6;
 		public static const LEECH_RUNE:int = 7;
+		public static const THORNS:int = 8;
 		
 		// curse states
 		public static const NO_CURSE:int = 0;
@@ -184,6 +185,7 @@
 					for(i = 0; i < effects.length; i++){
 						effect = effects[i];
 						if(effect.name == Effect.LEECH) leech += Effect.LEECH_PER_LEVEL * effect.level;
+						if(effect.name == Effect.THORNS) thorns += Effect.THORNS_PER_LEVEL * effect.level;
 					}
 				}
 				

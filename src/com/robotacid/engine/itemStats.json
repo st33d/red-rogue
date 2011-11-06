@@ -28,7 +28,8 @@
 		"undead",
 		"polymorph",
 		"xp",
-		"leech"
+		"leech",
+		"thorns"
 	],
 	"rune descriptions":[
 		"casts a bright light on all things",
@@ -38,7 +39,8 @@
 		"will not let dead bones rest",
 		"changes the shape of things",
 		"grants wisdom and strength",
-		"thirsts for blood"
+		"thirsts for blood",
+		"inflicts pain recieved on others"
 	],
 	"weapon ranges":[
 		5,
