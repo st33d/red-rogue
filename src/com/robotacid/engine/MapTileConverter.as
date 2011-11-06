@@ -53,6 +53,7 @@
 		private static const DOWN:int = 4;
 		private static const LEFT:int = 8;
 		
+		public static const WALL:int = 1;
 		public static const EMPTY:int = 0;
 		
 		public static const IN_PARENTHESIS:RegExp =/(?<=\().*(?=\))/;
@@ -101,6 +102,7 @@
 		public static const RAT:int = 62;
 		public static const SPIDER:int = 63;
 		public static const BAT:int = 64;
+		public static const CHAOS_WALL:int = 65;
 		
 		// These references are technically illegal. Game.g doesn't even exist yet, but some how the
 		// compiler is letting the issue slide so long as I don't static reference Game
@@ -171,7 +173,7 @@
 			Sprite,
 			RatMC,
 			SpiderMC,
-			BatMC
+			BatMC,
 		];
 		
 		public function MapTileConverter(r:MapRenderer, g:Game, renderer:Renderer) {
@@ -247,11 +249,10 @@
 						if(obj is Monster){
 							Brain.monsterCharacters.push(obj);
 						}
-						//if(obj.armour && obj.armour.mc is MovieClip){
-							//startClips(obj.armour.mc);
-						//}
 					} else if(obj is Item){
 						g.items.push(obj);
+					} else if(obj is ChaosWall){
+						g.chaosWalls.push(obj);
 					}
 				}
 				
@@ -306,6 +307,8 @@
 				item = new Critter(mc, (x + 0.5) * Game.SCALE, (y + 0.5) * Game.SCALE, Critter.SPIDER);
 			} else if(id == 64){
 				item = new Critter(mc, (x + 0.5) * Game.SCALE, y * Game.SCALE, Critter.BAT);
+			} else if(id == 65){
+				item = new ChaosWall(x, y);
 			}
 			
 			

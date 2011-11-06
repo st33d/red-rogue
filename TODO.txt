@@ -1,10 +1,8 @@
-indifference needs to cancel attack patterns on monsters targeting user
+chaos wall
 
 thorns rune
 
 portal rune
-
-collider removal on death bug - occurs with quickening - stumped
 
 AI issues:
 	walks into wall constantly when too close

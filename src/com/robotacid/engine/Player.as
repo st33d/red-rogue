@@ -59,7 +59,7 @@
 		public static const DOWN:int = 4;
 		public static const LEFT:int = 8;
 		
-		public static const XP_LEVELS:Array = [0, 10, 20, 40, 80, 160, 320, 640, 1280, 2560, 5120, 10240, 20480, 40960, 81920, 163840, 327680, 655360, 1310720, 2621440];
+		public static const XP_LEVELS:Array = [0, 10, 20, 40, 80, 160, 320, 640, 1280, 2560, 5120, 10240, 20480, 40960, 81920, 163840, 327680, 655360, 1310720, 2621440, int.MAX_VALUE];
 		
 		public static const DEFAULT_LIGHT_RADIUS:int = 5;
 		public static const SEARCH_DELAY:int = 90;

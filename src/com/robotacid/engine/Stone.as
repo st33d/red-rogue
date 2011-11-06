@@ -15,7 +15,8 @@
 	import flash.geom.Rectangle;
 	
 	/**
-	 * ...
+	 * A wall that Characters can attack - either resulting in the wall being destroyed or other effects
+	 * 
 	 * @author Aaron Steed, robotacid.com
 	 */
 	public class Stone extends Character{
@@ -48,7 +49,6 @@
 			gfx.x = x;
 			gfx.y = y;
 			super(gfx, x, y, name, STONE, 0);
-			collider.pushDamping = 0;
 			health = STONE_NAME_HEALTHS[name];
 			defence = 0;
 			callMain = false;
@@ -71,6 +71,7 @@
 		override public function createCollider(x:Number, y:Number, properties:int, ignoreProperties:int, state:int = 0, positionByBase:Boolean = true):void {
 			collider = new Collider(x - 1, y, Game.SCALE + 2, Game.SCALE, Game.SCALE, Collider.CHARACTER | Collider.SOLID, Collider.CORPSE | Collider.ITEM, Collider.HOVER);
 			collider.userData = this;
+			collider.pushDamping = 0;
 		}
 		
 		override public function applyDamage(n:Number, source:String, knockback:Number = 0, critical:Boolean = false, aggressor:int = PLAYER):void {

@@ -1,4 +1,5 @@
 ﻿package com.robotacid.dungeon {
+	import com.robotacid.engine.ChaosWall;
 	import com.robotacid.engine.Character;
 	import com.robotacid.engine.MapTileConverter;
 	import com.robotacid.engine.Player;
@@ -125,8 +126,11 @@
 			//setValue(5, height - 2, ENTITIES, 62);
 			
 			
+			createChaosWalls(bitmap.bitmapData.getVector(bitmap.bitmapData.rect));
+			layers[ENTITIES][height - 2][1] = new ChaosWall(1, height - 2);
+			layers[BLOCKS][height - 2][1] = MapTileConverter.WALL;
 			
-			createSecretWall(15, height - 2);
+			//createSecretWall(15, height - 2);
 			
 			
 			//layers[BLOCKS][40][10] = 1;
@@ -144,7 +148,7 @@
 			// background
 			layers.push(createGrid(null, bitmapData.width, bitmapData.height));
 			// blocks - start with a full grid
-			layers.push(createGrid(1, bitmapData.width, bitmapData.height));
+			layers.push(createGrid(MapTileConverter.WALL, bitmapData.width, bitmapData.height));
 			// game objects
 			layers.push(createGrid(null, bitmapData.width, bitmapData.height));
 			// foreground
@@ -302,12 +306,13 @@
 			}
 			
 			// a good dungeon needs to be full of loot and monsters
-			// in comes the content manager
+			// in comes the content manager to mete out a decent amount of action and reward per level
+			// content manager stocks are limited to avoid scumming
 			g.content.populateLevel(level, bitmap, layers);
 			
-			// create the access points
-			
+			// create unique features and access points
 			createAccessPoints();
+			createChaosWalls(pixels);
 			setDartTraps();
 			addCritters();
 		}
@@ -480,6 +485,47 @@
 			);
 		}
 		
+		/* Sprinkle on some chaos walls to make exploring wierder */
+		public function createChaosWalls(pixels:Vector.<uint>):void{
+			ChaosWall.init(width, height);
+			
+			// we only put chaos walls in corridors, so we need a stretch of three wall blocks to
+			// either side of the chaos wall
+			var i:int, r:int, c:int;
+			for(i = width; i < pixels.length - width; i++){
+				c = i % width;
+				r = i / width;
+				if(c > 0 && c < width - 1 && pixels[i] == DungeonBitmap.EMPTY){
+					if(
+						// horizontal corridor
+						(
+							pixels[(i - width) - 1] == DungeonBitmap.WALL && 
+							pixels[i - width] == DungeonBitmap.WALL && 
+							pixels[(i - width) + 1] == DungeonBitmap.WALL && 
+							pixels[(i + width) - 1] == DungeonBitmap.WALL && 
+							pixels[i + width] == DungeonBitmap.WALL && 
+							pixels[(i + width) + 1] == DungeonBitmap.WALL
+						) ||
+						// vertical corridor
+						(
+							pixels[(i - width) - 1] == DungeonBitmap.WALL && 
+							pixels[i - 1] == DungeonBitmap.WALL && 
+							pixels[(i + width) - 1] == DungeonBitmap.WALL && 
+							pixels[(i - width) + 1] == DungeonBitmap.WALL && 
+							pixels[i + 1] == DungeonBitmap.WALL && 
+							pixels[(i + width) + 1] == DungeonBitmap.WALL
+						)
+					){
+						if(g.random.value() < 0.5){
+							layers[ENTITIES][r][c] = new ChaosWall(c, r);
+							layers[BLOCKS][r][c] = MapTileConverter.WALL;
+						}
+					}
+				}
+			}
+		}
+		
+		/* Debugging or set-piece method */
 		public function createCharacter(x:int, y:int, name:int, level:int):void{
 			var characterXML:XML = <character />;
 			characterXML.@name = name;
@@ -587,7 +633,7 @@
 			if(level == 0){
 				var bitmap:Bitmap = new g.library.OverworldB;
 				bitmapData = bitmap.bitmapData;
-			} else if(level >= 1){
+			} else {
 				bitmapData = new BitmapData(Game.SCALE * BACKGROUND_WIDTH, Game.SCALE * BACKGROUND_HEIGHT, true, 0x00000000);
 				var source:BitmapData;
 				var point:Point = new Point();

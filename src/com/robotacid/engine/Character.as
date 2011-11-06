@@ -522,7 +522,7 @@
 			g.soundQueue.add("kill");
 			if(type == MONSTER) g.player.addXP(xpReward);
 			if(effects) removeEffects();
-			if(!active) collider.world.removeCollider(collider);
+			if(!active && collider.world) collider.world.removeCollider(collider);
 		}
 		
 		/* Enter the level via a portal */

@@ -4,6 +4,7 @@
 	import com.robotacid.ai.Node;
 	import com.robotacid.dungeon.Content;
 	import com.robotacid.dungeon.DungeonBitmap;
+	import com.robotacid.engine.ChaosWall;
 	import com.robotacid.engine.Character;
 	import com.robotacid.engine.Effect;
 	import com.robotacid.gfx.ItemMovieClip;
@@ -115,6 +116,7 @@
 		public var items:Array;
 		public var effects:Vector.<Effect>;
 		public var portals:Vector.<Portal>;
+		public var chaosWalls:Vector.<ChaosWall>;
 		
 		// states
 		public var state:int;
@@ -312,6 +314,7 @@
 			items = [];
 			effects = new Vector.<Effect>();
 			portals = new Vector.<Portal>();
+			chaosWalls = new Vector.<ChaosWall>();
 			
 			Item.runeNames = [];
 			for(i = 0; i < Item.stats["rune names"].length; i++){
@@ -337,6 +340,8 @@
 			
 			lightMap = new LightMap(world.map);
 			mapRenderer.init(dungeon.start.x, dungeon.start.y);
+			
+			//renderer.lightBitmap.visible = false;
 			
 			// modify the mapRect to conceal secrets
 			mapRenderer.mapRect = renderer.camera.mapRect = dungeon.bitmap.adjustedMapRect;
@@ -414,6 +419,7 @@
 			items.length = 0;
 			renderer.fx.length = 0;
 			portals.length = 0;
+			chaosWalls.length = 0;
 			
 			Brain.monsterCharacters = new Vector.<Character>();
 			dungeon = new Map(n, this, renderer);
@@ -548,6 +554,13 @@
 				renderer.lightningShape.graphics.clear();
 				
 				world.main();
+				
+				// update chaos walls
+				for(i = chaosWalls.length - 1; i > -1; i--){
+					entity = chaosWalls[i];
+					if(entity.active)  entity.main();
+					else chaosWalls.splice(i, 1);
+				}
 				
 				// reset damping and update mapX/mapY before attacks
 				for(i = 0; i < world.colliders.length; i++){
@@ -699,11 +712,11 @@
 			}
 			if(Key.isDown(Key.T)){
 				console.print("test\n"+(testCounter++));
-			}
+			}*/
 			if(Key.isDown(Key.P)){
 				//minion.death("key");
 				player.levelUp();
-			}*/
+			}
 		}
 		
 		/* When the flash object loses focus we put up a splash screen to encourage players to click to play */

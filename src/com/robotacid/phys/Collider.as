@@ -115,6 +115,8 @@ package com.robotacid.phys {
 		public static const ITEM:int = 1 << 18;
 		/* This Collider is a wall that can be attacked */
 		public static const STONE:int = 1 << 19;
+		/* This Collider is a wall that moves randomly */
+		public static const CHAOS:int = 1 << 20;
 		
 		public function Collider(x:Number = 0, y:Number = 0, width:Number = 0, height:Number = 0, scale:Number = 0, properties:int = SOLID, ignoreProperties:int = 0, state:int = 0){
 			super(x, y, width, height);
