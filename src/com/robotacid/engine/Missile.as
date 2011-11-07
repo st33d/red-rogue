@@ -109,21 +109,31 @@
 				if(hitResult & Character.CRITICAL) renderer.shake(0, 5);
 				if(item.effects) character.applyWeaponEffects(item);
 				var thrownWeapon:Boolean = Boolean(item.range & Item.THROWN);
-				var hitDamage:Number = item.damage + (thrownWeapon ? sender.damage : 0);
-				if(hitResult & Character.CRITICAL) hitDamage *= 2;
+				// knockback
 				var enduranceDamping:Number = 1.0 - (target.endurance + (target.armour ? target.armour.endurance : 0));
 				if(enduranceDamping < 0) enduranceDamping = 0;
 				var hitKnockback:Number = (item.knockback + (thrownWeapon ? sender.knockback : 0)) * enduranceDamping;
 				if(dx < 0) hitKnockback = -hitKnockback;
-				character.applyDamage(hitDamage, "arrow", hitKnockback, Boolean(hitResult & Character.CRITICAL));
-				if(sender.leech){
-					var leechValue:Number = sender.leech > 1 ? 1 : sender.leech;
-					sender.applyHealth(leechValue * hitDamage);
-				}
+				// stun
 				if(hitResult & Character.STUN){
 					var hitStun:Number = (item.stun + (thrownWeapon ? sender.stun : 0)) * enduranceDamping;
 					if(hitStun) character.applyStun(hitStun);
 				}
+				// damage
+				var hitDamage:Number = item.damage + (thrownWeapon ? sender.damage : 0);
+				if(hitResult & Character.CRITICAL) hitDamage *= 2;
+				character.applyDamage(hitDamage, "arrow", hitKnockback, Boolean(hitResult & Character.CRITICAL));
+				// leech
+				if(sender.leech){
+					var leechValue:Number = sender.leech > 1 ? 1 : sender.leech;
+					sender.applyHealth(leechValue * hitDamage);
+				}
+				// thorns
+				if(target.thorns){
+					renderer.createDebrisRect(sender.collider, 0, 10, sender.debrisType);
+					sender.applyDamage(hitDamage * (target.thorns <= 1 ? target.thorns : 1), target.nameToString(), 0, false, target.type);
+				}
+				// blood
 				renderer.createDebrisSpurt(collider.x + collider.width * 0.5, collider.y + collider.height * 0.5, dx > 0 ? 5 : -5, 5, character.debrisType);
 				g.soundQueue.add("hit");
 				

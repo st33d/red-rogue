@@ -343,9 +343,6 @@
 										renderer.createDebrisRect(collider, 0, 10, debrisType);
 										applyDamage(hitDamage * (target.thorns <= 1 ? target.thorns : 1), target.nameToString(), 0, false, target.type);
 									}
-									
-									g.soundQueue.add("hit");
-									
 									// blood
 									p.x = gfx.x + (mc.weapon ? mc.weapon.x : 0);
 									p.y = gfx.y + (mc.weapon ? mc.weapon.y : 0);
@@ -354,6 +351,7 @@
 									} else if(dir & LEFT){
 										renderer.createDebrisSpurt(p.x >= target.collider.x + target.collider.width ? p.x : target.collider.x + target.collider.width, p.y, 2, 8, target.debrisType);
 									}
+									g.soundQueue.add("hit");
 								} else {
 									g.soundQueue.add("miss");
 								}

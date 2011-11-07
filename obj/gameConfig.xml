@@ -14,18 +14,18 @@
     </define>
     <define append="true">
       <name>CONFIG::timeStamp</name>
-      <value>'06/11/2011'</value>
+      <value>'07/11/2011'</value>
     </define>
     <source-path append="true">
-      <path-element>C:\Users\st33d\Documents\rogue\233\src</path-element>
+      <path-element>C:\Users\st33d\Documents\rogue\234\src</path-element>
       <path-element>C:\Program Files (x86)\FlashDevelop\Library\AS3\classes</path-element>
     </source-path>
     <include-libraries>
-      <library>C:\Users\st33d\Documents\rogue\233\src\assets\assets.swc</library>
+      <library>C:\Users\st33d\Documents\rogue\234\src\assets\assets.swc</library>
     </include-libraries>
   </compiler>
   <file-specs>
-    <path-element>C:\Users\st33d\Documents\rogue\233\src\Preloader.as</path-element>
+    <path-element>C:\Users\st33d\Documents\rogue\234\src\Preloader.as</path-element>
   </file-specs>
   <default-background-color>#FFFFFF</default-background-color>
   <default-frame-rate>30</default-frame-rate>
