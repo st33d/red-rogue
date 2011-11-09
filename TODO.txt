@@ -1,4 +1,10 @@
-thorns rune
+Change monster node map to leave no space untouched
+
+Add random.value() to search heuristic to solve meta-heuristic dither
+
+polymorph level limit broken
+
+new menu selection
 
 portal rune
 

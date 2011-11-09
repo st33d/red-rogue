@@ -99,7 +99,7 @@ package com.robotacid.engine {
 				if(distX < 0) distX = -distX;
 				distY = g.player.mapY - mapY;
 				if(distY < 0) distY = -distY;
-				if(distX + distY < READY_DIST){
+				if(distX + distY < READY_DIST && g.lightMap.darkImage.getPixel32(mapX, mapY) != 0xFF000000){
 					ready();
 				}
 			} else if(state == READY){

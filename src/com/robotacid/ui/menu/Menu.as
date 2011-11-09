@@ -9,6 +9,7 @@
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
 	import flash.display.DisplayObjectContainer;
+	import flash.display.MovieClip;
 	import flash.display.Shape;
 	import flash.display.Sprite;
 	import flash.events.Event;
@@ -102,6 +103,9 @@
 		private var keysLocked:int;
 		private var keysHeldCount:int;
 		private var stackCount:int;
+		private var movementMovieClips:Vector.<MovieClip>;
+		private var movementGuideCount:int;
+		private var selectTextBox:TextBox;
 		// sword animation states
 		private var animatingSelection:Boolean;
 		private var swordCount:int;
@@ -119,6 +123,7 @@
 		
 		public static const MOVE_DELAY:int = 4;
 		public static const KEYS_HELD_DELAY:int = 5;
+		public static const MOVEMENT_GUIDE_DELAY:int = 30;
 		
 		// game key properties
 		public static const UP_KEY:int = 0;
@@ -134,16 +139,23 @@
 		public static const DOWN:int = 4;
 		public static const LEFT:int = 8;
 		
+		public static const UP_MOVE:int = 0;
+		public static const RIGHT_MOVE:int = 1;
+		public static const DOWN_MOVE:int = 2;
+		public static const LEFT_MOVE:int = 3;
+		
 		public function Menu(width:Number, height:Number, trunk:MenuList = null):void{
 			_width = width;
 			_height = height;
 			
+			var i:int;
 			dirStack = new Vector.<int>();
 			dir = 0;
 			vx = vy = 0;
 			moveCount = 0;
 			moveReset = MOVE_DELAY;
 			keysHeldCount = KEYS_HELD_DELAY;
+			movementGuideCount = MOVEMENT_GUIDE_DELAY;
 			hideChangeEvent = false;
 			animatingSelection = false;
 			swordCount = 0;
@@ -155,7 +167,7 @@
 			// menu usage
 			branch = new Vector.<MenuList>();
 			hotKeyMaps = new Vector.<HotKeyMap>();
-			for(var i:int = 0; i < Key.hotKeyTotal; i++){
+			for(i = 0; i < Key.hotKeyTotal; i++){
 				hotKeyMaps.push(null);
 			}
 			
@@ -217,6 +229,33 @@
 			addChild(selectionWindow);
 			addChild(selectionWindowTaperNext);
 			addChild(selectionWindowTaperPrevious);
+			
+			// tell people about "right to select"
+			selectTextBox = new TextBox(LIST_WIDTH, LINE_SPACING, 0x00000000, 0x00000000);
+			selectTextBox.text = "select";
+			selectTextBox.x = selectionWindow.x + selectionWindow.width;
+			selectTextBox.y = selectionWindow.y - 1;
+			selectTextBox.alpha = 0;
+			addChild(selectTextBox);
+			
+			// movement arrows illustate where we can progress on the menu
+			movementMovieClips = new Vector.<MovieClip>(4, true);
+			for(i = 0; i < movementMovieClips.length; i++){
+				movementMovieClips[i] = new MenuArrowMC();
+				addChild(movementMovieClips[i]);
+				movementMovieClips[i].visible = false;
+			}
+			movementMovieClips[UP_MOVE].x = (selectionWindow.x + selectionWindow.width * 0.5) >> 0;
+			movementMovieClips[UP_MOVE].y = selectionWindow.y;
+			movementMovieClips[RIGHT_MOVE].x = selectionWindow.x + selectionWindow.width;
+			movementMovieClips[RIGHT_MOVE].y = (selectionWindow.y + selectionWindow.height * 0.5) >> 0;
+			movementMovieClips[RIGHT_MOVE].rotation = 90;
+			movementMovieClips[DOWN_MOVE].x = 1 + (selectionWindow.x + selectionWindow.width * 0.5) >> 0;
+			movementMovieClips[DOWN_MOVE].y = selectionWindow.y + selectionWindow.height;
+			movementMovieClips[DOWN_MOVE].rotation = 180;
+			movementMovieClips[LEFT_MOVE].x = selectionWindow.x;
+			movementMovieClips[LEFT_MOVE].y = 1 + (selectionWindow.y + selectionWindow.height * 0.5) >> 0;
+			movementMovieClips[LEFT_MOVE].rotation = -90;
 			
 			addChild(help);
 			
@@ -606,19 +645,36 @@
 					dirStack.push(keysDown);
 				}
 			}
-			// animate marquees
-			if(parent && dir == 0 && dirStack.length == 0){
-				if(previousTextBox.visible){
-					previousTextBox.updateMarquee();
-					setDisabledLines(previousMenuList, previousTextBox);
-				}
-				if(currentTextBox.visible){
-					currentTextBox.updateMarquee();
-					setDisabledLines(currentMenuList, currentTextBox);
-				}
-				if(nextTextBox.visible){
-					nextTextBox.updateMarquee();
-					setDisabledLines(nextMenuList, nextTextBox);
+				
+			// animate marquees and movement guides
+			if(parent){
+				if(dir == 0 && dirStack.length == 0){
+					if(previousTextBox.visible){
+						previousTextBox.updateMarquee();
+						setDisabledLines(previousMenuList, previousTextBox);
+					}
+					if(currentTextBox.visible){
+						currentTextBox.updateMarquee();
+						setDisabledLines(currentMenuList, currentTextBox);
+					}
+					if(nextTextBox.visible){
+						nextTextBox.updateMarquee();
+						setDisabledLines(nextMenuList, nextTextBox);
+					}
+					if(movementGuideCount){
+						movementGuideCount--;
+						if(movementGuideCount == 0){
+							for(i = 0; i < movementMovieClips.length; i++) movementMovieClips[i].gotoAndPlay(1);
+						}
+					} else {
+						movementMovieClips[UP_MOVE].visible = currentMenuList.selection > 0;
+						movementMovieClips[DOWN_MOVE].visible = currentMenuList.selection < currentMenuList.options.length - 1;
+						movementMovieClips[RIGHT_MOVE].visible = currentMenuList.options[selection].active;
+						movementMovieClips[LEFT_MOVE].visible = Boolean(previousMenuList);
+					}
+				} else {
+					movementGuideCount = MOVEMENT_GUIDE_DELAY;
+					for(i = 0; i < movementMovieClips.length; i++) movementMovieClips[i].visible = false;
 				}
 			}
 			// check if there are directions loaded into the dirStack

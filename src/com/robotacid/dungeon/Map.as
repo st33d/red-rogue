@@ -516,7 +516,7 @@
 							pixels[(i + width) + 1] == DungeonBitmap.WALL
 						)
 					){
-						if(g.random.value() < 0.5){
+						if(g.random.value() < 0.4){
 							layers[ENTITIES][r][c] = new ChaosWall(c, r);
 							layers[BLOCKS][r][c] = MapTileConverter.WALL;
 						}
