@@ -5,7 +5,6 @@
 	import com.robotacid.sound.SoundManager;
 	import com.robotacid.ui.Key;
 	import com.robotacid.ui.TextBox;
-	import com.robotacid.util.XorRandom;
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
 	import flash.display.DisplayObjectContainer;
@@ -58,10 +57,9 @@
 		public var currentTextBox:TextBox;
 		public var nextTextBox:TextBox;
 		public var capture:CaptureBitmap;
-		public var menuSword:Bitmap;
+		public var selectionCopyBitmap:Bitmap;
 		
 		public var hideChangeEvent:Boolean;
-		public var selectionWindowCol:uint = 0xFFEEEEEE;
 		
 		public var branch:Vector.<MenuList>;
 		public var branchStringCurrentOption:String;
@@ -72,8 +70,6 @@
 		public var hotKeyMapRecord:HotKeyMap;
 		public var changeKeysOption:MenuOption;
 		public var hotKeyOption:MenuOption;
-		
-		public var random:XorRandom;
 		
 		public var previousMenuList:MenuList;
 		public var currentMenuList:MenuList;
@@ -105,21 +101,13 @@
 		private var stackCount:int;
 		private var movementMovieClips:Vector.<MovieClip>;
 		private var movementGuideCount:int;
-		private var selectTextBox:TextBox;
-		// sword animation states
 		private var animatingSelection:Boolean;
-		private var swordCount:int;
-		private var swordVx:Number;
-		private var bloodCount:int;
-		private var blood:Vector.<DebrisFX>;
-		
-		public static const SWORD_DELAY:int = 3;
-		public static const BLOOD_DELAY:int = 12;
 		
 		public static const LIST_WIDTH:Number = 100;
 		public static const LINE_SPACING:Number = 11;
 		public static const SELECTION_WINDOW_TAPER_WIDTH:Number = 50;
 		public static const SIDE_ALPHAS:Number = 0.7;
+		public static const SELECTION_WINDOW_COL:uint = 0xFFEEEEEE;
 		
 		public static const MOVE_DELAY:int = 4;
 		public static const KEYS_HELD_DELAY:int = 5;
@@ -158,10 +146,6 @@
 			movementGuideCount = MOVEMENT_GUIDE_DELAY;
 			hideChangeEvent = false;
 			animatingSelection = false;
-			swordCount = 0;
-			bloodCount = 0;
-			
-			random = new XorRandom();
 			
 			// initialise the branch recorders - these will help examine the history of
 			// menu usage
@@ -200,7 +184,6 @@
 			nextTextBox.marquee = true;
 			capture = new CaptureBitmap();
 			capture.visible = false;
-			menuSword = new Game.g.library.MenuSwordB();
 			
 			previousTextBox.x = -LIST_WIDTH;
 			nextTextBox.x = LIST_WIDTH;
@@ -210,15 +193,17 @@
 			textHolder.addChild(nextTextBox);
 			textHolder.addChild(capture);
 			
-			blood = new Vector.<DebrisFX>();
-			
 			previousTextBox.visible = false;
 			nextTextBox.visible = false;
 			
 			// the selection window shows what option we are currently on
 			selectionWindow = new Bitmap(new BitmapData(LIST_WIDTH, LINE_SPACING));
+			selectionCopyBitmap = new Bitmap(selectionWindow.bitmapData.clone());
+			selectionCopyBitmap.visible = false;
 			selectionWindow.x = -selectionWindow.width * 0.5 + _width * 0.5;
 			selectionWindow.y = 1 + ((LINE_SPACING * 3) + (_height - (LINE_SPACING * 3)) * 0.5 - LINE_SPACING * 0.5 - TextBox.BORDER_ALLOWANCE) >> 0;
+			selectionCopyBitmap.x = selectionWindow.x;
+			selectionCopyBitmap.y = selectionWindow.y;
 			selectionWindowTaperNext = new Bitmap(new BitmapData(SELECTION_WINDOW_TAPER_WIDTH, LINE_SPACING, true, 0x00000000));
 			selectionWindowTaperNext.x = selectionWindow.x + selectionWindow.width;
 			selectionWindowTaperNext.y = selectionWindow.y;
@@ -226,17 +211,10 @@
 			selectionWindowTaperPrevious.x = selectionWindow.x - selectionWindowTaperPrevious.width;
 			selectionWindowTaperPrevious.y = selectionWindow.y;
 			drawSelectionWindow();
+			addChild(selectionCopyBitmap);
 			addChild(selectionWindow);
 			addChild(selectionWindowTaperNext);
 			addChild(selectionWindowTaperPrevious);
-			
-			// tell people about "right to select"
-			selectTextBox = new TextBox(LIST_WIDTH, LINE_SPACING, 0x00000000, 0x00000000);
-			selectTextBox.text = "select";
-			selectTextBox.x = selectionWindow.x + selectionWindow.width;
-			selectTextBox.y = selectionWindow.y - 1;
-			selectTextBox.alpha = 0;
-			addChild(selectTextBox);
 			
 			// movement arrows illustate where we can progress on the menu
 			movementMovieClips = new Vector.<MovieClip>(4, true);
@@ -501,16 +479,23 @@
 				captureAlphaStep = -SIDE_ALPHAS / moveReset;
 				vx = -LIST_WIDTH / moveReset;
 			
-				SoundManager.playSound("step");
-			
 			// initialise and launch menu selection animation
 			} else {
+				// capture an image of the current menu state
 				capture.capture(textHolder, new Matrix(1, 0, 0, 1, textHolder.x, textHolder.y), _width, _height);
 				capture.x = -textHolder.x;
 				capture.y = -textHolder.y;
 				capture.alpha = 1;
 				capture.visible = true;
+				
+				// copy, brighten, then erase the text of the selected item
+				var selectionWindowRect:Rectangle = new Rectangle(selectionWindow.x, selectionWindow.y, selectionWindow.width, selectionWindow.height);
+				selectionCopyBitmap.bitmapData.copyPixels(capture.bitmapData, selectionWindowRect, new Point());
+				capture.bitmapData.fillRect(selectionWindowRect, 0x00000000);
+				selectionCopyBitmap.visible = true;
+				
 				stepRight();
+				// hide the advanced menu
 				previousTextBox.alpha = 0;
 				currentTextBox.alpha = 0;
 				nextTextBox.alpha = 0;
@@ -522,15 +507,13 @@
 				currentAlphaStep = 1.0 / moveReset;
 				nextAlphaStep = SIDE_ALPHAS / moveReset;
 				captureAlphaStep = -1.0 / moveReset;
-				vx = 0;
+				vx = -LIST_WIDTH / moveReset;
 				
 				animatingSelection = true;
-				swordCount = SWORD_DELAY;
-				bloodCount = BLOOD_DELAY;
-				menuSword.x = _width;
-				swordVx = -(_width - (textHolder.x + LIST_WIDTH * 0.5)) / SWORD_DELAY;
 				selectionWindowTaperNext.visible = false;
 			}
+			
+			SoundManager.playSound("step");
 			
 			dir |= RIGHT;
 			dir &= ~LEFT;
@@ -706,40 +689,15 @@
 			} else {
 				// selection animation
 				if(animatingSelection){
-					var animAreaX:Number = textHolder.x + LIST_WIDTH;
-					
-					if(swordCount){
-						swordCount--;
-						menuSword.x += swordVx;
-						capture.bitmapData.fillRect(new Rectangle(animAreaX, 0, _width - animAreaX, height), 0x00000000);
-						if(swordCount == 0) SoundManager.playSound("hit");
-					} else if(bloodCount){
-						bloodCount--;
-						var blit:BlitRect, debris:DebrisFX;
-						if(random.value() < 0.5){
-							blit = Game.renderer.smallDebrisBlits[0];
-						} else {
-							blit = Game.renderer.bigDebrisBlits[0];
-						}
-						for(i = 0; i < 15; i++){
-							debris = new DebrisFX(-5 + animAreaX + random.range(50), textHolder.y + random.range(LINE_SPACING), blit, capture.bitmapData, this, null, false, false);
-							debris.addVelocity(5 + random.range(10), -5 + random.range(5));
-							blood.push(debris);
-						}
-						if(bloodCount == 0){
-							animatingSelection = false;
-							blood.length = 0;
-							moveReset = MOVE_DELAY;
-							// flush the direction stack again to avoid leaping off selecting things after the anim
-							dirStack.length = 0;
-						}
-					}
-					var maskRect:Rectangle = new Rectangle(Math.max(animAreaX - menuSword.x, 0), 0, menuSword.width, menuSword.height);
-					capture.bitmapData.copyPixels(menuSword.bitmapData, maskRect, new Point(menuSword.x + maskRect.x, textHolder.y), null, null, true);
-					for(i = blood.length - 1; i > -1; i--){
-						debris = blood[i];
-						if(debris.x < _width && debris.y < _height) debris.main();
-						else blood.splice(1, 1);
+					capture.alpha += captureAlphaStep;
+					capture.x += vx;
+					if(capture.alpha <= 0){
+						selectionCopyBitmap.visible = false;
+						animatingSelection = false;
+						moveReset = MOVE_DELAY;
+						vx = 0;
+						// flush the direction stack again to avoid leaping off selecting things after the anim
+						dirStack.length = 0;
 					}
 				} else {
 					// browsing animation
@@ -759,6 +717,7 @@
 							nextTextBox.alpha += nextAlphaStep;
 							capture.alpha += captureAlphaStep;
 						}
+						
 						moveCount--;
 						// animation over
 						if(moveCount == 0){
@@ -791,7 +750,7 @@
 					selectionWindow.bitmapData.rect.y,
 					selectionWindow.bitmapData.rect.width,
 					selectionWindow.bitmapData.rect.height
-				), selectionWindowCol);
+				), SELECTION_WINDOW_COL);
 			selectionWindow.bitmapData.fillRect(
 				new Rectangle(
 					selectionWindow.bitmapData.rect.x + 1,
@@ -800,7 +759,7 @@
 					selectionWindow.bitmapData.rect.height- 2
 				), 0x00000000);
 				var step:int = 255 / SELECTION_WINDOW_TAPER_WIDTH;
-			for(var c:uint = selectionWindowCol, n:int = 0; n < SELECTION_WINDOW_TAPER_WIDTH; c -= 0x01000000 * step, n++){
+			for(var c:uint = SELECTION_WINDOW_COL, n:int = 0; n < SELECTION_WINDOW_TAPER_WIDTH; c -= 0x01000000 * step, n++){
 				selectionWindowTaperNext.bitmapData.setPixel32(n, 0, c);
 				selectionWindowTaperNext.bitmapData.setPixel32(n, selectionWindow.height-1, c);
 				selectionWindowTaperPrevious.bitmapData.setPixel32(SELECTION_WINDOW_TAPER_WIDTH - n, 0, c);

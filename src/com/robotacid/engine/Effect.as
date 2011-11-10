@@ -183,7 +183,7 @@
 			} else if(name == XP){
 				// just raises the level of the item
 				while(level--) item.levelUp();
-				inventoryList.updateItem(item);
+				if(inventoryList) inventoryList.updateItem(item);
 				return item;
 				
 			}

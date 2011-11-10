@@ -14,7 +14,6 @@
 	public class Library {
 		
 		[Embed(source = "assets/banner.png")] public var BannerB:Class;
-		[Embed(source = "assets/menu_sword.png")] public var MenuSwordB:Class;
 		
 		[Embed(source = "assets/background/backwall1.png")] public var BackB1:Class;
 		[Embed(source = "assets/background/backwall2.png")] public var BackB2:Class;
