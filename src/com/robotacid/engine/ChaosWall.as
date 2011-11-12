@@ -12,6 +12,7 @@ package com.robotacid.engine {
 	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
 	import flash.display.Sprite;
+	import flash.geom.Rectangle;
 	
 	/**
 	 * Moving walls that imply that the dungeon is constantly rearranging itself
@@ -136,9 +137,8 @@ package com.robotacid.engine {
 			chaosWalls[mapY][mapX] = null;
 			// remove from map renderer
 			g.world.map[mapY][mapX] = 0;
-			g.mapRenderer.removeFromRenderedArray(mapX, mapY, Map.BLOCKS, null);
 			g.mapRenderer.removeFromRenderedArray(mapX, mapY, Map.ENTITIES, null);
-			g.mapRenderer.removeTile(Map.BLOCKS, mapX, mapY);
+			renderer.blockBitmapData.fillRect(new Rectangle(mapX * SCALE, mapY * SCALE, SCALE, SCALE), 0x00000000);
 			// show empty on minimap
 			g.miniMap.bitmapData.setPixel32(mapX, mapY, LightMap.MINIMAP_EMPTY_COL);
 			gfx.visible = true;
@@ -173,7 +173,6 @@ package com.robotacid.engine {
 			active = false;
 			//renderer.createDebrisRect(collider, 0, 100, debrisType);
 			collider.world.removeCollider(collider);
-			trace("kill", mapX, mapY);
 		}
 		
 		override public function render():void {

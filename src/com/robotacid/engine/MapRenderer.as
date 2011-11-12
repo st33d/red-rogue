@@ -1,5 +1,6 @@
 ﻿package com.robotacid.engine {
 	import com.robotacid.geom.Pixel;
+	import com.robotacid.gfx.BlitRect;
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
 	import flash.display.Graphics;
@@ -155,6 +156,27 @@
 			topLeft = topLeftLayers[n];
 			bottomRight = bottomRightLayers[n];
 			currentLayer = n;
+		}
+		
+		/* Renders layer n to a BitmapData, then sets that layer to no longer update */
+		public function layerToBitmapData(n:int):BitmapData{
+			changeLayer(n);
+			var pixelWidth:int = width * scale;
+			var pixelHeight:int = height * scale;
+			var bitmapData:BitmapData = new BitmapData(pixelWidth, pixelHeight, true, 0x00000000);
+			var r:int, c:int, item:BlitRect;
+			for(r = 0; r < height; r++) {
+				for(c = 0; c < width; c++) {
+					item = converter.createTile(c, r) as BlitRect;
+					if(item){
+						item.x = c * scale;
+						item.y = r * scale;
+						item.render(bitmapData);
+					}
+				}
+			}
+			updateLayer[n] = false;
+			return bitmapData;
 		}
 		
 		/* Turn on / off scrolling behaviour on a layer */

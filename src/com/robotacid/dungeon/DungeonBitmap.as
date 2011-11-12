@@ -74,6 +74,8 @@
 		public static const OVERWORLD_WIDTH:int = 25;
 		public static const OVERWORLD_HEIGHT:int = 13;
 		
+		public static const MAXIMUM_PIXELS:int = 16769025;
+		
 		public function DungeonBitmap(level:int) {
 			
 			var bitmapData:BitmapData;

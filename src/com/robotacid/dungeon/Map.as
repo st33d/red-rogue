@@ -395,10 +395,10 @@
 			fill(0, 1, 0, width-2, height-1, layers[BLOCKS]);
 			
 			// create the grindstone and healstone
-			layers[BLOCKS][height-2][1] = 1;
-			layers[ENTITIES][height-2][1] = 60;
-			layers[BLOCKS][height-2][width - 2] = 1;
-			layers[ENTITIES][height-2][width - 2] = 61;
+			layers[BLOCKS][height - 2][1] = 1;
+			layers[ENTITIES][height - 2][1] = 60;
+			layers[BLOCKS][height - 2][width - 2] = 1;
+			layers[ENTITIES][height - 2][width - 2] = 61;
 			
 			setStairsDown(12, height-2);
 		}

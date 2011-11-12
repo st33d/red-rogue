@@ -1,23 +1,23 @@
-Change monster node map to leave no space untouched
+Fix eaten polymorph effect to limit by exploration - this would involve putting placeholders down for all races
+	put placeholders down for all races
+		move minion to index 21 - making minion unachievable by polymorph
 
-Add random.value() to search heuristic to solve meta-heuristic dither
-
-polymorph level limit broken
-
-new menu selection
+Add some how add a random offset to AI search values - they're in ints (fuck knows)
 
 portal rune
 
 AI issues:
 	walks into wall constantly when too close
 	monster AI jitter on ladder observed - investigate
-	can get stuck on the edge of a ledge where the character's center point is not inside a node
 	possible dithering when a monster may get caught between meta-heuristic paths of equal value
+	bravery - monster makes so many attacks before retreating for a while
 
 help on menu has not been fully written out
 
 level generator overhaul:
 	distribution tactics -
 		distribution bubbles
+	give Map, Content and DungeonMap their own XORRandom object to create seedable dungeons
+
 
 rally - a monster could see the character and could call other monsters to aid, there should be a rallying pose and a shockwave type graphic, implying he's just told everyone on screen to mob the player

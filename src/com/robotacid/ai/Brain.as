@@ -340,7 +340,7 @@
 				
 				// no node means the character must be falling or clipping a ledge
 				if(start){
-					path = dungeonGraph.getPath(start, dungeonGraph.nodes[target.mapY][target.mapX], searchSteps);
+					path = dungeonGraph.getPathTo(start, dungeonGraph.nodes[target.mapY][target.mapX], searchSteps);
 					
 					if(path){
 						
@@ -400,6 +400,10 @@
 				} else {
 					// character might be standing on the edge of a ledge - outside of a node
 					char.actions |= DOWN;
+					// chase the target
+					if(targetX < charPos.x) char.actions |= LEFT;
+					else if(targetX > charPos.x) char.actions |= RIGHT;
+					
 				}
 				
 			}
@@ -428,7 +432,7 @@
 				
 				// no node means the character must be falling or clipping a ledge
 				if(start){
-					path = dungeonGraph.getEscapePath(start, dungeonGraph.nodes[target.mapY][target.mapX], searchSteps);
+					path = dungeonGraph.getPathAway(start, dungeonGraph.nodes[target.mapY][target.mapX], searchSteps);
 					
 					if(path){
 						
@@ -483,6 +487,9 @@
 				} else {
 					// character might be standing on the edge of a ledge - outside of a node
 					char.actions |= DOWN;
+					// flee the target
+					if(targetX < charPos.x) char.actions |= RIGHT;
+					else if(targetX > charPos.x) char.actions |= LEFT;
 				}
 				
 			}

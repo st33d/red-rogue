@@ -164,10 +164,10 @@
 				} else if(item.type == Item.WEAPON){
 					nameRange = Item.stats["weapon names"].length;
 				}
-				// limit change by dungeon level - catch possible infinite loop
-				if(nameRange > g.dungeon.level) nameRange = g.dungeon.level;
-				if(item.name == 0 && g.dungeon.level == 0 || g.dungeon.level == 1){
-					item.name = 1;
+				// limit change by exploration - catch possible infinite loop
+				if(nameRange > g.deepestLevelReached) nameRange = g.deepestLevelReached;
+				if(item.name == 0 && nameRange == 1){
+					newName = item.name == 1 ? 0 : 1;
 				} else {
 					while(newName == item.name) newName = g.random.range(nameRange);
 				}

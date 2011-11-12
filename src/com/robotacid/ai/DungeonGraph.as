@@ -141,7 +141,7 @@ package com.robotacid.ai {
 		 *
 		 * This algorithm is an implementation of A* with tagging optimisations and a cut off
 		 * defined by the variable steps - limiting the search duration eases cpu load */
-		public function getPath(start:Node, finish:Node, steps:int = 10):Vector.<Node> {
+		public function getPathTo(start:Node, finish:Node, steps:int = 10):Vector.<Node> {
 			
 			// the searchId allows the algorithm to mark Nodes as closed or open instead
 			// of adding them to arrays and sifting through those arrays all the time
@@ -153,6 +153,7 @@ package com.robotacid.ai {
 			var current:Node, adjacentNode:Node;
 			
 			start.setH(finish);
+			start.g = 0;
 			open = new Vector.<Node>();
 			open.push(start);
 			
@@ -231,7 +232,7 @@ package com.robotacid.ai {
 		 * a search of the entire map to satisfy a Brown* search.
 		 * 
 		 * For this reason, KEEP THE SEARCH STEPS LOW, it will use all of them, unlike A* */
-		public function getEscapePath(start:Node, target:Node, steps:int = 10):Vector.<Node> {
+		public function getPathAway(start:Node, target:Node, steps:int = 10):Vector.<Node> {
 			
 			// the searchId allows the algorithm to mark Nodes as closed or open instead
 			// of adding them to arrays and sifting through those arrays all the time
@@ -244,6 +245,7 @@ package com.robotacid.ai {
 			
 			start.setH(target);
 			start.h = -start.h;
+			start.g = 0;
 			open = new Vector.<Node>();
 			open.push(start);
 			

@@ -88,7 +88,6 @@
 		public var entrance:Portal;
 		public var world:CollisionWorld;
 		public var random:XorRandom;
-		
 		public var soundQueue:SoundQueue;
 		
 		// graphics
@@ -109,6 +108,7 @@
 		public var enemyHealthBar:ProgressBar;
 		public var fpsText:TextBox;
 		
+		// debug
 		public var info:TextField;
 		
 		// lists
@@ -128,9 +128,9 @@
 		public var paused:Boolean;
 		public var shakeDirX:int;
 		public var shakeDirY:int;
+		public var deepestLevelReached:int;
 		public var konamiCode:Boolean = false;
 		public var colossalCaveCode:Boolean = false;
-		
 		public var forceFocus:Boolean = true;
 		
 		// temp variables
@@ -333,6 +333,7 @@
 			Brain.initDungeonGraph(dungeon.bitmap);
 			mapRenderer = new MapRenderer(this, renderer.canvas, SCALE, dungeon.width, dungeon.height, WIDTH, HEIGHT);
 			mapRenderer.setLayers(dungeon.layers, [renderer.bitmapData, renderer.bitmapData, null, null], [renderer.bitmap, renderer.bitmap, null, null]);
+			renderer.blockBitmapData = mapRenderer.layerToBitmapData(MapRenderer.BLOCK_LAYER);
 			world = new CollisionWorld(dungeon.width, dungeon.height, SCALE);
 			world.map = createPropertyMap(mapRenderer.mapArrayLayers[MapRenderer.BLOCK_LAYER]);
 			
@@ -349,6 +350,7 @@
 			miniMap.y = miniMap.x = 5;
 			miniMapHolder.addChild(miniMap);
 			frameCount = 1;
+			deepestLevelReached = 1;
 			initPlayer();
 			// fire up listeners
 			addListeners();
@@ -376,6 +378,7 @@
 			dungeon = null;
 			world = null;
 			Player.portalEntryType = Portal.UP;
+			
 			init();
 		}
 		
@@ -406,6 +409,8 @@
 			// new map
 			// clear rendering layers
 			
+			if(n > deepestLevelReached && deepestLevelReached < MAX_LEVEL) deepestLevelReached = n;
+			
 			// dismiss entity effects - leave player and minion alone
 			var i:int;
 			for(i = 0; i < entities.length; i++){
@@ -426,6 +431,8 @@
 			Brain.initDungeonGraph(dungeon.bitmap);
 			
 			mapRenderer.newMap(dungeon.width, dungeon.height, dungeon.layers);
+			if(dungeon.level > 0) renderer.blockBitmapData = mapRenderer.layerToBitmapData(MapRenderer.BLOCK_LAYER);
+			else renderer.blockBitmapData = new BitmapData(dungeon.width * SCALE, dungeon.height * SCALE, true, 0x00000000);
 			
 			// modify the mapRect to conceal secrets
 			mapRenderer.mapRect = dungeon.bitmap.adjustedMapRect;
@@ -436,7 +443,6 @@
 			lightMap.newMap(world.map);
 			lightMap.setLight(player, player.light);
 			
-			if(dungeon.level == 1) mapRenderer.setLayerUpdate(MapRenderer.BLOCK_LAYER, true);
 			mapRenderer.init(dungeon.start.x, dungeon.start.y);
 			
 			miniMap.newMap(world.map);
@@ -529,8 +535,6 @@
 			//info.text = g.player.mapX + " " + g.player.mapY;
 			//info.appendText("pixels" + (getTimer() - t) + "\n"); t = getTimer();
 			
-			//Brain.dungeonGraph.drawGraph(debug, SCALE);
-			//
 			//var mouseMapX:int = INV_SCALE * canvas.mouseX;
 			//var mouseMapY:int = INV_SCALE * canvas.mouseY;
 			//if(Brain.dungeonGraph.nodes[mouseMapY][mouseMapX] && Brain.dungeonGraph.nodes[player.mapY][player.mapX]){
@@ -540,6 +544,7 @@
 					//Brain.dungeonGraph.drawPath(path, debug, SCALE);
 				//}
 			//}
+			//Brain.dungeonGraph.drawGraph(debug, SCALE);
 			
 			if(state == GAME) {
 				

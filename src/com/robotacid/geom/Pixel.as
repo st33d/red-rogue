@@ -14,7 +14,7 @@
 			this.y = y;
 		}
 		/* Manhattan distance */
-		public function mDist(p:Pixel):Number{
+		public function mDist(p:Pixel):int{
 			return (p.x < x ? x - p.x : p.x - x) + (p.y < y ? y - p.y : p.y - y);
 		}
 		public function toString():String {

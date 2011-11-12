@@ -1,6 +1,7 @@
 ﻿package com.robotacid.engine {
 	import com.robotacid.ai.Brain;
 	import com.robotacid.dungeon.Map;
+	import com.robotacid.gfx.BlitSprite;
 	import com.robotacid.gfx.Renderer;
 	import com.robotacid.phys.Collider;
 	import com.robotacid.sound.SoundManager;
@@ -85,8 +86,6 @@
 							minimapFeature.active = false;
 							minimapFeature = null;
 						}
-						g.mapRenderer.addToRenderedArray(mapX, mapY, Map.BLOCKS, MapTileConverter.ID_TO_GRAPHIC[MapTileConverter.LEDGE_SINGLE]);
-						g.mapRenderer.mapArrayLayers[Map.BLOCKS][mapY][mapX] = MapTileConverter.LEDGE_SINGLE;
 						g.world.map[mapY][mapX] = Collider.UP | Collider.LEDGE;
 					}
 				}
@@ -102,10 +101,12 @@
 				renderer.shake(0, 3);
 				g.soundQueue.add("kill");
 				g.world.map[mapY][mapX] = 0;
-				g.mapRenderer.removeFromRenderedArray(mapX, mapY, Map.BLOCKS, null);
 				g.mapRenderer.removeFromRenderedArray(mapX, mapY, Map.ENTITIES, null);
-				g.mapRenderer.removeTile(Map.BLOCKS, mapX, mapY);
-				g.mapRenderer.addTile(Map.BLOCKS, mapX, mapY, MapTileConverter.LEDGE_SINGLE);
+				renderer.blockBitmapData.fillRect(new Rectangle(mapX * SCALE, mapY * SCALE, SCALE, SCALE), 0x00000000);
+				var blit:BlitSprite = MapTileConverter.ID_TO_GRAPHIC[MapTileConverter.LEDGE_SINGLE];
+				blit.x = mapX * SCALE;
+				blit.y = mapY * SCALE;
+				blit.render(renderer.blockBitmapData);
 				// check to see if any colliders are on this and drop them
 				var dropped:Vector.<Collider> = g.world.getCollidersIn(rect);
 				var dropCollider:Collider;
