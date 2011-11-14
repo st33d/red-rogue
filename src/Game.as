@@ -73,6 +73,8 @@
 	
 	public class Game extends Sprite {
 		
+		public static const BUILD_NUM:int = 240;
+		
 		public static var g:Game;
 		public static var renderer:Renderer;
 		public static var debug:Graphics;
@@ -276,12 +278,20 @@
 				focusPrompt = new Sprite();
 				focusPrompt.graphics.beginFill(0x000000);
 				focusPrompt.graphics.drawRect(0, 0, WIDTH, HEIGHT);
-				var focusText:TextBox = new TextBox(100, 12, 0x00000000, 0x00000000, 0xFFAA0000);
-				focusText.text = "click to play";
-				focusText.bitmapData.colorTransform(focusText.bitmapData.rect, new ColorTransform(1, 0, 0, 1, -85));
-				focusPrompt.addChild(focusText);
-				focusText.x = (WIDTH * 0.5) - 36;
-				focusText.y = (HEIGHT * 0.5) + 10;
+				var clickToPlayText:TextBox = new TextBox(100, 12, 0x00000000, 0x00000000, 0xFFAA0000);
+				clickToPlayText.align = "center";
+				clickToPlayText.text = "click to play";
+				clickToPlayText.bitmapData.colorTransform(clickToPlayText.bitmapData.rect, new ColorTransform(1, 0, 0, 1, -85));
+				focusPrompt.addChild(clickToPlayText);
+				clickToPlayText.x = (WIDTH * 0.5) - 50;
+				clickToPlayText.y = (HEIGHT * 0.5) + 10;
+				var buildText:TextBox = new TextBox(100, 12, 0x00000000, 0x00000000, 0xFFAA0000);
+				buildText.align = "center";
+				buildText.text = "build " + BUILD_NUM;
+				buildText.bitmapData.colorTransform(buildText.bitmapData.rect, new ColorTransform(1, 0, 0, 1, -85));
+				focusPrompt.addChild(buildText);
+				buildText.x = (WIDTH * 0.5) - 50;
+				buildText.y = HEIGHT - 14;
 				var title_b:Bitmap = new library.BannerB();
 				focusPrompt.addChild(title_b);
 				title_b.y = HEIGHT * 0.5 - title_b.height * 0.5;
