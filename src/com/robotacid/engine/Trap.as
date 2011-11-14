@@ -60,7 +60,14 @@
 		}
 		
 		override public function main():void {
-			if(rect.intersects(g.player.collider) && !g.player.indifferent){
+			// check the player is fully on the trap before springing it
+			if(
+				g.player.collider.x >= rect.x &&
+				g.player.collider.x + g.player.collider.width <= rect.x + rect.width &&
+				g.player.collider.y < rect.y + rect.height &&
+				g.player.collider.y + g.player.collider.height > rect.y &&
+				!g.player.indifferent
+			){
 				if(!contact){
 					contact = true;
 					resolveCollision();

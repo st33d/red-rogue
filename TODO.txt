@@ -2,7 +2,7 @@ Fix eaten polymorph effect to limit by exploration - this would involve putting 
 	put placeholders down for all races
 		move minion to index 21 - making minion unachievable by polymorph
 
-Add some how add a random offset to AI search values - they're in ints (fuck knows)
+Add some how add a random offset to AI search values - they're in ints (fuck knows, coin flipping?)
 
 portal rune
 
@@ -17,7 +17,7 @@ help on menu has not been fully written out
 level generator overhaul:
 	distribution tactics -
 		distribution bubbles
-	give Map, Content and DungeonMap their own XORRandom object to create seedable dungeons
+	give Map, Content and DungeonMap their own XorRandom object to create seedable dungeons
 
 
 rally - a monster could see the character and could call other monsters to aid, there should be a rallying pose and a shockwave type graphic, implying he's just told everyone on screen to mob the player

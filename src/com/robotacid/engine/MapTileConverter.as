@@ -291,12 +291,14 @@
 			} else if(id == 57){
 				item = new Trap(mc, x, y, Trap.TELEPORT_DART);
 			} else if(id == 58){
-				item = new Portal(mc, new Rectangle(x * Game.SCALE, y * Game.SCALE, Game.SCALE, Game.SCALE), Portal.UP);
-				if(Player.portalEntryType == Portal.UP) g.entrance = item;
+				// stairs up
+				item = new Portal(mc, new Rectangle(x * Game.SCALE, y * Game.SCALE, Game.SCALE, Game.SCALE), Portal.STAIRS, g.dungeon.level - 1);
+				if(Player.previousLevel < g.dungeon.level) g.entrance = item;
 			} else if(id == 59){
+				// stairs down
 				if(g.dungeon.level == 0) mc = new Sprite();
-				item = new Portal(mc, new Rectangle(x * Game.SCALE, y * Game.SCALE, Game.SCALE, Game.SCALE), Portal.DOWN);
-				if(Player.portalEntryType == Portal.DOWN) g.entrance = item;
+				item = new Portal(mc, new Rectangle(x * Game.SCALE, y * Game.SCALE, Game.SCALE, Game.SCALE), Portal.STAIRS, g.dungeon.level + 1);
+				if(Player.previousLevel > g.dungeon.level) g.entrance = item;
 			} else if(id == 60){
 				item = new Stone(x * Game.SCALE, y * Game.SCALE, Stone.HEALTH);
 			} else if(id == 61){

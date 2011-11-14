@@ -47,8 +47,8 @@ package com.robotacid.ui {
 				obj.playerData = true;
 				// we only save on stairs but the level doesn't change till the animation
 				// finishes, so we have to take a reading from the player's state
-				obj.dungeonLevel = g.dungeon.level + (Player.portalEntryType == Portal.UP ? 1 : -1);
-				obj.lastStairsUsedType = Player.portalEntryType;
+				obj.dungeonLevel = g.dungeon.level + (Player.previousLevel < Player.previousLevel ? 1 : -1);
+				obj.previousLevel = Player.previousLevel;
 				obj.player = g.player.toXML();
 				obj.minion = g.minion ? g.minion.toXML() : null;
 				// here come the items
@@ -192,7 +192,7 @@ package com.robotacid.ui {
 						}
 					}
 					
-					Player.portalEntryType = obj.lastStairsUsedType;
+					Player.previousLevel = obj.previousLevel;
 					// call for a new level
 					g.changeLevel(int(obj.dungeonLevel), true);
 				}

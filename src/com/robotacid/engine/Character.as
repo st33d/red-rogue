@@ -463,21 +463,23 @@
 				}
 			} else if(state == ENTERING){
 				moving = true;
-				if(portal.type == Portal.UP){
-					if(moveCount){
-						if(dir == RIGHT) gfx.x += PORTAL_SPEED;
-						else if(dir == LEFT) gfx.x -= PORTAL_SPEED;
-						gfx.y += PORTAL_SPEED;
+				if(portal.type == Portal.STAIRS){
+					if(portal.targetLevel < g.dungeon.level){
+						if(moveCount){
+							if(dir == RIGHT) gfx.x += PORTAL_SPEED;
+							else if(dir == LEFT) gfx.x -= PORTAL_SPEED;
+							gfx.y += PORTAL_SPEED;
+						}
+						if(gfx.y >= (portal.mapY + 1) * Game.SCALE) portal = null;
+					} else if(portal.targetLevel > g.dungeon.level){
+						if(moveCount){
+							if(dir == RIGHT) gfx.x += PORTAL_SPEED;
+							else if(dir == LEFT) gfx.x -= PORTAL_SPEED;
+							gfx.y -= PORTAL_SPEED;
+						}
+						if(gfx.y <= (portal.mapY + 1) * Game.SCALE) portal = null;
 					}
-					if(gfx.y >= (portal.mapY + 1) * Game.SCALE) portal = null;
-				} else if(portal.type == Portal.DOWN){
-					if(moveCount){
-						if(dir == RIGHT) gfx.x += PORTAL_SPEED;
-						else if(dir == LEFT) gfx.x -= PORTAL_SPEED;
-						gfx.y -= PORTAL_SPEED;
-					}
-					if(gfx.y <= (portal.mapY + 1) * Game.SCALE) portal = null;
-				} else if(portal.type == Portal.SIDE){
+				} else {
 					if(dir == RIGHT){
 						gfx.x += PORTAL_SPEED;
 						if(gfx.x > (portal.mapX + 0.5) * Game.SCALE) portal = null;
@@ -541,11 +543,13 @@
 			} else if(dir == LEFT){
 				gfx.x = (portal.mapX + 0.5) * Game.SCALE + PORTAL_DISTANCE;
 			}
-			if(portal.type == Portal.DOWN){
-				gfx.y = (portal.mapY + 1) * Game.SCALE + PORTAL_DISTANCE;
-			} else if(portal.type == Portal.UP){
-				gfx.y = (portal.mapY + 1) * Game.SCALE - PORTAL_DISTANCE;
-			} else if(portal.type == Portal.SIDE){
+			if(portal.type == Portal.STAIRS){
+				if(portal.targetLevel > g.dungeon.level){
+					gfx.y = (portal.mapY + 1) * Game.SCALE + PORTAL_DISTANCE;
+				} else if(portal.targetLevel < g.dungeon.level){
+					gfx.y = (portal.mapY + 1) * Game.SCALE - PORTAL_DISTANCE;
+				}
+			} else {
 				gfx.y = (portal.mapY + 1) * Game.SCALE;
 			}
 			this.dir = looking = dir;

@@ -377,7 +377,7 @@
 			mapRenderer = null;
 			dungeon = null;
 			world = null;
-			Player.portalEntryType = Portal.UP;
+			Player.previousLevel = 0;
 			
 			init();
 		}
@@ -497,7 +497,7 @@
 				miniMap.visible = true;
 			}
 			
-			player.enterLevel(entrance, Player.portalEntryType == Portal.UP ? Collider.RIGHT : Collider.LEFT);
+			player.enterLevel(entrance, Player.previousLevel < g.dungeon.level ? Collider.RIGHT : Collider.LEFT);
 		}
 		
 		private function initPlayer():void{

@@ -546,7 +546,7 @@
 		public function setStairsUp(x:int, y:int):void{
 			layers[ENTITIES][y][x] = MapTileConverter.STAIRS_UP;
 			stairsUp = new Pixel(x, y);
-			if(Player.portalEntryType == Portal.UP){
+			if(Player.previousLevel < level){
 				start = stairsUp;
 			}
 		}
@@ -555,7 +555,7 @@
 		public function setStairsDown(x:int, y:int):void{
 			layers[ENTITIES][y][x] = MapTileConverter.STAIRS_DOWN;
 			stairsDown = new Pixel(x, y);
-			if(Player.portalEntryType == Portal.DOWN){
+			if(Player.previousLevel > level){
 				start = stairsDown;
 			}
 		}

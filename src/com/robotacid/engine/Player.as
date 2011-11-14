@@ -52,7 +52,7 @@
 		public var actionsLockout:int;
 		public var portalContact:Portal;
 		
-		public static var portalEntryType:int = Portal.UP;
+		public static var previousLevel:int = 0;
 		
 		public static const UP:int = 1;
 		public static const RIGHT:int = 2;
@@ -136,23 +136,26 @@
 			
 			// update exiting a level
 			if(state == EXITING){
+				// capture the exit direction before we clear the reference to the portal
+				var exitDir:int = portal.targetLevel > g.dungeon.level ? 1 : -1;
 				moving = true;
-				var exitDir:int = portal.type == Portal.DOWN ? 1 : -1;
-				if(portal.type == Portal.DOWN){
-					if(moveCount){
-						if(dir == RIGHT) gfx.x += PORTAL_SPEED;
-						else if(dir == LEFT) gfx.x -= PORTAL_SPEED;
-						gfx.y += PORTAL_SPEED;
+				if(portal.type == Portal.STAIRS){
+					if(portal.targetLevel > g.dungeon.level){
+						if(moveCount){
+							if(dir == RIGHT) gfx.x += PORTAL_SPEED;
+							else if(dir == LEFT) gfx.x -= PORTAL_SPEED;
+							gfx.y += PORTAL_SPEED;
+						}
+						if(gfx.y >= (portal.mapY + 1) * Game.SCALE + PORTAL_DISTANCE) portal = null;
+					} else if(portal.targetLevel < g.dungeon.level){
+						if(moveCount){
+							if(dir == RIGHT) gfx.x += PORTAL_SPEED;
+							else if(dir == LEFT) gfx.x -= PORTAL_SPEED;
+							gfx.y -= PORTAL_SPEED;
+						}
+						if(gfx.y <= (portal.mapY + 1) * Game.SCALE - PORTAL_DISTANCE) portal = null;
 					}
-					if(gfx.y >= (portal.mapY + 1) * Game.SCALE + PORTAL_DISTANCE) portal = null;
-				} else if(portal.type == Portal.UP){
-					if(moveCount){
-						if(dir == RIGHT) gfx.x += PORTAL_SPEED;
-						else if(dir == LEFT) gfx.x -= PORTAL_SPEED;
-						gfx.y -= PORTAL_SPEED;
-					}
-					if(gfx.y <= (portal.mapY + 1) * Game.SCALE - PORTAL_DISTANCE) portal = null;
-				} else if(portal.type == Portal.SIDE){
+				} else {
 					if(dir == RIGHT){
 						gfx.x += PORTAL_SPEED;
 						if(gfx.x > portal.mapX * Game.SCALE + PORTAL_DISTANCE) portal = null;
@@ -295,14 +298,11 @@
 			gfx.x = (portal.mapX + 0.5) * Game.SCALE;
 			state = EXITING;
 			// prepare the dungeon generator for what entrance the player will use
-			if(portal.type == Portal.UP){
-				portalEntryType = Portal.DOWN;
+			previousLevel = g.dungeon.level;
+			if(portal.targetLevel < g.dungeon.level){
 				dir = looking = LEFT;
-			} else if(portal.type == Portal.DOWN){
-				portalEntryType = Portal.UP;
+			} else if(portal.targetLevel > g.dungeon.level){
 				dir = looking = RIGHT;
-			} else if(portal.type == Portal.SIDE){
-				portalEntryType = Portal.SIDE;
 			}
 		}
 		
