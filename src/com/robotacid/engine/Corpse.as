@@ -73,8 +73,9 @@ package com.robotacid.engine {
 		}
 		
 		public function kill():void{
-			active = false;
 			renderer.createDebrisRect(collider, 0, 20, Renderer.BLOOD);
+			g.world.removeCollider(collider);
+			active = false;
 		}
 		
 		/* Handles refreshing animation and the position the canvas */

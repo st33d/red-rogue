@@ -29,11 +29,13 @@
 		public var g:Game;
 		public var renderer:Renderer;
 		public var level:int;
+		public var type:int;
 		public var width:int;
 		public var height:int;
 		public var start:Pixel;
 		public var stairsUp:Pixel;
 		public var stairsDown:Pixel;
+		public var portal:Pixel;
 		
 		public var bitmap:DungeonBitmap;
 		
@@ -41,11 +43,18 @@
 		
 		public var layers:Array;
 		
-		public static const LAYER_NUM:int = 4;
+		// types
+		public static const OVERWORLD:int = 0;
+		public static const MAIN_DUNGEON:int = 1;
+		public static const SIDE_DUNGEON:int = 2;
+		
+		// layers
 		public static const BACKGROUND:int = 0;
 		public static const BLOCKS:int = 1;
 		public static const ENTITIES:int = 2;
 		public static const FOREGROUND:int = 3;
+		
+		public static const LAYER_NUM:int = 4;
 		
 		public static const BACKGROUND_WIDTH:int = 8;
 		public static const BACKGROUND_HEIGHT:int = 8;
@@ -101,8 +110,11 @@
 			//layers[ENTITIES][44][8] = 22;
 			
 			// access points
-			setStairsUp(width / 2, height - 2);
-			setStairsDown(width - 3, height - 2);
+			setStairsUp(15, height - 2);
+			setStairsDown(10, height - 2);
+			
+			setValue(9, height - 2, BLOCKS, MapTileConverter.WALL);
+			
 			
 			// create trap
 			//setValue(13, height - 5, BLOCKS, 1);

@@ -275,7 +275,10 @@
 					nameRange = g.random.range(Item.stats["rune names"].length);
 					if(nameRange > dungeonLevel) nameRange = dungeonLevel;
 					name = g.random.range(nameRange);
-					runeList.push(name);
+					// some enchantments confer multiple extra enchantments -
+					// that can of worms will stay closed
+					if(!Effect.BANNED_RANDOM_ENCHANTMENTS[name]) runeList.push(name);
+					else enchantments++;
 				}
 				// each effect must now be given a level, for this we do a bucket sort
 				// to stack the effects
@@ -321,7 +324,7 @@
 				var effect:Effect;
 				for each(var enchantment:XML in xml.effect){
 					effect = new Effect(enchantment.@name, enchantment.@level, 0);
-					effect.enchant(obj);
+					obj = effect.enchant(obj);
 				}
 				
 				// is this item cursed?

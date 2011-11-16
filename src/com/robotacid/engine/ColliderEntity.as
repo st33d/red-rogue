@@ -23,7 +23,7 @@ package com.robotacid.engine {
 			if(positionByBase){
 				collider = new Collider(x - bounds.width * 0.5, y - bounds.height, bounds.width, bounds.height, Game.SCALE, properties, ignoreProperties, state);
 			} else {
-				collider = new Collider(x, y, bounds.width, bounds.height, Game.SCALE, properties, ignoreProperties, state);
+				collider = new Collider(x + bounds.left, y + bounds.top, bounds.width, bounds.height, Game.SCALE, properties, ignoreProperties, state);
 			}
 			collider.userData = this;
 			mapX = (collider.x + collider.width * 0.5) * Game.INV_SCALE;

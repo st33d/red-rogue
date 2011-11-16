@@ -6,6 +6,7 @@
 	import flash.display.BitmapData;
 	import flash.display.BitmapDataChannel;
 	import flash.display.DisplayObject;
+	import flash.display.MovieClip;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	
@@ -21,9 +22,10 @@
 		public var seen:Boolean;
 		public var targetLevel:int;
 		
+		public var item:Item;
+		public var character:Character;
+		
 		private var count:int;
-		private var scaleStep:Number;
-		private var spawn:Character;
 		
 		public var rect:Rectangle;
 		
@@ -34,12 +36,17 @@
 		
 		// types
 		public static const STAIRS:int = 0;
-		public static const TOWN_PORTAL:int = 1;
-		public static const MONSTER_SPAWNER:int = 2;
-		public static const QUEST:int = 3;
-		public static const MINON:int = 4;
+		public static const ROGUE:int = 1;
+		public static const MONSTER:int = 2;
+		public static const ITEM:int = 3;
+		public static const MINION:int = 4;
+		public static const DUNGEON:int = 5;
 		
-		public static const OPEN_CLOSE_DELAY:int = 20;
+		public static const GFX_CLASSES:Array = [, RoguePortalMC, MonsterPortalMC, DungeonPortalMC, MinionPortalMC, DungeonPortalMC];
+		
+		public static const OPEN_CLOSE_DELAY:int = 8;
+		public static const SCALE_STEP:Number = 1.0 / OPEN_CLOSE_DELAY;
+		public static const GFX_STEP:Number = (SCALE * 0.5) / OPEN_CLOSE_DELAY;
 		public static const MONSTERS_PER_LEVEL:int = 2;
 		
 		public function Portal(mc:DisplayObject, rect:Rectangle, type:int, targetLevel:int) {
@@ -55,7 +62,8 @@
 			} else {
 				state = OPENING;
 				mc.scaleX = mc.scaleY = 0;
-				scaleStep = 1.0 / OPEN_CLOSE_DELAY;
+				mc.x += SCALE * 0.5;
+				mc.y += SCALE * 0.5;
 				count = OPEN_CLOSE_DELAY;
 			}
 			g.portals.push(this);
@@ -65,12 +73,16 @@
 			if(state == OPENING){
 				if(count){
 					count--;
-					gfx.scaleX += scaleStep;
-					gfx.scaleY += scaleStep;
+					gfx.scaleX += SCALE_STEP;
+					gfx.scaleY += SCALE_STEP;
+					gfx.x -= GFX_STEP;
+					gfx.y -= GFX_STEP;
 				} else {
 					gfx.scaleX = gfx.scaleY = 1;
+					gfx.x = mapX * SCALE;
+					gfx.y = mapY * SCALE;
 					state = OPEN;
-					if(type == MONSTER_SPAWNER){
+					if(type == MONSTER){
 						count = MONSTERS_PER_LEVEL * g.dungeon.level;
 					}
 				}
@@ -97,8 +109,10 @@
 			} else if(state == CLOSING){
 				if(count){
 					count--;
-					gfx.scaleX -= scaleStep;
-					gfx.scaleY -= scaleStep;
+					gfx.scaleX -= SCALE_STEP;
+					gfx.scaleY -= SCALE_STEP;
+					gfx.x += GFX_STEP;
+					gfx.y += GFX_STEP;
 				} else {
 					g.mapRenderer.removeFromRenderedArray(mapX, mapY, Map.ENTITIES, null);
 					active = false;
@@ -109,6 +123,43 @@
 		override public function remove():void {
 			g.portals.splice(g.portals.indexOf(this), 1);
 			super.remove();
+		}
+		
+		/* Generates a portal within a level - only one portal of each type is allowed in the game */
+		public static function createPortal(type:int, mapX:int, mapY:int, targetLevel:int = 0):Portal{
+			var i:int, portal:Portal;
+			// check that the portal is on a surface - if not cast downwards and put it on one
+			while(!(g.world.map[mapY + 1][mapX] & Collider.UP)) mapY++;
+			// check we're not obscuring the level stairs.
+			// To avoid writing out the logic twice I'm popping an extra iteration in the loop to check the
+			// MapRenderer tile position
+			for(i = 0; i < g.portals.length + 1; i++){
+				if(i < g.portals.length) portal = g.portals[i];
+				else portal = g.mapRenderer.mapArrayLayers[Map.ENTITIES][mapY][mapX] as Portal;
+				if(portal && portal.type == STAIRS && portal.mapX == mapX && portal.mapY == mapY){
+					// there will be a square to the side of the stairs free - that's the level generation logic
+					// check there is floor there
+					if(g.world.map[mapY + 1][mapX + 1] & Collider.UP){
+						mapX++;
+					// fuck it - they can jump for the portal, they should have the sense not to put it in front of stairs
+					} else {
+						mapX--;
+					}
+					break;
+				}
+			}
+			var mc:MovieClip = new GFX_CLASSES[type]();
+			mc.x = mapX * SCALE;
+			mc.y = mapY * SCALE;
+			portal = new Portal(mc, new Rectangle(mapX * SCALE, mapY * SCALE, SCALE, SCALE), type, targetLevel);
+			portal.mapX = mapX;
+			portal.mapY = mapY;
+			portal.mapZ = Map.ENTITIES;
+			// the portal may have been generated outside of the mapRenderer zone
+			if(!g.mapRenderer.intersects(portal.rect)){
+				portal.remove();
+			}
+			return portal;
 		}
 	}
 

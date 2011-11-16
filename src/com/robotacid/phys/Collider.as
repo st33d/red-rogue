@@ -1,5 +1,6 @@
 package com.robotacid.phys {
 
+	import com.robotacid.engine.Missile;
 	import flash.display.Graphics;
 	import flash.geom.Rectangle;
 	
@@ -309,7 +310,7 @@ package com.robotacid.phys {
 					for(mapX = minX; mapX <= maxX; mapX++){
 						for(mapY = minY; mapY <= maxY; mapY++){
 							property = world.map[mapY][mapX];
-							if(mapX * world.scale < x + width + vx && (property & LEFT) && !(property & ignoreProperties)){
+							if(mapX * world.scale < (x + width - INTERVAL_TOLERANCE) + vx && (property & LEFT) && !(property & ignoreProperties)){
 								vx -= (x + width + vx) - mapX * world.scale;
 								this.vx = 0;
 								pressure |= RIGHT;
@@ -397,8 +398,8 @@ package com.robotacid.phys {
 					for(mapX = minX; mapX >= maxX; mapX--){
 						for(mapY = minY; mapY <= maxY; mapY++){
 							property = world.map[mapY][mapX];
-							if((mapX + 1) * world.scale > x + vx && (property & RIGHT) && !(property & ignoreProperties)){
-								vx -= (x + vx) - ((mapX + 1) * world.scale);
+							if((mapX + 1) * world.scale - INTERVAL_TOLERANCE > x + vx && (property & RIGHT) && !(property & ignoreProperties)){
+								vx -= (x + vx) - (mapX + 1) * world.scale;
 								this.vx = 0;
 								pressure |= LEFT;
 								break scanBackwards;
@@ -765,7 +766,7 @@ package com.robotacid.phys {
 		
 		/* Draw debug diagram */
 		public function draw(gfx:Graphics):void{
-			gfx.lineStyle(2, 0x33AA66);
+			gfx.lineStyle(1, 0x33AA66);
 			gfx.drawRect(x, y, width, height);
 			if(awake){
 				gfx.drawRect(x + width * 0.4, y + height * 0.4, width * 0.2, height * 0.2);

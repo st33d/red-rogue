@@ -110,11 +110,13 @@
 		public static const XP:int = 6;
 		public static const LEECH_RUNE:int = 7;
 		public static const THORNS:int = 8;
+		public static const PORTAL:int = 9;
 		
 		// curse states
 		public static const NO_CURSE:int = 0;
 		public static const CURSE_HIDDEN:int = 1;
 		public static const CURSE_REVEALED:int = 2;
+		public static const BLESSED:int = 3;
 		
 		public static const CURSE_CHANCE:Number = 0.05;
 		public static const MAX_LEVEL:int = 20;
@@ -294,7 +296,7 @@
 		
 		/* Turns this item into a cursed item - it cannot be unequipped by the player other than through Effects */
 		public function applyCurse():void{
-			if(curseState == CURSE_REVEALED) return;
+			if(curseState == CURSE_REVEALED || curseState == BLESSED) return;
 			
 			curseState = CURSE_HIDDEN;
 			

@@ -73,7 +73,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 240;
+		public static const BUILD_NUM:int = 241;
 		
 		public static var g:Game;
 		public static var renderer:Renderer;
@@ -179,6 +179,8 @@
 			DungeonBitmap.g = this;
 			Lightning.g = this;
 			ItemMovieClip.g = this;
+			
+			Effect.BANNED_RANDOM_ENCHANTMENTS[Effect.PORTAL] = true;
 			
 			TextBox.init();
 			MapTileConverter.init();
@@ -516,8 +518,8 @@
 			var startX:Number = (dungeon.start.x + 0.5) * SCALE;
 			var startY:Number = (dungeon.start.y + 1) * SCALE;
 			player = new Player(playerMc, startX, startY);
-			minion = new Minion(minionMc, startX, startY, Character.SKELETON);
-			minion.prepareToEnter(entrance);
+			//minion = new Minion(minionMc, startX, startY, Character.SKELETON);
+			//minion.prepareToEnter(entrance);
 			player.enterLevel(entrance);
 			player.snapCamera();
 			SoundManager.playMusic("music1");
@@ -564,7 +566,7 @@
 				var effect:Effect;
 				
 				debug.clear();
-				debug.lineStyle(2, 0x00FF00);
+				debug.lineStyle(1, 0x00FF00);
 				// unfortunately lightning has to be drawn on the fly - so we clear it here
 				renderer.lightningShape.graphics.clear();
 				

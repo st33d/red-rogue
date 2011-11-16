@@ -3,10 +3,8 @@ package com.robotacid.phys{
 	import flash.geom.Rectangle;
 	
 	/**
-	 * Management for platformer collisions
-	 *
-	 * Colliders are generated with this object to ensure that they are propagated to the HashMap or
-	 * set to FLOAT if overlapping
+	 * Management object for platformer collisions - this makes installing a physics engine as simple as dragging
+	 * and dropping com.robotacid.phys
 	 *
 	 * @author Aaron Steed, robotacid.com
 	 */

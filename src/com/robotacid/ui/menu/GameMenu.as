@@ -437,7 +437,7 @@
 				var user:Character = item.user;
 				if(user) item = user.unequip(item);
 				
-				item = effect.enchant(item, inventoryList, user);
+				item = effect.enchant(item, inventoryList, user ? user : g.player);
 				
 				if(user && item.location == Item.INVENTORY) item = user.equip(item);
 				

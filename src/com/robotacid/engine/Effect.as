@@ -42,6 +42,9 @@
 		public static const XP:int = Item.XP;
 		public static const LEECH:int = Item.LEECH_RUNE;
 		public static const THORNS:int = Item.THORNS;
+		public static const PORTAL:int = Item.PORTAL;
+		
+		public static var BANNED_RANDOM_ENCHANTMENTS:Array = [];
 		
 		public static const WEAPON:int = Item.WEAPON;
 		public static const ARMOUR:int = Item.ARMOUR;
@@ -150,6 +153,7 @@
 		 */
 		public function enchant(item:Item, inventoryList:InventoryMenuList = null, user:Character = null):Item{
 			
+			var dest:Pixel;
 			source = item.type;
 			
 			if(name == POLYMORPH){
@@ -184,6 +188,17 @@
 				// just raises the level of the item
 				while(level--) item.levelUp();
 				if(inventoryList) inventoryList.updateItem(item);
+				return item;
+				
+			} else if(name == PORTAL){
+				// create an item portal and send the item into the level it leads to
+				if(inventoryList){
+					renderer.createTeleportSparkRect(user.collider, 10);
+					item = inventoryList.removeItem(item);
+					item = randomEnchant(item);
+					var portal:Portal = Portal.createPortal(Portal.ITEM, user.mapX, user.mapY, g.deepestLevelReached);
+					portal.item = item;
+				}
 				return item;
 				
 			}
@@ -231,7 +246,7 @@
 				// at least if it was cursed this is a good thing
 				if(user) renderer.createTeleportSparkRect(user.collider, 10);
 				item = inventoryList.removeItem(item);
-				var dest:Pixel = getTeleportTarget(g.player.mapX, g.player.mapY, g.world.map, g.mapRenderer.mapRect);
+				dest = getTeleportTarget(g.player.mapX, g.player.mapY, g.world.map, g.mapRenderer.mapRect);
 				item.dropToMap(dest.x, dest.y);
 				g.soundQueue.add("teleport");
 			}
@@ -251,6 +266,7 @@
 			this.count = 0;
 			
 			this.target = target;
+			
 			if(name == LIGHT){
 				// the light effect simply adds to the current radius of light on an object
 				var radius:int = Math.ceil(level * 0.5);
@@ -260,6 +276,7 @@
 					this.count = count > 0 ? count : DECAY_DELAY_PER_LEVEL;
 					callMain = true;
 				}
+				
 			} else if(name == POISON){
 				// poison affects a percentage of the victim's health over the decay delay period
 				// making poison armour pinch some of your health for putting it on, thrown runes and
@@ -269,6 +286,7 @@
 				healthStep /= DECAY_DELAY_PER_LEVEL;
 				this.count = count > 0 ? count : DECAY_DELAY_PER_LEVEL;
 				callMain = true;
+				
 			} else if(name == HEAL){
 				// heal is the inverse of poison, but will restore twice all health
 				// except on armour - where it affects the amount of time it will take for the player
@@ -282,6 +300,7 @@
 					healthStep = targetTotalHealth / (2 * DECAY_DELAY_PER_LEVEL * (1 + Game.MAX_LEVEL - level));
 				}
 				callMain = true;
+				
 			} else if(name == TELEPORT){
 				// teleport enchanted armour will randomly hop the wearer around the map, the stronger
 				// the effect, the more frequent the jumps
@@ -295,6 +314,7 @@
 					// all other sources of teleport do not embed, they are one time effects only
 					return;
 				}
+				
 			} else if(name == POLYMORPH){
 				if(source == EATEN || source == THROWN){
 					var newName:int = target.name;
@@ -302,6 +322,7 @@
 					target.changeName(newName);
 					return;
 				}
+				
 			} else if(name == XP){
 				// all characters except the player will get a level up, the player gets xp to their next level
 				if(target is Player){
@@ -310,6 +331,7 @@
 					target.levelUp();
 				}
 				return;
+				
 			} else if(name == LEECH){
 				if(source == EATEN || source == THROWN){
 					var item:Item = new Item(new ItemMovieClip(Item.LEECH_WEAPON, Item.WEAPON), Item.LEECH_WEAPON, Item.WEAPON, target.level);
@@ -320,12 +342,28 @@
 					target.equip(item);
 				}
 				return;
+				
 			} else if(name == THORNS){
 				if(source == EATEN || source == THROWN || source == WEAPON){
 					target.thorns += level * THORNS_PER_LEVEL;
 					this.count = count > 0 ? count : DECAY_DELAY_PER_LEVEL;
 					callMain = true;
 				}
+				
+			} else if(name == PORTAL){
+				var portal:Portal;
+				if(source == EATEN){
+					if(target is Player){
+						Portal.createPortal(Portal.ROGUE, target.mapX, target.mapY);
+					} else if(target is Minion){
+						portal = Portal.createPortal(Portal.MINION, target.mapX, target.mapY);
+						portal.character = target;
+					}
+				} else if(source == THROWN){
+					portal = Portal.createPortal(Portal.MONSTER, target.mapX, target.mapY);
+					portal.character = target;
+				}
+				
 			}
 			if(!target.effects) target.effects = new Vector.<Effect>();
 			target.effects.push(this);
@@ -430,6 +468,43 @@
 				finish.y = g.random.range(map.length);
 			}
 			return finish;
+		}
+		
+		/* Applies a set of random enchantments to an item */
+		public static function randomEnchant(item:Item):Item{
+			var name:int;
+			var nameRange:int;
+			var enchantments:int = 1 + g.random.range(g.deepestLevelReached * 0.5);
+			var runeList:Vector.<int> = new Vector.<int>();
+			while(enchantments--){
+				nameRange = g.random.range(Item.stats["rune names"].length);
+				if(nameRange > g.deepestLevelReached) nameRange = g.deepestLevelReached;
+				name = g.random.range(nameRange);
+				// some enchantments confer multiple extra enchantments -
+				// that can of worms will stay closed
+				if(!Effect.BANNED_RANDOM_ENCHANTMENTS[name]) runeList.push(name);
+				else enchantments++;
+			}
+			// each effect must now be given a level, for this we do a bucket sort
+			// to stack the effects
+			var bucket:Vector.<int> = new Vector.<int>(Item.stats["rune names"].length);
+			var i:int;
+			for(i = 0; i < runeList.length; i++){
+				bucket[runeList[i]]++;
+			}
+			var effect:Effect;
+			for(i = 0; i < bucket.length; i++){
+				if(bucket[i]){
+					effect = new Effect(i, bucket[i], 0);
+					item = effect.enchant(item);
+				}
+			}
+			// apply/remove curse?
+			if(item.curseState != Item.BLESSED && g.random.value() < 0.2){
+				if(item.curseState == Item.CURSE_HIDDEN || item.curseState == Item.CURSE_REVEALED) item.curseState = Item.NO_CURSE;
+				else item.curseState = Item.CURSE_HIDDEN;
+			}
+			return item;
 		}
 	}
 	

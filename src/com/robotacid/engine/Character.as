@@ -332,7 +332,7 @@
 									// damage
 									var hitDamage:Number = damage + (meleeWeapon ? weapon.damage : 0);
 									if(hitResult & CRITICAL) hitDamage *= 2;
-									target.applyDamage(hitDamage, nameToString(), hitKnockback, Boolean(hitResult & CRITICAL), type);
+									target.applyDamage(hitDamage, trueNameToString(), hitKnockback, Boolean(hitResult & CRITICAL), type);
 									// leech
 									if(leech){
 										var leechValue:Number = leech > 1 ? 1 : leech;
@@ -733,6 +733,7 @@
 			} else if (type == Missile.RUNE){
 				g.soundQueue.add("throw");
 			}
+			missileMc.scaleX = (looking & RIGHT) ? 1 : -1;
 			var missile:Missile = new Missile(missileMc, collider.x + collider.width * 0.5, collider.y + collider.height * 0.5, type, this, (looking & RIGHT) ? 1 : -1, 0, 5, missileIgnore, effect, item);
 		}
 		
