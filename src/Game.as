@@ -73,7 +73,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 241;
+		public static const BUILD_NUM:int = 243;
 		
 		public static var g:Game;
 		public static var renderer:Renderer;
@@ -134,6 +134,7 @@
 		public var konamiCode:Boolean = false;
 		public var colossalCaveCode:Boolean = false;
 		public var forceFocus:Boolean = true;
+		public var portalHash:Object;
 		
 		// temp variables
 		private var i:int;
@@ -317,8 +318,13 @@
 			fpsText.y = HEIGHT - (fpsText.height + 2);
 			addChild(fpsText);
 			
+			// STATES
+			
 			konamiCode = false;
 			colossalCaveCode = false;
+			portalHash = {};
+			frameCount = 1;
+			deepestLevelReached = 1;
 			
 			// LISTS
 			
@@ -361,8 +367,6 @@
 			miniMap = new MiniMap(world.map, this);
 			miniMap.y = miniMap.x = 5;
 			miniMapHolder.addChild(miniMap);
-			frameCount = 1;
-			deepestLevelReached = 1;
 			initPlayer();
 			// fire up listeners
 			addListeners();
@@ -438,8 +442,12 @@
 			portals.length = 0;
 			chaosWalls.length = 0;
 			
+			portalHash = {};
+			
 			Brain.monsterCharacters = new Vector.<Character>();
+			
 			dungeon = new Map(n, this, renderer);
+			
 			Brain.initDungeonGraph(dungeon.bitmap);
 			
 			mapRenderer.newMap(dungeon.width, dungeon.height, dungeon.layers);
@@ -518,8 +526,8 @@
 			var startX:Number = (dungeon.start.x + 0.5) * SCALE;
 			var startY:Number = (dungeon.start.y + 1) * SCALE;
 			player = new Player(playerMc, startX, startY);
-			//minion = new Minion(minionMc, startX, startY, Character.SKELETON);
-			//minion.prepareToEnter(entrance);
+			minion = new Minion(minionMc, startX, startY, Character.SKELETON);
+			minion.prepareToEnter(entrance);
 			player.enterLevel(entrance);
 			player.snapCamera();
 			SoundManager.playMusic("music1");

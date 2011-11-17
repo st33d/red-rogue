@@ -155,22 +155,47 @@
 				monsters = obj.monsters;
 				chests = obj.chests;
 			}
-			// just going to go for a random drop for now.
-			// I intend to figure out a distribution pattern later
-			while(monstersByLevel[level].length){
-				r = 1 + g.random.range(bitmap.height - 1);
-				c = 1 + g.random.range(bitmap.width - 1);
-				if(!layers[Map.ENTITIES][r][c] && layers[Map.BLOCKS][r][c] != 1 && (bitmap.bitmapData.getPixel32(c, r + 1) == DungeonBitmap.LEDGE || layers[Map.BLOCKS][r + 1][c] == 1)){
-					//trace(monstersByLevel[level][0].toXMLString());
-					layers[Map.ENTITIES][r][c] = convertXMLToObject(c, r, monstersByLevel[level].shift());
+			if(level > 0){
+				// just going to go for a random drop for now.
+				// I intend to figure out a distribution pattern later
+				while(monstersByLevel[level].length){
+					r = 1 + g.random.range(bitmap.height - 1);
+					c = 1 + g.random.range(bitmap.width - 1);
+					if(!layers[Map.ENTITIES][r][c] && layers[Map.BLOCKS][r][c] != 1 && (bitmap.bitmapData.getPixel32(c, r + 1) == DungeonBitmap.LEDGE || layers[Map.BLOCKS][r + 1][c] == 1)){
+						//trace(monstersByLevel[level][0].toXMLString());
+						layers[Map.ENTITIES][r][c] = convertXMLToObject(c, r, monstersByLevel[level].shift());
+					}
 				}
-			}
-			while(chestsByLevel[level].length){
-				r = 1 + g.random.range(bitmap.height - 2);
-				c = 1 + g.random.range(bitmap.width - 2);
-				if(layers[Map.ENTITIES][r + 1][c] != MapTileConverter.PIT && !layers[Map.ENTITIES][r][c] && layers[Map.BLOCKS][r][c] != 1 && (bitmap.bitmapData.getPixel32(c, r + 1) == DungeonBitmap.LEDGE || layers[Map.BLOCKS][r + 1][c] == 1)){
-					//trace(chestsByLevel[level][0].toXMLString());
-					layers[Map.ENTITIES][r][c] = convertXMLToObject(c, r, chestsByLevel[level].shift());
+				while(chestsByLevel[level].length){
+					r = 1 + g.random.range(bitmap.height - 2);
+					c = 1 + g.random.range(bitmap.width - 2);
+					if(layers[Map.ENTITIES][r + 1][c] != MapTileConverter.PIT && !layers[Map.ENTITIES][r][c] && layers[Map.BLOCKS][r][c] != 1 && (bitmap.bitmapData.getPixel32(c, r + 1) == DungeonBitmap.LEDGE || layers[Map.BLOCKS][r + 1][c] == 1)){
+						//trace(chestsByLevel[level][0].toXMLString());
+						layers[Map.ENTITIES][r][c] = convertXMLToObject(c, r, chestsByLevel[level].shift());
+					}
+				}
+			} else {
+				// on the overworld we just scatter objects left up there
+				var chest:Chest;
+				var item:Item;
+				var list:Array;
+				while(chestsByLevel[level].length){
+					chest = convertXMLToObject(0, 0, chestsByLevel[level].shift());
+					r = bitmap.height - 2;
+					while(chest.contents.length){
+						item = chest.contents.shift();
+						c = 2 + g.random.range(bitmap.width - 4);
+						item.dropToMap(c, r, false);
+						if(layers[Map.ENTITIES][r][c]){
+							if(layers[Map.ENTITIES][r][c] is Array){
+								layers[Map.ENTITIES][r][c].push(item);
+							} else {
+								layers[Map.ENTITIES][r][c] = [layers[Map.ENTITIES][r][c], item];
+							}
+						} else {
+							layers[Map.ENTITIES][r][c] = item;
+						}
+					}
 				}
 			}
 		}
@@ -180,18 +205,30 @@
 		public function recycleLevel():void{
 			var i:int;
 			var level:int = g.dungeon.level;
-			// no recycling the overworld
-			if(level <= 0) return;
+			// no recycling debug
+			if(level < 0) return;
 			// first we check the active list of entities
 			for(i = 0; i < g.entities.length; i++){
 				recycleEntity(g.entities[i], level);
 			}
+			for(i = 0; i < g.items.length; i++){
+				recycleEntity(g.items[i], level);
+			}
 			// now we scour the entities layer of the renderer for more entities to convert to XML
-			var r:int, c:int;
+			var r:int, c:int, tile:*;
 			for(r = 0; r < g.mapRenderer.height; r++){
 				for(c = 0; c < g.mapRenderer.width; c++){
-					if(g.mapRenderer.mapArrayLayers[Map.ENTITIES][r][c] is Entity){
-						recycleEntity(g.mapRenderer.mapArrayLayers[Map.ENTITIES][r][c], level);
+					tile = g.mapRenderer.mapArrayLayers[Map.ENTITIES][r][c];
+					if(tile){
+						if(tile is Array){
+							for(i = 0; i < tile.length; i++){
+								if(tile[i] is Entity){
+									recycleEntity(tile[i], level);
+								}
+							}
+						} else if(tile is Entity){
+							recycleEntity(tile, level);
+						}
 					}
 				}
 			}

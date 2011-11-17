@@ -120,8 +120,13 @@
 			}
 		}
 		
+		public function close():void{
+			state = CLOSING;
+		}
+		
 		override public function remove():void {
 			g.portals.splice(g.portals.indexOf(this), 1);
+			g.portalHash[type] = false;
 			super.remove();
 		}
 		
@@ -159,6 +164,11 @@
 			if(!g.mapRenderer.intersects(portal.rect)){
 				portal.remove();
 			}
+			// only one portal of a kind per level, existing portals are closed
+			if(g.portalHash[type]){
+				g.portalHash[type].close();
+			}
+			g.portalHash[type] = portal;
 			return portal;
 		}
 	}

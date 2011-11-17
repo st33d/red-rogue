@@ -1,5 +1,6 @@
 ﻿package com.robotacid.engine {
 	import com.robotacid.ai.Brain;
+	import com.robotacid.dungeon.Map;
 	import com.robotacid.engine.Entity;
 	import com.robotacid.gfx.ItemMovieClip;
 	import com.robotacid.phys.Cast;
@@ -257,16 +258,18 @@
 		}
 		
 		/* Puts this item on the map */
-		public function dropToMap(mx:int, my:int):void{
-			active = true;
+		public function dropToMap(mx:int, my:int, active:Boolean = true):void{
 			location = DROPPED;
 			mapX = mx;
 			mapY = my;
 			mapZ = MapRenderer.ENTITY_LAYER;
 			setDroppedRender();
 			createCollider((mx + 0.5) * Game.SCALE, (my + 1) * Game.SCALE, Collider.ITEM | Collider.SOLID, 0, Collider.FALL);
-			g.items.push(this);
-			g.world.restoreCollider(collider);
+			this.active = active;
+			if(active){
+				g.items.push(this);
+				g.world.restoreCollider(collider);
+			}
 		}
 		
 		/* Increases current level of item and sets attributes accordingly */
@@ -287,6 +290,7 @@
 		
 		public function enchantable(runeName:int):Boolean{
 			if(runeName == XP && level == Game.MAX_LEVEL) return false;
+			if(g.dungeon.type == Map.SIDE_DUNGEON) return false;
 			if(!effects) return true;
 			for(var i:int = 0; i < effects.length; i++){
 				if(effects[i].name == runeName && effects[i].level >= Game.MAX_LEVEL) return false;

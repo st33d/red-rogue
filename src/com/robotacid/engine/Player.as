@@ -138,6 +138,7 @@
 			if(state == EXITING){
 				// capture the exit direction before we clear the reference to the portal
 				var exitDir:int = portal.targetLevel > g.dungeon.level ? 1 : -1;
+				var portalType:int = portal.type;
 				moving = true;
 				if(portal.type == Portal.STAIRS){
 					if(portal.targetLevel > g.dungeon.level){

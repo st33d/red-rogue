@@ -261,9 +261,11 @@
 				} else if(item.type == Item.RUNE){
 					inventoryList.eatOption.active = true;
 					inventoryList.feedMinionOption.active = Boolean(g.minion);
-					if(item.name == Item.XP){
+					if(item.name == Effect.XP){
 						if(g.minion) inventoryList.feedMinionOption.active = g.minion.level < Game.MAX_LEVEL;
 						inventoryList.eatOption.active = g.player.level < Game.MAX_LEVEL;
+					} else if(item.name == Effect.PORTAL){
+						inventoryList.eatOption.active = g.dungeon.level > 0;
 					}
 				}
 				renderMenu();

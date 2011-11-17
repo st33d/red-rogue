@@ -412,7 +412,10 @@
 			layers[BLOCKS][height - 2][width - 2] = 1;
 			layers[ENTITIES][height - 2][width - 2] = 61;
 			
-			setStairsDown(12, height-2);
+			setStairsDown(12, height - 2);
+			
+			// the player may have left content on the overworld as a sort of bank
+			g.content.populateLevel(0, bitmap, layers);
 		}
 		
 		/* Creates the entrance and exit to the level.
