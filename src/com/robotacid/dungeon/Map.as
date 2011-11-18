@@ -26,8 +26,9 @@
 	 */
 	public class Map {
 		
-		public var g:Game;
-		public var renderer:Renderer;
+		public static var g:Game;
+		public static var renderer:Renderer;
+		
 		public var level:int;
 		public var type:int;
 		public var width:int;
@@ -52,19 +53,17 @@
 		public static const BACKGROUND:int = 0;
 		public static const BLOCKS:int = 1;
 		public static const ENTITIES:int = 2;
-		public static const FOREGROUND:int = 3;
 		
-		public static const LAYER_NUM:int = 4;
+		public static const LAYER_NUM:int = 3;
 		
 		public static const BACKGROUND_WIDTH:int = 8;
 		public static const BACKGROUND_HEIGHT:int = 8;
 		
 		public static const ITEMS:Array = [38, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51];
 		
-		public function Map(level:int, g:Game, renderer:Renderer) {
-			this.g = g;
-			this.renderer = renderer;
+		public function Map(level:int, type:int = MAIN_DUNGEON) {
 			this.level = level;
+			this.type = type;
 			layers = [];
 			if(level){
 				if(level > 0){
@@ -95,13 +94,13 @@
 			
 			width = bitmap.width;
 			height = bitmap.height;
+			// background
 			layers.push(createGrid(null, width, height));
 			// blocks - start with a full grid
-			layers.push(createGrid(1, width, height));
+			layers.push(createGrid(MapTileConverter.WALL, width, height));
 			// game objects
 			layers.push(createGrid(null, width, height));
-			// foreground
-			layers.push(createGrid(null, width, height));
+			
 			fill(0, 1, 0, width-2, height-1, layers[BLOCKS]);
 			
 			// insert test code for items and such here
@@ -162,8 +161,6 @@
 			// blocks - start with a full grid
 			layers.push(createGrid(MapTileConverter.WALL, bitmapData.width, bitmapData.height));
 			// game objects
-			layers.push(createGrid(null, bitmapData.width, bitmapData.height));
-			// foreground
 			layers.push(createGrid(null, bitmapData.width, bitmapData.height));
 			
 			var pixels:Vector.<uint> = bitmapData.getVector(bitmapData.rect);
@@ -402,8 +399,7 @@
 			layers.push(createGrid(1, width, height));
 			// game objects
 			layers.push(createGrid(null, width, height));
-			// foreground
-			layers.push(createGrid(null, width, height));
+			
 			fill(0, 1, 0, width-2, height-1, layers[BLOCKS]);
 			
 			// create the grindstone and healstone
@@ -561,7 +557,7 @@
 		public function setStairsUp(x:int, y:int):void{
 			layers[ENTITIES][y][x] = MapTileConverter.STAIRS_UP;
 			stairsUp = new Pixel(x, y);
-			if(Player.previousLevel < level){
+			if(Player.previousLevel < level && Player.previousPortalType == Portal.STAIRS){
 				start = stairsUp;
 			}
 		}
@@ -570,7 +566,7 @@
 		public function setStairsDown(x:int, y:int):void{
 			layers[ENTITIES][y][x] = MapTileConverter.STAIRS_DOWN;
 			stairsDown = new Pixel(x, y);
-			if(Player.previousLevel > level){
+			if(Player.previousLevel > level && Player.previousPortalType == Portal.STAIRS){
 				start = stairsDown;
 			}
 		}
@@ -622,15 +618,7 @@
 				}
 			}
 		}
-		public function pillar(type:String, x:int, y0:int, y1:int):void{
-			for(var i:int = y0; i <= y1; i++){
-				if(type == "normal"){
-					if(i == y0) layers[FOREGROUND][i][x] = 6;
-					else if(i == y1) layers[FOREGROUND][i][x] = 8;
-					else layers[FOREGROUND][i][x] = 7;
-				}
-			}
-		}
+		
 		public static function createGrid(base:*, width:int, height:int):Array {
 			var r:int, c:int, a:Array = [];
 			for(r = 0; r < height; r++) {

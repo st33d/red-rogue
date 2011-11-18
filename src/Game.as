@@ -11,7 +11,7 @@
 	import com.robotacid.engine.Minion;
 	import com.robotacid.engine.Portal;
 	import com.robotacid.engine.Entity;
-	import com.robotacid.engine.MapRenderer;
+	import com.robotacid.engine.MapTileManager;
 	import com.robotacid.engine.Player;
 	import com.robotacid.engine.MapTileConverter;
 	import com.robotacid.engine.Item;
@@ -73,7 +73,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 243;
+		public static const BUILD_NUM:int = 245;
 		
 		public static var g:Game;
 		public static var renderer:Renderer;
@@ -93,7 +93,7 @@
 		public var soundQueue:SoundQueue;
 		
 		// graphics
-		public var mapRenderer:MapRenderer;
+		public var mapRenderer:MapTileManager;
 		public var lightMap:LightMap;
 		public var lightning:Lightning;
 		
@@ -175,6 +175,7 @@
 			LightMap.g = this;
 			Effect.g = this;
 			FX.g = this;
+			Map.g = this;
 			Content.g = this;
 			Brain.g = this;
 			DungeonBitmap.g = this;
@@ -347,13 +348,13 @@
 			
 			// DEBUG HERE ==========================================================================================
 			
-			dungeon = new Map(1, this, renderer);
+			dungeon = new Map(1);
 			Brain.initDungeonGraph(dungeon.bitmap);
-			mapRenderer = new MapRenderer(this, renderer.canvas, SCALE, dungeon.width, dungeon.height, WIDTH, HEIGHT);
-			mapRenderer.setLayers(dungeon.layers, [renderer.bitmapData, renderer.bitmapData, null, null], [renderer.bitmap, renderer.bitmap, null, null]);
-			renderer.blockBitmapData = mapRenderer.layerToBitmapData(MapRenderer.BLOCK_LAYER);
+			mapRenderer = new MapTileManager(this, renderer.canvas, SCALE, dungeon.width, dungeon.height, WIDTH, HEIGHT);
+			mapRenderer.setLayers(dungeon.layers);
+			renderer.blockBitmapData = mapRenderer.layerToBitmapData(MapTileManager.BLOCK_LAYER);
 			world = new CollisionWorld(dungeon.width, dungeon.height, SCALE);
-			world.map = createPropertyMap(mapRenderer.mapArrayLayers[MapRenderer.BLOCK_LAYER]);
+			world.map = createPropertyMap(mapRenderer.mapLayers[MapTileManager.BLOCK_LAYER]);
 			
 			//world.debug = debug;
 			
@@ -394,6 +395,7 @@
 			dungeon = null;
 			world = null;
 			Player.previousLevel = 0;
+			Player.previousPortalType = Portal.STAIRS;
 			
 			init();
 		}
@@ -446,20 +448,20 @@
 			
 			Brain.monsterCharacters = new Vector.<Character>();
 			
-			dungeon = new Map(n, this, renderer);
+			dungeon = new Map(n);
 			
 			Brain.initDungeonGraph(dungeon.bitmap);
 			
 			mapRenderer.newMap(dungeon.width, dungeon.height, dungeon.layers);
-			if(dungeon.level > 0) renderer.blockBitmapData = mapRenderer.layerToBitmapData(MapRenderer.BLOCK_LAYER);
-			else renderer.blockBitmapData = new BitmapData(dungeon.width * SCALE, dungeon.height * SCALE, true, 0x00000000);
+			renderer.blockBitmapData = mapRenderer.layerToBitmapData(MapTileManager.BACKGROUND_LAYER);
+			if(dungeon.level > 0) renderer.blockBitmapData = mapRenderer.layerToBitmapData(MapTileManager.BLOCK_LAYER, renderer.blockBitmapData);
 			
 			// modify the mapRect to conceal secrets
 			mapRenderer.mapRect = dungeon.bitmap.adjustedMapRect;
 			renderer.camera.mapRect = dungeon.bitmap.adjustedMapRect;
 			
 			world = new CollisionWorld(dungeon.width, dungeon.height, SCALE);
-			world.map = createPropertyMap(mapRenderer.mapArrayLayers[MapRenderer.BLOCK_LAYER]);
+			world.map = createPropertyMap(mapRenderer.mapLayers[MapTileManager.BLOCK_LAYER]);
 			lightMap.newMap(world.map);
 			lightMap.setLight(player, player.light);
 			
@@ -501,7 +503,7 @@
 					minion.changeName(Character.SKELETON, skinMc);
 					console.print("minion reverts to undead form");
 				}
-				mapRenderer.setLayerUpdate(MapRenderer.BLOCK_LAYER, false);
+				mapRenderer.setLayerUpdate(MapTileManager.BLOCK_LAYER, false);
 				SoundManager.fadeMusic("music1", -SoundManager.DEFAULT_FADE_STEP);
 				
 			} else if(dungeon.level == -1){
@@ -737,11 +739,11 @@
 			}
 			if(Key.isDown(Key.T)){
 				console.print("test\n"+(testCounter++));
-			}*/
+			}
 			if(Key.isDown(Key.P)){
 				//minion.death("key");
 				player.levelUp();
-			}
+			}*/
 		}
 		
 		/* When the flash object loses focus we put up a splash screen to encourage players to click to play */

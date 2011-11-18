@@ -73,13 +73,13 @@
 			if(active){
 				active = false;
 				// if there is already content on the id map, then we convert that content into an array
-				if(g.mapRenderer.mapArrayLayers[mapZ][mapY][mapX]){
-					if(g.mapRenderer.mapArrayLayers[mapZ][mapY][mapX] is Array){
-						g.mapRenderer.mapArrayLayers[mapZ][mapY][mapX].push(this);
+				if(g.mapRenderer.mapLayers[mapZ][mapY][mapX]){
+					if(g.mapRenderer.mapLayers[mapZ][mapY][mapX] is Array){
+						g.mapRenderer.mapLayers[mapZ][mapY][mapX].push(this);
 					} else {
-						g.mapRenderer.mapArrayLayers[mapZ][mapY][mapX] = [g.mapRenderer.mapArrayLayers[mapZ][mapY][mapX], this];
+						g.mapRenderer.mapLayers[mapZ][mapY][mapX] = [g.mapRenderer.mapLayers[mapZ][mapY][mapX], this];
 					}
-				} else g.mapRenderer.mapArrayLayers[mapZ][mapY][mapX] = this;
+				} else g.mapRenderer.mapLayers[mapZ][mapY][mapX] = this;
 			}
 		}
 		

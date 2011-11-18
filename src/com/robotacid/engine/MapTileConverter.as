@@ -32,7 +32,7 @@
 		// with below
 		public var g:Game;
 		public var renderer:Renderer;
-		public var r:MapRenderer;
+		public var r:MapTileManager;
 		
 		private var item:*;
 		private var n:int;
@@ -59,9 +59,8 @@
 		public static const IN_PARENTHESIS:RegExp =/(?<=\().*(?=\))/;
 		
 		// these are just here to stop me writing a load of magic numbers down when map generating
-		public static const STAIRS_UP:int = 58;
-		public static const STAIRS_DOWN:int = 59;
-		public static const SECRET_WALL:int = 54;
+		// awkwardly enough, at work I just use the strings of classes - but I'm gonna just stay
+		// old school with this one and have a smidgin more speed from not raping getQualifiedClassName
 		
 		public static const LADDER:int = 13;
 		public static const LADDER_TOP:int = 14;
@@ -95,14 +94,23 @@
 		public static const LADDER_TOP_LEDGE_START_LEFT_END:int = 40;
 		public static const LADDER_TOP_LEDGE_START_RIGHT_END:int = 41;
 		
+		public static const SECRET_WALL:int = 54;
 		public static const PIT:int = 55;
 		public static const POISON_DART:int = 56;
 		public static const TELEPORT_DART:int = 57;
+		public static const STAIRS_UP:int = 58;
+		public static const STAIRS_DOWN:int = 59;
+		public static const HEAL_STONE:int = 60;
+		public static const GRIND_STONE:int = 61;
 		
 		public static const RAT:int = 62;
 		public static const SPIDER:int = 63;
 		public static const BAT:int = 64;
-		public static const CHAOS_WALL:int = 65;
+		
+		public static const ROGUE_PORTAL:int = 65;
+		public static const ITEM_PORTAL:int = 66;
+		public static const MINION_PORTAL:int = 67;
+		public static const DUNGEON_PORTAL:int = 68;
 		
 		// These references are technically illegal. Game.g doesn't even exist yet, but some how the
 		// compiler is letting the issue slide so long as I don't static reference Game
@@ -174,9 +182,13 @@
 			RatMC,
 			SpiderMC,
 			BatMC,
+			RoguePortalMC,
+			DungeonPortalMC,
+			MinionPortalMC,
+			DungeonPortalMC
 		];
 		
-		public function MapTileConverter(r:MapRenderer, g:Game, renderer:Renderer) {
+		public function MapTileConverter(r:MapTileManager, g:Game, renderer:Renderer) {
 			this.r = r;
 			this.g = g;
 			this.renderer = renderer;
@@ -208,13 +220,13 @@
 		 * When createTile finds an array of information to convert it will return a stacked array
 		 */
 		public function createTile(x:int, y:int):*{
-			if(!r.mapArray[y]){
+			if(!r.map[y]){
 				trace("out of bounds y "+y+" "+r.height);
 			}
-			if(!r.mapArray[y][x]) return null;
+			if(!r.map[y][x]) return null;
 			
-			if(r.mapArray[y][x] is Array){
-				array = r.mapArray[y][x];
+			if(r.map[y][x] is Array){
+				array = r.map[y][x];
 				tile = [];
 				var temp:*;
 				for(i = 0; i < array.length; i++){
@@ -225,10 +237,10 @@
 				}
 				if(tile.length == 0) tile = null;
 			} else {
-				tile = convertIndicesToObjects(x, y, r.mapArray[y][x])
+				tile = convertIndicesToObjects(x, y, r.map[y][x])
 			}
 			// clear map position - the object is now roaming in the engine
-			if(!r.bitmapData) r.mapArray[y][x] = null;
+			if(!r.bitmapLayer) r.map[y][x] = null;
 			return tile;
 			
 		}
@@ -264,7 +276,7 @@
 			if (!obj || id == 0) return null;
 			
 			// is this id a Blit object?
-			if(r.bitmapData){
+			if(r.bitmapLayer){
 				return ID_TO_GRAPHIC[id];
 			}
 			n = x + y * r.width;
@@ -282,35 +294,44 @@
 			
 			if(id == 4){
 				
-			} else if(id == 54){
+			} else if(id == SECRET_WALL){
 				item = new Stone(x * Game.SCALE, y * Game.SCALE, Stone.SECRET_WALL);
-			} else if(id == 55){
+			} else if(id == PIT){
 				item = new Trap(mc, x, y, Trap.PIT);
-			} else if(id == 56){
+			} else if(id == POISON_DART){
 				item = new Trap(mc, x, y, Trap.POISON_DART);
-			} else if(id == 57){
+			} else if(id == TELEPORT_DART){
 				item = new Trap(mc, x, y, Trap.TELEPORT_DART);
-			} else if(id == 58){
+			} else if(id == STAIRS_UP){
 				// stairs up
 				item = new Portal(mc, new Rectangle(x * Game.SCALE, y * Game.SCALE, Game.SCALE, Game.SCALE), Portal.STAIRS, g.dungeon.level - 1);
-				if(Player.previousLevel < g.dungeon.level) g.entrance = item;
-			} else if(id == 59){
+				if(Player.previousLevel < g.dungeon.level && Player.previousPortalType == Portal.STAIRS) g.entrance = item;
+			} else if(id == STAIRS_DOWN){
 				// stairs down
 				if(g.dungeon.level == 0) mc = new Sprite();
 				item = new Portal(mc, new Rectangle(x * Game.SCALE, y * Game.SCALE, Game.SCALE, Game.SCALE), Portal.STAIRS, g.dungeon.level + 1);
-				if(Player.previousLevel > g.dungeon.level) g.entrance = item;
-			} else if(id == 60){
+				if(Player.previousLevel > g.dungeon.level && Player.previousPortalType == Portal.STAIRS) g.entrance = item;
+			} else if(id == HEAL_STONE){
 				item = new Stone(x * Game.SCALE, y * Game.SCALE, Stone.HEALTH);
-			} else if(id == 61){
+			} else if(id == GRIND_STONE){
 				item = new Stone(x * Game.SCALE, y * Game.SCALE, Stone.GRIND);
-			} else if(id == 62){
+			} else if(id == RAT){
 				item = new Critter(mc, (x + 0.5) * Game.SCALE, (y + 1) * Game.SCALE, Critter.RAT);
-			} else if(id == 63){
+			} else if(id == SPIDER){
 				item = new Critter(mc, (x + 0.5) * Game.SCALE, (y + 0.5) * Game.SCALE, Critter.SPIDER);
-			} else if(id == 64){
+			} else if(id == BAT){
 				item = new Critter(mc, (x + 0.5) * Game.SCALE, y * Game.SCALE, Critter.BAT);
-			} else if(id == 65){
-				item = new ChaosWall(x, y);
+			} else if(id == ROGUE_PORTAL){
+				item = new Portal(mc, new Rectangle(x * Game.SCALE, y * Game.SCALE, Game.SCALE, Game.SCALE), Portal.ROGUE, 0);
+				if(Player.previousLevel == 0 && Player.previousPortalType == Portal.DUNGEON) g.entrance = item;
+			} else if(id == ITEM_PORTAL){
+				item = new Portal(mc, new Rectangle(x * Game.SCALE, y * Game.SCALE, Game.SCALE, Game.SCALE), Portal.ROGUE, g.dungeon.level);
+				if(Player.previousLevel == g.dungeon.level && Player.previousPortalType == Portal.DUNGEON) g.entrance = item;
+			} else if(id == MINION_PORTAL){
+				item = new Portal(mc, new Rectangle(x * Game.SCALE, y * Game.SCALE, Game.SCALE, Game.SCALE), Portal.MINION, g.dungeon.level);
+			} else if(id == DUNGEON_PORTAL){
+				item = new Portal(mc, new Rectangle(x * Game.SCALE, y * Game.SCALE, Game.SCALE, Game.SCALE), Portal.DUNGEON, Player.previousLevel);
+				if(Player.previousPortalType == Portal.ROGUE || Player.previousPortalType == Portal.ITEM) g.entrance = item;
 			}
 			
 			
@@ -323,7 +344,7 @@
 				item.mapX = item.initX = x;
 				item.mapY = item.initY = y;
 				item.mapZ = r.currentLayer;
-				item.tileId = r.mapArray[y][x];
+				item.tileId = r.map[y][x];
 				if(item is ColliderEntity){
 					g.world.restoreCollider(item.collider);
 				}

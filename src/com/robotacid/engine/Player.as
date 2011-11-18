@@ -12,7 +12,7 @@
 	import com.robotacid.util.HiddenInt;
 	import com.robotacid.util.HiddenNumber;
 	import com.robotacid.geom.Line;
-	import com.robotacid.engine.MapRenderer;
+	import com.robotacid.engine.MapTileManager;
 	import com.robotacid.geom.Trig;
 	import com.robotacid.ui.Key;
 	import flash.display.Bitmap;
@@ -53,6 +53,7 @@
 		public var portalContact:Portal;
 		
 		public static var previousLevel:int = 0;
+		public static var previousPortalType:int = Portal.STAIRS;
 		
 		public static const UP:int = 1;
 		public static const RIGHT:int = 2;

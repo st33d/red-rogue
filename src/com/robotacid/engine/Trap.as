@@ -108,7 +108,7 @@
 				renderer.shake(0, 3);
 				g.soundQueue.add("kill");
 				g.world.map[mapY][mapX] = 0;
-				g.mapRenderer.removeFromRenderedArray(mapX, mapY, Map.ENTITIES, null);
+				g.mapRenderer.removeTile(this, mapX, mapY, mapZ);
 				renderer.blockBitmapData.fillRect(new Rectangle(mapX * SCALE, mapY * SCALE, SCALE, SCALE), 0x00000000);
 				var blit:BlitSprite = MapTileConverter.ID_TO_GRAPHIC[MapTileConverter.LEDGE_SINGLE];
 				blit.x = mapX * SCALE;

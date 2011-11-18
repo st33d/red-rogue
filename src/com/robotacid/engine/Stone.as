@@ -101,7 +101,7 @@
 			g.soundQueue.add("kill");
 			g.player.addXP(SECRET_XP_REWARD * g.dungeon.level);
 			g.world.map[mapY][mapX] = 0;
-			g.mapRenderer.removeFromRenderedArray(mapX, mapY, Map.ENTITIES, null);
+			g.mapRenderer.removeTile(this, mapX, mapY, mapZ);
 			renderer.blockBitmapData.fillRect(new Rectangle(mapX * SCALE, mapY * SCALE, SCALE, SCALE), 0x00000000);
 			// adjust the mapRect to show new content
 			if(mapX < g.player.mapX){

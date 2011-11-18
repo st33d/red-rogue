@@ -49,6 +49,7 @@ package com.robotacid.ui {
 				// finishes, so we have to take a reading from the player's state
 				obj.dungeonLevel = g.dungeon.level + (Player.previousLevel < Player.previousLevel ? 1 : -1);
 				obj.previousLevel = Player.previousLevel;
+				obj.previousPortalType = Player.previousPortalType;
 				obj.player = g.player.toXML();
 				obj.minion = g.minion ? g.minion.toXML() : null;
 				// here come the items
@@ -193,6 +194,7 @@ package com.robotacid.ui {
 					}
 					
 					Player.previousLevel = obj.previousLevel;
+					Player.previousPortalType = obj.previousPortalType;
 					// call for a new level
 					g.changeLevel(int(obj.dungeonLevel), true);
 				}

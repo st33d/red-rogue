@@ -7,6 +7,7 @@
 	import com.robotacid.engine.Item;
 	import com.robotacid.engine.MapTileConverter;
 	import com.robotacid.engine.Monster;
+	import com.robotacid.engine.Portal;
 	import com.robotacid.gfx.Renderer;
 	import flash.display.DisplayObject;
 	/**
@@ -29,12 +30,14 @@
 		
 		public var chestsByLevel:Vector.<Vector.<XML>>;
 		public var monstersByLevel:Vector.<Vector.<XML>>;
+		public var portalsByLevel:Vector.<Vector.<XML>>;
 		
 		public static const TOTAL_LEVELS:int = 20;
 		
 		public function Content() {
 			chestsByLevel = new Vector.<Vector.<XML>>(TOTAL_LEVELS + 1);
 			monstersByLevel = new Vector.<Vector.<XML>>(TOTAL_LEVELS + 1);
+			portalsByLevel = new Vector.<Vector.<XML>>(TOTAL_LEVELS + 1);
 			init();
 		}
 		
@@ -44,6 +47,7 @@
 				obj = getLevelContent(level);
 				monstersByLevel[level] = obj.monsters;
 				chestsByLevel[level] = obj.chests;
+				portalsByLevel[level] = new Vector.<XML>()
 			}
 		}
 		
@@ -218,7 +222,7 @@
 			var r:int, c:int, tile:*;
 			for(r = 0; r < g.mapRenderer.height; r++){
 				for(c = 0; c < g.mapRenderer.width; c++){
-					tile = g.mapRenderer.mapArrayLayers[Map.ENTITIES][r][c];
+					tile = g.mapRenderer.mapLayers[Map.ENTITIES][r][c];
 					if(tile){
 						if(tile is Array){
 							for(i = 0; i < tile.length; i++){
@@ -261,9 +265,15 @@
 					chest.appendChild(entity.toXML());
 					chestsByLevel[level].push(chest);
 				}
+				
 			} else if(entity is Chest){
 				chest = entity.toXML();
 				if(chest) chestsByLevel[level].push(entity.toXML());
+				
+			} else if(entity is Portal){
+				if((entity as Portal).type != Portal.STAIRS){
+					portalsByLevel[level].push(entity.toXML());
+				}
 			}
 		}
 		

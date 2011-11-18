@@ -262,7 +262,7 @@
 			location = DROPPED;
 			mapX = mx;
 			mapY = my;
-			mapZ = MapRenderer.ENTITY_LAYER;
+			mapZ = MapTileManager.ENTITY_LAYER;
 			setDroppedRender();
 			createCollider((mx + 0.5) * Game.SCALE, (my + 1) * Game.SCALE, Collider.ITEM | Collider.SOLID, 0, Collider.FALL);
 			this.active = active;
