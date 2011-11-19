@@ -5,10 +5,13 @@
 	import com.robotacid.engine.Missile;
 	import com.robotacid.engine.Player;
 	import com.robotacid.engine.Portal;
+	import com.robotacid.gfx.PNGEncoder;
 	import com.robotacid.gfx.Renderer;
 	import com.robotacid.sound.SoundManager;
 	import com.robotacid.ui.Dialog;
+	import com.robotacid.ui.FileManager;
 	import com.robotacid.ui.QuickSave;
+	import flash.display.BitmapData;
 	import flash.display.StageScaleMode;
 	import flash.events.Event;
 	import flash.geom.Rectangle;
@@ -46,6 +49,7 @@
 		public var searchOption:MenuOption;
 		public var disarmTrapOption:MenuOption;
 		public var missileOption:ToggleMenuOption;
+		public var screenshotOption:MenuOption;
 		
 		public var giveItemOption:MenuOption;
 		public var loadOption:MenuOption;
@@ -116,6 +120,8 @@
 			var musicOption:MenuOption = new MenuOption("music", onOffList);
 			var fullScreenOption:MenuOption = new MenuOption("fullscreen", onOffList);
 			fullScreenOption.help = "toggle fullscreen.\nthe flash player only allows use of the cursor keys and space when fullscreen.";
+			screenshotOption = new MenuOption("screenshot");
+			screenshotOption.help = "take a screen shot of the game (making the menu temporarily invisible) and open a filebrowser to save the screenshot to the desktop.";
 			loadOption = new MenuOption("load", sureList);
 			loadOption.help = "load a saved game player status is saved automatically when using stairs";
 			saveOption = new MenuOption("save", sureList);
@@ -154,6 +160,7 @@
 			
 			optionsList.options.push(soundOption);
 			optionsList.options.push(fullScreenOption);
+			optionsList.options.push(screenshotOption);
 			optionsList.options.push(changeKeysOption);
 			optionsList.options.push(hotKeyOption);
 			optionsList.options.push(loadOption);
@@ -420,6 +427,10 @@
 					}
 				}
 			
+			// taking a screenshot
+			} else if(option == screenshotOption){
+				screenshot();
+			
 			// throwing runes
 			} else if(option == inventoryList.throwOption){
 				item = previousMenuList.options[previousMenuList.selection].userData;
@@ -506,6 +517,15 @@
 			g.stage.fullScreenSourceRect = new Rectangle(0, 0, Game.WIDTH * 2, Game.HEIGHT * 2);
 			g.stage.scaleMode = StageScaleMode.SHOW_ALL;
 			g.stage.displayState = "fullScreen";
+		}
+		
+		/* Takes a screen shot of the game (sans menu) and opens a file browser to save it as a png */
+		private function screenshot():void{
+			visible = false;
+			var bitmapData:BitmapData = new BitmapData(Game.WIDTH * 2, Game.HEIGHT * 2, true, 0x00000000);
+			bitmapData.draw(g, g.transform.matrix);
+			FileManager.save(PNGEncoder.encode(bitmapData, {"creator":"red-rogue"}), "screenshot.png");
+			visible = true;
 		}
 		
 	}

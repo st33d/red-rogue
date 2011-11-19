@@ -64,6 +64,7 @@ package com.robotacid.ui {
 				// now the content manager stocks
 				obj.chestsByLevel = g.content.chestsByLevel;
 				obj.monstersByLevel = g.content.monstersByLevel;
+				obj.portalsByLevel = g.content.portalsByLevel;
 				// runes revealed
 				obj.runeNames = Item.runeNames;
 			}
@@ -78,9 +79,9 @@ package com.robotacid.ui {
 			
 			var byteArray:ByteArray = new ByteArray();
 			byteArray.writeObject(obj);
-			trace("before compression:"+byteArray.length);
+			//trace("before compression:"+byteArray.length);
 			byteArray.compress();
-			trace("after compression:"+byteArray.length);
+			//trace("after compression:"+byteArray.length);
 			
 			var sharedObject:SharedObject = SharedObject.getLocal("red_rogue");
 			sharedObject.data.byteArray = byteArray;
@@ -185,11 +186,15 @@ package com.robotacid.ui {
 					for(i = 0; i < Content.TOTAL_LEVELS; i++){
 						g.content.chestsByLevel[i].length = 0;
 						g.content.monstersByLevel[i].length = 0;
+						g.content.portalsByLevel[i].length = 0;
 						for(j = 0; j < obj.chestsByLevel[i].length; j++){
 							g.content.chestsByLevel[i].push(obj.chestsByLevel[i][j]);
 						}
 						for(j = 0; j < obj.monstersByLevel[i].length; j++){
 							g.content.monstersByLevel[i].push(obj.monstersByLevel[i][j]);
+						}
+						for(j = 0; j < obj.portalsByLevel[i].length; j++){
+							g.content.portalsByLevel[i].push(obj.portalsByLevel[i][j]);
 						}
 					}
 					

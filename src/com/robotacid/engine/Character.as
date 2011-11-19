@@ -485,7 +485,7 @@
 						if(gfx.x > (portal.mapX + 0.5) * Game.SCALE) portal = null;
 					} else if(dir == LEFT){
 						gfx.x -= PORTAL_SPEED;
-						if(gfx.x > (portal.mapX + 0.5) * Game.SCALE) portal = null;
+						if(gfx.x < (portal.mapX + 0.5) * Game.SCALE) portal = null;
 					}
 				}
 				if(!portal){

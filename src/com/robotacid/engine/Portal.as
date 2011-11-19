@@ -7,6 +7,7 @@
 	import flash.display.BitmapDataChannel;
 	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
+	import flash.display.Shape;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	
@@ -50,25 +51,22 @@
 		public static const GFX_STEP:Number = (SCALE * 0.5) / OPEN_CLOSE_DELAY;
 		public static const MONSTERS_PER_LEVEL:int = 2;
 		
-		// The return portal from the overworld always appears in the same place
-		public static const OVERWORLD_X:int = 15;
-		
-		public function Portal(mc:DisplayObject, rect:Rectangle, type:int, targetLevel:int, state:int = OPEN) {
-			super(mc, false, false);
+		public function Portal(gfx:DisplayObject, rect:Rectangle, type:int, targetLevel:int, state:int = OPEN, active:Boolean = true) {
+			super(gfx, false, false);
 			this.type = type;
 			this.rect = rect;
 			this.targetLevel = targetLevel;
 			this.state = state;
+			this.active = active;
 			callMain = true;
-			active = true;
 			seen = false;
 			if(state == OPENING){
-				mc.scaleX = mc.scaleY = 0;
-				mc.x += SCALE * 0.5;
-				mc.y += SCALE * 0.5;
+				gfx.scaleX = gfx.scaleY = 0;
+				gfx.x += SCALE * 0.5;
+				gfx.y += SCALE * 0.5;
 				count = OPEN_CLOSE_DELAY;
 			}
-			g.portals.push(this);
+			if(active) g.portals.push(this);
 		}
 		
 		override public function main():void {
@@ -124,6 +122,15 @@
 			}
 		}
 		
+		/* Creates a black bar over the bottom edge of the overworld return portal to make it neater */
+		public function maskOverworldPortal():void{
+			var blackOut:Shape = new Shape();
+			blackOut.graphics.beginFill(0);
+			blackOut.graphics.drawRect(-8, 16, 32, 8);
+			blackOut.graphics.endFill();
+			(gfx as MovieClip).addChild(blackOut);
+		}
+		
 		public function close():void{
 			g.mapRenderer.removeTile(this, mapX, mapY, mapZ);
 			free = false;
@@ -139,6 +146,14 @@
 			var xml:XML = <portal />;
 			xml.@type = type;
 			xml.@targetLevel = targetLevel;
+			return xml;
+		}
+		
+		/* Used by Map to create a way back to the main dungeon from an item portal */
+		public static function getReturnPortalXML():XML{
+			var xml:XML = <portal />;
+			xml.@type = DUNGEON;
+			xml.@targetLevel = Player.previousLevel;
 			return xml;
 		}
 		
@@ -173,15 +188,31 @@
 			portal.mapY = mapY;
 			portal.mapZ = Map.ENTITIES;
 			portal.currentLevel = g.dungeon.level;
+			
 			// the portal may have been generated outside of the mapRenderer zone
 			if(!g.mapRenderer.intersects(portal.rect)){
 				portal.remove();
 			}
+			
 			// only one portal of a kind per level, existing portals are closed
 			if(g.portalHash[type]){
 				g.portalHash[type].close();
 			}
 			g.portalHash[type] = portal;
+			
+			// alter or create the opposite end of the rogue portal in the content manager if it doesn't already exist
+			if(type == ROGUE){
+				var xml:XML;
+				if(g.content.portalsByLevel[0].length == 0){
+					xml = <portal />;
+					xml.@type = DUNGEON;
+					g.content.portalsByLevel[0].push(xml);
+				} else {
+					xml = g.content.portalsByLevel[0][0];
+				}
+				xml.@targetLevel = g.dungeon.level;
+			}
+			
 			return portal;
 		}
 	}

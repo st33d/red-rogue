@@ -73,7 +73,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 245;
+		public static const BUILD_NUM:int = 247;
 		
 		public static var g:Game;
 		public static var renderer:Renderer;
@@ -323,7 +323,6 @@
 			
 			konamiCode = false;
 			colossalCaveCode = false;
-			portalHash = {};
 			frameCount = 1;
 			deepestLevelReached = 1;
 			
@@ -334,6 +333,7 @@
 			effects = new Vector.<Effect>();
 			portals = new Vector.<Portal>();
 			chaosWalls = new Vector.<ChaosWall>();
+			portalHash = {};
 			
 			Item.runeNames = [];
 			for(i = 0; i < Item.stats["rune names"].length; i++){
@@ -443,7 +443,6 @@
 			renderer.fx.length = 0;
 			portals.length = 0;
 			chaosWalls.length = 0;
-			
 			portalHash = {};
 			
 			Brain.monsterCharacters = new Vector.<Character>();

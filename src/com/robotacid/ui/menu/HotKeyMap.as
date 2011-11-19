@@ -71,7 +71,7 @@
 		public function execute():void{
 			// first we need to walk back up the menu to the trunk before we can set off
 			// down the hot key route
-			trace("hot keyed");
+			//trace("hot keyed");
 			while(menu.branch.length > 1) menu.stepLeft();
 			
 			var j:int;

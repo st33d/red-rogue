@@ -44,8 +44,9 @@
 		public static const MIN_ROOM_HEIGHT:int = 3;
 		
 		public static const LEDGE_LENGTH:int = 4;
-		public static const LEDGINESS:Number = 0.3;
-		public static const LADDERINESS:Number = 0.3;
+		public static const LADDER_TREE_HEIGHT:int = 6;
+		public static const LEDGINESS:Number = 0.6;
+		public static const LADDERINESS:Number = 0.2;
 		
 		// All features in the dungeon are represented by colours
 		public static const PATH:uint = 0xFFFFFF88;
@@ -488,31 +489,32 @@
 				}
 			}
 			
-			// sprinkle some extra ladders in
-			for(i = mapWidth; i < pixels.length - mapWidth; i++){
-				if(pixels[i] == EMPTY && pixels[i - mapWidth] == EMPTY){
-					if(pixels[i - 1] == WALL && pixels[i + 1] == EMPTY && g.random.value() < LADDERINESS){
-						pixels[i] = LADDER_LEDGE;
-					} else if(pixels[i + 1] == WALL && pixels[i - 1] == EMPTY && g.random.value() < LADDERINESS){
-						pixels[i] = LADDER_LEDGE;
-					}
-				}
-			}
-			
 			// all of our ladders are slap-bang next to walls, how about we see if we can move them into the
 			// room a little and extend the ledge that reaches to them
 			
 			// note to self - a ledge with a wall on top of it looks fucking stupid
 			
+			var base:uint, cast:int, baseIndex:int;
+			
 			for(i = mapWidth; i < pixels.length - mapWidth; i++){
 				if(pixels[i] == LADDER_LEDGE){
+					
+					// get the ladder base - we don't want to end up extending past the point we intended to connect to
+					for(cast = i + mapWidth; pixels[cast] == EMPTY; cast += mapWidth){}
+					baseIndex = cast;
+					base = pixels[baseIndex];
+					
 					if(pixels[i - 1] == EMPTY){
 						// pull out the ladder ledge
 						j = i;
 						for(n = g.random.range(LEDGE_LENGTH); n; n--){
 							if(pixels[j - 1] == EMPTY && pixels[j - 1 - mapWidth] != WALL){
-								pixels[j] = LEDGE;
-								pixels[j - 1] = LADDER_LEDGE;
+								// check for connectivity with the base type
+								for(cast = j + mapWidth; pixels[cast] == EMPTY && cast < baseIndex; cast += mapWidth){}
+								if(pixels[cast] == base){
+									pixels[j] = LEDGE;
+									pixels[j - 1] = LADDER_LEDGE;
+								} else break;
 							} else break;
 							j--;
 						}
@@ -527,8 +529,12 @@
 						// push out the ladder ledge
 						for(n = g.random.range(LEDGE_LENGTH); n; n--){
 							if(pixels[i + 1] == EMPTY && pixels[i + 1 - mapWidth] != WALL){
-								pixels[i] = LEDGE;
-								pixels[i + 1] = LADDER_LEDGE;
+								// check for connectivity with the base type
+								for(cast = j + mapWidth; pixels[cast] == EMPTY && cast < baseIndex; cast += mapWidth){}
+								if(pixels[cast] == base){
+									pixels[i] = LEDGE;
+									pixels[i + 1] = LADDER_LEDGE;
+								} else break;
 							} else break;
 							i++;
 						}
@@ -551,6 +557,36 @@
 					while(pixels[n] == EMPTY){
 						pixels[n] = LADDER;
 						n += mapWidth;
+					}
+				}
+			}
+			
+			// create some extra ladders in a tree like fashion (finding a wall base to root in a grow up out of)
+			for(i = mapWidth; i < pixels.length - mapWidth; i++){
+				if(pixels[i] == EMPTY && pixels[i - mapWidth] == EMPTY && pixels[i + mapWidth] == WALL && g.random.value() < LADDERINESS){
+					n = 1 + g.random.range(LADDER_TREE_HEIGHT);
+					cast = i;
+					while(n--){
+						if(pixels[cast] == EMPTY && pixels[cast - mapWidth] == EMPTY){
+							pixels[cast] = LADDER_LEDGE;
+							if(pixels[cast + mapWidth] == LADDER_LEDGE){
+								pixels[cast + mapWidth] = LADDER;
+							}
+							cast -= mapWidth;
+						} else break;
+					}
+					// this method tends to create solo ledges on top of ladders that look pretty bad
+					// so we randomly add a bit of ledge to the sides at the top
+					var available:Array = [];
+					cast += mapWidth;
+					if(pixels[cast - 1] == EMPTY && pixels[cast - 1 - mapWidth] != WALL){
+						available.push(cast - 1);
+					}
+					if(pixels[cast + 1] == EMPTY && pixels[cast + 1 - mapWidth] != WALL){
+						available.push(cast + 1);
+					}
+					if(available.length){
+						pixels[available[g.random.rangeInt(available.length)]] = LEDGE;
 					}
 				}
 			}

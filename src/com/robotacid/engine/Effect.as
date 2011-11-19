@@ -195,8 +195,8 @@
 				if(inventoryList){
 					renderer.createTeleportSparkRect(user.collider, 10);
 					item = inventoryList.removeItem(item);
-					item = randomEnchant(item);
-					var portal:Portal = Portal.createPortal(Portal.ITEM, user.mapX, user.mapY, g.deepestLevelReached);
+					item = randomEnchant(item, g.dungeon.level);
+					var portal:Portal = Portal.createPortal(Portal.ITEM, user.mapX, user.mapY, g.dungeon.level);
 					portal.item = item;
 				}
 				return item;
@@ -471,10 +471,10 @@
 		}
 		
 		/* Applies a set of random enchantments to an item */
-		public static function randomEnchant(item:Item):Item{
+		public static function randomEnchant(item:Item, level:int):Item{
 			var name:int;
 			var nameRange:int;
-			var enchantments:int = 1 + g.random.range(g.deepestLevelReached * 0.5);
+			var enchantments:int = 1 + g.random.range(level * 0.5);
 			var runeList:Vector.<int> = new Vector.<int>();
 			while(enchantments--){
 				nameRange = g.random.range(Item.stats["rune names"].length);

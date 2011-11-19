@@ -107,11 +107,6 @@
 		public static const SPIDER:int = 63;
 		public static const BAT:int = 64;
 		
-		public static const ROGUE_PORTAL:int = 65;
-		public static const ITEM_PORTAL:int = 66;
-		public static const MINION_PORTAL:int = 67;
-		public static const DUNGEON_PORTAL:int = 68;
-		
 		// These references are technically illegal. Game.g doesn't even exist yet, but some how the
 		// compiler is letting the issue slide so long as I don't static reference Game
 		public static var ID_TO_GRAPHIC:Array = [
@@ -181,11 +176,7 @@
 			Sprite,
 			RatMC,
 			SpiderMC,
-			BatMC,
-			RoguePortalMC,
-			DungeonPortalMC,
-			MinionPortalMC,
-			DungeonPortalMC
+			BatMC
 		];
 		
 		public function MapTileConverter(r:MapTileManager, g:Game, renderer:Renderer) {
@@ -321,17 +312,6 @@
 				item = new Critter(mc, (x + 0.5) * Game.SCALE, (y + 0.5) * Game.SCALE, Critter.SPIDER);
 			} else if(id == BAT){
 				item = new Critter(mc, (x + 0.5) * Game.SCALE, y * Game.SCALE, Critter.BAT);
-			} else if(id == ROGUE_PORTAL){
-				item = new Portal(mc, new Rectangle(x * Game.SCALE, y * Game.SCALE, Game.SCALE, Game.SCALE), Portal.ROGUE, 0);
-				if(Player.previousLevel == 0 && Player.previousPortalType == Portal.DUNGEON) g.entrance = item;
-			} else if(id == ITEM_PORTAL){
-				item = new Portal(mc, new Rectangle(x * Game.SCALE, y * Game.SCALE, Game.SCALE, Game.SCALE), Portal.ROGUE, g.dungeon.level);
-				if(Player.previousLevel == g.dungeon.level && Player.previousPortalType == Portal.DUNGEON) g.entrance = item;
-			} else if(id == MINION_PORTAL){
-				item = new Portal(mc, new Rectangle(x * Game.SCALE, y * Game.SCALE, Game.SCALE, Game.SCALE), Portal.MINION, g.dungeon.level);
-			} else if(id == DUNGEON_PORTAL){
-				item = new Portal(mc, new Rectangle(x * Game.SCALE, y * Game.SCALE, Game.SCALE, Game.SCALE), Portal.DUNGEON, Player.previousLevel);
-				if(Player.previousPortalType == Portal.ROGUE || Player.previousPortalType == Portal.ITEM) g.entrance = item;
 			}
 			
 			

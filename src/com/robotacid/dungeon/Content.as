@@ -7,9 +7,11 @@
 	import com.robotacid.engine.Item;
 	import com.robotacid.engine.MapTileConverter;
 	import com.robotacid.engine.Monster;
+	import com.robotacid.engine.Player;
 	import com.robotacid.engine.Portal;
 	import com.robotacid.gfx.Renderer;
 	import flash.display.DisplayObject;
+	import flash.geom.Rectangle;
 	/**
 	 * Creates content to place on the map for the first 20 levels to create structured
 	 * play, then returns random content from the entire selection afterwards
@@ -146,12 +148,15 @@
 			return obj;
 		}
 		
-		public function populateLevel(level:int, bitmap:DungeonBitmap, layers:Array):void{
+		/* Distributes content across a level
+		 * 
+		 * Portals we leave alone for the Map to request when it needs to create access points */
+		public function populateLevel(level:int, bitmap:DungeonBitmap, layers:Array, sideDungeon:Boolean = false):void{
 			var r:int, c:int;
 			var i:int;
 			var monsters:Vector.<XML> = monstersByLevel[level];
 			var chests:Vector.<XML> = chestsByLevel[level];
-			if(level <= TOTAL_LEVELS){
+			if(level <= TOTAL_LEVELS && !sideDungeon){
 				monsters = monstersByLevel[level];
 				chests = chestsByLevel[level];
 			} else {
@@ -204,6 +209,13 @@
 			}
 		}
 		
+		/* Fetch all portals on a level - used by Map to create portal access points */
+		public function getPortals(level:int):Vector.<XML>{
+			var list:Vector.<XML> = new Vector.<XML>();
+			while(portalsByLevel[level].length) list.push(portalsByLevel[level].pop());
+			return list;
+		}
+		
 		/* This method tracks down monsters and items and pulls them back into the content manager to be sent out
 		 * again if the level is re-visited */
 		public function recycleLevel():void{
@@ -211,12 +223,25 @@
 			var level:int = g.dungeon.level;
 			// no recycling debug
 			if(level < 0) return;
+			// if we've gone past the total level limit we need to create new content reserves on the fly
+			if(level == monstersByLevel.length){
+				monstersByLevel.push(new Vector.<XML>());
+				chestsByLevel.push(new Vector.<XML>());
+				portalsByLevel.push(new Vector.<XML>());
+			}
 			// first we check the active list of entities
 			for(i = 0; i < g.entities.length; i++){
 				recycleEntity(g.entities[i], level);
 			}
 			for(i = 0; i < g.items.length; i++){
 				recycleEntity(g.items[i], level);
+			}
+			var portal:Portal;
+			for(i = 0; i < g.portals.length; i++){
+				portal = g.portals[i];
+				if(portal.type != Portal.STAIRS && (portal.state == Portal.OPEN || portal.state == Portal.OPENING)){
+					recycleEntity(portal, level);
+				}
 			}
 			// now we scour the entities layer of the renderer for more entities to convert to XML
 			var r:int, c:int, tile:*;
@@ -391,8 +416,21 @@
 					mc = g.library.getCharacterGfx(name);
 					obj = new Monster(mc, (x + 0.5) * Game.SCALE, (y + 1) * Game.SCALE, name, level, items);
 				}
+				
+			} else if(objectType == "portal"){
+				type = xml.@type;
+				level = xml.@targetLevel;
+				mc = new Portal.GFX_CLASSES[type];
+				mc.x = x * Game.SCALE;
+				mc.y = y * Game.SCALE;
+				obj = new Portal(mc, new Rectangle(x * Game.SCALE, y * Game.SCALE, Game.SCALE, Game.SCALE), type, xml.@targetLevel, Portal.OPEN, false);
+				obj.mapX = x;
+				obj.mapY = y;
+				if(Map.isPortalToPreviousLevel(x, y, type, level)) g.entrance = obj;
 			}
+			
 			obj.mapZ = Map.ENTITIES;
+			
 			return obj;
 		}
 		

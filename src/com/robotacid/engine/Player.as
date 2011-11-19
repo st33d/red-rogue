@@ -160,10 +160,10 @@
 				} else {
 					if(dir == RIGHT){
 						gfx.x += PORTAL_SPEED;
-						if(gfx.x > portal.mapX * Game.SCALE + PORTAL_DISTANCE) portal = null;
+						if(gfx.x > (portal.mapX + 1) * Game.SCALE + PORTAL_DISTANCE) portal = null;
 					} else if(dir == LEFT){
 						gfx.x -= PORTAL_SPEED;
-						if(gfx.x > (portal.mapX + 1) * Game.SCALE - PORTAL_DISTANCE) portal = null;
+						if(gfx.x < portal.mapX * Game.SCALE - PORTAL_DISTANCE) portal = null;
 					}
 				}
 				if(!portal){
@@ -301,6 +301,7 @@
 			state = EXITING;
 			// prepare the dungeon generator for what entrance the player will use
 			previousLevel = g.dungeon.level;
+			previousPortalType = portal.type;
 			if(portal.targetLevel < g.dungeon.level){
 				dir = looking = LEFT;
 			} else if(portal.targetLevel > g.dungeon.level){

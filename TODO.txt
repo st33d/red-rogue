@@ -1,3 +1,13 @@
+Menu features before next release
+	animation speed
+
+Portals:
+	Not tested on levels past 1
+	Multiple of the same portal occurring
+	Portal start positions need to avoid ever being adjacent
+
+Attacked whilst exiting a level crashed exit progress
+
 Fix eaten polymorph effect to limit by exploration - this would involve putting placeholders down for all races
 	put placeholders down for all races
 		move minion to index 21 - making minion unachievable by polymorph
