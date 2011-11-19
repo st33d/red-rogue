@@ -429,7 +429,13 @@
 			
 			// taking a screenshot
 			} else if(option == screenshotOption){
-				screenshot();
+				if(!Game.dialog){
+					Game.dialog = new Dialog(
+						"screenshot",
+						"flash's security restrictions require you to click okay to continue\n",
+						200, 120, screenshot
+					);
+				}
 			
 			// throwing runes
 			} else if(option == inventoryList.throwOption){
@@ -522,9 +528,11 @@
 		/* Takes a screen shot of the game (sans menu) and opens a file browser to save it as a png */
 		private function screenshot():void{
 			visible = false;
+			if(Game.dialog) Game.dialog.visible = false;
 			var bitmapData:BitmapData = new BitmapData(Game.WIDTH * 2, Game.HEIGHT * 2, true, 0x00000000);
 			bitmapData.draw(g, g.transform.matrix);
 			FileManager.save(PNGEncoder.encode(bitmapData, {"creator":"red-rogue"}), "screenshot.png");
+			if(Game.dialog) Game.dialog.visible = true;
 			visible = true;
 		}
 		
