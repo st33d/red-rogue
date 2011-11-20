@@ -65,6 +65,7 @@ package com.robotacid.ui {
 				obj.chestsByLevel = g.content.chestsByLevel;
 				obj.monstersByLevel = g.content.monstersByLevel;
 				obj.portalsByLevel = g.content.portalsByLevel;
+				obj.itemDungeonContent = g.content.itemDungeonContent;
 				// runes revealed
 				obj.runeNames = Item.runeNames;
 			}
@@ -197,11 +198,25 @@ package com.robotacid.ui {
 							g.content.portalsByLevel[i].push(obj.portalsByLevel[i][j]);
 						}
 					}
+					g.content.itemDungeonContent = obj.itemDungeonContent;
 					
 					Player.previousLevel = obj.previousLevel;
 					Player.previousPortalType = obj.previousPortalType;
+					// infer last used portal type
+					var portalType:int;
+					if(Player.previousPortalType == Portal.STAIRS){
+						portalType = Portal.STAIRS;
+					} else if(Player.previousPortalType == Portal.ROGUE){
+						portalType = Portal.ROGUE_RETURN;
+					} else if(Player.previousPortalType == Portal.ROGUE_RETURN){
+						portalType = Portal.ROGUE;
+					} else if(Player.previousPortalType == Portal.ITEM){
+						portalType = Portal.ITEM_RETURN;
+					} else if(Player.previousPortalType == Portal.ITEM_RETURN){
+						portalType = Portal.ITEM;
+					}
 					// call for a new level
-					g.changeLevel(int(obj.dungeonLevel), true);
+					g.changeLevel(int(obj.dungeonLevel), portalType, true);
 				}
 				
 				// load the hotkeymaps

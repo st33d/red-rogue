@@ -52,7 +52,7 @@
 		
 		override public function main():void {
 			// offscreen check
-			if(!g.mapRenderer.intersects(collider, SCALE * 2)){
+			if(!g.mapManager.intersects(collider, SCALE * 2)){
 				remove();
 				return;
 			}

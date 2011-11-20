@@ -222,7 +222,7 @@
 		
 		override public function main():void {
 			if(collider.state == Collider.STACK){
-				if(!g.mapRenderer.contains(collider.x + collider.width * 0.5, collider.y + collider.height * 0.5)) remove();
+				if(!g.mapManager.contains(collider.x + collider.width * 0.5, collider.y + collider.height * 0.5)) remove();
 			}
 			// concealing the item in the dark will help avoid showing a clipped effect on the edge
 			// of the light map
@@ -290,7 +290,7 @@
 		
 		public function enchantable(runeName:int):Boolean{
 			if(runeName == XP && level == Game.MAX_LEVEL) return false;
-			if(g.dungeon.type == Map.SIDE_DUNGEON) return false;
+			else if(runeName == PORTAL && (g.dungeon.level == 0 || g.dungeon.type == Map.ITEM_DUNGEON)) return false;
 			if(!effects) return true;
 			for(var i:int = 0; i < effects.length; i++){
 				if(effects[i].name == runeName && effects[i].level >= Game.MAX_LEVEL) return false;
@@ -356,7 +356,6 @@
 			if(leech) character.leech -= leech;
 			if(thorns){
 				character.thorns -= thorns;
-				trace(character.thorns);
 			}
 			if(type == ARMOUR){
 				if(name == GOGGLES){

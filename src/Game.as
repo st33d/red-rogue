@@ -73,7 +73,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 247;
+		public static const BUILD_NUM:int = 250;
 		
 		public static var g:Game;
 		public static var renderer:Renderer;
@@ -93,7 +93,7 @@
 		public var soundQueue:SoundQueue;
 		
 		// graphics
-		public var mapRenderer:MapTileManager;
+		public var mapManager:MapTileManager;
 		public var lightMap:LightMap;
 		public var lightning:Lightning;
 		
@@ -350,21 +350,21 @@
 			
 			dungeon = new Map(1);
 			Brain.initDungeonGraph(dungeon.bitmap);
-			mapRenderer = new MapTileManager(this, renderer.canvas, SCALE, dungeon.width, dungeon.height, WIDTH, HEIGHT);
-			mapRenderer.setLayers(dungeon.layers);
-			renderer.blockBitmapData = mapRenderer.layerToBitmapData(MapTileManager.BLOCK_LAYER);
+			mapManager = new MapTileManager(this, renderer.canvas, SCALE, dungeon.width, dungeon.height, WIDTH, HEIGHT);
+			mapManager.setLayers(dungeon.layers);
+			renderer.blockBitmapData = mapManager.layerToBitmapData(MapTileManager.BLOCK_LAYER);
 			world = new CollisionWorld(dungeon.width, dungeon.height, SCALE);
-			world.map = createPropertyMap(mapRenderer.mapLayers[MapTileManager.BLOCK_LAYER]);
+			world.map = createPropertyMap(mapManager.mapLayers[MapTileManager.BLOCK_LAYER]);
 			
 			//world.debug = debug;
 			
 			lightMap = new LightMap(world.map);
-			mapRenderer.init(dungeon.start.x, dungeon.start.y);
+			mapManager.init(dungeon.start.x, dungeon.start.y);
 			
 			//renderer.lightBitmap.visible = false;
 			
 			// modify the mapRect to conceal secrets
-			mapRenderer.mapRect = renderer.camera.mapRect = dungeon.bitmap.adjustedMapRect;
+			mapManager.mapRect = renderer.camera.mapRect = dungeon.bitmap.adjustedMapRect;
 			miniMap = new MiniMap(world.map, this);
 			miniMap.y = miniMap.x = 5;
 			miniMapHolder.addChild(miniMap);
@@ -391,7 +391,7 @@
 			}
 			player = null;
 			minion = null;
-			mapRenderer = null;
+			mapManager = null;
 			dungeon = null;
 			world = null;
 			Player.previousLevel = 0;
@@ -404,7 +404,7 @@
 		 *
 		 * This method tries to wipe all layers whilst leaving the gaming architecture in place
 		 */
-		public function changeLevel(n:int, loaded:Boolean = false):void{
+		public function changeLevel(n:int, portalType:int, loaded:Boolean = false):void{
 			
 			// maintain debug state if present
 			if(dungeon.level == -1){
@@ -415,7 +415,7 @@
 			if(!loaded){
 				// left over content needs to be pulled back into the content manager to be found
 				// if the level is visited again
-				content.recycleLevel();
+				content.recycleLevel(dungeon.type);
 				QuickSave.save(this, true);
 			}
 			
@@ -447,24 +447,27 @@
 			
 			Brain.monsterCharacters = new Vector.<Character>();
 			
-			dungeon = new Map(n);
+			var mapType:int = Map.MAIN_DUNGEON;
+			if(portalType == Portal.ITEM) mapType = Map.ITEM_DUNGEON;
+			
+			dungeon = new Map(n, mapType);
 			
 			Brain.initDungeonGraph(dungeon.bitmap);
 			
-			mapRenderer.newMap(dungeon.width, dungeon.height, dungeon.layers);
-			renderer.blockBitmapData = mapRenderer.layerToBitmapData(MapTileManager.BACKGROUND_LAYER);
-			if(dungeon.level > 0) renderer.blockBitmapData = mapRenderer.layerToBitmapData(MapTileManager.BLOCK_LAYER, renderer.blockBitmapData);
+			mapManager.newMap(dungeon.width, dungeon.height, dungeon.layers);
+			renderer.blockBitmapData = mapManager.layerToBitmapData(MapTileManager.BACKGROUND_LAYER);
+			if(dungeon.level > 0) renderer.blockBitmapData = mapManager.layerToBitmapData(MapTileManager.BLOCK_LAYER, renderer.blockBitmapData);
 			
 			// modify the mapRect to conceal secrets
-			mapRenderer.mapRect = dungeon.bitmap.adjustedMapRect;
+			mapManager.mapRect = dungeon.bitmap.adjustedMapRect;
 			renderer.camera.mapRect = dungeon.bitmap.adjustedMapRect;
 			
 			world = new CollisionWorld(dungeon.width, dungeon.height, SCALE);
-			world.map = createPropertyMap(mapRenderer.mapLayers[MapTileManager.BLOCK_LAYER]);
+			world.map = createPropertyMap(mapManager.mapLayers[MapTileManager.BLOCK_LAYER]);
 			lightMap.newMap(world.map);
 			lightMap.setLight(player, player.light);
 			
-			mapRenderer.init(dungeon.start.x, dungeon.start.y);
+			mapManager.init(dungeon.start.x, dungeon.start.y);
 			
 			miniMap.newMap(world.map);
 			
@@ -502,18 +505,16 @@
 					minion.changeName(Character.SKELETON, skinMc);
 					console.print("minion reverts to undead form");
 				}
-				mapRenderer.setLayerUpdate(MapTileManager.BLOCK_LAYER, false);
+				mapManager.setLayerUpdate(MapTileManager.BLOCK_LAYER, false);
 				SoundManager.fadeMusic("music1", -SoundManager.DEFAULT_FADE_STEP);
 				
 			} else if(dungeon.level == -1){
 				renderer.lightBitmap.visible = false;
 				
-			} else {
-				if(dungeon.level == 1){
-					// change to black and white rogue
-					player.changeName(Character.ROGUE, new RogueMC);
-					if(!SoundManager.currentMusic) SoundManager.fadeMusic("music1");
-				}
+			} else if(Player.previousLevel == 0){
+				// change to black and white rogue
+				player.changeName(Character.ROGUE, new RogueMC);
+				if(!SoundManager.currentMusic) SoundManager.fadeMusic("music1");
 				renderer.lightBitmap.visible = true;
 				miniMap.visible = true;
 			}
@@ -676,7 +677,7 @@
 		public function pauseGame():void{
 			if(state == GAME){
 				state = MENU;
-				menu.holder.addChild(menu);
+				menu.activate();
 			} else if(state == MENU){
 				state = GAME;
 				if(menu.parent) menu.parent.removeChild(menu);
@@ -709,10 +710,10 @@
 		 * properties. 'id's of blocks are inferred by the tile numbers
 		 */
 		private function createPropertyMap(map:Array):Vector.<Vector.<int>>{
-			var idMap:Vector.<Vector.<int>> = new Vector.<Vector.<int>>(mapRenderer.height, true), r:int, c:int;
-			for(r = 0; r < mapRenderer.height; r++){
-				idMap[r] = new Vector.<int>(mapRenderer.width, true);
-				for(c = 0; c < mapRenderer.width; c++){
+			var idMap:Vector.<Vector.<int>> = new Vector.<Vector.<int>>(mapManager.height, true), r:int, c:int;
+			for(r = 0; r < mapManager.height; r++){
+				idMap[r] = new Vector.<int>(mapManager.width, true);
+				for(c = 0; c < mapManager.width; c++){
 					idMap[r][c] = MapTileConverter.getMapProperties(map[r][c]);
 				}
 			}

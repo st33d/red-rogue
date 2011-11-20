@@ -46,7 +46,7 @@
 		
 		// types
 		public static const MAIN_DUNGEON:int = 0;
-		public static const SIDE_DUNGEON:int = 1;
+		public static const ITEM_DUNGEON:int = 1;
 		
 		// layers
 		public static const BACKGROUND:int = 0;
@@ -78,7 +78,7 @@
 				} else {
 					createOverworld();
 				}
-			} else if(type == SIDE_DUNGEON){
+			} else if(type == ITEM_DUNGEON){
 				var sideDungeonSize:int = 1 + (Number(level) / 10);
 				bitmap = new DungeonBitmap(sideDungeonSize);
 				width = bitmap.width;
@@ -320,24 +320,26 @@
 			}
 			
 			// create access points
+			var portalXMLs:Vector.<XML> = g.content.getPortals(level, type);
+			var portalType:int;
 			if(type == MAIN_DUNGEON){
 				createAccessPoint(Portal.STAIRS, "up");
-				var portalXMLs:Vector.<XML> = g.content.getPortals(level);
-				var portalType:int;
 				for(i = 0; i < portalXMLs.length; i++){
 					portalType = portalXMLs[i].@type;
 					createAccessPoint(portalType, null, portalXMLs[i]);
 				}
 				createAccessPoint(Portal.STAIRS, "down");
-				
-			} else if(type == SIDE_DUNGEON){
-				createAccessPoint(Portal.STAIRS, "up", Portal.getReturnPortalXML());
-			}
 			
-			// a good dungeon needs to be full of loot and monsters
-			// in comes the content manager to mete out a decent amount of action and reward per level
-			// content manager stocks are limited to avoid scumming
-			g.content.populateLevel(level, bitmap, layers);
+				// a good dungeon needs to be full of loot and monsters
+				// in comes the content manager to mete out a decent amount of action and reward per level
+				// content manager stocks are limited to avoid scumming
+				g.content.populateLevel(level, bitmap, layers, type);
+				
+			} else if(type == ITEM_DUNGEON){
+				portalType = portalXMLs[0].@type;
+				createAccessPoint(portalType, "up", portalXMLs[0]);
+				g.content.populateLevel(level, bitmap, layers, type);
+			}
 			
 			// now add some flavour
 			createChaosWalls(pixels);
@@ -373,7 +375,7 @@
 			layers[BLOCKS][height - 2][width - 2] = 1;
 			layers[ENTITIES][height - 2][width - 2] = 61;
 			
-			var portalXMLs:Vector.<XML> = g.content.getPortals(level);
+			var portalXMLs:Vector.<XML> = g.content.getPortals(level, type);
 			if(portalXMLs.length){
 				// given that there can only be one type of portal on the overworld - the rogue's portal
 				// we create the rogue's portal here
@@ -383,7 +385,7 @@
 			setStairsDown(12, height - 2);
 			
 			// the player may have left content on the overworld as a sort of bank
-			g.content.populateLevel(0, bitmap, layers);
+			g.content.populateLevel(0, bitmap, layers, type);
 		}
 		
 		/* Creates a random parallax background */
@@ -417,8 +419,8 @@
 			var tries:int = 0;
 			var rooms:Vector.<Room> = bitmap.rooms;
 			if(stairs){
-				if(stairs == "up") rooms.sort(sortRoomsTopWards);
-				else if(stairs == "down") rooms.sort(sortRoomsBottomWards);
+				if(stairs == "up") rooms = rooms.sort(sortRoomsTopWards);
+				else if(stairs == "down") rooms = rooms.sort(sortRoomsBottomWards);
 			}
 			var portalRoom:Room = rooms[index];
 			
@@ -435,8 +437,9 @@
 				ex = portalRoom.x + g.random.rangeInt(portalRoom.width);
 				
 				// cycle through y positions in the room trying to find a good spot
-				if(layers[BLOCKS][ey + 1][ex] == 0 || bitmap.bitmapData.getPixel32(ex, ey + 1) == DungeonBitmap.LEDGE || bitmap.bitmapData.getPixel32(ex, ey + 1) == DungeonBitmap.LADDER_LEDGE) ey++;
-				if(layers[BLOCKS][ey][ex] == 1) ey = portalRoom.y;
+				
+				if(bitmap.bitmapData.getPixel32(ex, ey + 1) != DungeonBitmap.WALL) ey++;
+				else ey = portalRoom.y;
 				
 			} while(!goodPortalPosition(ex, ey, (tryToAvoidPortalOnLedge--) > 0));
 			if(type == Portal.STAIRS){
@@ -476,8 +479,9 @@
 		/* Creates a portal */
 		public function setPortal(x:int, y:int, xml:XML):void{
 			var p:Pixel = new Pixel(x, y);
-			var portal:Portal = Content.convertXMLToObject(x, y, xml);
-			if(level == 0 && portal.type == Portal.DUNGEON){
+			var portal:Portal = Content.convertXMLToEntity(x, y, xml);
+			g.portalHash[portal.type] = portal;
+			if(level == 0 && portal.type == Portal.ROGUE_RETURN){
 				portal.maskOverworldPortal();
 			}
 			layers[ENTITIES][y][x] = portal;
@@ -495,26 +499,50 @@
 			if(type == Portal.STAIRS){
 				if(Player.previousPortalType == Portal.STAIRS && Player.previousLevel == targetLevel) return true;
 			} else if(type == Portal.ROGUE ){
-				if(Player.previousPortalType == Portal.DUNGEON && Player.previousLevel == 0) return true;
+				if(Player.previousPortalType == Portal.ROGUE_RETURN && Player.previousLevel == 0) return true;
 			} else if(type == Portal.ITEM){
-				if(Player.previousPortalType == Portal.DUNGEON && Player.previousLevel > 0) return true;
-			} else if(type == Portal.DUNGEON){
-				if(Player.previousPortalType == Portal.ROGUE || Player.previousPortalType == Portal.ITEM) return true;
+				if(Player.previousPortalType == Portal.ITEM_RETURN) return true;
+			} else if(type == Portal.ITEM_RETURN){
+				if(Player.previousPortalType == Portal.ITEM) return true;
+			} else if(type == Portal.ROGUE_RETURN){
+				if(Player.previousPortalType == Portal.ROGUE) return true;
 			}
 			return false;
 		}
 		
 		/* Getting a good position for the portals is complex.
 		 * We want clear spaces to each side and solid floor below - preferably walls below on stairs down
+		 * we also don't want to appear next to another portal - portals have frilly edges
 		 * - hence the mess in this method */
 		public function goodPortalPosition(x:int, y:int, ledgeAllowed:Boolean = true):Boolean{
 			var p:Pixel;
 			for(var i:int = 0; i < portals.length; i++){
 				p = portals[i];
-				if(p.x == x && p.y == y) return false;
+				if(
+					(p.x == x && (p.y == y || p.y == y - 1 || p.y == y + 1)) ||
+					(p.y == y && (p.x == x || p.x == x - 1 || p.x == x + 1))
+				){
+					return false;
+				}
 			}
-			if(stairsUp && stairsUp.x == x && stairsUp.y == y) return false;
-			if(stairsDown && stairsDown.x == x && stairsDown.y == y) return false;
+			if(stairsUp){
+				p = stairsUp;
+				if(
+					(p.x == x && (p.y == y || p.y == y - 1 || p.y == y + 1)) ||
+					(p.y == y && (p.x == x || p.x == x - 1 || p.x == x + 1))
+				){
+					return false;
+				}
+			}
+			if(stairsDown){
+				p = stairsDown;
+				if(
+					(p.x == x && (p.y == y || p.y == y - 1 || p.y == y + 1)) ||
+					(p.y == y && (p.x == x || p.x == x - 1 || p.x == x + 1))
+				){
+					return false;
+				}
+			}
 			var pos:uint = bitmap.bitmapData.getPixel32(x, y);
 			var posBelow:uint = bitmap.bitmapData.getPixel32(x, y + 1);
 			var posLeft:uint =  bitmap.bitmapData.getPixel32(x - 1, y);
@@ -657,7 +685,7 @@
 			characterXML.@name = name;
 			characterXML.@type = Character.MONSTER;
 			characterXML.@level = level;
-			layers[ENTITIES][y][x] = Content.convertXMLToObject(x, y, characterXML);
+			layers[ENTITIES][y][x] = Content.convertXMLToEntity(x, y, characterXML);
 		}
 		
 		public function setValue(x:int, y:int, z:int, value:*):void{

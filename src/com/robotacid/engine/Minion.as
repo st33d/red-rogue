@@ -66,7 +66,7 @@
 				}
 			}
 			// offscreen check
-			if(!g.mapRenderer.intersects(collider, Game.SCALE * 2)){
+			if(!g.mapManager.intersects(collider, Game.SCALE * 2)){
 				teleportToPlayer();
 			}
 			if(state == WALKING) brain.main();

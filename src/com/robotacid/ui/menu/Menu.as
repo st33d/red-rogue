@@ -96,6 +96,7 @@
 		private var nextAlphaStep:Number;
 		private var captureAlphaStep:Number;
 		private var keysDown:int;
+		private var hotKeyDown:Vector.<Boolean>;
 		private var keysLocked:int;
 		private var keysHeldCount:int;
 		private var stackCount:int;
@@ -151,8 +152,10 @@
 			// menu usage
 			branch = new Vector.<MenuList>();
 			hotKeyMaps = new Vector.<HotKeyMap>();
+			hotKeyDown = new Vector.<Boolean>();
 			for(i = 0; i < Key.hotKeyTotal; i++){
 				hotKeyMaps.push(null);
+				hotKeyDown[i] = false;
 			}
 			
 			// create a mask to contain the menu
@@ -564,12 +567,20 @@
 				}
 			}
 			// track hot keys so they can instantly perform menu actions
-			if(!keyLock && Key.keysPressed){
+			// hot keys are accessible only when the keyLock is off or the menu is hidden
+			if(((parent && !keyLock) || !parent) && Key.keysPressed){
 				for(i = 0; i < Key.hotKeyTotal; i++){
-					if(hotKeyMaps[i] && Key.customDown(HOT_KEY_OFFSET + i)){
-						hotKeyMaps[i].execute();
-						keyLock = true;
-						break;
+					if(hotKeyMaps[i]){
+						if(Key.customDown(HOT_KEY_OFFSET + i)){
+							if(!hotKeyDown[i]){
+								hotKeyMaps[i].execute();
+								keyLock = true;
+								hotKeyDown[i] = true;
+								break;
+							}
+						} else if(hotKeyDown[i]){
+							hotKeyDown[i] = false;
+						}
 					}
 				}
 			}

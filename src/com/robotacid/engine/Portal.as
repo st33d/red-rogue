@@ -1,7 +1,10 @@
 ﻿package com.robotacid.engine {
+	import com.robotacid.ai.Brain;
+	import com.robotacid.dungeon.Content;
 	import com.robotacid.dungeon.Map;
 	import com.robotacid.engine.Entity;
 	import com.robotacid.phys.Collider;
+	import com.robotacid.ui.MinimapFeature;
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
 	import flash.display.BitmapDataChannel;
@@ -22,14 +25,16 @@
 		public var type:int;
 		public var seen:Boolean;
 		public var targetLevel:int;
-		public var currentLevel:int;
 		
-		public var item:Item;
-		public var character:Character;
+		public var rect:Rectangle;
 		
 		private var count:int;
 		
-		public var rect:Rectangle;
+		private var minimapFeature:MinimapFeature;
+		private var monsterTemplate:XML;
+		private var monsterEntryCount:int;
+		private var monsterTotal:int;
+		private var monster:Monster;
 		
 		// states
 		public static const OPEN:int = 0;
@@ -39,17 +44,20 @@
 		// types
 		public static const STAIRS:int = 0;
 		public static const ROGUE:int = 1;
-		public static const ITEM:int = 2;
-		public static const MINION:int = 3;
-		public static const DUNGEON:int = 4;
-		public static const MONSTER:int = 5;
+		public static const ROGUE_RETURN:int = 2;
+		public static const ITEM:int = 3;
+		public static const ITEM_RETURN:int = 4;
+		public static const MINION:int = 5;
+		public static const MONSTER:int = 6;
 		
-		public static const GFX_CLASSES:Array = [, RoguePortalMC, DungeonPortalMC, MinionPortalMC, DungeonPortalMC, MonsterPortalMC];
+		public static const GFX_CLASSES:Array = [, RoguePortalMC, DungeonPortalMC, DungeonPortalMC, DungeonPortalMC, MinionPortalMC, MonsterPortalMC];
 		
 		public static const OPEN_CLOSE_DELAY:int = 8;
 		public static const SCALE_STEP:Number = 1.0 / OPEN_CLOSE_DELAY;
 		public static const GFX_STEP:Number = (SCALE * 0.5) / OPEN_CLOSE_DELAY;
 		public static const MONSTERS_PER_LEVEL:int = 2;
+		public static const MONSTERS_ENTRY_DELAY:int = 8;
+		public static const MINION_HEAL_RATE:Number = 0.05;
 		
 		public function Portal(gfx:DisplayObject, rect:Rectangle, type:int, targetLevel:int, state:int = OPEN, active:Boolean = true) {
 			super(gfx, false, false);
@@ -104,7 +112,42 @@
 						bitmapData.setPixel32(1, 2, 0xFFFFFFFF);
 						bitmapData.fillRect(new Rectangle(0, 1, 3, 1), 0xFFFFFFFF);
 					}
-					g.miniMap.addFeature(mapX, mapY, -1, -1, bitmapData);
+					minimapFeature = g.miniMap.addFeature(mapX, mapY, -1, -1, bitmapData);
+				}
+				if(type == MINION){
+					// heal the minion
+					if(g.minion){
+						if(g.minion.health < g.minion.totalHealth && g.minion.collider.intersects(rect)){
+							g.minion.applyHealth(g.minion.totalHealth * MINION_HEAL_RATE);
+							renderer.createTeleportSparkRect(g.minion.collider, 5);
+						}
+					// or resurrect the minion
+					} else {
+						var mc:MovieClip = new MinionMC();
+						g.minion = new Minion(mc, rect.x + rect.width * 0.5, rect.y + rect.height, Character.SKELETON);
+						g.minion.enterLevel(this);
+						g.console.print("undead minion returns");
+					}
+					
+				} else if(type == MONSTER){
+					// shit out monsters
+					if(monsterEntryCount) monsterEntryCount--;
+					else{
+						if(monster){
+							if(monster.state != Character.ENTERING) monster = null;
+						} else {
+							if(monsterTotal){
+								monsterTotal--;
+								monster = Content.convertXMLToEntity(mapX, mapY, monsterTemplate);
+								g.entities.push(monster);
+								Brain.monsterCharacters.push(monster);
+								monster.enterLevel(this);
+								monsterEntryCount = MONSTERS_ENTRY_DELAY;
+							} else {
+								close();
+							}
+						}
+					}
 				}
 			} else if(state == CLOSING){
 				if(count){
@@ -122,6 +165,13 @@
 			}
 		}
 		
+		public function close():void{
+			g.mapManager.removeTile(this, mapX, mapY, mapZ);
+			minimapFeature.active = false;
+			free = false;
+			state = CLOSING;
+		}
+		
 		/* Creates a black bar over the bottom edge of the overworld return portal to make it neater */
 		public function maskOverworldPortal():void{
 			var blackOut:Shape = new Shape();
@@ -131,10 +181,13 @@
 			(gfx as MovieClip).addChild(blackOut);
 		}
 		
-		public function close():void{
-			g.mapRenderer.removeTile(this, mapX, mapY, mapZ);
-			free = false;
-			state = CLOSING;
+		/* Creates the type of monster that will pour out of the portal */
+		public function setMonsterTemplate(monster:Monster):void{
+			monsterTemplate = monster.toXML();
+			// strip the monster of items - this is not an item farming spell
+			delete monsterTemplate.item;
+			monsterTotal = g.dungeon.level * MONSTERS_PER_LEVEL;
+			monsterEntryCount = MONSTERS_ENTRY_DELAY;
 		}
 		
 		override public function remove():void {
@@ -152,7 +205,7 @@
 		/* Used by Map to create a way back to the main dungeon from an item portal */
 		public static function getReturnPortalXML():XML{
 			var xml:XML = <portal />;
-			xml.@type = DUNGEON;
+			xml.@type = ITEM_RETURN;
 			xml.@targetLevel = Player.previousLevel;
 			return xml;
 		}
@@ -167,7 +220,7 @@
 			// MapTileManager tile position
 			for(i = 0; i < g.portals.length + 1; i++){
 				if(i < g.portals.length) portal = g.portals[i];
-				else portal = g.mapRenderer.mapLayers[Map.ENTITIES][mapY][mapX] as Portal;
+				else portal = g.mapManager.mapLayers[Map.ENTITIES][mapY][mapX] as Portal;
 				if(portal && portal.type == STAIRS && portal.mapX == mapX && portal.mapY == mapY){
 					// there will be a square to the side of the stairs free - that's the level generation logic
 					// check there is floor there
@@ -187,25 +240,29 @@
 			portal.mapX = mapX;
 			portal.mapY = mapY;
 			portal.mapZ = Map.ENTITIES;
-			portal.currentLevel = g.dungeon.level;
 			
 			// the portal may have been generated outside of the mapRenderer zone
-			if(!g.mapRenderer.intersects(portal.rect)){
+			if(!g.mapManager.intersects(portal.rect)){
 				portal.remove();
 			}
 			
-			// only one portal of a kind per level, existing portals are closed
-			if(g.portalHash[type]){
-				g.portalHash[type].close();
+			// only one player portal of a kind per level, existing portals are closed
+			if(type != MONSTER){
+				if(g.portalHash[type]){
+					g.portalHash[type].close();
+				} else {
+					// the portal may be on another level, clear this portal type from the content manager
+					g.content.removePortalType(type);
+				}
+				g.portalHash[type] = portal;
 			}
-			g.portalHash[type] = portal;
 			
 			// alter or create the opposite end of the rogue portal in the content manager if it doesn't already exist
 			if(type == ROGUE){
 				var xml:XML;
 				if(g.content.portalsByLevel[0].length == 0){
 					xml = <portal />;
-					xml.@type = DUNGEON;
+					xml.@type = ROGUE_RETURN;
 					g.content.portalsByLevel[0].push(xml);
 				} else {
 					xml = g.content.portalsByLevel[0][0];

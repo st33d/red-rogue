@@ -1,4 +1,5 @@
 ﻿package com.robotacid.ui.menu {
+	import com.robotacid.dungeon.Map;
 	import com.robotacid.engine.Character;
 	import com.robotacid.engine.Effect;
 	import com.robotacid.engine.Item;
@@ -225,6 +226,11 @@
 			
 		}
 		
+		public function activate():void{
+			update();
+			holder.addChild(this);
+		}
+		
 		public function onChange(e:Event = null):void{
 			
 			var option:MenuOption = currentMenuList.options[selection];
@@ -259,39 +265,51 @@
 					} else {
 						inventoryList.equipOption.active = true;
 					}
-					inventoryList.dropOption.active = item.curseState != Item.CURSE_REVEALED
+					inventoryList.dropOption.active = item.curseState != Item.CURSE_REVEALED;
+					
 				} else if(item.type == Item.HEART){
 					if(!hotKeyMapRecord) inventoryList.eatOption.active = g.player.health < g.player.totalHealth;
 					else inventoryList.eatOption.active = true;
 					if(!hotKeyMapRecord) inventoryList.feedMinionOption.active = Boolean(g.minion) && g.minion.health < g.minion.totalHealth;
 					else inventoryList.feedMinionOption.active = true;
+					
 				} else if(item.type == Item.RUNE){
+					inventoryList.throwOption.active = g.player.attackCount >= 1;
 					inventoryList.eatOption.active = true;
 					inventoryList.feedMinionOption.active = Boolean(g.minion);
 					if(item.name == Effect.XP){
 						if(g.minion) inventoryList.feedMinionOption.active = g.minion.level < Game.MAX_LEVEL;
 						inventoryList.eatOption.active = g.player.level < Game.MAX_LEVEL;
 					} else if(item.name == Effect.PORTAL){
-						inventoryList.eatOption.active = g.dungeon.level > 0;
+						inventoryList.eatOption.active = g.dungeon.level > 0 && g.dungeon.type == Map.MAIN_DUNGEON;
+						if(g.minion) inventoryList.feedMinionOption.active = inventoryList.eatOption.active;
 					}
 				}
+				
 				renderMenu();
+				
 			} else if(option.name == "sfx"){
 				onOffOption.state = SoundManager.sfx ? 0 : 1;
 				renderMenu();
+				
 			} else if(option.name == "music"){
 				onOffOption.state = SoundManager.music ? 0 : 1;
 				renderMenu();
+				
 			} else if(option.name == "fullscreen"){
 				onOffOption.state = g.stage.displayState == "normal" ? 1 : 0;
 				renderMenu();
+				
 			} else if(option == inventoryList.enchantOption){
 				var runeName:int = inventoryList.options[inventoryList.selection].userData.name;
 				for(var i:int = 0; i < inventoryList.equipmentList.options.length; i++){
 					inventoryList.equipmentList.options[i].active = inventoryList.equipmentList.options[i].userData.enchantable(runeName);
 				}
+				
 			} else if(option == giveItemOption){
 				
+			} else if(option == actionsOption){
+				if(g.player.weapon) missileOption.active = g.player.attackCount >= 1 && !g.player.indifferent && Boolean(g.player.weapon.range & (Item.MISSILE | Item.THROWN));
 			}
 		}
 		

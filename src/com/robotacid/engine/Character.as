@@ -112,8 +112,8 @@
 		public static const LADDER_LEFT:Number = 3;
 		
 		public static const PORTAL_STEPS:int = 8;
-		public static const PORTAL_SPEED:Number = 2;
-		public static const PORTAL_DISTANCE:Number = PORTAL_SPEED * PORTAL_STEPS;
+		public static const STAIRS_SPEED:Number = 2;
+		public static const PORTAL_DISTANCE:Number = STAIRS_SPEED * PORTAL_STEPS;
 		
 		public static const UP:int = 1;
 		public static const RIGHT:int = 2;
@@ -420,8 +420,8 @@
 					}
 					if(!node || !node.active || node.collider.x + node.collider.width * 0.5 < collider.x + collider.width * 0.5){
 						node = null;
-						tx = g.mapRenderer.width * SCALE;
-						ty = g.random.range(g.mapRenderer.height) * SCALE;
+						tx = g.mapManager.width * SCALE;
+						ty = g.random.range(g.mapManager.height) * SCALE;
 					} else {
 						tx = node.collider.x + node.collider.width * 0.5;
 						ty = node.collider.y + node.collider.height * 0.5;
@@ -446,7 +446,7 @@
 					if(!node || !node.active || node.collider.x + node.collider.width * 0.5 > collider.x + collider.width * 0.5){
 						node = null;
 						tx = 0;
-						ty = g.random.range(g.mapRenderer.height) * SCALE;
+						ty = g.random.range(g.mapManager.height) * SCALE;
 					} else {
 						tx = node.collider.x + node.collider.width * 0.5;
 						ty = node.collider.y + node.collider.height * 0.5;
@@ -466,25 +466,26 @@
 				if(portal.type == Portal.STAIRS){
 					if(portal.targetLevel < g.dungeon.level){
 						if(moveCount){
-							if(dir == RIGHT) gfx.x += PORTAL_SPEED;
-							else if(dir == LEFT) gfx.x -= PORTAL_SPEED;
-							gfx.y += PORTAL_SPEED;
+							if(dir == RIGHT) gfx.x += STAIRS_SPEED;
+							else if(dir == LEFT) gfx.x -= STAIRS_SPEED;
+							gfx.y += STAIRS_SPEED;
 						}
 						if(gfx.y >= (portal.mapY + 1) * Game.SCALE) portal = null;
 					} else if(portal.targetLevel > g.dungeon.level){
 						if(moveCount){
-							if(dir == RIGHT) gfx.x += PORTAL_SPEED;
-							else if(dir == LEFT) gfx.x -= PORTAL_SPEED;
-							gfx.y -= PORTAL_SPEED;
+							if(dir == RIGHT) gfx.x += STAIRS_SPEED;
+							else if(dir == LEFT) gfx.x -= STAIRS_SPEED;
+							gfx.y -= STAIRS_SPEED;
 						}
 						if(gfx.y <= (portal.mapY + 1) * Game.SCALE) portal = null;
 					}
 				} else {
+					// movement through a portal
 					if(dir == RIGHT){
-						gfx.x += PORTAL_SPEED;
+						gfx.x += speed * collider.dampingX;
 						if(gfx.x > (portal.mapX + 0.5) * Game.SCALE) portal = null;
 					} else if(dir == LEFT){
-						gfx.x -= PORTAL_SPEED;
+						gfx.x -= speed * collider.dampingX;
 						if(gfx.x < (portal.mapX + 0.5) * Game.SCALE) portal = null;
 					}
 				}

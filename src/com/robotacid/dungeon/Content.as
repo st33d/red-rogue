@@ -34,6 +34,8 @@
 		public var monstersByLevel:Vector.<Vector.<XML>>;
 		public var portalsByLevel:Vector.<Vector.<XML>>;
 		
+		public var itemDungeonContent:Object;
+		
 		public static const TOTAL_LEVELS:int = 20;
 		
 		public function Content() {
@@ -81,7 +83,7 @@
 		/* Create a satisfactory amount of monsters and loot for a level
 		 * 
 		 * Returns a list of monster XMLs and chest XMLs with loot therein */
-		public function getLevelContent(level:int):Object{
+		public function getLevelContent(level:int, item:XML = null):Object{
 			if(level > TOTAL_LEVELS) level = TOTAL_LEVELS;
 			var monsters:Vector.<XML> = new Vector.<XML>();
 			var chests:Vector.<XML> = new Vector.<XML>();
@@ -90,6 +92,9 @@
 			
 			var equipment:Vector.<XML> = new Vector.<XML>();
 			var runes:Vector.<XML> = new Vector.<XML>();
+			
+			// if an item is fed into this level, add it to the equipment list
+			if(item) equipment.push(item);
 			
 			var quantity:int;
 			quantity = equipmentQuantityPerLevel(level);
@@ -148,39 +153,53 @@
 			return obj;
 		}
 		
+		/* Creates content for the enchanted item side-dungeon */
+		public function setItemDungeonContent(item:Item, level:int):void{
+			itemDungeonContent = getLevelContent(level, item.toXML());
+			var portalXML:XML = <portal />;
+			portalXML.@type = Portal.ITEM_RETURN;
+			portalXML.@targetLevel = level;
+			itemDungeonContent.portals = Vector.<XML>([portalXML]);
+		}
+		
 		/* Distributes content across a level
 		 * 
 		 * Portals we leave alone for the Map to request when it needs to create access points */
-		public function populateLevel(level:int, bitmap:DungeonBitmap, layers:Array, sideDungeon:Boolean = false):void{
+		public function populateLevel(level:int, bitmap:DungeonBitmap, layers:Array, mapType:int):void{
 			var r:int, c:int;
 			var i:int;
-			var monsters:Vector.<XML> = monstersByLevel[level];
-			var chests:Vector.<XML> = chestsByLevel[level];
-			if(level <= TOTAL_LEVELS && !sideDungeon){
-				monsters = monstersByLevel[level];
-				chests = chestsByLevel[level];
-			} else {
-				var obj:Object = getLevelContent(level);
-				monsters = obj.monsters;
-				chests = obj.chests;
+			var monsters:Vector.<XML>;
+			var chests:Vector.<XML>;
+			if(mapType == Map.MAIN_DUNGEON){
+				if(level <= TOTAL_LEVELS){
+					monsters = monstersByLevel[level];
+					chests = chestsByLevel[level];
+				} else {
+					var obj:Object = getLevelContent(level);
+					monsters = obj.monsters;
+					chests = obj.chests;
+				}
+			} else if(mapType == Map.ITEM_DUNGEON){
+				monsters = itemDungeonContent.monsters;
+				chests = itemDungeonContent.chests;
 			}
 			if(level > 0){
 				// just going to go for a random drop for now.
 				// I intend to figure out a distribution pattern later
-				while(monstersByLevel[level].length){
+				while(monsters.length){
 					r = 1 + g.random.range(bitmap.height - 1);
 					c = 1 + g.random.range(bitmap.width - 1);
 					if(!layers[Map.ENTITIES][r][c] && layers[Map.BLOCKS][r][c] != 1 && (bitmap.bitmapData.getPixel32(c, r + 1) == DungeonBitmap.LEDGE || layers[Map.BLOCKS][r + 1][c] == 1)){
 						//trace(monstersByLevel[level][0].toXMLString());
-						layers[Map.ENTITIES][r][c] = convertXMLToObject(c, r, monstersByLevel[level].shift());
+						layers[Map.ENTITIES][r][c] = convertXMLToEntity(c, r, monsters.shift());
 					}
 				}
-				while(chestsByLevel[level].length){
+				while(chests.length){
 					r = 1 + g.random.range(bitmap.height - 2);
 					c = 1 + g.random.range(bitmap.width - 2);
 					if(layers[Map.ENTITIES][r + 1][c] != MapTileConverter.PIT && !layers[Map.ENTITIES][r][c] && layers[Map.BLOCKS][r][c] != 1 && (bitmap.bitmapData.getPixel32(c, r + 1) == DungeonBitmap.LEDGE || layers[Map.BLOCKS][r + 1][c] == 1)){
 						//trace(chestsByLevel[level][0].toXMLString());
-						layers[Map.ENTITIES][r][c] = convertXMLToObject(c, r, chestsByLevel[level].shift());
+						layers[Map.ENTITIES][r][c] = convertXMLToEntity(c, r, chests.shift());
 					}
 				}
 			} else {
@@ -189,7 +208,7 @@
 				var item:Item;
 				var list:Array;
 				while(chestsByLevel[level].length){
-					chest = convertXMLToObject(0, 0, chestsByLevel[level].shift());
+					chest = convertXMLToEntity(0, 0, chestsByLevel[level].shift());
 					r = bitmap.height - 2;
 					while(chest.contents.length){
 						item = chest.contents.shift();
@@ -210,53 +229,73 @@
 		}
 		
 		/* Fetch all portals on a level - used by Map to create portal access points */
-		public function getPortals(level:int):Vector.<XML>{
+		public function getPortals(level:int, mapType:int):Vector.<XML>{
 			var list:Vector.<XML> = new Vector.<XML>();
-			while(portalsByLevel[level].length) list.push(portalsByLevel[level].pop());
+			if(mapType == Map.MAIN_DUNGEON){
+				while(portalsByLevel[level].length) list.push(portalsByLevel[level].pop());
+			} else if(mapType == Map.ITEM_DUNGEON){
+				while(itemDungeonContent.portals.length) list.push(itemDungeonContent.portals.pop());
+			}
 			return list;
+		}
+		
+		/* Search the levels for a given portal type and remove it - this prevents multiples of the same portal */
+		public function removePortalType(type:int):void{
+			var i:int, j:int, xml:XML;
+			for(i = 0; i < portalsByLevel.length; i++){
+				for(j = 0; j < portalsByLevel[i].length; j++){
+					xml = portalsByLevel[i][j];
+					if(int(xml.@type) == type){
+						portalsByLevel[i].splice(j, 1);
+						return;
+					}
+				}
+			}
 		}
 		
 		/* This method tracks down monsters and items and pulls them back into the content manager to be sent out
 		 * again if the level is re-visited */
-		public function recycleLevel():void{
+		public function recycleLevel(mapType:int):void{
 			var i:int;
 			var level:int = g.dungeon.level;
 			// no recycling debug
 			if(level < 0) return;
-			// if we've gone past the total level limit we need to create new content reserves on the fly
-			if(level == monstersByLevel.length){
-				monstersByLevel.push(new Vector.<XML>());
-				chestsByLevel.push(new Vector.<XML>());
-				portalsByLevel.push(new Vector.<XML>());
+			if(mapType == Map.MAIN_DUNGEON){
+				// if we've gone past the total level limit we need to create new content reserves on the fly
+				if(level == monstersByLevel.length){
+					monstersByLevel.push(new Vector.<XML>());
+					chestsByLevel.push(new Vector.<XML>());
+					portalsByLevel.push(new Vector.<XML>());
+				}
 			}
 			// first we check the active list of entities
 			for(i = 0; i < g.entities.length; i++){
-				recycleEntity(g.entities[i], level);
+				recycleEntity(g.entities[i], level, mapType);
 			}
 			for(i = 0; i < g.items.length; i++){
-				recycleEntity(g.items[i], level);
+				recycleEntity(g.items[i], level, mapType);
 			}
 			var portal:Portal;
 			for(i = 0; i < g.portals.length; i++){
 				portal = g.portals[i];
 				if(portal.type != Portal.STAIRS && (portal.state == Portal.OPEN || portal.state == Portal.OPENING)){
-					recycleEntity(portal, level);
+					recycleEntity(portal, level, mapType);
 				}
 			}
 			// now we scour the entities layer of the renderer for more entities to convert to XML
 			var r:int, c:int, tile:*;
-			for(r = 0; r < g.mapRenderer.height; r++){
-				for(c = 0; c < g.mapRenderer.width; c++){
-					tile = g.mapRenderer.mapLayers[Map.ENTITIES][r][c];
+			for(r = 0; r < g.mapManager.height; r++){
+				for(c = 0; c < g.mapManager.width; c++){
+					tile = g.mapManager.mapLayers[Map.ENTITIES][r][c];
 					if(tile){
 						if(tile is Array){
 							for(i = 0; i < tile.length; i++){
 								if(tile[i] is Entity){
-									recycleEntity(tile[i], level);
+									recycleEntity(tile[i], level, mapType);
 								}
 							}
 						} else if(tile is Entity){
-							recycleEntity(tile, level);
+							recycleEntity(tile, level, mapType);
 						}
 					}
 				}
@@ -271,33 +310,48 @@
 		}
 		
 		/* Used in concert with the recycleLevel() method to convert level assets to XML and store them */
-		public function recycleEntity(entity:Entity, level:int):void{
+		public function recycleEntity(entity:Entity, level:int, mapType:int):void{
 			var chest:XML;
+			var monsters:Vector.<XML>;
+			var chests:Vector.<XML>;
+			var portals:Vector.<XML>;
+			
+			if(mapType == Map.MAIN_DUNGEON){
+				monsters = monstersByLevel[level];
+				chests = chestsByLevel[level];
+				portals = portalsByLevel[level];
+				
+			} else if(mapType == Map.ITEM_DUNGEON){
+				monsters = itemDungeonContent.monsters;
+				chests = itemDungeonContent.chests;
+				portals = itemDungeonContent.portals;
+			}
+			
 			if(entity is Monster){
-				monstersByLevel[level].push(entity.toXML());
+				monsters.push(entity.toXML());
 			} else if(entity is Item){
-				if(chestsByLevel[level].length > 0){
-					chest = chestsByLevel[level][chestsByLevel[level].length - 1];
+				if(chests.length > 0){
+					chest = chests[chests.length - 1];
 					if(chest.item.length < 1 + g.random.range(3)){
 						chest.appendChild(entity.toXML());
 					} else {
 						chest = <chest />;
 						chest.appendChild(entity.toXML());
-						chestsByLevel[level].push(chest);
+						chests.push(chest);
 					}
 				} else {
 					chest = <chest />;
 					chest.appendChild(entity.toXML());
-					chestsByLevel[level].push(chest);
+					chests.push(chest);
 				}
 				
 			} else if(entity is Chest){
 				chest = entity.toXML();
-				if(chest) chestsByLevel[level].push(entity.toXML());
+				if(chest) chests.push(entity.toXML());
 				
 			} else if(entity is Portal){
 				if((entity as Portal).type != Portal.STAIRS){
-					portalsByLevel[level].push(entity.toXML());
+					portals.push(entity.toXML());
 				}
 			}
 		}
@@ -371,7 +425,12 @@
 			return itemXML;
 		}
 		
-		public static function convertXMLToObject(x:int, y:int, xml:XML):*{
+		/* Converts xml to entities
+		 * 
+		 * All Entities have a toXML() method that allows a snapshot of the object to be taken for storage in the
+		 * game save, or as a template for copies of that object. This method converts the xml into objects for
+		 * use in the engine. */
+		public static function convertXMLToEntity(x:int, y:int, xml:XML):*{
 			var objectType:String = xml.name();
 			var i:int, children:XMLList, item:XML, mc:DisplayObject, obj:*;
 			var name:int, level:int, type:int;
@@ -381,10 +440,11 @@
 				children = xml.children();
 				items = new Vector.<Item>();
 				for each(item in children){
-					items.push(convertXMLToObject(x, y, item));
+					items.push(convertXMLToEntity(x, y, item));
 				}
 				mc = new ChestMC();
 				obj = new Chest(mc, x * Game.SCALE + Game.SCALE * 0.5, (y + 1) * Game.SCALE, items);
+				
 			} else if(objectType == "item"){
 				name = xml.@name;
 				level = xml.@level;
@@ -409,7 +469,7 @@
 				if(xml.item.length()){
 					items = new Vector.<Item>();
 					for each(item in xml.item){
-						items.push(convertXMLToObject(x, y, item));
+						items.push(convertXMLToEntity(x, y, item));
 					}
 				}
 				if(type == Character.MONSTER){
@@ -427,6 +487,7 @@
 				obj.mapX = x;
 				obj.mapY = y;
 				if(Map.isPortalToPreviousLevel(x, y, type, level)) g.entrance = obj;
+				
 			}
 			
 			obj.mapZ = Map.ENTITIES;

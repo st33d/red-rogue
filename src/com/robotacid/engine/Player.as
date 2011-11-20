@@ -1,6 +1,7 @@
 ﻿package com.robotacid.engine {
 	
 	import com.robotacid.ai.Brain;
+	import com.robotacid.engine.Effect;
 	import com.robotacid.engine.Portal;
 	import com.robotacid.geom.Pixel;
 	import com.robotacid.gfx.CanvasCamera;
@@ -140,38 +141,46 @@
 				// capture the exit direction before we clear the reference to the portal
 				var exitDir:int = portal.targetLevel > g.dungeon.level ? 1 : -1;
 				var portalType:int = portal.type;
+				var portalTargetLevel:int = portal.targetLevel;
 				moving = true;
 				if(portal.type == Portal.STAIRS){
 					if(portal.targetLevel > g.dungeon.level){
 						if(moveCount){
-							if(dir == RIGHT) gfx.x += PORTAL_SPEED;
-							else if(dir == LEFT) gfx.x -= PORTAL_SPEED;
-							gfx.y += PORTAL_SPEED;
+							if(dir == RIGHT) gfx.x += STAIRS_SPEED;
+							else if(dir == LEFT) gfx.x -= STAIRS_SPEED;
+							gfx.y += STAIRS_SPEED;
 						}
 						if(gfx.y >= (portal.mapY + 1) * Game.SCALE + PORTAL_DISTANCE) portal = null;
 					} else if(portal.targetLevel < g.dungeon.level){
 						if(moveCount){
-							if(dir == RIGHT) gfx.x += PORTAL_SPEED;
-							else if(dir == LEFT) gfx.x -= PORTAL_SPEED;
-							gfx.y -= PORTAL_SPEED;
+							if(dir == RIGHT) gfx.x += STAIRS_SPEED;
+							else if(dir == LEFT) gfx.x -= STAIRS_SPEED;
+							gfx.y -= STAIRS_SPEED;
 						}
 						if(gfx.y <= (portal.mapY + 1) * Game.SCALE - PORTAL_DISTANCE) portal = null;
 					}
 				} else {
 					if(dir == RIGHT){
-						gfx.x += PORTAL_SPEED;
+						gfx.x += speed * collider.dampingX;
 						if(gfx.x > (portal.mapX + 1) * Game.SCALE + PORTAL_DISTANCE) portal = null;
 					} else if(dir == LEFT){
-						gfx.x -= PORTAL_SPEED;
+						gfx.x -= speed * collider.dampingX;
 						if(gfx.x < portal.mapX * Game.SCALE - PORTAL_DISTANCE) portal = null;
 					}
 				}
 				if(!portal){
-					g.world.removeCollider(collider);
-					var newLevelStr:String = (exitDir > 0 ? "descended" : "ascended") + " to level " + (g.dungeon.level + exitDir);
-					if(g.dungeon.level == 1 && exitDir < 0) newLevelStr = "ascended to overworld";
+					var newLevelStr:String;
+					if(portalType == Portal.STAIRS){
+						if(portalTargetLevel == 0){
+							newLevelStr = "ascended to overworld";
+						} else {
+							newLevelStr = (portalTargetLevel > g.dungeon.level ? "descended" : "ascended") + " to level " + portalTargetLevel;
+						}
+					} else if(portalType == Portal.ROGUE) newLevelStr = "travelled to overworld";
+					else if(portalType == Portal.ROGUE_RETURN || portalType == Portal.ITEM_RETURN) newLevelStr = "returned to level " + portalTargetLevel;
+					else if(portalType == Portal.ITEM) newLevelStr = "travelled to retrieve item";
 					g.console.print(newLevelStr);
-					g.changeLevel(g.dungeon.level + exitDir);
+					g.changeLevel(portalTargetLevel, portalType);
 				}
 			} else if(state == ENTERING){
 				
@@ -306,7 +315,10 @@
 				dir = looking = LEFT;
 			} else if(portal.targetLevel > g.dungeon.level){
 				dir = looking = RIGHT;
+			} else {
+				dir = looking & (LEFT | RIGHT);
 			}
+			g.world.removeCollider(collider);
 		}
 		
 		/* Check mouse movement, presses, keys etc. */

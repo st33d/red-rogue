@@ -157,11 +157,6 @@
 					var leechValue:Number = sender.leech > 1 ? 1 : sender.leech;
 					sender.applyHealth(leechValue * hitDamage);
 				}
-				// thorns
-				if(character.thorns){
-					renderer.createDebrisRect(sender.collider, 0, 10, sender.debrisType);
-					sender.applyDamage(hitDamage * (character.thorns <= 1 ? character.thorns : 1), character.nameToString(), 0, false, character.type);
-				}
 				// blood
 				renderer.createDebrisSpurt(collider.x + collider.width * 0.5, collider.y + collider.height * 0.5, dx > 0 ? 5 : -5, 5, character.debrisType);
 				g.soundQueue.add("hit");

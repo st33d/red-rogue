@@ -196,8 +196,9 @@
 					renderer.createTeleportSparkRect(user.collider, 10);
 					item = inventoryList.removeItem(item);
 					item = randomEnchant(item, g.dungeon.level);
+					item.location = Item.UNASSIGNED;
 					var portal:Portal = Portal.createPortal(Portal.ITEM, user.mapX, user.mapY, g.dungeon.level);
-					portal.item = item;
+					g.content.setItemDungeonContent(item, g.dungeon.level);
 				}
 				return item;
 				
@@ -246,7 +247,7 @@
 				// at least if it was cursed this is a good thing
 				if(user) renderer.createTeleportSparkRect(user.collider, 10);
 				item = inventoryList.removeItem(item);
-				dest = getTeleportTarget(g.player.mapX, g.player.mapY, g.world.map, g.mapRenderer.mapRect);
+				dest = getTeleportTarget(g.player.mapX, g.player.mapY, g.world.map, g.mapManager.mapRect);
 				item.dropToMap(dest.x, dest.y);
 				g.soundQueue.add("teleport");
 			}
@@ -357,11 +358,12 @@
 						Portal.createPortal(Portal.ROGUE, target.mapX, target.mapY);
 					} else if(target is Minion){
 						portal = Portal.createPortal(Portal.MINION, target.mapX, target.mapY);
-						portal.character = target;
 					}
 				} else if(source == THROWN){
-					portal = Portal.createPortal(Portal.MONSTER, target.mapX, target.mapY);
-					portal.character = target;
+					if(target is Monster){
+						portal = Portal.createPortal(Portal.MONSTER, target.mapX, target.mapY);
+						portal.setMonsterTemplate(target as Monster);
+					}
 				}
 				
 			}
@@ -434,7 +436,7 @@
 		private function teleportCharacter(target:Character):void{
 			renderer.createTeleportSparkRect(target.collider, 20);
 			target.collider.divorce();
-			var dest:Pixel = getTeleportTarget(target.mapX, target.mapY, g.world.map, g.mapRenderer.mapRect);
+			var dest:Pixel = getTeleportTarget(target.mapX, target.mapY, g.world.map, g.mapManager.mapRect);
 			target.collider.x = -target.collider.width * 0.5 + (dest.x + 0.5) * Game.SCALE;
 			target.collider.y = -target.collider.height + (dest.y + 1) * Game.SCALE;
 			if(target is Player){
@@ -474,7 +476,7 @@
 		public static function randomEnchant(item:Item, level:int):Item{
 			var name:int;
 			var nameRange:int;
-			var enchantments:int = 1 + g.random.range(level * 0.5);
+			var enchantments:int = 2 + g.random.range(level * 0.5);
 			var runeList:Vector.<int> = new Vector.<int>();
 			while(enchantments--){
 				nameRange = g.random.range(Item.stats["rune names"].length);

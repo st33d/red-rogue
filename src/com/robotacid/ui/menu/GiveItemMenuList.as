@@ -154,7 +154,7 @@ package com.robotacid.ui.menu {
 			if(int(itemXML.@type) == Item.ARMOUR || int(itemXML.@type) == Item.WEAPON){
 				itemXML.@curseState = cursedList.selection;
 			}
-			var item:Item = Content.convertXMLToObject(0, 0, itemXML);
+			var item:Item = Content.convertXMLToEntity(0, 0, itemXML);
 			item.collect(g.player);
 			active = false;
 		}

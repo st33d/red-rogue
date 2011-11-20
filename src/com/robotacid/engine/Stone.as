@@ -56,7 +56,7 @@
 			free = false;
 			if(name == SECRET_WALL){
 				revealed = false;
-				if(x >= g.mapRenderer.mapRect.x + g.mapRenderer.mapRect.width * 0.5){
+				if(x >= g.mapManager.mapRect.x + g.mapManager.mapRect.width * 0.5){
 					side = RIGHT;
 				} else {
 					side = LEFT;
@@ -101,14 +101,14 @@
 			g.soundQueue.add("kill");
 			g.player.addXP(SECRET_XP_REWARD * g.dungeon.level);
 			g.world.map[mapY][mapX] = 0;
-			g.mapRenderer.removeTile(this, mapX, mapY, mapZ);
+			g.mapManager.removeTile(this, mapX, mapY, mapZ);
 			renderer.blockBitmapData.fillRect(new Rectangle(mapX * SCALE, mapY * SCALE, SCALE, SCALE), 0x00000000);
 			// adjust the mapRect to show new content
 			if(mapX < g.player.mapX){
-				g.mapRenderer.mapRect.x = 0;
-				g.mapRenderer.mapRect.width += g.dungeon.bitmap.leftSecretWidth;
+				g.mapManager.mapRect.x = 0;
+				g.mapManager.mapRect.width += g.dungeon.bitmap.leftSecretWidth;
 			} else if(mapX > g.player.mapX){
-				g.mapRenderer.mapRect.width += g.dungeon.bitmap.rightSecretWidth;
+				g.mapManager.mapRect.width += g.dungeon.bitmap.rightSecretWidth;
 			}
 			if(minimapFeature) {
 				minimapFeature.active = false;
