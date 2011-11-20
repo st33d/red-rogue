@@ -203,7 +203,7 @@
 					
 					for(i = 0; i < g.portals.length; i++){
 						portal = g.portals[i];
-						if(portal.rect.intersects(collider) && state == Character.WALKING){
+						if(portal.playerPortal && portal.rect.intersects(collider) && state == Character.WALKING){
 							if(!portalContact){
 								portalContact = portal
 								g.menu.exitLevelOption.active = true;

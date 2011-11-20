@@ -25,6 +25,7 @@
 		public var type:int;
 		public var seen:Boolean;
 		public var targetLevel:int;
+		public var playerPortal:Boolean;
 		
 		public var rect:Rectangle;
 		
@@ -66,6 +67,7 @@
 			this.targetLevel = targetLevel;
 			this.state = state;
 			this.active = active;
+			playerPortal = (type != MINION && type != MONSTER)
 			callMain = true;
 			seen = false;
 			if(state == OPENING){

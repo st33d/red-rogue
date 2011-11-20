@@ -568,7 +568,7 @@
 			}
 			// track hot keys so they can instantly perform menu actions
 			// hot keys are accessible only when the keyLock is off or the menu is hidden
-			if(((parent && !keyLock) || !parent) && Key.keysPressed){
+			if((parent && !keyLock) || !parent){
 				for(i = 0; i < Key.hotKeyTotal; i++){
 					if(hotKeyMaps[i]){
 						if(Key.customDown(HOT_KEY_OFFSET + i)){
