@@ -288,6 +288,7 @@
 			gfx.filters = [DROP_GLOW_FILTER];
 		}
 		
+		/* Can this item be enchanted? */
 		public function enchantable(runeName:int):Boolean{
 			if(runeName == XP && level == Game.MAX_LEVEL) return false;
 			else if(runeName == PORTAL && (g.dungeon.level == 0 || g.dungeon.type == Map.ITEM_DUNGEON)) return false;

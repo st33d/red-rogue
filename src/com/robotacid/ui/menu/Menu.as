@@ -58,7 +58,6 @@
 		public var nextTextBox:TextBox;
 		public var capture:CaptureBitmap;
 		public var selectionCopyBitmap:Bitmap;
-		
 		public var hideChangeEvent:Boolean;
 		
 		public var branch:Vector.<MenuList>;
@@ -85,6 +84,8 @@
 		
 		// animation and key states
 		public var keyLock:Boolean;
+		public var moveDelay:int = 4;
+		
 		private var dirStack:Vector.<int>;
 		private var dir:int;
 		private var moveCount:int;
@@ -109,10 +110,9 @@
 		public static const SELECTION_WINDOW_TAPER_WIDTH:Number = 50;
 		public static const SIDE_ALPHAS:Number = 0.7;
 		public static const SELECTION_WINDOW_COL:uint = 0xFFEEEEEE;
-		
-		public static const MOVE_DELAY:int = 4;
 		public static const KEYS_HELD_DELAY:int = 5;
 		public static const MOVEMENT_GUIDE_DELAY:int = 30;
+		public static const DEFAULT_MOVE_DELAY:int = 4;
 		
 		// game key properties
 		public static const UP_KEY:int = 0;
@@ -142,7 +142,8 @@
 			dir = 0;
 			vx = vy = 0;
 			moveCount = 0;
-			moveReset = MOVE_DELAY;
+			moveDelay = DEFAULT_MOVE_DELAY;
+			moveReset = moveDelay;
 			keysHeldCount = KEYS_HELD_DELAY;
 			movementGuideCount = MOVEMENT_GUIDE_DELAY;
 			hideChangeEvent = false;
@@ -256,7 +257,7 @@
 			branch = new Vector.<MenuList>();
 			branch.push(menuList);
 			branchStringHistory = "";
-			moveReset = MOVE_DELAY;
+			moveReset = moveDelay;
 			keysHeldCount = KEYS_HELD_DELAY;
 			keyLock = true;
 			update();
@@ -503,7 +504,7 @@
 				currentTextBox.alpha = 0;
 				nextTextBox.alpha = 0;
 			
-				moveReset = MOVE_DELAY * 3;
+				moveReset = moveDelay * 3;
 				moveCount = moveReset;
 				
 				previousAlphaStep = SIDE_ALPHAS / moveReset;
@@ -626,7 +627,7 @@
 				keyLock = false;
 				keysLocked = 0;
 				lastKeysDown = 0;
-				moveReset = MOVE_DELAY;
+				moveReset = moveDelay;
 				keysHeldCount = KEYS_HELD_DELAY;
 			}
 			// load directions in - keys are locked out of new input unless held down till
@@ -705,7 +706,7 @@
 					if(capture.alpha <= 0){
 						selectionCopyBitmap.visible = false;
 						animatingSelection = false;
-						moveReset = MOVE_DELAY;
+						moveReset = moveDelay;
 						vx = 0;
 						// flush the direction stack again to avoid leaping off selecting things after the anim
 						dirStack.length = 0;
@@ -744,7 +745,7 @@
 							if(keysDown && keysHeldCount == 0){
 								if(moveReset > 1) moveReset--;
 							} else {
-								moveReset = MOVE_DELAY;
+								moveReset = moveDelay;
 							}
 							update();
 						}

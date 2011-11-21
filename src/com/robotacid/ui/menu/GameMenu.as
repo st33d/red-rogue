@@ -40,6 +40,7 @@
 		public var giveItemList:GiveItemMenuList;
 		public var sureList:MenuList;
 		public var soundList:MenuList;
+		public var menuMoveList:MenuList;
 		
 		public var inventoryOption:MenuOption;
 		public var actionsOption:MenuOption;
@@ -86,6 +87,14 @@
 			
 			giveItemList = new GiveItemMenuList(this, g);
 			soundList = new MenuList();
+			menuMoveList = new MenuList(Vector.<MenuOption>([
+				new MenuOption("1", null, false),
+				new MenuOption("2", null, false),
+				new MenuOption("3", null, false),
+				new MenuOption("4", null, false),
+				new MenuOption("5", null, false)
+			]));
+			menuMoveList.selection = DEFAULT_MOVE_DELAY - 1;
 			
 			onOffList = new MenuList();
 			sureList = new MenuList();
@@ -123,9 +132,11 @@
 			fullScreenOption.help = "toggle fullscreen.\nthe flash player only allows use of the cursor keys and space when fullscreen.";
 			screenshotOption = new MenuOption("screenshot");
 			screenshotOption.help = "take a screen shot of the game (making the menu temporarily invisible) and open a filebrowser to save the screenshot to the desktop.";
-			loadOption = new MenuOption("load", sureList);
+			var menuMoveOption:MenuOption = new MenuOption("menu move speed", menuMoveList);
+			menuMoveOption.help = "change the speed that the menu moves. lower values move the menu faster. simply move the selection to change the speed.";
+			loadOption = new MenuOption("load", sureList, false);
 			loadOption.help = "load a saved game player status is saved automatically when using stairs";
-			saveOption = new MenuOption("save", sureList);
+			saveOption = new MenuOption("save", sureList, false);
 			saveOption.help = "save the menu state player status is saved automatically when using stairs";
 			newGameOption = new MenuOption("new game", sureList);
 			newGameOption.help = "start a new game";
@@ -162,6 +173,7 @@
 			optionsList.options.push(soundOption);
 			optionsList.options.push(fullScreenOption);
 			optionsList.options.push(screenshotOption);
+			optionsList.options.push(menuMoveOption);
 			optionsList.options.push(changeKeysOption);
 			optionsList.options.push(hotKeyOption);
 			optionsList.options.push(loadOption);
@@ -310,6 +322,8 @@
 				
 			} else if(option == actionsOption){
 				if(g.player.weapon) missileOption.active = g.player.attackCount >= 1 && !g.player.indifferent && Boolean(g.player.weapon.range & (Item.MISSILE | Item.THROWN));
+			} else if(currentMenuList == menuMoveList){
+				moveDelay = currentMenuList.selection + 1;
 			}
 		}
 		

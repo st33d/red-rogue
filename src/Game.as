@@ -73,7 +73,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 250;
+		public static const BUILD_NUM:int = 252;
 		
 		public static var g:Game;
 		public static var renderer:Renderer;

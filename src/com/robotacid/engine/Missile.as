@@ -93,18 +93,22 @@
 				var contact:Collider = collider.getContact();
 				if(contact){
 					target = contact.userData as Character;
-					if(target && target != sender){
-						if(type == ITEM){
-							var hitResult:int = sender.hit(target, Item.MISSILE | Item.THROWN);
-							if(hitResult){
-								hitCharacter(target, hitResult);
+					if(target){
+						if(target != sender){
+							if(type == ITEM){
+								var hitResult:int = sender.hit(target, Item.MISSILE | Item.THROWN);
+								if(hitResult){
+									hitCharacter(target, hitResult);
+								} else {
+									// pass through next simulation frame
+									collider.ignoreProperties |= Collider.SOLID;
+								}
 							} else {
-								// pass through next simulation frame
-								collider.ignoreProperties |= Collider.SOLID;
+								hitCharacter(target);
 							}
-						} else {
-							hitCharacter(target);
 						}
+					} else {
+						kill();
 					}
 				} else {
 					kill();
@@ -162,14 +166,20 @@
 				g.soundQueue.add("hit");
 				
 			} else if(type == RUNE){
-				if(character.type & Character.STONE) return;
+				if(character.type & Character.STONE){
+					kill();
+					return;
+				}
 				Item.revealName(effect.name, g.menu.inventoryList);
 				g.console.print(effect.nameToString() + " cast upon " + character.nameToString());
 				effect.apply(character);
 				g.soundQueue.add("runeHit");
 				
 			} else if(type == DART){
-				if(character.type & Character.STONE) return;
+				if(character.type & Character.STONE){
+					kill();
+					return;
+				}
 				g.console.print(effect.nameToString() + " dart hits " + character.nameToString());
 				effect.apply(character);
 				g.soundQueue.add("runeHit");

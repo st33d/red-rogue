@@ -19,3 +19,4 @@ level generator overhaul:
 
 
 rally - a monster could see the character and could call other monsters to aid, there should be a rallying pose and a shockwave type graphic, implying he's just told everyone on screen to mob the player
+

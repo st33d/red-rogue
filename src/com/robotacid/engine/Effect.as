@@ -498,7 +498,7 @@
 			for(i = 0; i < bucket.length; i++){
 				if(bucket[i]){
 					effect = new Effect(i, bucket[i], 0);
-					item = effect.enchant(item);
+					if(item.enchantable(i)) item = effect.enchant(item);
 				}
 			}
 			// apply/remove curse?
