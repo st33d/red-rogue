@@ -85,26 +85,48 @@
 		// references to itemStats.json which I may want to change
 		
 		// weapons
-		public static const DAGGER:int = 0;
-		public static const MACE:int = 1;
-		public static const SWORD:int = 2;
-		public static const STAFF:int = 3;
+		public static const KNIFE:int = 0;
+		public static const GAUNTLET:int = 1;
+		public static const DAGGER:int = 2;
+		public static const MACE:int = 3;
 		public static const SHORT_BOW:int = 4;
-		public static const HAMMER:int = 5;
-		public static const LEECH_WEAPON:int = 6;
+		public static const WHIP:int = 5;
+		public static const SWORD:int = 6;
+		public static const ARBALEST:int = 7;
+		public static const SPEAR:int = 8;
+		public static const CHAKRAM:int = 9;
+		public static const STAFF:int = 10;
+		public static const BOMB:int = 11;
+		public static const ARQUEBUS:int = 12;
+		public static const HAMMER:int = 13;
+		public static const LONG_BOW:int = 14;
+		public static const GUN_BLADE:int = 15;
+		public static const AXE:int = 16;
+		public static const CHAOS_WAND:int = 17;
+		public static const LIGHTNING:int = 18;
+		public static const LEECH_WEAPON:int = 19;
 		
 		// armour
 		public static const FLIES:int = 0;
-		public static const FEDORA:int = 1;
-		public static const VIKING_HELM:int = 2;
-		public static const SKULL:int = 3;
-		public static const BLOOD:int = 4;
-		public static const INVISIBILITY:int = 5;
-		public static const GOGGLES:int = 6;
-		public static const BEES:int = 7;
-		public static const KNIVES:int = 8;
-		public static const INDIFFERENCE:int = 9;
-		public static const FACE:int = 10;
+		public static const TIARA:int = 1;
+		public static const FEDORA:int = 2;
+		public static const TOP_HAT:int = 3;
+		public static const FIRE_FLIES:int = 4;
+		public static const HALO:int = 5;
+		public static const BEES:int = 6;
+		public static const VIKING_HELM:int = 7;
+		public static const SKULL:int = 8;
+		public static const CROWN:int = 9;
+		public static const BLOOD:int = 10;
+		public static const GOGGLES:int = 11;
+		public static const CHAOS_HELM:int = 12;
+		public static const WIZARD_HAT:int = 13;
+		public static const HELMET:int = 14;
+		public static const INVISIBILITY:int = 15;
+		public static const KNIVES:int = 16;
+		public static const INDIFFERENCE:int = 17;
+		public static const FACE:int = 18;
+		public static const YENDOR:int = 19;
 		
 		// runes
 		public static const LIGHT:int = 0;
@@ -157,9 +179,15 @@
 				knockback = stats["weapon knockbacks"][name];
 				range = stats["weapon ranges"][name];
 				
-				if(name == SHORT_BOW){
-					missileGfxClass = ShortBowArrowMC;
-				}
+				// missile ammo
+				if(name == SHORT_BOW) missileGfxClass = ShortBowArrowMC;
+				else if(name == ARBALEST) missileGfxClass = ArbalestBoltMC;
+				else if(name == ARQUEBUS) missileGfxClass = ArquebusBulletMC;
+				else if(name == LONG_BOW) missileGfxClass = LongBowArrowMC;
+				else if(name == GUN_BLADE) missileGfxClass = GunBladeBulletMC;
+				else if(name == CHAOS_WAND) missileGfxClass = ThrownRuneMC;
+				
+				// special effects
 				if(name == LEECH_WEAPON){
 					leech = Effect.LEECH_PER_LEVEL * level;
 				} else {
@@ -177,6 +205,8 @@
 				defence = stats["armour defences"][name] + stats["armour defence levels"][name] * level;
 				endurance = stats["armour endurance"][name];
 				position = stats["armour positions"][name];
+				
+				// special effects
 				if(name == BLOOD){
 					leech = Effect.LEECH_PER_LEVEL * level;
 				} else {

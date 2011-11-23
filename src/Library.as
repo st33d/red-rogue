@@ -38,8 +38,8 @@
 		
 		[Embed(source = 'assets/trap_revealed.png')] public var TrapRevealedB:Class;
 		
-		public const WEAPON_GFX_CLASSES:Array = [DaggerMC, MaceMC, SwordMC, StaffMC, ItemMovieClip, HammerMC, ItemMovieClip];
-		public const ARMOUR_GFX_CLASSES:Array = [FliesMC, FedoraMC, VikingHelmMC, ItemMovieClip, ItemMovieClip, ItemMovieClip, ItemMovieClip, BeesMC, KnivesMC, ItemMovieClip, Sprite];
+		public const WEAPON_GFX_CLASSES:Array = [KnifeMC, ItemMovieClip, DaggerMC, MaceMC, ItemMovieClip, ItemMovieClip, SwordMC, ArbalestMC, SpearMC, ItemMovieClip, StaffMC, BombMC, ArquebusMC, HammerMC, ItemMovieClip, GunBladeMC, AxeMC, ChaosWandMC, LightningMC, ItemMovieClip];
+		public const ARMOUR_GFX_CLASSES:Array = [FliesMC, ItemMovieClip, FedoraMC, TopHatMC, FirefliesMC, ItemMovieClip, BeesMC, VikingHelmMC, ItemMovieClip, ItemMovieClip, ItemMovieClip, ItemMovieClip, ItemMovieClip, WizardHatMC, ItemMovieClip, ItemMovieClip, KnivesMC, ItemMovieClip, Sprite, ItemMovieClip];
 		public const CHARACTER_GFX_CLASSES:Array = [RogueMC, KoboldMC, GoblinMC, OrcMC, TrollMC, GnollMC, DrowMC, CactuarMC, NymphMC, VampireMC, WerewolfMC, RogueMC, NagaMC, MedusaMC, UmberHulkMC, GolemMC, BansheeMC, WraithMC, MindFlayerMC, RakshasaMC, BalrogMC, MinionMC];
 		public const CHARACTER_HEAD_GFX_CLASSES:Array = [RogueHeadMC, KoboldHeadMC, GoblinHeadMC, OrcHeadMC, TrollHeadMC, GnollHeadMC, DrowHeadMC, CactuarHeadMC, NymphHeadMC, VampireHeadMC, WerewolfHeadMC, RogueHeadMC, NagaHeadMC, MedusaHeadMC, UmberHulkHeadMC, GolemHeadMC, BansheeHeadMC, WraithHeadMC, MindFlayerHeadMC, RakshasaHeadMC, BalrogHeadMC, MinionHeadMC];
 		

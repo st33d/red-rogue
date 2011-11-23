@@ -135,9 +135,9 @@
 			var menuMoveOption:MenuOption = new MenuOption("menu move speed", menuMoveList);
 			menuMoveOption.help = "change the speed that the menu moves. lower values move the menu faster. simply move the selection to change the speed.";
 			loadOption = new MenuOption("load", sureList, false);
-			loadOption.help = "load a saved game player status is saved automatically when using stairs";
+			loadOption.help = "disabled whilst I work out how to continue a game from save and quit (permadeath)";
 			saveOption = new MenuOption("save", sureList, false);
-			saveOption.help = "save the menu state player status is saved automatically when using stairs";
+			saveOption.help = "disabled whilst I work out how permadeath and save and quit work";
 			newGameOption = new MenuOption("new game", sureList);
 			newGameOption.help = "start a new game";
 			

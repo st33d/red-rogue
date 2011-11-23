@@ -1,6 +1,3 @@
-Race dump - set all to an average setting (the minion?)
-	Add change race option
-
 Fix eaten polymorph effect to limit by exploration - this would involve putting placeholders down for all races
 	put placeholders down for all races
 		move minion to index 21 - making minion unachievable by polymorph

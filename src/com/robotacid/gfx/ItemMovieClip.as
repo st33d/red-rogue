@@ -46,25 +46,56 @@ package com.robotacid.gfx {
 			this._type = type;
 			
 			if(type == Item.ARMOUR){
-				if(name == Item.BLOOD){
-					gfx = new BloodMC();
+				if(name == Item.TIARA){
+					gfx = new TiaraMC();
+					addChild(gfx);
+				} else if(name == Item.HALO){
+					gfx = new HaloMC();
 					addChild(gfx);
 				} else if(name == Item.SKULL){
 					gfx = new SkullMC();
 					addChild(gfx);
-				} else if(name == Item.INVISIBILITY){
-					buffer = new BitmapData(CAPTURE_WIDTH, CAPTURE_HEIGHT, true, 0x00000000);
-					bufferLoaded = false;
+				} else if(name == Item.CROWN){
+					gfx = new CrownMC();
+					addChild(gfx);
+				} else if(name == Item.BLOOD){
+					gfx = new BloodMC();
+					addChild(gfx);
 				} else if(name == Item.GOGGLES){
 					gfx = new GogglesMC();
 					addChild(gfx);
+				} else if(name == Item.CHAOS_HELM){
+					gfx = new ChaosHelmMC();
+					addChild(gfx);
+				} else if(name == Item.HELMET){
+					gfx = new HelmetMC();
+					addChild(gfx);
+				} else if(name == Item.INVISIBILITY){
+					buffer = new BitmapData(CAPTURE_WIDTH, CAPTURE_HEIGHT, true, 0x00000000);
+					bufferLoaded = false;
 				} else if(name == Item.INDIFFERENCE){
 					gfx = new IndifferenceMC();
 					addChild(gfx);
+				} else if(name == Item.YENDOR){
+					gfx = new YendorMC();
+					addChild(gfx);
 				}
 			} else if(type == Item.WEAPON){
-				if(name == Item.SHORT_BOW){
+				if(name == Item.GAUNTLET){
+					gfx = new GauntletMC();
+					addChild(gfx);
+				} else if(name == Item.SHORT_BOW){
 					gfx = new ShortBowMC();
+					addChild(gfx);
+				} else if(name == Item.WHIP){
+					gfx = new WhipMC();
+					addChild(gfx);
+				} else if(name == Item.CHAKRAM){
+					gfx = new ChakramMC();
+					(gfx as MovieClip).stop();
+					addChild(gfx);
+				} else if(name == Item.LONG_BOW){
+					gfx = new LongBowMC();
 					addChild(gfx);
 				} else if(name == Item.LEECH_WEAPON){
 					gfx = new LeechMC();
@@ -86,18 +117,31 @@ package com.robotacid.gfx {
 			var mc:MovieClip = gfx as MovieClip;
 			
 			if(_type == Item.ARMOUR){
-				if(_name == Item.SKULL){
-					if(mc.currentLabel != "idle") mc.gotoAndStop("idle");
-				} else if(_name == Item.GOGGLES){
-					if(mc.currentLabel != "idle") mc.gotoAndStop("idle");
-				} else if(_name == Item.INDIFFERENCE){
+				if(
+					_name == Item.TIARA ||
+					_name == Item.HALO ||
+					_name == Item.SKULL ||
+					_name == Item.CROWN ||
+					_name == Item.CHAOS_HELM ||
+					_name == Item.HELMET ||
+					_name == Item.GOGGLES ||
+					_name == Item.INDIFFERENCE ||
+					_name == Item.YENDOR
+				){
 					if(mc.currentLabel != "idle") mc.gotoAndStop("idle");
 				}
 			} else if(_type == Item.WEAPON){
-				if(_name == Item.SHORT_BOW){
+				if(
+					_name == Item.GAUNTLET ||
+					_name == Item.SHORT_BOW ||
+					_name == Item.WHIP ||
+					_name == Item.LONG_BOW ||
+					_name == Item.LEECH_WEAPON
+				){
 					if(mc.currentLabel != "idle") mc.gotoAndStop("idle");
-				} else if(_name == Item.LEECH_WEAPON){
-					if(mc.currentLabel != "idle") mc.gotoAndStop("idle");
+					
+				} else if(_name == Item.CHAKRAM){
+					mc.stop();
 				}
 			}
 		}
@@ -116,7 +160,23 @@ package com.robotacid.gfx {
 			var mc:MovieClip = gfx as MovieClip;
 			
 			if(_type == Item.ARMOUR){
-				if(_name == Item.BLOOD){
+				if(
+					_name == Item.TIARA ||
+					_name == Item.HALO ||
+					_name == Item.SKULL ||
+					_name == Item.CROWN ||
+					_name == Item.CHAOS_HELM ||
+					_name == Item.HELMET ||
+					_name == Item.GOGGLES ||
+					_name == Item.YENDOR
+				){
+					if(mc.currentLabel != characterMc.currentLabel) mc.gotoAndStop(characterMc.currentLabel);
+					
+				} else if(_name == Item.INDIFFERENCE){
+					if(mc.currentLabel != characterMc.currentLabel) mc.gotoAndStop(characterMc.currentLabel);
+					mc.parent.parent.alpha = Item.INDIFFERENCE_ALPHA;
+					
+				} else if(_name == Item.BLOOD){
 					if(character.state != Character.EXITING && character.state != Character.ENTERING){
 						if(g.frameCount){
 							var blit:BlitRect, print:BlitRect;
@@ -130,16 +190,6 @@ package com.robotacid.gfx {
 							renderer.addDebris(character.collider.x + character.collider.width * 0.5, (character.collider.y + character.collider.height) - g.random.range(gfx.height), blit, (-3 + g.random.range(6)), (-3 - g.random.range(5)), print, true);
 						}
 					}
-				} else if(_name == Item.SKULL){
-					if(mc.currentLabel != characterMc.currentLabel) mc.gotoAndStop(characterMc.currentLabel);
-					
-				} else if(_name == Item.INDIFFERENCE){
-					if(mc.currentLabel != characterMc.currentLabel) mc.gotoAndStop(characterMc.currentLabel);
-					mc.parent.parent.alpha = Item.INDIFFERENCE_ALPHA;
-					
-				} else if(_name == Item.GOGGLES){
-					if(mc.currentLabel != characterMc.currentLabel) mc.gotoAndStop(characterMc.currentLabel);
-					
 				} else if(_name == Item.INVISIBILITY){
 					if(character.state != Character.EXITING && character.state != Character.ENTERING){
 						point.x = -renderer.bitmap.x + (parent.x + dx);
@@ -169,10 +219,13 @@ package com.robotacid.gfx {
 				}
 				
 			} else if(_type == Item.WEAPON){
-				if(_name == Item.SHORT_BOW){
-					if(mc.currentLabel != characterMc.currentLabel) mc.gotoAndStop(characterMc.currentLabel);
-					
-				} else if(_name == Item.LEECH_WEAPON){
+				if(
+					_name == Item.GAUNTLET ||
+					_name == Item.SHORT_BOW ||
+					_name == Item.WHIP ||
+					_name == Item.LONG_BOW ||
+					_name == Item.LEECH_WEAPON
+				){
 					if(mc.currentLabel != characterMc.currentLabel) mc.gotoAndStop(characterMc.currentLabel);
 				}
 			}
