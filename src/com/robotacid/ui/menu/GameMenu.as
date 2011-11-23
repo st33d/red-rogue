@@ -277,6 +277,13 @@
 					} else {
 						inventoryList.equipOption.active = true;
 					}
+					// no equipping face armour on the overworld
+					if(item.type == Item.ARMOUR && item.name == Item.FACE){
+						if(g.dungeon.level == 0){
+							inventoryList.equipOption.active = false;
+							inventoryList.equipMinionOption.active = false;
+						}
+					}
 					inventoryList.dropOption.active = item.curseState != Item.CURSE_REVEALED;
 					
 				} else if(item.type == Item.HEART){
@@ -329,7 +336,7 @@
 		
 		public function onSelect(e:Event = null):void{
 			var option:MenuOption = currentMenuList.options[selection];
-			var item:Item, n:int, i:int, effect:Effect;
+			var item:Item, n:int, i:int, effect:Effect, prevItem:Item;
 			
 			// equipping items on the player - toggle logic follows
 			if(option == inventoryList.equipOption){
@@ -337,19 +344,19 @@
 				if(item.location == Item.EQUIPPED && item.user == g.player){
 					item = g.player.unequip(item);
 					// indifference armour is one-shot
-					if(item.name == Item.INDIFFERENCE){
-						g.console.print("indifference crumbles");
-						Game.renderer.createDebrisRect(g.player.collider, 0, 10, Renderer.STONE);
-						item = inventoryList.removeItem(item);
-						item = null;
-					}
+					if(item.name == Item.INDIFFERENCE) item = indifferenceCrumbles(item, g.player);
 				} else {
 					if(item.type == Item.WEAPON){
 						if(g.player.weapon) g.player.unequip(g.player.weapon);
 						if(g.minion && g.minion.weapon && g.minion.weapon == item) g.minion.unequip(g.minion.weapon);
 					}
 					if(item.type == Item.ARMOUR){
-						if(g.player.armour) g.player.unequip(g.player.armour);
+						if(g.player.armour){
+							prevItem = g.player.armour;
+							g.player.unequip(g.player.armour);
+							// indifference armour is one-shot
+							if(prevItem.name == Item.INDIFFERENCE) prevItem = indifferenceCrumbles(prevItem, g.player);
+						}
 						if(g.minion && g.minion.armour && g.minion.armour == item) g.minion.unequip(g.minion.armour);
 						// indifference armour is one-shot
 						if(item.name == Item.INDIFFERENCE){
@@ -365,19 +372,19 @@
 				if(item.location == Item.EQUIPPED && item.user == g.minion){
 					item = g.minion.unequip(item);
 					// indifference armour is one-shot
-					if(item.name == Item.INDIFFERENCE){
-						g.console.print("indifference crumbles");
-						Game.renderer.createDebrisRect(g.minion.collider, 0, 10, Renderer.STONE);
-						item = inventoryList.removeItem(item);
-						item = null;
-					}
+					if(item.name == Item.INDIFFERENCE) item = indifferenceCrumbles(item, g.minion);
 				} else {
 					if(item.type == Item.WEAPON){
 						if(g.minion.weapon) g.minion.unequip(g.minion.weapon);
 						if(g.player.weapon && g.player.weapon == item) g.player.unequip(g.player.weapon);
 					}
 					if(item.type == Item.ARMOUR){
-						if(g.minion.armour) g.minion.unequip(g.minion.armour);
+						if(g.minion.armour){
+							prevItem = g.minion.armour;
+							g.minion.unequip(g.minion.armour);
+							// indifference armour is one-shot
+							if(prevItem.name == Item.INDIFFERENCE) prevItem = indifferenceCrumbles(prevItem, g.minion);
+						}
 						if(g.player.armour && g.player.armour == item) g.player.unequip(g.player.armour);
 						// indifference armour is one-shot
 						if(item.name == Item.INDIFFERENCE){
@@ -566,6 +573,14 @@
 			FileManager.save(PNGEncoder.encode(bitmapData, {"creator":"red-rogue"}), "screenshot.png");
 			if(Game.dialog) Game.dialog.visible = true;
 			visible = true;
+		}
+		
+		/* Whenever armour of indifference is removed it is destroyed */
+		private function indifferenceCrumbles(item:Item, user:Character):Item{
+			g.console.print("indifference crumbles");
+			Game.renderer.createDebrisRect(user.collider, 0, 10, Renderer.STONE);
+			inventoryList.removeItem(item);
+			return null;
 		}
 		
 	}

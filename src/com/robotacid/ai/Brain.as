@@ -50,7 +50,6 @@
 		public var allyIndex:int;
 		public var allegiance:int;
 		public var searchSteps:int;
-		public var losBorder:Number;
 		
 		public static var playerCharacters:Vector.<Character>;
 		public static var monsterCharacters:Vector.<Character>;
@@ -120,7 +119,6 @@
 			sheduleIndex = 0;
 			allyIndex = 0;
 			ignore = Collider.LEDGE | Collider.LADDER | Collider.HEAD | Collider.CORPSE | Collider.ITEM;
-			losBorder = DEFAULT_LOS_BORDER;
 			if(allegiance == PLAYER){
 				ignore |= Collider.MINION | Collider.PLAYER;
 				searchSteps = MINION_SEARCH_STEPS;
@@ -205,8 +203,8 @@
 					} else if(!char.inTheDark || (char.infravision)){
 						if(!(scheduleTarget.armour && scheduleTarget.armour.name == Item.INVISIBILITY)){
 							if(
-								scheduleTargetPos.x < charPos.x  + losBorder && scheduleTargetPos.x > charPos.x - losBorder &&
-								scheduleTargetPos.y > charPos.y - losBorder && scheduleTargetPos.y < charPos.y + losBorder
+								scheduleTargetPos.x < charPos.x  + char.losBorder && scheduleTargetPos.x > charPos.x - char.losBorder &&
+								scheduleTargetPos.y > charPos.y - char.losBorder && scheduleTargetPos.y < charPos.y + char.losBorder
 							){
 								if(Cast.los(charPos, scheduleTarget.collider, new Point((char.looking & RIGHT) ? 1 : -1, 0), 0.5, g.world, ignore)){
 									state = ATTACK;

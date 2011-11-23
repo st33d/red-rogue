@@ -73,6 +73,7 @@
 		public var leech:Number;
 		public var thorns:Number;
 		public var indifferent:Boolean;
+		public var losBorder:Number;
 		
 		private var hitResult:int;
 		
@@ -84,11 +85,27 @@
 		
 		// character names
 		public static const ROGUE:int = 0;
-		public static const SKELETON:int = 1;
-		public static const KOBOLD:int = 2;
-		public static const GOBLIN:int = 3;
-		public static const ORC:int = 4;
-		public static const TROLL:int = 5;
+		public static const KOBOLD:int = 1;
+		public static const GOBLIN:int = 2;
+		public static const ORC:int = 3;
+		public static const TROLL:int = 4;
+		public static const GNOLL:int = 5;
+		public static const DROW:int = 6;
+		public static const CACTUAR:int = 7;
+		public static const NYMPH:int = 8;
+		public static const VAMPIRE:int = 9;
+		public static const WEREWOLF:int = 10;
+		public static const MIMIC:int = 11;
+		public static const NAGA:int = 12;
+		public static const MEDUSA:int = 13;
+		public static const UMBERHULK:int = 14;
+		public static const GOLEM:int = 15;
+		public static const BANSHEE:int = 16;
+		public static const WRAITH:int = 17;
+		public static const MIND_FLAYER:int = 18;
+		public static const RAKSHASA:int = 19;
+		public static const BALROG:int = 20;
+		public static const SKELETON:int = 21;
 		
 		// states
 		public static const WALKING:int = 1;
@@ -183,21 +200,29 @@
 			stun = stats["stuns"][name];
 			knockback = stats["knockbacks"][name];
 			endurance = stats["endurance"][name];
-			undead = name == SKELETON;
-			debrisType = name == SKELETON ? Renderer.BONE : Renderer.BLOOD;
+			debrisType = Renderer.BLOOD;
+			losBorder = Brain.DEFAULT_LOS_BORDER;
 			
-			if(true){
-				setInfravision(0);
+			undead = name == SKELETON;
+			
+			if(name == SKELETON){
+				debrisType = Renderer.BONE;
+			} else if(name == GOLEM){
+				debrisType = Renderer.STONE;
+			}
+			
+			if(name == DROW){
+				setInfravision(1);
 			} else {
 				setInfravision(0);
 			}
-			if(true){
-				leech = 0;
+			if(name == VAMPIRE){
+				leech = Effect.LEECH_PER_LEVEL * level;
 			} else {
 				leech = 0;
 			}
-			if(true){
-				thorns = 0;
+			if(name == CACTUAR){
+				thorns = Effect.THORNS_PER_LEVEL * level;
 			} else {
 				thorns = 0;
 			}
@@ -790,7 +815,7 @@
 					renderer.lightBitmap.alpha = 1;
 				}
 			} else {
-				brain.losBorder = Brain.DEFAULT_LOS_BORDER + infravision * Brain.INFRAVISION_LOS_BORDER_BONUS;
+				losBorder = Brain.DEFAULT_LOS_BORDER + infravision * Brain.INFRAVISION_LOS_BORDER_BONUS;
 			}
 		}
 		

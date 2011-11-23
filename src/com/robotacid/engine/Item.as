@@ -51,7 +51,11 @@
 		public var missileGfxClass:Class;
 		private var bounds:Rectangle;
 		
+		/* Holds the status of what rune names have been learned */
 		public static var runeNames:Array;
+		
+		/* When setting stats for an item, this flag is used to block a recursive loop */
+		private static var recursionBlock:Boolean = false;
 		
 		public static const TWINKLE_DELAY:int = 20;
 		
@@ -100,6 +104,7 @@
 		public static const BEES:int = 7;
 		public static const KNIVES:int = 8;
 		public static const INDIFFERENCE:int = 9;
+		public static const FACE:int = 10;
 		
 		// runes
 		public static const LIGHT:int = 0;

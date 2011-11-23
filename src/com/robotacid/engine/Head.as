@@ -16,7 +16,8 @@
 	public class Head extends ColliderEntity{
 		
 		public var damage:Number;
-		public var bloodCount:int;
+		
+		private var bloodCount:int;
 		
 		public static const GRAVITY:Number = 0.8;
 		public static const DAMPING_Y:Number = 0.99;
@@ -33,6 +34,7 @@
 		public function Head(victim:Character, damage:Number) {
 			gfx = g.library.getCharacterHeadGfx(victim.name);
 			super(gfx, true);
+			name = victim.name;
 			createCollider(victim.gfx.x, victim.collider.y + gfx.height, Collider.HEAD | Collider.SOLID, Collider.CORPSE);
 			g.world.restoreCollider(collider);
 			if(victim.dir & RIGHT){
@@ -91,6 +93,9 @@
 		}
 		
 		public function kill():void{
+			// create face armour and drop to the map
+			var face:Face = new Face(g.library.getCharacterHeadGfx(name), name);
+			face.dropToMap(mapX, mapY);
 			renderer.createDebrisRect(collider, 0, 10, Renderer.BLOOD);
 			g.world.removeCollider(collider);
 			active = false;

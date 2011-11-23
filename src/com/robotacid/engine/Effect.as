@@ -318,9 +318,19 @@
 				
 			} else if(name == POLYMORPH){
 				if(source == EATEN || source == THROWN){
-					var newName:int = target.name;
-					while(newName == target.name) newName = g.random.range(6);
-					target.changeName(newName);
+					var newName:int;
+					// limit change by exploration - no infinite loop to catch here, there are two options from the start
+					var nameRange:int = g.deepestLevelReached + 1;
+					if(target.armour && target.armour.name == Item.FACE){
+						// when the character is wearing face armour, we only need change the race underneath
+						newName = (target.armour as Face).previousName;
+						while(newName == (target.armour as Face).previousName) newName = g.random.range(nameRange);
+						(target.armour as Face).previousName = newName;
+					} else {
+						newName = target.name
+						while(newName == target.name) newName = g.random.range(nameRange);
+						target.changeName(newName);
+					}
 					return;
 				}
 				

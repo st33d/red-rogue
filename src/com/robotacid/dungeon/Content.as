@@ -4,6 +4,7 @@
 	import com.robotacid.engine.ColliderEntity;
 	import com.robotacid.engine.Effect;
 	import com.robotacid.engine.Entity;
+	import com.robotacid.engine.Face;
 	import com.robotacid.engine.Item;
 	import com.robotacid.engine.MapTileConverter;
 	import com.robotacid.engine.Monster;
@@ -356,15 +357,20 @@
 			}
 		}
 		
-		/* Create a random character appropriate for the dungeon level */
+		/* Create a random character appropriate for the dungeon level
+		 * 
+		 * Currently set up for just Monsters */
 		public static function createCharacterXML(dungeonLevel:int, type:int):XML{
 			var characterXML:XML = <character />;
-			var name:int = g.random.range(Character.stats["names"].length);
+			var name:int;
 			var level:int = -1 + g.random.range(dungeonLevel);
 			if(type == Character.MONSTER){
-				while(name < 2 || name > dungeonLevel + 1){
-					name = g.random.range(Character.stats["names"].length);
-					if(name > dungeonLevel + 1) name = dungeonLevel + 1;
+				var range:int = dungeonLevel + 2;
+				if(dungeonLevel > Game.MAX_LEVEL) range = Game.MAX_LEVEL + 2;
+				while(name < 1 || name > dungeonLevel || name >= Game.MAX_LEVEL){
+					name = g.random.range(range);
+					if(name > dungeonLevel) name = dungeonLevel;
+					if(name >= Game.MAX_LEVEL) continue;
 				}
 			}
 			characterXML.@name = name;
@@ -450,7 +456,11 @@
 				level = xml.@level;
 				type = xml.@type;
 				mc = g.library.getItemGfx(name, type);
-				obj = new Item(mc, name, type, level);
+				if(type == Item.ARMOUR && name == Item.FACE){
+					obj = new Face(mc, level);
+				} else {
+					obj = new Item(mc, name, type, level);
+				}
 				
 				// is this item enchanted?
 				var effect:Effect;

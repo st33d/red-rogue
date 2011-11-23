@@ -3,6 +3,7 @@
 	import com.robotacid.gfx.ItemMovieClip;
 	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
+	import flash.display.Sprite;
 	
 	/**
 	 * Here's where I'm sticking all of the imported assets.
@@ -38,9 +39,9 @@
 		[Embed(source = 'assets/trap_revealed.png')] public var TrapRevealedB:Class;
 		
 		public const WEAPON_GFX_CLASSES:Array = [DaggerMC, MaceMC, SwordMC, StaffMC, ItemMovieClip, HammerMC, ItemMovieClip];
-		public const ARMOUR_GFX_CLASSES:Array = [FliesMC, FedoraMC, VikingHelmMC, ItemMovieClip, ItemMovieClip, ItemMovieClip, ItemMovieClip, BeesMC, KnivesMC, ItemMovieClip];
-		public const CHARACTER_GFX_CLASSES:Array = [RogueMC, MinionMC, KoboldMC, GoblinMC, OrcMC, TrollMC];
-		public const CHARACTER_HEAD_GFX_CLASSES:Array = [RogueHeadMC, MinionHeadMC, KoboldHeadMC, GoblinHeadMC, OrcHeadMC, TrollHeadMC];
+		public const ARMOUR_GFX_CLASSES:Array = [FliesMC, FedoraMC, VikingHelmMC, ItemMovieClip, ItemMovieClip, ItemMovieClip, ItemMovieClip, BeesMC, KnivesMC, ItemMovieClip, Sprite];
+		public const CHARACTER_GFX_CLASSES:Array = [RogueMC, KoboldMC, GoblinMC, OrcMC, TrollMC, GnollMC, DrowMC, CactuarMC, NymphMC, VampireMC, WerewolfMC, RogueMC, NagaMC, MedusaMC, UmberHulkMC, GolemMC, BansheeMC, WraithMC, MindFlayerMC, RakshasaMC, BalrogMC, MinionMC];
+		public const CHARACTER_HEAD_GFX_CLASSES:Array = [RogueHeadMC, KoboldHeadMC, GoblinHeadMC, OrcHeadMC, TrollHeadMC, GnollHeadMC, DrowHeadMC, CactuarHeadMC, NymphHeadMC, VampireHeadMC, WerewolfHeadMC, RogueHeadMC, NagaHeadMC, MedusaHeadMC, UmberHulkHeadMC, GolemHeadMC, BansheeHeadMC, WraithHeadMC, MindFlayerHeadMC, RakshasaHeadMC, BalrogHeadMC, MinionHeadMC];
 		
 		/* Return the graphics for a given item, some items use the ItemMovieClip to manage rendering */
 		public function getItemGfx(name:int, type:int):DisplayObject{

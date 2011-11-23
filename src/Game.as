@@ -73,7 +73,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 252;
+		public static const BUILD_NUM:int = 254;
 		
 		public static var g:Game;
 		public static var renderer:Renderer;
@@ -494,6 +494,9 @@
 			if(dungeon.level == 0){
 				renderer.lightBitmap.visible = false;
 				miniMap.visible = false;
+				// unequip face armour if worn
+				if(player.armour && player.armour.name == Item.FACE) player.unequip(player.armour);
+				if(minion && minion.armour && minion.armour.name == Item.FACE) minion.unequip(minion.armour);
 				// change the rogue to a colour version and revert the minion if changed
 				skinMc = new RogueColMC();
 				if(player.name != Character.ROGUE){
