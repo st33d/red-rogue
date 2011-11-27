@@ -3,11 +3,9 @@
 	import com.robotacid.dungeon.Content;
 	import com.robotacid.dungeon.Map;
 	import com.robotacid.engine.Entity;
+	import com.robotacid.gfx.BlitClip;
 	import com.robotacid.phys.Collider;
 	import com.robotacid.ui.MinimapFeature;
-	import flash.display.Bitmap;
-	import flash.display.BitmapData;
-	import flash.display.BitmapDataChannel;
 	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
 	import flash.display.Shape;
@@ -100,21 +98,17 @@
 				// if the portal is visible on the map - then make the portal icon on the map visible
 				if(!seen && g.lightMap.darkImage.getPixel32(mapX, mapY) != 0xFF000000){
 					seen = true;
-					var bitmapData:BitmapData = new BitmapData(3, 3, true, 0x00000000);
+					var blit:BlitClip;
 					if(type == STAIRS){
 						if(targetLevel < g.dungeon.level) {
-							bitmapData.setPixel32(1, 0, 0xFFFFFFFF);
-							bitmapData.fillRect(new Rectangle(0, 1, 3, 1), 0xFFFFFFFF);
+							blit = renderer.stairsUpFeatureBlit;
 						} else if(targetLevel > g.dungeon.level){
-							bitmapData.setPixel32(1, 2, 0xFFFFFFFF);
-							bitmapData.fillRect(new Rectangle(0, 1, 3, 1), 0xFFFFFFFF);
+							blit = renderer.stairsDownFeatureBlit;
 						}
 					} else {
-						bitmapData.setPixel32(1, 0, 0xFFFFFFFF);
-						bitmapData.setPixel32(1, 2, 0xFFFFFFFF);
-						bitmapData.fillRect(new Rectangle(0, 1, 3, 1), 0xFFFFFFFF);
+						blit = renderer.portalFeatureBlit;
 					}
-					minimapFeature = g.miniMap.addFeature(mapX, mapY, -1, -1, bitmapData);
+					minimapFeature = g.miniMap.addFeature(mapX, mapY, blit);
 				}
 				if(type == MINION){
 					// heal the minion
@@ -168,7 +162,7 @@
 		}
 		
 		public function close():void{
-			g.mapManager.removeTile(this, mapX, mapY, mapZ);
+			g.mapTileManager.removeTile(this, mapX, mapY, mapZ);
 			minimapFeature.active = false;
 			free = false;
 			state = CLOSING;
@@ -222,7 +216,7 @@
 			// MapTileManager tile position
 			for(i = 0; i < g.portals.length + 1; i++){
 				if(i < g.portals.length) portal = g.portals[i];
-				else portal = g.mapManager.mapLayers[Map.ENTITIES][mapY][mapX] as Portal;
+				else portal = g.mapTileManager.mapLayers[Map.ENTITIES][mapY][mapX] as Portal;
 				if(portal && portal.type == STAIRS && portal.mapX == mapX && portal.mapY == mapY){
 					// there will be a square to the side of the stairs free - that's the level generation logic
 					// check there is floor there
@@ -244,7 +238,7 @@
 			portal.mapZ = Map.ENTITIES;
 			
 			// the portal may have been generated outside of the mapRenderer zone
-			if(!g.mapManager.intersects(portal.rect)){
+			if(!g.mapTileManager.intersects(portal.rect)){
 				portal.remove();
 			}
 			

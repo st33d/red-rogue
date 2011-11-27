@@ -150,6 +150,8 @@
 		public static const MAX_LEVEL:int = 20;
 		public static const DROP_GLOW_FILTER:GlowFilter = new GlowFilter(0xFFFFFF, 0.5, 2, 2, 1000);
 		public static const INDIFFERENCE_ALPHA:Number = 0.5;
+		/* We don't want the RNG to create leech and yendor items */
+		public static const ITEM_MAX:int = 19;
 		
 		[Embed(source = "itemStats.json", mimeType = "application/octet-stream")] public static var statsData:Class;
 		public static var stats:Object;
@@ -257,7 +259,7 @@
 		
 		override public function main():void {
 			if(collider.state == Collider.STACK){
-				if(!g.mapManager.contains(collider.x + collider.width * 0.5, collider.y + collider.height * 0.5)) remove();
+				if(!g.mapTileManager.contains(collider.x + collider.width * 0.5, collider.y + collider.height * 0.5)) remove();
 			}
 			// concealing the item in the dark will help avoid showing a clipped effect on the edge
 			// of the light map
@@ -472,11 +474,13 @@
 			} else if(type == ARMOUR){
 				str += "this armour is a \nlevel " + level + " ";
 				if(curseState == CURSE_REVEALED) str += "cursed ";
+				else if(curseState == BLESSED) str += "blessed ";
 				else if(effects) str += "enchanted ";
 				str += stats["armour names"][name];
 			} else if(type == WEAPON){
 				str += "this weapon is a \nlevel " + level + " ";
 				if(curseState == CURSE_REVEALED) str += "cursed ";
+				else if(curseState == BLESSED) str += "blessed ";
 				else if(effects) str += "enchanted ";
 				str += stats["weapon names"][name];
 			} else if(type == HEART){

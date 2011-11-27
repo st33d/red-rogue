@@ -511,7 +511,7 @@
 			
 			// searching
 			} else if(option == searchOption){
-				g.player.searchCount = Player.SEARCH_DELAY;
+				g.player.search();
 				g.console.print("beginning search, please stay still...");
 			
 			// summoning

@@ -73,7 +73,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 255;
+		public static const BUILD_NUM:int = 259;
 		
 		public static var g:Game;
 		public static var renderer:Renderer;
@@ -93,7 +93,7 @@
 		public var soundQueue:SoundQueue;
 		
 		// graphics
-		public var mapManager:MapTileManager;
+		public var mapTileManager:MapTileManager;
 		public var lightMap:LightMap;
 		public var lightning:Lightning;
 		
@@ -347,24 +347,23 @@
 			content = new Content();
 			
 			// DEBUG HERE ==========================================================================================
-			
 			dungeon = new Map(1);
 			Brain.initDungeonGraph(dungeon.bitmap);
-			mapManager = new MapTileManager(this, renderer.canvas, SCALE, dungeon.width, dungeon.height, WIDTH, HEIGHT);
-			mapManager.setLayers(dungeon.layers);
-			renderer.blockBitmapData = mapManager.layerToBitmapData(MapTileManager.BLOCK_LAYER);
+			mapTileManager = new MapTileManager(this, renderer.canvas, SCALE, dungeon.width, dungeon.height, WIDTH, HEIGHT);
+			mapTileManager.setLayers(dungeon.layers);
+			renderer.blockBitmapData = mapTileManager.layerToBitmapData(MapTileManager.BLOCK_LAYER);
 			world = new CollisionWorld(dungeon.width, dungeon.height, SCALE);
-			world.map = createPropertyMap(mapManager.mapLayers[MapTileManager.BLOCK_LAYER]);
+			world.map = createPropertyMap(mapTileManager.mapLayers[MapTileManager.BLOCK_LAYER]);
 			
 			//world.debug = debug;
 			
 			lightMap = new LightMap(world.map);
-			mapManager.init(dungeon.start.x, dungeon.start.y);
+			mapTileManager.init(dungeon.start.x, dungeon.start.y);
 			
 			//renderer.lightBitmap.visible = false;
 			
 			// modify the mapRect to conceal secrets
-			mapManager.mapRect = renderer.camera.mapRect = dungeon.bitmap.adjustedMapRect;
+			mapTileManager.mapRect = renderer.camera.mapRect = dungeon.bitmap.adjustedMapRect;
 			miniMap = new MiniMap(world.map, this);
 			miniMap.y = miniMap.x = 5;
 			miniMapHolder.addChild(miniMap);
@@ -391,7 +390,7 @@
 			}
 			player = null;
 			minion = null;
-			mapManager = null;
+			mapTileManager = null;
 			dungeon = null;
 			world = null;
 			Player.previousLevel = 0;
@@ -454,20 +453,20 @@
 			
 			Brain.initDungeonGraph(dungeon.bitmap);
 			
-			mapManager.newMap(dungeon.width, dungeon.height, dungeon.layers);
-			renderer.blockBitmapData = mapManager.layerToBitmapData(MapTileManager.BACKGROUND_LAYER);
-			if(dungeon.level > 0) renderer.blockBitmapData = mapManager.layerToBitmapData(MapTileManager.BLOCK_LAYER, renderer.blockBitmapData);
+			mapTileManager.newMap(dungeon.width, dungeon.height, dungeon.layers);
+			renderer.blockBitmapData = mapTileManager.layerToBitmapData(MapTileManager.BACKGROUND_LAYER);
+			if(dungeon.level > 0) renderer.blockBitmapData = mapTileManager.layerToBitmapData(MapTileManager.BLOCK_LAYER, renderer.blockBitmapData);
 			
 			// modify the mapRect to conceal secrets
-			mapManager.mapRect = dungeon.bitmap.adjustedMapRect;
+			mapTileManager.mapRect = dungeon.bitmap.adjustedMapRect;
 			renderer.camera.mapRect = dungeon.bitmap.adjustedMapRect;
 			
 			world = new CollisionWorld(dungeon.width, dungeon.height, SCALE);
-			world.map = createPropertyMap(mapManager.mapLayers[MapTileManager.BLOCK_LAYER]);
+			world.map = createPropertyMap(mapTileManager.mapLayers[MapTileManager.BLOCK_LAYER]);
 			lightMap.newMap(world.map);
 			lightMap.setLight(player, player.light);
 			
-			mapManager.init(dungeon.start.x, dungeon.start.y);
+			mapTileManager.init(dungeon.start.x, dungeon.start.y);
 			
 			miniMap.newMap(world.map);
 			
@@ -508,7 +507,7 @@
 					minion.changeName(Character.SKELETON, skinMc);
 					console.print("minion reverts to undead form");
 				}
-				mapManager.setLayerUpdate(MapTileManager.BLOCK_LAYER, false);
+				mapTileManager.setLayerUpdate(MapTileManager.BLOCK_LAYER, false);
 				SoundManager.fadeMusic("music1", -SoundManager.DEFAULT_FADE_STEP);
 				
 			} else if(dungeon.level == -1){
@@ -687,36 +686,16 @@
 			}
 		}
 		
-		/* Sets all traps and secrets to their revealed status */
-		public function revealTrapsAndSecrets():void{
-			var n:int = 0;
-			for(var i:int = 0; i < entities.length; i++){
-				if(entities[i] is Trap && !(entities[i] as Trap).revealed){
-					(entities[i] as Trap).reveal();
-					n++;
-				}
-				if(entities[i] is Stone && (entities[i] as Stone).name == Stone.SECRET_WALL && !(entities[i] as Stone).revealed){
-					(entities[i] as Stone).reveal();
-					n++;
-				}
-			}
-			if(n == 0){
-				console.print("found nothing");
-			} else {
-				console.print(n + " discover" + (n > 1 ? "ies" : "y"));
-			}
-		}
-		
 		/*
 		 * Creates a map of ints that represents properties of static blocks
 		 * Any block to interact with is generated on the fly using this 2D array to determine its
 		 * properties. 'id's of blocks are inferred by the tile numbers
 		 */
 		private function createPropertyMap(map:Array):Vector.<Vector.<int>>{
-			var idMap:Vector.<Vector.<int>> = new Vector.<Vector.<int>>(mapManager.height, true), r:int, c:int;
-			for(r = 0; r < mapManager.height; r++){
-				idMap[r] = new Vector.<int>(mapManager.width, true);
-				for(c = 0; c < mapManager.width; c++){
+			var idMap:Vector.<Vector.<int>> = new Vector.<Vector.<int>>(mapTileManager.height, true), r:int, c:int;
+			for(r = 0; r < mapTileManager.height; r++){
+				idMap[r] = new Vector.<int>(mapTileManager.width, true);
+				for(c = 0; c < mapTileManager.width; c++){
 					idMap[r][c] = MapTileConverter.getMapProperties(map[r][c]);
 				}
 			}

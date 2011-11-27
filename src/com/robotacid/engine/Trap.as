@@ -1,6 +1,7 @@
 ﻿package com.robotacid.engine {
 	import com.robotacid.ai.Brain;
 	import com.robotacid.dungeon.Map;
+	import com.robotacid.geom.Pixel;
 	import com.robotacid.gfx.BlitSprite;
 	import com.robotacid.gfx.Renderer;
 	import com.robotacid.phys.Collider;
@@ -42,24 +43,25 @@
 		
 		public static const DISARMING_XP_REWARD:Number = 1;
 		
-		public function Trap(mc:DisplayObject, mapX:int, mapY:int, type:int) {
-			super(mc);
+		public function Trap(mc:DisplayObject, mapX:int, mapY:int, type:int, dartPos:Pixel = null) {
+			super(mc, false, false);
 			this.type = type;
 			revealed = false;
 			if(type == PIT){
 				rect = new Rectangle(mapX * Game.SCALE, -1 + mapY * Game.SCALE, SCALE, SCALE);
-			} else if(type == POISON_DART || type == TELEPORT_DART){
+			} else if(dartPos){
 				rect = new Rectangle(mapX * Game.SCALE, -1 + mapY * Game.SCALE, SCALE, 5);
-				dartGun = new Point((mapX + 0.5) * Game.SCALE, (mapY - 1) * Game.SCALE);
-				while(!(g.world.map[((dartGun.y - 1) * INV_SCALE) >> 0][(dartGun.x * INV_SCALE) >> 0] & Collider.WALL)) dartGun.y -= SCALE;
+				dartGun = new Point((dartPos.x + 0.5) * Game.SCALE, (dartPos.y + 1) * Game.SCALE);
 			}
 			disarmingRect = new Rectangle((mapX - 1) * Game.SCALE, -1 + (mapY * Game.SCALE), SCALE * 3, 5);
 			callMain = true;
 			contact = false;
 			disarmingContact = false;
+			addToEntities = true;
 		}
 		
 		override public function main():void {
+			//Game.debug.drawRect(rect.x, rect.y, rect.width, rect.height);
 			// check the player is fully on the trap before springing it
 			if(
 				g.player.collider.x >= rect.x &&
@@ -108,7 +110,7 @@
 				renderer.shake(0, 3);
 				g.soundQueue.add("kill");
 				g.world.map[mapY][mapX] = 0;
-				g.mapManager.removeTile(this, mapX, mapY, mapZ);
+				g.mapTileManager.removeTile(this, mapX, mapY, mapZ);
 				renderer.blockBitmapData.fillRect(new Rectangle(mapX * SCALE, mapY * SCALE, SCALE, SCALE), 0x00000000);
 				var blit:BlitSprite = MapTileConverter.ID_TO_GRAPHIC[MapTileConverter.LEDGE_SINGLE];
 				blit.x = mapX * SCALE;
@@ -150,19 +152,16 @@
 				reveal();
 			}
 		}
-		/* Adds a graphic to this trap to show the player where it is and adds a feature to the minimap*/
+		
+		/* Adds a graphic to this trap to show the player where it is and adds a feature to the minimap */
 		public function reveal():void{
 			var trapRevealedB:Bitmap = new g.library.TrapRevealedB();
 			trapRevealedB.y = -SCALE;
 			(gfx as Sprite).addChild(trapRevealedB);
-			var bitmapData:BitmapData = new BitmapData(3, 3, true, 0x00000000);
-			bitmapData.setPixel32(1, 0, 0xFFAA0000);
-			bitmapData.fillRect(new Rectangle(0, 1, 3, 1), 0xFFAA0000);
-			bitmapData.setPixel32(1, 2, 0xFFAA0000);
-			bitmapData.setPixel32(1, 1, 0xFF000000);
-			minimapFeature = g.miniMap.addFeature(mapX, mapY, -1, -2, bitmapData);
+			minimapFeature = g.miniMap.addFeature(mapX, mapY, renderer.searchFeatureBlit, true);
 			revealed = true;
 		}
+		
 		/* Destroys this object and gives xp */
 		public function disarm():void{
 			if(!active) return;
@@ -173,6 +172,7 @@
 			}
 			g.player.addXP(DISARMING_XP_REWARD * g.dungeon.level);
 		}
+		
 		/* Launches a missile from the ceiling that bears a magic effect */
 		public function shootDart(effect:Effect):void{
 			var missileMc:DisplayObject = new DartMC();

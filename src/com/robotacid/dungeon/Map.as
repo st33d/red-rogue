@@ -2,8 +2,11 @@
 	import com.robotacid.engine.ChaosWall;
 	import com.robotacid.engine.Character;
 	import com.robotacid.engine.MapTileConverter;
+	import com.robotacid.engine.MapTileManager;
 	import com.robotacid.engine.Player;
 	import com.robotacid.engine.Portal;
+	import com.robotacid.engine.Stone;
+	import com.robotacid.engine.Trap;
 	import com.robotacid.geom.Pixel;
 	import com.robotacid.gfx.Renderer;
 	import com.robotacid.util.array.randomiseArray;
@@ -182,10 +185,10 @@
 				c = i % width;
 				r = i / width;
 				if(pixels[i] == DungeonBitmap.PIT){
-					layers[ENTITIES][r][c] = MapTileConverter.PIT;
+					createPitTrap(c, r);
 					pixels[i] = DungeonBitmap.WALL;
 				} else if(pixels[i] == DungeonBitmap.SECRET){
-					layers[ENTITIES][r][c] = MapTileConverter.SECRET_WALL;
+					createSecretWall(c, r);
 					pixels[i] = DungeonBitmap.WALL;
 				}
 			}
@@ -196,6 +199,7 @@
 				if(pixels[i] == DungeonBitmap.EMPTY && pixels[i + width] == DungeonBitmap.LADDER_LEDGE){
 					layers[BLOCKS][r][c] = MapTileConverter.LADDER_TOP;
 				} else if(pixels[i] == DungeonBitmap.LEDGE && pixels[i + width] == DungeonBitmap.LADDER_LEDGE){
+					
 					
 					if((pixels[i - 1] == DungeonBitmap.EMPTY || pixels[i - 1] == DungeonBitmap.LADDER) && (pixels[i + 1] == DungeonBitmap.EMPTY || pixels[i + 1] == DungeonBitmap.LADDER)){
 						
@@ -233,6 +237,8 @@
 						
 						layers[BLOCKS][r][c] = MapTileConverter.LADDER_TOP_LEDGE_MIDDLE;
 					}
+					
+					
 					
 				} else if(pixels[i] == DungeonBitmap.LADDER_LEDGE){
 					
@@ -432,6 +438,7 @@
 						tries = 0;
 						index++;
 						portalRoom = rooms[index];
+						tryToAvoidPortalOnLedge = 100;
 					}
 				}
 				ex = portalRoom.x + g.random.rangeInt(portalRoom.width);
@@ -441,7 +448,7 @@
 				if(bitmap.bitmapData.getPixel32(ex, ey + 1) != DungeonBitmap.WALL) ey++;
 				else ey = portalRoom.y;
 				
-			} while(!goodPortalPosition(ex, ey, (tryToAvoidPortalOnLedge--) > 0));
+			} while(!goodPortalPosition(ex, ey, (tryToAvoidPortalOnLedge--) <= 0));
 			if(type == Portal.STAIRS){
 				if(stairs == "up") setStairsUp(ex, ey);
 				else if(stairs == "down") setStairsDown(ex, ey);
@@ -650,6 +657,7 @@
 		
 		/* This adds dart traps to the level */
 		public function setDartTraps():void{
+			var dartPos:Pixel;
 			var numTraps:int = level;
 			var trapPositions:Vector.<Pixel> = new Vector.<Pixel>();
 			var pixels:Vector.<uint> = bitmap.bitmapData.getVector(bitmap.bitmapData.rect);
@@ -672,10 +680,22 @@
 			while(numTraps > 0 && trapPositions.length > 0){
 				var trapIndex:int = g.random.range(trapPositions.length);
 				var trapPos:Pixel = trapPositions[trapIndex];
-				layers[ENTITIES][trapPos.y][trapPos.x] = g.random.value() < 0.5 ? MapTileConverter.POISON_DART : MapTileConverter.TELEPORT_DART;
+				var trapType:int = 1 + g.random.range(2);
+				var sprite:Sprite = new Sprite();
+				sprite.x = trapPos.x * Game.SCALE;
+				sprite.y = trapPos.y * Game.SCALE;
+				// get dart gun position
+				dartPos = trapPos.copy();
+				do{
+					dartPos.y--;
+				} while(pixels[dartPos.x + dartPos.y * width] != DungeonBitmap.WALL);
+				var trap:Trap = new Trap(sprite, trapPos.x, trapPos.y, trapType, dartPos);
+				trap.mapX = trapPos.x;
+				trap.mapY = trapPos.y;
+				trap.mapZ = MapTileManager.ENTITY_LAYER;
+				layers[ENTITIES][trapPos.y][trapPos.x] = trap;
 				numTraps--;
 				trapPositions.splice(trapIndex, 1);
-				
 			}
 		}
 		
@@ -698,8 +718,23 @@
 		
 		/* Creates a secret wall that can be broken through */
 		public function createSecretWall(x:int, y:int):void{
-			layers[ENTITIES][y][x] = MapTileConverter.SECRET_WALL;
-			layers[BLOCKS][y][x] = 1;
+			var wall:Stone = new Stone(x * Game.SCALE, y * Game.SCALE, Stone.SECRET_WALL);
+			wall.mapX = x;
+			wall.mapY = y;
+			wall.mapZ = MapTileManager.ENTITY_LAYER;
+			layers[ENTITIES][y][x] = wall;
+		}
+		
+		/* Creates a pit trap */
+		public function createPitTrap(x:int, y:int):void{
+			var sprite:Sprite = new Sprite();
+			sprite.x = x * Game.SCALE;
+			sprite.y = y * Game.SCALE;
+			var trap:Trap = new Trap(sprite, x, y, Trap.PIT);
+			trap.mapX = x;
+			trap.mapY = y;
+			trap.mapZ = MapTileManager.ENTITY_LAYER;
+			layers[ENTITIES][y][x] = trap;
 		}
 		
 		/* Used to clear out a section of a grid or flood it with a particular tile type */

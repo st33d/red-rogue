@@ -223,19 +223,19 @@
 			lastCanvasMapX = (canvas.x / scale) >> 0;
 			lastCanvasMapY = (canvas.y / scale) >> 0;
 			
-			var rezCol:int = x - halfTilesWidth - borderX[masterLayer] * 2;
-			var rezRow:int = y - halfTilesHeight - borderY[masterLayer] * 2;
-			var rezWidth:int = rezCol + tilesWidth + borderX[masterLayer] * 4;
-			var rezHeight:int = rezRow + tilesHeight + borderY[masterLayer] * 4;
-			if(rezCol < 0) rezCol = 0;
-			if(rezRow < 0) rezRow = 0;
-			if(rezWidth > width) rezWidth = width;
-			if(rezHeight > height) rezHeight = height;
+			var rezLeft:int = x - halfTilesWidth - borderX[masterLayer] * 2;
+			var rezTop:int = y - halfTilesHeight - borderY[masterLayer] * 2;
+			var rezRight:int = rezLeft + tilesWidth + borderX[masterLayer] * 4;
+			var rezBottom:int = rezTop + tilesHeight + borderY[masterLayer] * 4;
+			if(rezLeft < 0) rezLeft = 0;
+			if(rezTop < 0) rezTop = 0;
+			if(rezRight > width) rezRight = width;
+			if(rezBottom > height) rezBottom = height;
 			
-			scrollTopleftX = rezCol * scale;
-			scrollTopleftY = rezRow * scale;
-			scrollBottomrightX = rezWidth * scale;
-			scrollBottomrightY = rezHeight * scale;
+			scrollTopleftX = rezLeft * scale;
+			scrollTopleftY = rezTop * scale;
+			scrollBottomrightX = rezRight * scale;
+			scrollBottomrightY = rezBottom * scale;
 			
 			activeMapLayers = [];
 			mapRowsIndexLayers = new Vector.<Vector.<int>>(TOTAL_LAYERS, true);
@@ -243,17 +243,17 @@
 			
 			var c:int, r:int;
 			for(var i:int = 0; i < layers; i++){
-				topLeftLayers[i] = new Pixel(rezCol, rezRow);
-				bottomRightLayers[i] = new Pixel(rezWidth, rezHeight);
+				topLeftLayers[i] = new Pixel(rezLeft, rezTop);
+				bottomRightLayers[i] = new Pixel(rezRight, rezBottom);
 				activeMapLayers[i] = [];
 				mapRowsIndexLayers[i] = new Vector.<int>();
 				mapColsIndexLayers[i] = new Vector.<int>();
 				changeLayer(i);
 				if(updateLayer[i]){
-					for(c = rezCol; c < rezWidth; c++){
+					for(c = rezLeft; c < rezRight; c++){
 						mapColsIndex.push(c);
 					}
-					for(r = rezRow; r < rezHeight; r++){
+					for(r = rezTop; r < rezBottom; r++){
 						pushRow(r);
 					}
 				}
@@ -272,10 +272,20 @@
 			}
 		}
 		
+		/* Get the tile at a given position, whether it is in the activeMap or the map */
+		public function getTile(x:int, y:int, layer:int):*{
+			if(x < 0 || y < 0 || x >= width || y >= height) return null;
+			if(x < topLeftLayers[layer].x || y < topLeftLayers[layer].y || x >= bottomRightLayers[layer].x || y >= bottomRightLayers[layer].y){
+				return mapLayers[layer][y][x];
+			} else {
+				return activeMapLayers[layer][y - topLeftLayers[layer].y][x - topLeftLayers[layer].x];
+			}
+		}
+		
 		/* Add an object to the MapTileManager */
 		public function addTile(tile:*, x:int, y:int, layer:int):void{
 			changeLayer(layer);
-			if(x < topLeft.x || y < topLeft.y || x > bottomRight.x || y > bottomRight.y){
+			if(x < topLeft.x || y < topLeft.y || x >= bottomRight.x || y >= bottomRight.y){
 				if(map[y][x]){
 					if(map[y][x] is Array){
 						map[y][x].push(tile);
@@ -302,7 +312,7 @@
 		public function removeTile(tile:*, x:int, y:int, layer:int):void{
 			var i:int;
 			changeLayer(layer);
-			if(x < topLeft.x || y < topLeft.y || x > bottomRight.x || y > bottomRight.y){
+			if(x < topLeft.x || y < topLeft.y || x >= bottomRight.x || y >= bottomRight.y){
 				// stacked?
 				if(map[y][x]){
 					if(map[y][x] is Array){

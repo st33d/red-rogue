@@ -42,10 +42,15 @@
 		public var xp:Number;
 		//public var mapRect:Rectangle;
 		public var inventory:InventoryMenuList;
-		public var searchCount:int;
 		public var disarmableTraps:Vector.<Trap>;
 		public var cameraDisplacement:Point;
 		public var camera:CanvasCamera;
+		
+		public var searchRadius:int;
+		
+		private var searchMax:int;
+		private var searchCount:int;
+		private var searchRevealCount:int;
 		
 		private var i:int, j:int;
 		
@@ -64,7 +69,9 @@
 		public static const XP_LEVELS:Array = [0, 10, 20, 40, 80, 160, 320, 640, 1280, 2560, 5120, 10240, 20480, 40960, 81920, 163840, 327680, 655360, 1310720, 2621440, int.MAX_VALUE];
 		
 		public static const DEFAULT_LIGHT_RADIUS:int = 5;
-		public static const SEARCH_DELAY:int = 90;
+		public static const SEARCH_DELAY:int = 2;
+		public static const ROGUE_SEARCH_MAX:int = 20;
+		public static const DEFAULT_SEARCH_MAX:int = 10;
 		
 		public static const CAMERA_DISPLACE_SPEED:Number = 1;
 		public static const CAMERA_DISPLACEMENT:Number = 70;
@@ -83,6 +90,7 @@
 			active = true;
 			callMain = false;
 			stepNoise = true;
+			searchRadius = -1;
 			
 			cameraDisplacement = new Point();
 			
@@ -125,14 +133,34 @@
 			super.main();
 			
 			// search for traps/secrets
-			if(searchCount){
-				searchCount--;
+			if(searchRadius > -1){
 				if(actions || moving){
-					searchCount = 0;
+					searchRadius = -1;
 					g.console.print("search abandoned");
-				} else if(searchCount == 0){
-					g.console.print("search complete");
-					g.revealTrapsAndSecrets();
+					if(searchRevealCount == 0){
+						g.console.print("found nothing");
+					} else {
+						g.console.print(searchRevealCount + " discover" + (searchRevealCount > 1 ? "ies" : "y"));
+					}
+				} else {
+					if(searchCount) searchCount--;
+					else {
+						searchRadius++
+						searchArea(searchRadius);
+						if(
+							(name == ROGUE && searchRadius >= ROGUE_SEARCH_MAX) ||
+							(name != ROGUE && searchRadius >= DEFAULT_SEARCH_MAX)
+						){
+							searchRadius = -1;
+							g.console.print("search complete");
+							if(searchRevealCount == 0){
+								g.console.print("found nothing");
+							} else {
+								g.console.print(searchRevealCount + " discover" + (searchRevealCount > 1 ? "ies" : "y"));
+							}
+						}
+						searchCount = SEARCH_DELAY;
+					}
 				}
 			}
 			
@@ -246,6 +274,98 @@
 				else if(cameraDisplacement.y < 0) cameraDisplacement.y += CAMERA_DISPLACE_SPEED;
 			}
 			
+		}
+		
+		/* Initiates a search for traps and secrets */
+		public function search():void{
+			if(searchRadius > -1) return;
+			searchRadius = 0;
+			searchCount = SEARCH_DELAY;
+			searchRevealCount = 0;
+		}
+		
+		/* Searches the border of a square described by the search radius */
+		public function searchArea(radius:int):void{
+			var r:int, c:int, i:int;
+			var item:*;
+			
+			// note that this method is not optimised at all.
+			// I started to inline everything and it looked like it was going to be a tedious several
+			// hundred lines of for loops and if statements. The lack of movement demanded by the search
+			// as a gameplay mechanic probably offsets the cpu load of this method.
+			
+			// top row
+			r = mapY - radius;
+			for(c = mapX - radius; c <= mapX + radius; c++){
+				item = g.mapTileManager.getTile(c, r, MapTileManager.ENTITY_LAYER);
+				if(item is Array){
+					for(i = 0; i < item.length; i++){
+						if((item[i] is Stone || item[i] is Trap) && !item[i].revealed){
+							item[i].reveal();
+							searchRevealCount++;
+						}
+					}
+				} else {
+					if((item is Stone || item is Trap) && !item.revealed){
+						item.reveal();
+						searchRevealCount++;
+					}
+				}
+			}
+			// bottom row
+			r = mapY + radius;
+			for(c = mapX - radius; c <= mapX + radius; c++){
+				item = g.mapTileManager.getTile(c, r, MapTileManager.ENTITY_LAYER);
+				if(item is Array){
+					for(i = 0; i < item.length; i++){
+						if((item[i] is Stone || item[i] is Trap) && !item[i].revealed){
+							item[i].reveal();
+							searchRevealCount++;
+						}
+					}
+				} else {
+					if((item is Stone || item is Trap) && !item.revealed){
+						item.reveal();
+						searchRevealCount++;
+					}
+				}
+			}
+			// left column
+			c = mapX - radius;
+			for(r = mapY - radius; r <= mapY + radius; r++){
+				item = g.mapTileManager.getTile(c, r, MapTileManager.ENTITY_LAYER);
+				if(item is Array){
+					for(i = 0; i < item.length; i++){
+						if((item[i] is Stone || item[i] is Trap) && !item[i].revealed){
+							item[i].reveal();
+							searchRevealCount++;
+						}
+					}
+				} else {
+					if((item is Stone || item is Trap) && !item.revealed){
+						item.reveal();
+						searchRevealCount++;
+					}
+				}
+			}
+			// right column
+			c = mapX + radius;
+			for(r = mapY - radius; r <= mapY + radius; r++){
+				item = g.mapTileManager.getTile(c, r, MapTileManager.ENTITY_LAYER);
+				if(item is Array){
+					for(i = 0; i < item.length; i++){
+						if((item[i] is Stone || item[i] is Trap) && !item[i].revealed){
+							item[i].reveal();
+							searchRevealCount++;
+						}
+					}
+				} else {
+					if((item is Stone || item is Trap) && !item.revealed){
+						item.reveal();
+						searchRevealCount++;
+					}
+				}
+			}
 		}
 		
 		public function snapCamera():void{

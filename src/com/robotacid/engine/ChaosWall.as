@@ -137,7 +137,7 @@ package com.robotacid.engine {
 			chaosWalls[mapY][mapX] = null;
 			// remove from map renderer
 			g.world.map[mapY][mapX] = 0;
-			g.mapManager.removeTile(this, mapX, mapY, mapZ);
+			g.mapTileManager.removeTile(this, mapX, mapY, mapZ);
 			renderer.blockBitmapData.fillRect(new Rectangle(mapX * SCALE, mapY * SCALE, SCALE, SCALE), 0x00000000);
 			// show empty on minimap
 			g.miniMap.bitmapData.setPixel32(mapX, mapY, LightMap.MINIMAP_EMPTY_COL);

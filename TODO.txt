@@ -1,6 +1,6 @@
-Fix eaten polymorph effect to limit by exploration - this would involve putting placeholders down for all races
-	put placeholders down for all races
-		move minion to index 21 - making minion unachievable by polymorph
+search
+
+change help for face
 
 Add some how add a random offset to AI search values - they're in ints (fuck knows, coin flipping?)
 

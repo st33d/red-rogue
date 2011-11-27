@@ -78,7 +78,7 @@ package com.robotacid.engine {
 		override public function main():void {
 			
 			// offscreen check
-			if(!g.mapManager.intersects(collider)){
+			if(!g.mapTileManager.intersects(collider)){
 				remove();
 				return;
 			}

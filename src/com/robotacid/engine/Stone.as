@@ -21,7 +21,6 @@
 	 */
 	public class Stone extends Character{
 		
-		public var side:int;
 		public var revealed:Boolean;
 		
 		private var minimapFeature:MinimapFeature;
@@ -39,7 +38,7 @@
 			0
 		];
 		
-		public function Stone(x:Number, y:Number, name:int) {
+		public function Stone(x:Number, y:Number, name:int, side:int = 0) {
 			if(name == HEALTH) gfx = new HeartFadeMC();
 			else if(name == GRIND){
 				gfx = new GrindWheelMC();
@@ -48,23 +47,22 @@
 			else gfx = new MovieClip();
 			gfx.x = x;
 			gfx.y = y;
-			super(gfx, x, y, name, STONE, 0);
+			super(gfx, x, y, name, STONE, 0, false);
 			health = STONE_NAME_HEALTHS[name];
 			defence = 0;
 			callMain = false;
 			debrisType = name == HEALTH ? Renderer.BLOOD : Renderer.STONE;
 			free = false;
+			addToEntities = true;
 			if(name == SECRET_WALL){
 				revealed = false;
-				if(x >= g.mapManager.mapRect.x + g.mapManager.mapRect.width * 0.5){
-					side = RIGHT;
-				} else {
-					side = LEFT;
-				}
 				// the 1px edge the collider needs to be attackable can be stood upon unless the vertical
 				// surfaces are turned off
 				collider.properties &= ~(UP | DOWN);
 				gfx.visible = false;
+			} else {
+				revealed = true;
+				g.entities.push(this);
 			}
 		}
 		
@@ -76,8 +74,11 @@
 		
 		override public function applyDamage(n:Number, source:String, knockback:Number = 0, critical:Boolean = false, aggressor:int = PLAYER):void {
 			var mc:MovieClip = gfx as MovieClip;
-			if(name == SECRET_WALL) super.applyDamage(n, source, 0, critical);
-			else if(name == HEALTH){
+			if(name == SECRET_WALL){
+				if(!revealed) reveal();
+				super.applyDamage(n, source, 0, critical);
+				
+			} else if(name == HEALTH){
 				if(g.minion){
 					g.player.applyHealth(n * 0.5);
 					g.minion.applyHealth(n * 0.5);
@@ -101,14 +102,14 @@
 			g.soundQueue.add("kill");
 			g.player.addXP(SECRET_XP_REWARD * g.dungeon.level);
 			g.world.map[mapY][mapX] = 0;
-			g.mapManager.removeTile(this, mapX, mapY, mapZ);
+			g.mapTileManager.removeTile(this, mapX, mapY, mapZ);
 			renderer.blockBitmapData.fillRect(new Rectangle(mapX * SCALE, mapY * SCALE, SCALE, SCALE), 0x00000000);
 			// adjust the mapRect to show new content
 			if(mapX < g.player.mapX){
-				g.mapManager.mapRect.x = 0;
-				g.mapManager.mapRect.width += g.dungeon.bitmap.leftSecretWidth;
+				g.mapTileManager.mapRect.x = 0;
+				g.mapTileManager.mapRect.width += g.dungeon.bitmap.leftSecretWidth;
 			} else if(mapX > g.player.mapX){
-				g.mapManager.mapRect.width += g.dungeon.bitmap.rightSecretWidth;
+				g.mapTileManager.mapRect.width += g.dungeon.bitmap.rightSecretWidth;
 			}
 			if(minimapFeature) {
 				minimapFeature.active = false;
@@ -123,6 +124,12 @@
 			var matrix:Matrix = new Matrix();
 			matrix.tx = -SCALE * 0.5;
 			matrix.ty = -SCALE * 0.5;
+			var side:int;
+			if(mapX * SCALE >= g.mapTileManager.mapRect.x + g.mapTileManager.mapRect.width * 0.5){
+				side = RIGHT;
+			} else {
+				side = LEFT;
+			}
 			matrix.rotate(side == RIGHT ? -Math.PI * 0.5 : Math.PI * 0.5);
 			matrix.tx += side == RIGHT ? -((SCALE * 0.5) - 1) : 1 + (SCALE * 1.5);
 			matrix.ty += SCALE * 0.5;
@@ -132,7 +139,7 @@
 			bitmapData.setPixel32(1, 0, 0xFFAA0000);
 			bitmapData.fillRect(new Rectangle(0, 1, 3, 1), 0xFFAA0000);
 			bitmapData.setPixel32(1, 2, 0xFFAA0000);
-			minimapFeature = g.miniMap.addFeature(mapX, mapY, -1, -1, bitmapData);
+			minimapFeature = g.miniMap.addFeature(mapX, mapY, renderer.searchFeatureBlit, true);
 			gfx.visible = true;
 			revealed = true;
 		}

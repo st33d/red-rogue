@@ -49,6 +49,10 @@
 			addMinimapFeature();
 		}
 		
+		public function addMinimapFeature():void{
+			minimapFeature = g.miniMap.addFeature(mapX, mapY, renderer.minionFeatureBlit);
+		}
+		
 		override public function createCollider(x:Number, y:Number, properties:int, ignoreProperties:int, state:int = 0, positionByBase:Boolean = true):void {
 			super.createCollider(x, y, properties, ignoreProperties, state, positionByBase);
 			collider.properties |= Collider.MINION;
@@ -66,7 +70,7 @@
 				}
 			}
 			// offscreen check
-			if(!g.mapManager.intersects(collider, Game.SCALE * 2)){
+			if(!g.mapTileManager.intersects(collider, Game.SCALE * 2)){
 				teleportToPlayer();
 			}
 			if(state == WALKING) brain.main();
@@ -120,16 +124,6 @@
 			mapY = (collider.y + collider.height * 0.5) * INV_SCALE;
 			renderer.createTeleportSparkRect(collider, 20);
 			g.soundQueue.add("teleport");
-		}
-		
-		/* Adds a MinimapFeature to the minimap, allowing the Player to track the Minion */
-		public function addMinimapFeature():void {
-			var bitmapData:BitmapData = new BitmapData(3, 3, true, 0x00000000);
-			bitmapData.setPixel32(1, 0, 0xCCFFFFFF);
-			bitmapData.setPixel32(0, 1, 0xCCFFFFFF);
-			bitmapData.setPixel32(2, 1, 0xCCFFFFFF);
-			bitmapData.setPixel32(1, 2, 0xCCFFFFFF);
-			minimapFeature = g.miniMap.addFeature(mapX, mapY, -1, -1, bitmapData);
 		}
 		
 		override public function death(cause:String = "crushing", decapitation:Boolean = false, aggressor:int = 0):void {

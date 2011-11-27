@@ -445,8 +445,8 @@
 					}
 					if(!node || !node.active || node.collider.x + node.collider.width * 0.5 < collider.x + collider.width * 0.5){
 						node = null;
-						tx = g.mapManager.width * SCALE;
-						ty = g.random.range(g.mapManager.height) * SCALE;
+						tx = g.mapTileManager.width * SCALE;
+						ty = g.random.range(g.mapTileManager.height) * SCALE;
 					} else {
 						tx = node.collider.x + node.collider.width * 0.5;
 						ty = node.collider.y + node.collider.height * 0.5;
@@ -471,7 +471,7 @@
 					if(!node || !node.active || node.collider.x + node.collider.width * 0.5 > collider.x + collider.width * 0.5){
 						node = null;
 						tx = 0;
-						ty = g.random.range(g.mapManager.height) * SCALE;
+						ty = g.random.range(g.mapTileManager.height) * SCALE;
 					} else {
 						tx = node.collider.x + node.collider.width * 0.5;
 						ty = node.collider.y + node.collider.height * 0.5;

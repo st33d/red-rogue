@@ -164,9 +164,9 @@
 				var newName:int = item.name;
 				var nameRange:int;
 				if(item.type == Item.ARMOUR){
-					nameRange = Item.stats["armour names"].length;
+					nameRange = Item.ITEM_MAX;
 				} else if(item.type == Item.WEAPON){
-					nameRange = Item.stats["weapon names"].length;
+					nameRange = Item.ITEM_MAX;
 				}
 				// limit change by exploration - catch possible infinite loop
 				if(nameRange > g.deepestLevelReached) nameRange = g.deepestLevelReached;
@@ -247,7 +247,7 @@
 				// at least if it was cursed this is a good thing
 				if(user) renderer.createTeleportSparkRect(user.collider, 10);
 				item = inventoryList.removeItem(item);
-				dest = getTeleportTarget(g.player.mapX, g.player.mapY, g.world.map, g.mapManager.mapRect);
+				dest = getTeleportTarget(g.player.mapX, g.player.mapY, g.world.map, g.mapTileManager.mapRect);
 				item.dropToMap(dest.x, dest.y);
 				g.soundQueue.add("teleport");
 			}
@@ -446,7 +446,7 @@
 		private function teleportCharacter(target:Character):void{
 			renderer.createTeleportSparkRect(target.collider, 20);
 			target.collider.divorce();
-			var dest:Pixel = getTeleportTarget(target.mapX, target.mapY, g.world.map, g.mapManager.mapRect);
+			var dest:Pixel = getTeleportTarget(target.mapX, target.mapY, g.world.map, g.mapTileManager.mapRect);
 			target.collider.x = -target.collider.width * 0.5 + (dest.x + 0.5) * Game.SCALE;
 			target.collider.y = -target.collider.height + (dest.y + 1) * Game.SCALE;
 			if(target is Player){

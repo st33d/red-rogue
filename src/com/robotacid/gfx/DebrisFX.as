@@ -50,7 +50,7 @@
 				mapY = y * Game.INV_SCALE;
 				// react to scenery
 				// off scroller?
-				if(!g.mapManager.contains(x, y)){
+				if(!g.mapTileManager.contains(x, y)){
 					active = false;
 					return;
 				}

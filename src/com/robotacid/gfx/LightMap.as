@@ -78,7 +78,7 @@
 			this.blockMap = blockMap;
 			width = blockMap[0].length;
 			height = blockMap.length;
-			rect = new Rectangle(0, 0, g.mapManager.tilesWidth + g.mapManager.borderX[g.mapManager.masterLayer] * 2, g.mapManager.tilesHeight + g.mapManager.borderY[g.mapManager.masterLayer] * 2);
+			rect = new Rectangle(0, 0, g.mapTileManager.tilesWidth + g.mapTileManager.borderX[g.mapTileManager.masterLayer] * 2, g.mapTileManager.tilesHeight + g.mapTileManager.borderY[g.mapTileManager.masterLayer] * 2);
 			darkImage = new BitmapData(width, height, true, 0xFF000000);
 			fadeImage = new BitmapData(rect.width, rect.height, true, FADE_STEP);
 			entities = new Vector.<Entity>();
@@ -95,7 +95,7 @@
 			this.blockMap = blockMap;
 			width = blockMap[0].length;
 			height = blockMap.length;
-			rect = new Rectangle(0, 0, g.mapManager.tilesWidth + g.mapManager.borderX[g.mapManager.masterLayer] * 2, g.mapManager.tilesHeight + g.mapManager.borderY[g.mapManager.masterLayer] * 2);
+			rect = new Rectangle(0, 0, g.mapTileManager.tilesWidth + g.mapTileManager.borderX[g.mapTileManager.masterLayer] * 2, g.mapTileManager.tilesHeight + g.mapTileManager.borderY[g.mapTileManager.masterLayer] * 2);
 			renderer.lightBitmap.bitmapData = darkImage = new BitmapData(width, height, true, 0xFF000000);
 			fadeImage = new BitmapData(rect.width, rect.height, true, FADE_STEP);
 		}
@@ -104,8 +104,8 @@
 			
 			//bitmap.visible = false;
 			
-			p.x = (g.mapManager.scrollTopleftX * INV_SCALE) >> 0;
-			p.y = (g.mapManager.scrollTopleftY * INV_SCALE) >> 0;
+			p.x = (g.mapTileManager.scrollTopleftX * INV_SCALE) >> 0;
+			p.y = (g.mapTileManager.scrollTopleftY * INV_SCALE) >> 0;
 			rect.x = rect.y = 0;
 			darkImage.copyPixels(fadeImage, rect, p, null, null, true);
 			// flash can't fade to black properly, so we threshold test against the value

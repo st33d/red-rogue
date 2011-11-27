@@ -56,6 +56,19 @@ package com.robotacid.engine {
 			return Character.stats["names"][level] + " face";
 		}
 		
+		override public function getHelpText():String {
+			var str:String = "this armour is a";
+			var name:String = Character.stats["names"][level] + " face";
+			
+			if(curseState == CURSE_REVEALED) name = "cursed " + name;
+			else if(curseState == BLESSED) name = "blessed " + name;
+			else if(effects) name = "enchanted " + name;
+			
+			str += (name.charAt(0).search(/[aeiou]/i) == 0) ? "n " : " ";
+			str += name;
+			return str;
+		}
+		
 	}
 
 }

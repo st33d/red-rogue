@@ -52,7 +52,7 @@
 		
 		override public function main():void {
 			// offscreen check
-			if(!g.mapManager.intersects(collider, SCALE * 2)){
+			if(!g.mapTileManager.intersects(collider, SCALE * 2)){
 				remove();
 				return;
 			}
@@ -88,7 +88,7 @@
 					var heart:Item = new Item(heartMc, name, Item.HEART, level);
 					heart.collect(g.player);
 					var victimName:String = Character.stats["names"][name];
-					g.console.print("rogue tore out a" + ((victimName.charAt(0).search(/aeiou/i) == 0) ? "n " : " ") + heart.nameToString());
+					g.console.print("rogue tore out a" + ((victimName.charAt(0).search(/[aeiou]/i) == 0) ? "n " : " ") + heart.nameToString());
 				}
 			}
 			Brain.monsterCharacters.splice(Brain.monsterCharacters.indexOf(this), 1);

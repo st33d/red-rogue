@@ -45,8 +45,8 @@
 		
 		public static const LEDGE_LENGTH:int = 4;
 		public static const LADDER_TREE_HEIGHT:int = 6;
-		public static const LEDGINESS:Number = 0.6;
-		public static const LADDERINESS:Number = 0.2;
+		public static const LEDGINESS:Number = 0.4;
+		public static const LADDERINESS:Number = 0.1;
 		
 		// All features in the dungeon are represented by colours
 		public static const PATH:uint = 0xFFFFFF88;
@@ -67,7 +67,7 @@
 		public static const DOWN:int = 1 << 2;
 		public static const LEFT:int = 1 << 3;
 		
-		public static const MAX_LEVEL:int = 7;
+		public static const MAX_LEVEL:int = 5;
 		public static const MIN_LEVEL:int = 3;
 		
 		public static const SECRET_FREQ:Number = 0.5;
@@ -86,7 +86,8 @@
 			} else {
 				if(level > MIN_LEVEL){
 					// the level parameter seems to fail at dishing out cool levels at about 8
-					// so I'm capping it at 7
+					// and beyond 5 the dungeons get crazily big and empty
+					// so I'm capping it at 5
 					level = level > MAX_LEVEL ? MAX_LEVEL : level;
 					// but we also get some cool levels earlier, so let's randomise
 					level = 1 + g.random.range(level);
@@ -105,7 +106,7 @@
 			super(bitmapData, "auto", false);
 			
 			if(level > 0){
-				createRoutes();
+				while(!createRoutes()){}
 				createPits();
 				createSecrets();
 			}
@@ -282,7 +283,7 @@
 				
 				for(i = 0; i < rooms.length; i++){
 					if(data.getPixel32(rooms[i].x, rooms[i].y) != EMPTY){
-						trace("failed");
+						trace("failed room connection");
 						goodLevel = false;
 					}
 				}
@@ -306,8 +307,10 @@
 		}
 		
 		/* Given a network of rooms and tunnels, a platform game character requires ledges and
-		 * ladders to navigate that network and be able to visit every corner of it */
-		public function createRoutes():void{
+		 * ladders to navigate that network and be able to visit every corner of it
+		 * 
+		 * The route planner does a final check for connectivity, if this fails then route planner aborts, returning false */
+		public function createRoutes():Boolean{
 			
 			// count all the cliffs that are in the level. A cliff is an L-shaped area where the
 			// character can fall off
@@ -489,32 +492,36 @@
 				}
 			}
 			
+			// sprinkle some extra ladders in
+			for(i = mapWidth; i < pixels.length - mapWidth; i++){
+				if(pixels[i] == EMPTY && pixels[i - mapWidth] == EMPTY){
+					if(pixels[i - 1] == WALL && pixels[i + 1] == EMPTY && g.random.value() < LADDERINESS){
+						pixels[i] = LADDER_LEDGE;
+					} else if(pixels[i + 1] == WALL && pixels[i - 1] == EMPTY && g.random.value() < LADDERINESS){
+						pixels[i] = LADDER_LEDGE;
+					}
+				}
+			}
+			
 			// all of our ladders are slap-bang next to walls, how about we see if we can move them into the
 			// room a little and extend the ledge that reaches to them
 			
 			// note to self - a ledge with a wall on top of it looks fucking stupid
 			
-			var base:uint, cast:int, baseIndex:int;
+			// all of our ladders are slap-bang next to walls, how about we see if we can move them into the
+			// room a little and extend the ledge that reaches to them
+			
+			// note to self - a ledge with a wall on top of it looks fucking stupid
 			
 			for(i = mapWidth; i < pixels.length - mapWidth; i++){
 				if(pixels[i] == LADDER_LEDGE){
-					
-					// get the ladder base - we don't want to end up extending past the point we intended to connect to
-					for(cast = i + mapWidth; pixels[cast] == EMPTY; cast += mapWidth){}
-					baseIndex = cast;
-					base = pixels[baseIndex];
-					
 					if(pixels[i - 1] == EMPTY){
 						// pull out the ladder ledge
 						j = i;
 						for(n = g.random.range(LEDGE_LENGTH); n; n--){
 							if(pixels[j - 1] == EMPTY && pixels[j - 1 - mapWidth] != WALL){
-								// check for connectivity with the base type
-								for(cast = j + mapWidth; pixels[cast] == EMPTY && cast < baseIndex; cast += mapWidth){}
-								if(pixels[cast] == base){
-									pixels[j] = LEDGE;
-									pixels[j - 1] = LADDER_LEDGE;
-								} else break;
+								pixels[j] = LEDGE;
+								pixels[j - 1] = LADDER_LEDGE;
 							} else break;
 							j--;
 						}
@@ -529,12 +536,8 @@
 						// push out the ladder ledge
 						for(n = g.random.range(LEDGE_LENGTH); n; n--){
 							if(pixels[i + 1] == EMPTY && pixels[i + 1 - mapWidth] != WALL){
-								// check for connectivity with the base type
-								for(cast = j + mapWidth; pixels[cast] == EMPTY && cast < baseIndex; cast += mapWidth){}
-								if(pixels[cast] == base){
-									pixels[i] = LEDGE;
-									pixels[i + 1] = LADDER_LEDGE;
-								} else break;
+								pixels[i] = LEDGE;
+								pixels[i + 1] = LADDER_LEDGE;
 							} else break;
 							i++;
 						}
@@ -562,6 +565,7 @@
 			}
 			
 			// create some extra ladders in a tree like fashion (finding a wall base to root in a grow up out of)
+			var cast:int;
 			for(i = mapWidth; i < pixels.length - mapWidth; i++){
 				if(pixels[i] == EMPTY && pixels[i - mapWidth] == EMPTY && pixels[i + mapWidth] == WALL && g.random.value() < LADDERINESS){
 					n = 1 + g.random.range(LADDER_TREE_HEIGHT);
@@ -622,7 +626,48 @@
 				}
 			}
 			
+			// It is possible for the route planning to go awry.
+			// Double check that the dungeon has full connectivity
+			var connectionBitmapData:BitmapData = new BitmapData(width * 2, height * 2, true, 0xFFFFFFFF);
+			var connectionPixels:Vector.<uint> = connectionBitmapData.getVector(connectionBitmapData.rect);
+			var connectionMapWidth:int = mapWidth * 2;
+			var floodSeed:Pixel;
+			var connectionCol:uint = 0x99660000;
+			for(i = mapWidth; i < pixels.length - mapWidth; i++){
+				if(
+					pixels[i] != WALL &&
+					(
+						pixels[i + mapWidth] == LEDGE ||
+						pixels[i + mapWidth] == WALL ||
+						pixels[i + mapWidth] == LADDER_LEDGE
+					)
+				){
+					c = i % mapWidth;
+					r = i / mapWidth;
+					j = c * 2 + r * 2 * connectionMapWidth;
+					connectionPixels[j + connectionMapWidth] = connectionCol;
+					connectionPixels[j + 1 + connectionMapWidth] = connectionCol;
+					if(!floodSeed) floodSeed = new Pixel(c * 2, 1 + r * 2);
+				}
+				if(pixels[i] == LADDER || pixels[i] == LADDER_LEDGE){
+					c = i % mapWidth;
+					r = i / mapWidth;
+					j = c * 2 + r * 2 * connectionMapWidth;
+					connectionPixels[j] = connectionCol;
+					connectionPixels[j + connectionMapWidth] = connectionCol;
+					if(!floodSeed) floodSeed = new Pixel(c * 2, r * 2);
+				}
+			}
+			connectionBitmapData.setVector(connectionBitmapData.rect, connectionPixels);
+			connectionBitmapData.floodFill(floodSeed.x, floodSeed.y, 0xFF000000);
+			//var connectionBitmap:Bitmap = new Bitmap(connectionBitmapData);
+			//Game.g.addChild(connectionBitmap);
+			if(connectionBitmapData.getColorBoundsRect(0xFFFFFFFF, connectionCol).width){
+				trace("failed route planning");
+				return false;
+			}
 			bitmapData.setVector(bitmapData.rect, pixels);
+			return true;
 		}
 		
 		/* This finds suitable locations for pits and digs them, leaving a trap marker for the Map class

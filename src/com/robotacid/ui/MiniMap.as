@@ -1,4 +1,5 @@
 ﻿package com.robotacid.ui {
+	import com.robotacid.gfx.BlitClip;
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
 	import flash.display.Shape;
@@ -22,8 +23,14 @@
 		public var bitmapData:BitmapData;
 		public var features:Vector.<MinimapFeature>;
 		
+		private var searchRectBorder:Rectangle;
+		
 		public static const WIDTH:int = 55;
 		public static const HEIGHT:int = 41;
+		public static const SEARCH_COL:uint = 0xFFFFFFFF;
+		
+		private static const CX:int = WIDTH * 0.5;
+		private static const CY:int = HEIGHT * 0.5;
 		
 		private static var point:Point = new Point();
 		private static var i:int;
@@ -50,12 +57,14 @@
 			var border:Bitmap = new Bitmap(borderdata);
 			addChild(border);
 			
+			searchRectBorder = new Rectangle(0, 0, 1, 1);
+			
 			features = new Vector.<MinimapFeature>();
 			view = new Rectangle(0, 0, WIDTH, HEIGHT);
 		}
 		
-		public function addFeature(x:Number, y:Number, dx:Number, dy:Number, bitmapData:BitmapData):MinimapFeature{
-			var feature:MinimapFeature = new MinimapFeature(x, y, dx, dy, bitmapData);
+		public function addFeature(x:Number, y:Number, blit:BlitClip, searchReveal:Boolean = false):MinimapFeature{
+			var feature:MinimapFeature = new MinimapFeature(x, y, blit, searchReveal);
 			features.push(feature);
 			return feature;
 		}
@@ -69,19 +78,42 @@
 			view.y = g.player.mapY - int(HEIGHT * 0.5);
 			window.bitmapData.fillRect(window.bitmapData.rect, 0x66666666);
 			window.bitmapData.copyPixels(bitmapData, view, point, null, null, true);
+			
+			// illustrate the search area as a hollow square
+			if(g.player.searchRadius > -1){
+				drawSearchRadius(g.player.searchRadius);
+			}
+			
 			for(i = features.length - 1; i > -1; i--) {
 				feature = features[i];
 				if(feature.active) {
 					if(
-						feature.x + feature.dx + feature.bitmapData.width >= view.x &&
-						feature.y + feature.dy + feature.bitmapData.height >= view.y &&
-						feature.x + feature.dx <= view.x + view.width &&
-						feature.y + feature.dy <= view.y + view.height
+						feature.x + feature.blit.dx + feature.blit.width >= view.x &&
+						feature.y + feature.blit.dy + feature.blit.height >= view.y &&
+						feature.x + feature.blit.dx <= view.x + view.width &&
+						feature.y + feature.blit.dy <= view.y + view.height
 					)
 					feature.render();
 				}
 				else features.splice(i, 1);
 			}
+		}
+		
+		/* Draw a square describing the current extent of the search */
+		private function drawSearchRadius(radius:int):void{
+			searchRectBorder.x = CX - radius;
+			searchRectBorder.y = CY - radius;
+			searchRectBorder.width = 1 + radius * 2;
+			searchRectBorder.height = 1;
+			window.bitmapData.fillRect(searchRectBorder, SEARCH_COL);
+			searchRectBorder.y += radius * 2;
+			window.bitmapData.fillRect(searchRectBorder, SEARCH_COL);
+			searchRectBorder.y = CY - radius;
+			searchRectBorder.width = 1;
+			searchRectBorder.height = 1 + radius * 2;
+			window.bitmapData.fillRect(searchRectBorder, SEARCH_COL);
+			searchRectBorder.x += radius * 2;
+			window.bitmapData.fillRect(searchRectBorder, SEARCH_COL);
 		}
 		
 	}

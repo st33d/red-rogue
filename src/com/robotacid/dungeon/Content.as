@@ -285,9 +285,9 @@
 			}
 			// now we scour the entities layer of the renderer for more entities to convert to XML
 			var r:int, c:int, tile:*;
-			for(r = 0; r < g.mapManager.height; r++){
-				for(c = 0; c < g.mapManager.width; c++){
-					tile = g.mapManager.mapLayers[Map.ENTITIES][r][c];
+			for(r = 0; r < g.mapTileManager.height; r++){
+				for(c = 0; c < g.mapTileManager.width; c++){
+					tile = g.mapTileManager.mapLayers[Map.ENTITIES][r][c];
 					if(tile){
 						if(tile is Array){
 							for(i = 0; i < tile.length; i++){
@@ -387,9 +387,9 @@
 			var level:int = Math.min(1 + g.random.range(dungeonLevel), 20);
 			var nameRange:int;
 			if(type == Item.ARMOUR){
-				nameRange = Item.stats["armour names"].length;
+				nameRange = Item.ITEM_MAX;
 			} else if(type == Item.WEAPON){
-				nameRange = Item.stats["weapon names"].length;
+				nameRange = Item.ITEM_MAX;
 			} else if(type == Item.RUNE){
 				nameRange = Item.stats["rune names"].length;
 				level = 0;
