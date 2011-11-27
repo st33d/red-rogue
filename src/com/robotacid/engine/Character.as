@@ -357,6 +357,11 @@
 									// damage
 									var hitDamage:Number = damage + (meleeWeapon ? weapon.damage : 0);
 									if(hitResult & CRITICAL) hitDamage *= 2;
+									// rogue's backstab multiplier
+									if(name == ROGUE && (looking & (LEFT | RIGHT)) == (target.looking & (LEFT | RIGHT))){
+										hitDamage *= 2;
+										renderer.createDebrisRect(target.collider, (looking & (LEFT | RIGHT)) == RIGHT ? 8 : -8, 30, target.debrisType);
+									}
 									target.applyDamage(hitDamage, trueNameToString(), hitKnockback, Boolean(hitResult & CRITICAL), type);
 									// leech
 									if(leech){
