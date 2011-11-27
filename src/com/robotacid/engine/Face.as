@@ -53,7 +53,10 @@ package com.robotacid.engine {
 		}
 		
 		override public function nameToString():String {
-			return Character.stats["names"][level] + " face";
+			var str:String = "";
+			if(user && user == g.player) str += "w: ";
+			else if(user && user == g.minion) str += "m: ";
+			return str + Character.stats["names"][level] + " face";
 		}
 		
 		override public function getHelpText():String {
