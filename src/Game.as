@@ -73,7 +73,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 260;
+		public static const BUILD_NUM:int = 261;
 		
 		public static var g:Game;
 		public static var renderer:Renderer;
@@ -183,6 +183,7 @@
 			ItemMovieClip.g = this;
 			
 			Effect.BANNED_RANDOM_ENCHANTMENTS[Effect.PORTAL] = true;
+			Effect.BANNED_RANDOM_ENCHANTMENTS[Effect.NULL] = true;
 			
 			TextBox.init();
 			MapTileConverter.init();

@@ -53,19 +53,23 @@
 		"xp",
 		"leech",
 		"thorns",
-		"portal"
+		"portal",
+		"stupefy",
+		"null"
 	],
 	"rune descriptions":[
-		"casts a bright light on all things",
-		"mends wounds over time",
-		"causes sickness and death",
+		"glows brightly",
+		"makes you feel better",
+		"is painful to hold",
 		"appears and disappears in your hand",
-		"will not let dead bones rest",
-		"changes the shape of things",
-		"grants wisdom and strength",
-		"thirsts for blood",
-		"inflicts pain recieved on others",
-		"opens gateways"
+		"is connected to the realm of the dead",
+		"seems to constantly change shape",
+		"imbues wisdom and skill",
+		"draws lifeforce into it",
+		"is covered in spikes",
+		"has a hole in it",
+		"err, what does it do again?",
+		"destroys magic"
 	],
 	"weapon ranges":[
 		5,

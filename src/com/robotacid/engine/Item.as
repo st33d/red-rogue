@@ -139,6 +139,8 @@
 		public static const LEECH_RUNE:int = 7;
 		public static const THORNS:int = 8;
 		public static const PORTAL:int = 9;
+		public static const STUPEFY:int = 10;
+		public static const NULL:int = 11;
 		
 		// curse states
 		public static const NO_CURSE:int = 0;
@@ -199,6 +201,7 @@
 					for(i = 0; i < effects.length; i++){
 						effect = effects[i];
 						if(effect.name == Effect.LEECH) leech += Effect.LEECH_PER_LEVEL * effect.level;
+						else if(effect.name == Effect.STUPEFY) stun += Effect.STUPEFY_PER_LEVEL * effect.level;
 					}
 				}
 				

@@ -43,6 +43,8 @@
 		public static const LEECH:int = Item.LEECH_RUNE;
 		public static const THORNS:int = Item.THORNS;
 		public static const PORTAL:int = Item.PORTAL;
+		public static const STUPEFY:int = Item.STUPEFY;
+		public static const NULL:int = Item.NULL;
 		
 		public static var BANNED_RANDOM_ENCHANTMENTS:Array = [];
 		
@@ -58,9 +60,11 @@
 		/* There are 5 health stealing opportunities: being a vampire, the leech weapon, blood armour and leech enchantment
 		 * counts as two - but we're going to treat it as four and divide 1.0 by 20 * 4 */
 		public static const LEECH_PER_LEVEL:Number = 0.0125;
+		/* Max stupefy enchant should add just 0.5 to an item's stun stat */
+		public static const STUPEFY_PER_LEVEL:Number = 1.0 / 40;
 		
 		public static const MIN_TELEPORT_DIST:int = 10;
-		public static const TELEPORT_COUNTDOWN_STEP:int = 600 / 20;
+		public static const ARMOUR_COUNTDOWN_STEP:int = 600 / 20;
 		
 		public function Effect(name:int, level:int, source:int, target:Character = null, count:int = 0) {
 			this.name = name;
@@ -141,7 +145,13 @@
 				// more so if the armour is cursed and ironically will require a teleport rune to remove it
 				if(count-- <= 0){
 					teleportCharacter(target);
-					count = (21 - level) * TELEPORT_COUNTDOWN_STEP;
+					count = (21 - level) * ARMOUR_COUNTDOWN_STEP;
+				}
+			} else if(name == STUPEFY){
+				// stupefy armour is similar to teleport armour in that it stuns you periodically
+				if(count-- <= 0){
+					target.applyStun(level * STUPEFY_PER_LEVEL);
+					count = (21 - level) * ARMOUR_COUNTDOWN_STEP;
 				}
 			}
 		}
@@ -202,6 +212,22 @@
 				}
 				return item;
 				
+			} else if(name == NULL){
+				// kill leeches - they are magical
+				if(item.name == Item.LEECH_WEAPON){
+					if(inventoryList) item = inventoryList.removeItem(item);
+					item.location = Item.UNASSIGNED;
+					if(user) renderer.createDebrisRect(user.collider, 0, 10, Renderer.BLOOD);
+					g.console.print("leech was destroyed by anti-magic");
+				} else {
+					// strip all enchantments
+					item.effects = null;
+					item.curseState = Item.NO_CURSE;
+					item.setStats();
+					if(inventoryList) inventoryList.updateItem(item);
+				}
+				return item;
+				
 			}
 			
 			// this is the embedding routine
@@ -228,12 +254,17 @@
 				if(g.random.value() < Item.CURSE_CHANCE) item.applyCurse();
 			}
 			
-			// non-applicable enchantments merely alter a stat on an item, conferring no active effect
+			// non-applicable enchantments merely alter a stat on an item, they don't transmit effect objects to the target
 			if(name == LEECH){
 				applicable = false;
 				item.setStats();
 			} else if(name == THORNS){
 				if(item.type == Item.ARMOUR){
+					applicable = false;
+					item.setStats();
+				}
+			} else if(name == STUPEFY){
+				if(item.type == Item.WEAPON){
 					applicable = false;
 					item.setStats();
 				}
@@ -264,6 +295,7 @@
 		public function apply(target:Character, count:int = 0):void{
 			
 			var callMain:Boolean = false;
+			var i:int;
 			this.count = 0;
 			
 			this.target = target;
@@ -306,13 +338,25 @@
 				// teleport enchanted armour will randomly hop the wearer around the map, the stronger
 				// the effect, the more frequent the jumps
 				if(source == ARMOUR){
-					count = (21 - level) * TELEPORT_COUNTDOWN_STEP;
+					count = (21 - level) * ARMOUR_COUNTDOWN_STEP;
 					callMain = true;
 				} else {
 					if(g.random.value() < 0.05 * level){
 						teleportCharacter(target);
 					}
 					// all other sources of teleport do not embed, they are one time effects only
+					return;
+				}
+				
+			} else if(name == STUPEFY){
+				// stupefy enchanted armour will periodically stun the wearer - the stronger the effect
+				// the more frequently it occurs
+				if(source == ARMOUR){
+					count = (21 - level) * ARMOUR_COUNTDOWN_STEP;
+					callMain = true;
+				} else {
+					// stun the target for an extra long duration
+					target.applyStun(2);
 					return;
 				}
 				
@@ -376,7 +420,19 @@
 					}
 				}
 				
+			} else if(name == NULL){
+				// strip all eaten and thrown effects
+				var effect:Effect;
+				for(i = target.effects.length - 1; i > -1; i--){
+					effect = target.effects[i];
+					if(effect.source == THROWN || effect.source == EATEN){
+						effect.dismiss();
+					}
+				}
+				return;
+				
 			}
+			
 			if(!target.effects) target.effects = new Vector.<Effect>();
 			target.effects.push(this);
 			active = true;

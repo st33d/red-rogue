@@ -490,6 +490,7 @@
 				effect = new Effect(rune.name, 1, 1);
 				
 				Item.revealName(rune.name, inventoryList);
+				g.console.print(item.nameToString() + " enchanted with " + rune.nameToString());
 				
 				// items need to be unequipped and then equipped again to apply their new settings to a Character
 				var user:Character = item.user;
@@ -500,7 +501,6 @@
 				if(user && item.location == Item.INVENTORY) item = user.equip(item);
 				
 				rune = inventoryList.removeItem(rune);
-				g.console.print(item.nameToString() + " enchanted with " + rune.nameToString());
 			
 			// exit the level
 			} else if(option == exitLevelOption){
