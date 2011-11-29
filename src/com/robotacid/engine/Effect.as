@@ -425,7 +425,7 @@
 				var effect:Effect;
 				for(i = target.effects.length - 1; i > -1; i--){
 					effect = target.effects[i];
-					if(effect.source == THROWN || effect.source == EATEN){
+					if(effect.source == THROWN || effect.source == EATEN || effect.source == WEAPON){
 						effect.dismiss();
 					}
 				}
