@@ -46,6 +46,7 @@
 		public var endurance:Number;
 		public var leech:Number;
 		public var thorns:Number;
+		public var butcher:Number;
 		
 		public var effects:Vector.<Effect>;
 		public var missileGfxClass:Class;
@@ -181,6 +182,7 @@
 				attack = stats["weapon attacks"][name] + stats["weapon attack levels"][name] * level;
 				stun = stats["weapon stuns"][name];
 				knockback = stats["weapon knockbacks"][name];
+				butcher = stats["weapon butchers"][name];
 				range = stats["weapon ranges"][name];
 				
 				// missile ammo
@@ -347,15 +349,17 @@
 			
 			if(location == EQUIPPED){
 				revealCurse();
-				if(user && user == g.minion){
-					g.console.print("but the minion is unaffected...");
-				}
 			}
 		}
 		
 		/* Reveals that this item is cursed in the menu */
 		public function revealCurse():void{
-			if(location == INVENTORY) g.console.print("the " + nameToString() + " is cursed!");
+			if(user && (user == g.player || user == g.minion)){
+				var str:String = nameToString();
+				str = str.substr(str.indexOf(":") + 1);
+				g.console.print("the " + str + " is cursed!");
+				if(user.undead) g.console.print("but the dead are unaffected...");
+			}
 			curseState = CURSE_REVEALED;
 		}
 		

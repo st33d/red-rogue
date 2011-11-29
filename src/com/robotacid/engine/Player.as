@@ -386,7 +386,6 @@
 		
 		/* Select an item as a weapon or armour */
 		override public function equip(item:Item):Item{
-			if(item.curseState == Item.CURSE_HIDDEN) item.revealCurse();
 			item = inventory.unstack(item);
 			super.equip(item);
 			// set the active state and name of the missile option in the menu
@@ -395,6 +394,7 @@
 				if(item.range & Item.MISSILE) g.menu.missileOption.state = 0;
 				else if(item.range & Item.THROWN) g.menu.missileOption.state = 1;
 			}
+			if(item.curseState == Item.CURSE_HIDDEN) item.revealCurse();
 			inventory.updateItem(item);
 			return item;
 		}
@@ -408,7 +408,7 @@
 			return item;
 		}
 		
-		override public function death(cause:String = "crushing", decapitation:Boolean = false, aggressor:int = 0):void{
+		override public function death(cause:String = "crushing", decapitation:Boolean = false, aggressor:Character = null):void{
 			if(g.god_mode || !active) return;
 			super.death(cause, decapitation);
 			g.soundQueue.add("rogueDeath");
@@ -483,7 +483,7 @@
 			
 		}
 		
-		override public function applyDamage(n:Number, source:String, knockback:Number = 0, critical:Boolean = false, aggressor:int = PLAYER):void {
+		override public function applyDamage(n:Number, source:String, knockback:Number = 0, critical:Boolean = false, aggressor:Character = null):void {
 			super.applyDamage(n, source, knockback, critical);
 			g.playerHealthBar.setValue(health, totalHealth);
 		}

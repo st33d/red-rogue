@@ -72,11 +72,11 @@
 			collider.pushDamping = 0;
 		}
 		
-		override public function applyDamage(n:Number, source:String, knockback:Number = 0, critical:Boolean = false, aggressor:int = PLAYER):void {
+		override public function applyDamage(n:Number, source:String, knockback:Number = 0, critical:Boolean = false, aggressor:Character = null):void {
 			var mc:MovieClip = gfx as MovieClip;
 			if(name == SECRET_WALL){
 				if(!revealed) reveal();
-				super.applyDamage(n, source, 0, critical);
+				super.applyDamage(n, source, 0, critical, aggressor);
 				
 			} else if(name == HEALTH){
 				if(g.minion){
@@ -94,7 +94,7 @@
 		}
 		
 		/* The secret wall is the only stone that can be destroyed, so only its death is dealt with here */
-		override public function death(cause:String = "crushed", decapitation:Boolean = false, aggressor:int = PLAYER):void {
+		override public function death(cause:String = "crushed", decapitation:Boolean = false, aggressor:Character = null):void {
 			active = false;
 			renderer.createDebrisRect(collider, 0, 100, debrisType);
 			g.console.print("secret revealed");

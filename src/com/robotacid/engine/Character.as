@@ -362,7 +362,7 @@
 										hitDamage *= 2;
 										renderer.createDebrisRect(target.collider, (looking & (LEFT | RIGHT)) == RIGHT ? 8 : -8, 30, target.debrisType);
 									}
-									target.applyDamage(hitDamage, trueNameToString(), hitKnockback, Boolean(hitResult & CRITICAL), type);
+									target.applyDamage(hitDamage, trueNameToString(), hitKnockback, Boolean(hitResult & CRITICAL), this);
 									// leech
 									if(leech){
 										var leechValue:Number = leech > 1 ? 1 : leech;
@@ -371,7 +371,7 @@
 									// thorns
 									if(target.thorns){
 										renderer.createDebrisRect(collider, 0, 10, debrisType);
-										applyDamage(hitDamage * (target.thorns <= 1 ? target.thorns : 1), target.nameToString(), 0, false, target.type);
+										applyDamage(hitDamage * (target.thorns <= 1 ? target.thorns : 1), target.nameToString(), 0, false);
 									}
 									// blood
 									p.x = gfx.x + (mc.weapon ? mc.weapon.x : 0);
@@ -547,7 +547,7 @@
 		
 		/* Kill the Character, printing a cause to the console and generating a Head object
 		 * on decapitation. Decapitation is meant to occur only via hand to hand combat */
-		public function death(cause:String = "crushing", decapitation:Boolean = false, aggressor:int = 0):void{
+		public function death(cause:String = "crushing", decapitation:Boolean = false, aggressor:Character = null):void{
 			active = false;
 			renderer.createDebrisRect(collider, 0, 32, debrisType);
 			var method:String = decapitation ? "decapitated" : stats["death strings"][name];
@@ -769,7 +769,7 @@
 		}
 		
 		/* Adds damage to the Character */
-		public function applyDamage(n:Number, source:String, knockback:Number = 0, critical:Boolean = false, aggressor:int = 0):void{
+		public function applyDamage(n:Number, source:String, knockback:Number = 0, critical:Boolean = false, aggressor:Character = null):void{
 			// killing a character on a set of stairs could crash the game
 			if(state == ENTERING || state == EXITING || state == QUICKENING) return;
 			health-= n;

@@ -17,8 +17,8 @@
 		// Heart items are this game's equivalent of health potions
 		// they are harvested randomly during a kill
 		// more likely is it that a bare handed player will pluck a heart
-		public static const CARDIAC_SURGERY_CHANCE:Number = 0.1;
-		public static const BARE_HANDED_CARDIAC_SURGERY_CHANCE:Number = 0.2;
+		public static const BUTCHER_CHANCE:Number = 0.1;
+		public static const BARE_HANDED_BUTCHER_BONUS:Number = 0.15;
 		
 		public function Monster(mc:DisplayObject, x:Number, y:Number, name:int, level:int, items:Vector.<Item>){
 			super(mc, x, y, name, MONSTER, level, false);
@@ -60,7 +60,7 @@
 			super.main();
 		}
 		
-		override public function applyDamage(n:Number, source:String, knockback:Number = 0, critical:Boolean = false, aggressor:int = 0):void {
+		override public function applyDamage(n:Number, source:String, knockback:Number = 0, critical:Boolean = false, aggressor:Character = null):void {
 			super.applyDamage(n, source, knockback, critical, aggressor);
 			// poison effects on multiple characters could cause the bar to flicker between victims,
 			// so we focus on the last person who was attacked physically
@@ -70,7 +70,7 @@
 			}
 		}
 		
-		override public function death(cause:String = "crushing", decapitation:Boolean = false, aggressor:int = 0):void {
+		override public function death(cause:String = "crushing", decapitation:Boolean = false, aggressor:Character = null):void {
 			if(!active) return;
 			for(var i:int = 0; i < loot.length; i++){
 				if(loot[i].location == Item.EQUIPPED){
@@ -81,8 +81,10 @@
 			loot = new Vector.<Item>();
 			super.death(cause, decapitation);
 			g.enemyHealthBar.deactivate();
-			if(aggressor == PLAYER){
-				var surgeryChance:Number = CARDIAC_SURGERY_CHANCE + (g.player.weapon == null ? BARE_HANDED_CARDIAC_SURGERY_CHANCE : 0);
+			
+			// determine if the player manages to pluck out the monster's heart
+			if(aggressor == g.player){
+				var surgeryChance:Number = BUTCHER_CHANCE + (aggressor.weapon == null ? BARE_HANDED_BUTCHER_BONUS : aggressor.weapon.butcher);
 				if(g.random.value() < surgeryChance){
 					var heartMc:Sprite = new HeartMC();
 					var heart:Item = new Item(heartMc, name, Item.HEART, level);
@@ -91,6 +93,7 @@
 					g.console.print("rogue tore out a" + ((victimName.charAt(0).search(/[aeiou]/i) == 0) ? "n " : " ") + heart.nameToString());
 				}
 			}
+			
 			Brain.monsterCharacters.splice(Brain.monsterCharacters.indexOf(this), 1);
 		}
 		

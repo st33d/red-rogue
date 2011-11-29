@@ -1,3 +1,11 @@
+butcher stat
+
+prep for identify rune
+	Lore menu
+	Reveal minimap
+	Identify all runes
+	Quests
+
 Add some how add a random offset to AI search values - they're in ints (fuck knows, coin flipping?)
 
 AI issues:

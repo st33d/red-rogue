@@ -87,12 +87,9 @@
 		
 		/* Select an item as a weapon or armour */
 		override public function equip(item:Item):Item {
-			if(item.curseState == Item.CURSE_HIDDEN){
-				item.revealCurse();
-				g.console.print("but the minion is unaffected...");
-			}
 			item = inventory.unstack(item);
 			super.equip(item);
+			if(item.curseState == Item.CURSE_HIDDEN) item.revealCurse();
 			inventory.updateItem(item);
 			return item;
 		}
@@ -104,8 +101,8 @@
 			return item;
 		}
 		
-		override public function applyDamage(n:Number, source:String, knockback:Number = 0, critical:Boolean = false, aggressor:int = PLAYER):void {
-			super.applyDamage(n, source, knockback, critical, knockback);
+		override public function applyDamage(n:Number, source:String, knockback:Number = 0, critical:Boolean = false, aggressor:Character = null):void {
+			super.applyDamage(n, source, knockback, critical, aggressor);
 			g.minionHealthBar.setValue(health, totalHealth);
 		}
 		
@@ -126,7 +123,7 @@
 			g.soundQueue.add("teleport");
 		}
 		
-		override public function death(cause:String = "crushing", decapitation:Boolean = false, aggressor:int = 0):void {
+		override public function death(cause:String = "crushing", decapitation:Boolean = false, aggressor:Character = null):void {
 			if(!active) return;
 			var temp_weapon:Item;
 			var temp_armour:Item;

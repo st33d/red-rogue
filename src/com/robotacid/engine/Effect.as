@@ -117,7 +117,7 @@
 			} else if(name == POISON){
 				if(count){
 					count--;
-					target.applyDamage(healthStep, nameToString());
+					if(!target.undead) target.applyDamage(healthStep, nameToString());
 				} else {
 					if(source == ARMOUR){
 						active = false;

@@ -267,16 +267,15 @@
 					inventoryList.equipMinionOption.state = (item.user && item.user == g.minion) ? 1 : 0;
 					inventoryList.equipMinionOption.active = Boolean(g.minion);
 					inventoryList.enchantmentList.update(item);
-					// cursed items disable equipping items of that type, they cannot be dropped either
-					if(item.type == Item.WEAPON && g.player.weapon && g.player.weapon.curseState == Item.CURSE_REVEALED){
-						inventoryList.equipOption.active = false;
-						inventoryList.equipMinionOption.active = false;
-					} else if(item.type == Item.ARMOUR && g.player.armour && g.player.armour.curseState == Item.CURSE_REVEALED){
+					
+					// cursed items disable equipping items of that type, they cannot be dropped either (except by the dead)
+					if(item.curseState == Item.CURSE_REVEALED && item.user && !item.user.undead){
 						inventoryList.equipOption.active = false;
 						inventoryList.equipMinionOption.active = false;
 					} else {
 						inventoryList.equipOption.active = true;
 					}
+					
 					// no equipping face armour on the overworld
 					if(item.type == Item.ARMOUR && item.name == Item.FACE){
 						if(g.dungeon.level == 0){
@@ -284,7 +283,7 @@
 							inventoryList.equipMinionOption.active = false;
 						}
 					}
-					inventoryList.dropOption.active = item.curseState != Item.CURSE_REVEALED;
+					inventoryList.dropOption.active = g.player.undead || item.curseState != Item.CURSE_REVEALED;
 					
 				} else if(item.type == Item.HEART){
 					if(!hotKeyMapRecord) inventoryList.eatOption.active = g.player.health < g.player.totalHealth;
