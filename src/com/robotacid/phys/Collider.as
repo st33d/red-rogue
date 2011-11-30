@@ -597,13 +597,15 @@ package com.robotacid.phys {
 											collider.state = Collider.FALL;
 										}
 										// scan, the stomp may not have pushed the collider free - it is doomed
-										stompees = world.getCollidersIn(new Rectangle(x, y + vy, width, height), this, stompProperties);
-										for(j = 0; j < stompees.length; j++){
-											tempCollider = stompees[j];
-											if(tempCollider == collider) collider.crushed = true;
-										}
-										// stomp callback only when the victim's center is under our base - be generous
-										if(!collider.crushed && (n < x || n > x + width - INTERVAL_TOLERANCE)) collider.stompCallback(this);
+										//stompees = world.getCollidersIn(new Rectangle(x, y + vy, width, height), this, stompProperties);
+										//for(j = 0; j < stompees.length; j++){
+											//tempCollider = stompees[j];
+											//if(tempCollider == collider) collider.crushed = true;
+										//}
+										 //stomp callback only when the victim's center is under our base - be generous
+										//if(!collider.crushed && (n < x || n > x + width - INTERVAL_TOLERANCE)) collider.stompCallback(this);
+										collider.stompCallback(this);
+										divorce();
 										
 									} else {
 										if(obstacleActuallyMoved < obstacleShouldMove){
