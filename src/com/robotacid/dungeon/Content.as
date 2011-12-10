@@ -36,24 +36,37 @@
 		public var portalsByLevel:Vector.<Vector.<XML>>;
 		
 		public var itemDungeonContent:Object;
+		public var areaContent:Array;
 		
 		public static const TOTAL_LEVELS:int = 20;
+		public static const TOTAL_AREAS:int = 2;
 		
 		public function Content() {
+			var obj:Object;
+			var level:int;
 			chestsByLevel = new Vector.<Vector.<XML>>(TOTAL_LEVELS + 1);
 			monstersByLevel = new Vector.<Vector.<XML>>(TOTAL_LEVELS + 1);
 			portalsByLevel = new Vector.<Vector.<XML>>(TOTAL_LEVELS + 1);
-			init();
-		}
-		
-		public function init():void{
-			var obj:Object;
-			for(var level:int = 0; level <= TOTAL_LEVELS; level++){
+			for(level = 0; level <= TOTAL_LEVELS; level++){
 				obj = getLevelContent(level);
 				monstersByLevel[level] = obj.monsters;
 				chestsByLevel[level] = obj.chests;
 				portalsByLevel[level] = new Vector.<XML>()
 			}
+			areaContent = [];
+			for(level = 0; level < TOTAL_AREAS; level++){
+				areaContent.push({
+					chests:new Vector.<XML>,
+					monsters:new Vector.<XML>,
+					portals:new Vector.<XML>
+				});
+			}
+			// set up underworld portal on level 20
+			var portalXML:XML = <portal />;
+			portalXML.@type = Portal.UNDERWORLD;
+			portalXML.@targetLevel = Map.UNDERWORLD;
+			portalsByLevel[20].push(portalXML);
+			setUnderworldPortal(20);
 		}
 		
 		// Equations for quantities on levels
@@ -163,6 +176,27 @@
 			itemDungeonContent.portals = Vector.<XML>([portalXML]);
 		}
 		
+		/* Retargets the underworld portal */
+		public function setUnderworldPortal(level:int):void{
+			var portalXML:XML = <portal />;
+			portalXML.@type = Portal.UNDERWORLD_RETURN;
+			portalXML.@targetLevel = level;
+			areaContent[Map.UNDERWORLD].portals = Vector.<XML>([portalXML]);
+		}
+		
+		/* Creates or retargets the overworld portal */
+		public function setOverworldPortal(level:int):void{
+			var portalXML:XML
+			if(areaContent[Map.OVERWORLD].portals.length == 0){
+				portalXML = <portal />;
+				portalXML.@type = Portal.OVERWORLD_RETURN;
+				areaContent[Map.OVERWORLD].portals = Vector.<XML>([portalXML]);
+			} else {
+				portalXML = areaContent[Map.OVERWORLD].portals[0];
+			}
+			portalXML.@targetLevel = level;
+		}
+		
 		/* Distributes content across a level
 		 * 
 		 * Portals we leave alone for the Map to request when it needs to create access points */
@@ -184,7 +218,10 @@
 				monsters = itemDungeonContent.monsters;
 				chests = itemDungeonContent.chests;
 			}
-			if(level > 0){
+			
+			// distribute
+			
+			if(mapType != Map.OUTSIDE_AREA){
 				// just going to go for a random drop for now.
 				// I intend to figure out a distribution pattern later
 				while(monsters.length){
@@ -204,16 +241,25 @@
 					}
 				}
 			} else {
-				// on the overworld we just scatter objects left up there
+				// on areas we just scatter objects left up there
 				var chest:Chest;
 				var item:Item;
 				var list:Array;
-				while(chestsByLevel[level].length){
-					chest = convertXMLToEntity(0, 0, chestsByLevel[level].shift());
+				var minX:int, maxX:int;
+				if(level == Map.OVERWORLD){
+					minX = 2;
+					maxX = bitmap.width - 2;
 					r = bitmap.height - 2;
+				} else if(level == Map.UNDERWORLD){
+					minX = Map.UNDERWORLD_BOAT_MIN;
+					maxX = Map.UNDERWORLD_BOAT_MAX;
+					r = bitmap.height - 3;
+				}
+				while(areaContent[level].chests.length){
+					chest = convertXMLToEntity(0, 0, areaContent[level].chests.shift());
 					while(chest.contents.length){
 						item = chest.contents.shift();
-						c = 2 + g.random.range(bitmap.width - 4);
+						c = minX + g.random.range(maxX - minX);
 						item.dropToMap(c, r, false);
 						if(layers[Map.ENTITIES][r][c]){
 							if(layers[Map.ENTITIES][r][c] is Array){
@@ -233,9 +279,16 @@
 		public function getPortals(level:int, mapType:int):Vector.<XML>{
 			var list:Vector.<XML> = new Vector.<XML>();
 			if(mapType == Map.MAIN_DUNGEON){
-				while(portalsByLevel[level].length) list.push(portalsByLevel[level].pop());
+				if(level < portalsByLevel.length){
+					while(portalsByLevel[level].length) list.push(portalsByLevel[level].pop());
+				}
+				
 			} else if(mapType == Map.ITEM_DUNGEON){
 				while(itemDungeonContent.portals.length) list.push(itemDungeonContent.portals.pop());
+				
+			} else if(mapType == Map.OUTSIDE_AREA){
+				while(areaContent[level].portals.length) list.push(areaContent[level].portals.pop());
+				
 			}
 			return list;
 		}
@@ -326,6 +379,11 @@
 				monsters = itemDungeonContent.monsters;
 				chests = itemDungeonContent.chests;
 				portals = itemDungeonContent.portals;
+				
+			} else if(mapType == Map.OUTSIDE_AREA){
+				monsters = areaContent[level].monsters;
+				chests = areaContent[level].chests;
+				portals = areaContent[level].portals;
 			}
 			
 			if(entity is Monster){

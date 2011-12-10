@@ -62,6 +62,10 @@
 		public static const PIT:uint = 0xFFFFFFFF;
 		public static const SECRET:uint = 0xFFCCCCCC;
 		
+		// types
+		public static const DUNGEON:int = 0;
+		public static const AREA:int = 1;
+		
 		public static const UP:int = 1;
 		public static const RIGHT:int = 1 << 1;
 		public static const DOWN:int = 1 << 2;
@@ -75,15 +79,21 @@
 		public static const OVERWORLD_WIDTH:int = 25;
 		public static const OVERWORLD_HEIGHT:int = 13;
 		
+		public static const UNDERWORLD_WIDTH:int = 20;
+		public static const UNDERWORLD_HEIGHT:int = 13;
+		
+		/* Adobe don't provide this as a constant for some reason */
 		public static const MAXIMUM_PIXELS:int = 16769025;
 		
-		public function DungeonBitmap(level:int) {
+		public function DungeonBitmap(level:int, type:int = DUNGEON) {
 			
 			var bitmapData:BitmapData;
 			
-			if(level == 0){
-				bitmapData = createOverWorld();
-			} else {
+			if(type == AREA){
+				if(level == 0) bitmapData = createOverworld();
+				else if(level == 1) bitmapData = createUnderworld();
+				
+			} else if(type == DUNGEON){
 				if(level > MIN_LEVEL){
 					// the level parameter seems to fail at dishing out cool levels at about 8
 					// and beyond 5 the dungeons get crazily big and empty
@@ -105,20 +115,28 @@
 			
 			super(bitmapData, "auto", false);
 			
-			if(level > 0){
+			if(type == DUNGEON){
 				while(!createRoutes()){}
 				createPits();
 				createSecrets();
 			}
 		}
 		
-		public function createOverWorld():BitmapData{
+		/* Creates the base map for the overworld area */
+		public function createOverworld():BitmapData{
 			var overworldMap:BitmapData = new BitmapData(OVERWORLD_WIDTH, OVERWORLD_HEIGHT, true, WALL);
 			overworldMap.fillRect(new Rectangle(1, 1, overworldMap.width - 2, overworldMap.height - 2), EMPTY);
 			adjustedMapRect = new Rectangle(0, 0, overworldMap.width * Game.SCALE, overworldMap.height * Game.SCALE);
 			return overworldMap;
 		}
 		
+		/* Creates the base map for the underworld area */
+		public function createUnderworld():BitmapData{
+			var underworldMap:BitmapData = new BitmapData(UNDERWORLD_WIDTH, UNDERWORLD_HEIGHT, true, WALL);
+			underworldMap.fillRect(new Rectangle(1, 1, underworldMap.width - 2, underworldMap.height - 2), EMPTY);
+			adjustedMapRect = new Rectangle(0, 0, underworldMap.width * Game.SCALE, underworldMap.height * Game.SCALE);
+			return underworldMap;
+		}
 		
 		/* This plots the size, number of rooms and how those rooms are connected */
 		public function createRoomsAndTunnels():BitmapData{

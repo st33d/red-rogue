@@ -133,7 +133,7 @@ package com.robotacid.ui {
 			if(pattern.length > keyLogString.length) return false;
 			return keyLogString.substr(keyLogString.length - pattern.length) == pattern;
 		}
-
+		
         /**
         * Event handler for capturing keys being pressed
         */
@@ -146,7 +146,7 @@ package com.robotacid.ui {
 			keyLog[KEY_LOG_LENGTH - 1] = event.keyCode;
 			keyLogString = keyLog.toString();
         }
-
+		
         /**
         * Event handler for capturing keys being released
         */
@@ -154,7 +154,7 @@ package com.robotacid.ui {
             keysDown[event.keyCode] = false;
 			keysPressed--;
         }
-
+		
         /**
         * Event handler for Flash Player deactivation
         */
@@ -174,7 +174,6 @@ package com.robotacid.ui {
 		 * a 3 letter string is returned for special characters
 		 *
 		 */
-		
 		public static function keyString(keyCode:uint):String{
 			switch(keyCode){
 				case Keyboard.BACKSPACE:

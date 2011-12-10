@@ -363,8 +363,7 @@ package com.robotacid.phys {
 									pressure |= RIGHT;
 								} else {
 									if(obstacleActuallyMoved < obstacleShouldMove){
-										collider.crushed = true;
-										collider.pressure |= LEFT;
+										//collider.crushed = true;
 									}
 								}
 							}
@@ -451,7 +450,7 @@ package com.robotacid.phys {
 									pressure |= LEFT;
 								} else {
 									if(obstacleActuallyMoved > obstacleShouldMove){
-										collider.crushed = true;
+										//collider.crushed = true;
 									}
 								}
 							}
@@ -623,7 +622,7 @@ package com.robotacid.phys {
 									}
 								} else {
 									if(obstacleActuallyMoved < obstacleShouldMove){
-										collider.crushed = true;
+										//collider.crushed = true;
 									}
 								}
 							}
@@ -710,7 +709,7 @@ package com.robotacid.phys {
 									pressure |= UP;
 								} else {
 									if(obstacleActuallyMoved > obstacleShouldMove){
-										collider.crushed = true;
+										//collider.crushed = true;
 									}
 								}
 								// make the obstacle a child of this Collider

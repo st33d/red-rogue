@@ -299,7 +299,7 @@
 						if(g.minion) inventoryList.feedMinionOption.active = g.minion.level < Game.MAX_LEVEL;
 						inventoryList.eatOption.active = g.player.level < Game.MAX_LEVEL;
 					} else if(item.name == Effect.PORTAL){
-						inventoryList.eatOption.active = g.dungeon.level > 0 && g.dungeon.type == Map.MAIN_DUNGEON;
+						inventoryList.eatOption.active = g.dungeon.type == Map.MAIN_DUNGEON;
 						if(g.minion) inventoryList.feedMinionOption.active = inventoryList.eatOption.active;
 					}
 				}

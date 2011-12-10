@@ -6,9 +6,11 @@
 	import com.robotacid.gfx.BlitClip;
 	import com.robotacid.phys.Collider;
 	import com.robotacid.ui.MinimapFeature;
+	import flash.display.Bitmap;
 	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
 	import flash.display.Shape;
+	import flash.geom.Matrix;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	
@@ -42,21 +44,22 @@
 		
 		// types
 		public static const STAIRS:int = 0;
-		public static const ROGUE:int = 1;
-		public static const ROGUE_RETURN:int = 2;
+		public static const OVERWORLD:int = 1;
+		public static const OVERWORLD_RETURN:int = 2;
 		public static const ITEM:int = 3;
 		public static const ITEM_RETURN:int = 4;
-		public static const MINION:int = 5;
-		public static const MONSTER:int = 6;
+		public static const UNDERWORLD:int = 5;
+		public static const UNDERWORLD_RETURN:int = 6;
+		public static const MONSTER:int = 7;
 		
-		public static const GFX_CLASSES:Array = [, RoguePortalMC, DungeonPortalMC, DungeonPortalMC, DungeonPortalMC, MinionPortalMC, MonsterPortalMC];
+		public static const GFX_CLASSES:Array = [, OverworldPortalMC, DungeonPortalMC, DungeonPortalMC, DungeonPortalMC, UnderworldPortalMC, DungeonPortalMC, MonsterPortalMC];
 		
 		public static const OPEN_CLOSE_DELAY:int = 8;
 		public static const SCALE_STEP:Number = 1.0 / OPEN_CLOSE_DELAY;
 		public static const GFX_STEP:Number = (SCALE * 0.5) / OPEN_CLOSE_DELAY;
 		public static const MONSTERS_PER_LEVEL:int = 2;
 		public static const MONSTERS_ENTRY_DELAY:int = 8;
-		public static const MINION_HEAL_RATE:Number = 0.05;
+		public static const UNDEAD_HEAL_RATE:Number = 0.05;
 		
 		public function Portal(gfx:DisplayObject, rect:Rectangle, type:int, targetLevel:int, state:int = OPEN, active:Boolean = true) {
 			super(gfx, false, false);
@@ -65,7 +68,7 @@
 			this.targetLevel = targetLevel;
 			this.state = state;
 			this.active = active;
-			playerPortal = (type != MINION && type != MONSTER)
+			playerPortal = type != MONSTER;
 			callMain = true;
 			seen = false;
 			if(state == OPENING){
@@ -110,16 +113,23 @@
 					}
 					minimapFeature = g.miniMap.addFeature(mapX, mapY, blit);
 				}
-				if(type == MINION){
-					// heal the minion
-					if(g.minion){
-						if(g.minion.health < g.minion.totalHealth && g.minion.collider.intersects(rect)){
-							g.minion.applyHealth(g.minion.totalHealth * MINION_HEAL_RATE);
-							renderer.createTeleportSparkRect(g.minion.collider, 5);
+				if(type == UNDERWORLD){
+					// heal the undead
+					if(g.player.undead && g.player.health < g.player.totalHealth && g.player.collider.intersects(rect)){
+						g.player.applyHealth(g.player.totalHealth * UNDEAD_HEAL_RATE);
+						renderer.createTeleportSparkRect(g.player.collider, 5);
+					}
+					var character:Character;
+					for(var i:int = 0; i < g.entities.length; i++){
+						character = g.entities[i] as Character;
+						if(character.undead && character.health < character.totalHealth && character.collider.intersects(rect)){
+							character.applyHealth(character.totalHealth * UNDEAD_HEAL_RATE);
+							renderer.createTeleportSparkRect(character.collider, 5);
 						}
-					// or resurrect the minion
-					} else {
-						var mc:MovieClip = new MinionMC();
+					}
+					// resurrect the minion if dead
+					if(!g.minion){
+						var mc:MovieClip = new SkeletonMC();
 						g.minion = new Minion(mc, rect.x + rect.width * 0.5, rect.y + rect.height, Character.SKELETON);
 						g.minion.enterLevel(this);
 						g.console.print("undead minion returns");
@@ -168,10 +178,13 @@
 			state = CLOSING;
 		}
 		
-		/* Creates a black bar over the bottom edge of the overworld return portal to make it neater */
-		public function maskOverworldPortal():void{
+		/* Covers the bottom edge of a portal to make it neater in outside areas */
+		public function maskPortalBase():void{
 			var blackOut:Shape = new Shape();
-			blackOut.graphics.beginFill(0);
+			var bitmap:Bitmap;
+			if(type == OVERWORLD_RETURN) bitmap = new g.library.OverworldB();
+			else if(type == UNDERWORLD_RETURN) bitmap = new g.library.UnderworldB();
+			blackOut.graphics.beginBitmapFill(bitmap.bitmapData, new Matrix(1, 0, 0, 1, -mapX * Game.SCALE, -mapY * Game.SCALE), false);
 			blackOut.graphics.drawRect(-8, 16, 32, 8);
 			blackOut.graphics.endFill();
 			(gfx as MovieClip).addChild(blackOut);
@@ -253,20 +266,34 @@
 				g.portalHash[type] = portal;
 			}
 			
-			// alter or create the opposite end of the rogue portal in the content manager if it doesn't already exist
-			if(type == ROGUE){
-				var xml:XML;
-				if(g.content.portalsByLevel[0].length == 0){
-					xml = <portal />;
-					xml.@type = ROGUE_RETURN;
-					g.content.portalsByLevel[0].push(xml);
-				} else {
-					xml = g.content.portalsByLevel[0][0];
-				}
-				xml.@targetLevel = g.dungeon.level;
+			// retarget overworld or underworld portals
+			if(type == OVERWORLD){
+				g.content.setOverworldPortal(g.dungeon.level);
+			} else if(type == UNDERWORLD){
+				g.content.setUnderworldPortal(g.dungeon.level);
 			}
 			
 			return portal;
+		}
+		
+		/* Returns the report for the console when the player uses a given portal */
+		public static function usageMsg(type:int, targetLevel:int):String{
+			if(type == Portal.STAIRS){
+				if(targetLevel == Map.OVERWORLD){
+					return "ascended to overworld";
+				} else {
+					return (targetLevel > g.dungeon.level ? "descended" : "ascended") + " to level " + targetLevel;
+				}
+			} else if(type == Portal.OVERWORLD){
+				return "travelled to overworld";
+			} else if(
+				type == Portal.OVERWORLD_RETURN ||
+				type == Portal.ITEM_RETURN ||
+				type == Portal.UNDERWORLD_RETURN
+			) return "returned to level " + targetLevel;
+			else if(type == Portal.ITEM) return "travelled to retrieve item";
+			else if(type == Portal.UNDERWORLD) return "travelled to underworld";
+			return "fuck knows where you're going now";
 		}
 	}
 

@@ -14,6 +14,8 @@
 	 */
 	public class Monster extends Character{
 		
+		public var mapInitialised:Boolean;
+		
 		// Heart items are this game's equivalent of health potions
 		// they are harvested randomly during a kill
 		// more likely is it that a bare handed player will pluck a heart
@@ -32,9 +34,18 @@
 			
 			Brain.monsterCharacters.push(this);
 			
-			// tool up
-			if(items){
-				loot = items;
+			// monsters carrying loot should equip themselves, however
+			// we reach this code before the map has finished initialising
+			// which crashes effects like "light", so we wait until the MapTileManager
+			// activates the monster for the first time
+			mapInitialised = false;
+			
+			if(items) loot = items;
+		}
+		
+		/* Called when the MapTileManager activates this monster for the first time */
+		public function mapInit():void{
+			if(loot){
 				for(var i:int = 0; i < loot.length; i++){
 					if((!weapon && loot[i].type == Item.WEAPON) || (!armour && loot[i].type == Item.ARMOUR)){
 						equip(loot[i]);

@@ -120,6 +120,7 @@
 			mapX = (collider.x + collider.width * 0.5) * INV_SCALE;
 			mapY = (collider.y + collider.height * 0.5) * INV_SCALE;
 			renderer.createTeleportSparkRect(collider, 20);
+			brain.clear();
 			g.soundQueue.add("teleport");
 		}
 		

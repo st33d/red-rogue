@@ -1,6 +1,7 @@
 ﻿package com.robotacid.engine {
 	
 	import com.robotacid.ai.Brain;
+	import com.robotacid.dungeon.Map;
 	import com.robotacid.engine.Effect;
 	import com.robotacid.engine.Portal;
 	import com.robotacid.geom.Pixel;
@@ -58,8 +59,9 @@
 		public var actionsLockout:int;
 		public var portalContact:Portal;
 		
-		public static var previousLevel:int = 0;
+		public static var previousLevel:int = Map.OVERWORLD;
 		public static var previousPortalType:int = Portal.STAIRS;
+		public static var previousMapType:int = Map.OUTSIDE_AREA;
 		
 		public static const UP:int = 1;
 		public static const RIGHT:int = 2;
@@ -197,17 +199,7 @@
 					}
 				}
 				if(!portal){
-					var newLevelStr:String;
-					if(portalType == Portal.STAIRS){
-						if(portalTargetLevel == 0){
-							newLevelStr = "ascended to overworld";
-						} else {
-							newLevelStr = (portalTargetLevel > g.dungeon.level ? "descended" : "ascended") + " to level " + portalTargetLevel;
-						}
-					} else if(portalType == Portal.ROGUE) newLevelStr = "travelled to overworld";
-					else if(portalType == Portal.ROGUE_RETURN || portalType == Portal.ITEM_RETURN) newLevelStr = "returned to level " + portalTargetLevel;
-					else if(portalType == Portal.ITEM) newLevelStr = "travelled to retrieve item";
-					g.console.print(newLevelStr);
+					g.console.print(Portal.usageMsg(portalType, portalTargetLevel));
 					g.changeLevel(portalTargetLevel, portalType);
 				}
 			} else if(state == ENTERING){
@@ -431,6 +423,7 @@
 			// prepare the dungeon generator for what entrance the player will use
 			previousLevel = g.dungeon.level;
 			previousPortalType = portal.type;
+			previousMapType = g.dungeon.type;
 			if(portal.targetLevel < g.dungeon.level){
 				dir = looking = LEFT;
 			} else if(portal.targetLevel > g.dungeon.level){

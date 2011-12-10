@@ -73,7 +73,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 263;
+		public static const BUILD_NUM:int = 266;
 		
 		public static var g:Game;
 		public static var renderer:Renderer;
@@ -181,6 +181,7 @@
 			DungeonBitmap.g = this;
 			Lightning.g = this;
 			ItemMovieClip.g = this;
+			SceneManager.g = this;
 			
 			Effect.BANNED_RANDOM_ENCHANTMENTS[Effect.PORTAL] = true;
 			Effect.BANNED_RANDOM_ENCHANTMENTS[Effect.NULL] = true;
@@ -358,7 +359,10 @@
 			
 			//world.debug = debug;
 			
+			renderer.sceneManager = SceneManager.getSceneManager(dungeon.level, dungeon.type);
+			
 			lightMap = new LightMap(world.map);
+			
 			mapTileManager.init(dungeon.start.x, dungeon.start.y);
 			
 			//renderer.lightBitmap.visible = false;
@@ -394,8 +398,9 @@
 			mapTileManager = null;
 			dungeon = null;
 			world = null;
-			Player.previousLevel = 0;
+			Player.previousLevel = Map.OVERWORLD;
 			Player.previousPortalType = Portal.STAIRS;
+			Player.previousMapType = Map.OUTSIDE_AREA;
 			
 			init();
 		}
@@ -447,8 +452,17 @@
 			
 			Brain.monsterCharacters = new Vector.<Character>();
 			
+			// figure out where in hell's name we're going
 			var mapType:int = Map.MAIN_DUNGEON;
-			if(portalType == Portal.ITEM) mapType = Map.ITEM_DUNGEON;
+			if(portalType == Portal.STAIRS){
+				if(n == 0) mapType = Map.OUTSIDE_AREA;
+			} else if(portalType == Portal.ITEM){
+				mapType = Map.ITEM_DUNGEON;
+			} else if(portalType == Portal.UNDERWORLD){
+				mapType = Map.OUTSIDE_AREA;
+			} else if(portalType == Portal.OVERWORLD){
+				mapType = Map.OUTSIDE_AREA;
+			}
 			
 			dungeon = new Map(n, mapType);
 			
@@ -456,7 +470,7 @@
 			
 			mapTileManager.newMap(dungeon.width, dungeon.height, dungeon.layers);
 			renderer.blockBitmapData = mapTileManager.layerToBitmapData(MapTileManager.BACKGROUND_LAYER);
-			if(dungeon.level > 0) renderer.blockBitmapData = mapTileManager.layerToBitmapData(MapTileManager.BLOCK_LAYER, renderer.blockBitmapData);
+			if(dungeon.type != Map.OUTSIDE_AREA) renderer.blockBitmapData = mapTileManager.layerToBitmapData(MapTileManager.BLOCK_LAYER, renderer.blockBitmapData);
 			
 			// modify the mapRect to conceal secrets
 			mapTileManager.mapRect = dungeon.bitmap.adjustedMapRect;
@@ -464,6 +478,9 @@
 			
 			world = new CollisionWorld(dungeon.width, dungeon.height, SCALE);
 			world.map = createPropertyMap(mapTileManager.mapLayers[MapTileManager.BLOCK_LAYER]);
+			
+			renderer.sceneManager = SceneManager.getSceneManager(dungeon.level, dungeon.type);
+			
 			lightMap.newMap(world.map);
 			lightMap.setLight(player, player.light);
 			
@@ -489,37 +506,51 @@
 				minion.addMinimapFeature();
 			}
 			
-			var skinMc:MovieClip;
-			// the overworld behaves differently to the rest of the game
-			if(dungeon.level == 0){
+			// outside areas are set pieces, meant to give contrast to the dungeon and give the player
+			// and minion a back-story
+			if(mapType == Map.OUTSIDE_AREA){
+				
 				renderer.lightBitmap.visible = false;
 				miniMap.visible = false;
-				// unequip face armour if worn
-				if(player.armour && player.armour.name == Item.FACE) player.unequip(player.armour);
-				if(minion && minion.armour && minion.armour.name == Item.FACE) minion.unequip(minion.armour);
-				// change the rogue to a colour version and revert the minion if changed
-				skinMc = new RogueColMC();
-				if(player.name != Character.ROGUE){
-					console.print("rogue reverts to human form");
-				}
-				player.changeName(Character.ROGUE, new RogueColMC());
-				if(minion && minion.name != Character.SKELETON){
-					skinMc = g.library.getCharacterGfx(Character.SKELETON);
-					minion.changeName(Character.SKELETON, skinMc);
-					console.print("minion reverts to undead form");
-				}
 				mapTileManager.setLayerUpdate(MapTileManager.BLOCK_LAYER, false);
 				SoundManager.fadeMusic("music1", -SoundManager.DEFAULT_FADE_STEP);
+				
+				// the overworld changes the rogue to a colour version and reverts all polymorph effects
+				if(dungeon.level == Map.OVERWORLD){
+					var skinMc:MovieClip;
+					
+					// unequip face armour if worn
+					if(player.armour && player.armour.name == Item.FACE) player.unequip(player.armour);
+					if(minion && minion.armour && minion.armour.name == Item.FACE) minion.unequip(minion.armour);
+					// change the rogue to a colour version and revert the minion if changed
+					skinMc = new RogueColMC();
+					if(player.name != Character.ROGUE){
+						console.print("rogue reverts to human form");
+					}
+					player.changeName(Character.ROGUE, new RogueColMC());
+					if(minion && minion.name != Character.SKELETON){
+						skinMc = g.library.getCharacterGfx(Character.SKELETON);
+						minion.changeName(Character.SKELETON, skinMc);
+						console.print("minion reverts to undead form");
+					}
+					
+				} else if(dungeon.level == Map.UNDERWORLD){
+					if(player.undead) player.applyHealth(player.totalHealth);
+					if(minion && minion.undead) minion.applyHealth(minion.totalHealth);
+				}
 				
 			} else if(dungeon.level == -1){
 				renderer.lightBitmap.visible = false;
 				
-			} else if(Player.previousLevel == 0){
-				// change to black and white rogue
-				player.changeName(Character.ROGUE, new RogueMC);
+			} else if(Player.previousMapType == Map.OUTSIDE_AREA){
 				if(!SoundManager.currentMusic) SoundManager.fadeMusic("music1");
 				renderer.lightBitmap.visible = true;
 				miniMap.visible = true;
+				
+				// revert to black and white rogue
+				if(Player.previousLevel == Map.OVERWORLD){
+					player.changeName(Character.ROGUE, new RogueMC);
+				}
 			}
 			
 			player.enterLevel(entrance, Player.previousLevel < g.dungeon.level ? Collider.RIGHT : Collider.LEFT);
@@ -527,7 +558,7 @@
 		
 		private function initPlayer():void{
 			var playerMc:MovieClip = new RogueMC();
-			var minionMc:MovieClip = new MinionMC();
+			var minionMc:MovieClip = new SkeletonMC();
 			var startX:Number = (dungeon.start.x + 0.5) * SCALE;
 			var startY:Number = (dungeon.start.y + 1) * SCALE;
 			player = new Player(playerMc, startX, startY);

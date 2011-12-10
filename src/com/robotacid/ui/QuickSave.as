@@ -206,10 +206,10 @@ package com.robotacid.ui {
 					var portalType:int;
 					if(Player.previousPortalType == Portal.STAIRS){
 						portalType = Portal.STAIRS;
-					} else if(Player.previousPortalType == Portal.ROGUE){
-						portalType = Portal.ROGUE_RETURN;
-					} else if(Player.previousPortalType == Portal.ROGUE_RETURN){
-						portalType = Portal.ROGUE;
+					} else if(Player.previousPortalType == Portal.OVERWORLD){
+						portalType = Portal.OVERWORLD_RETURN;
+					} else if(Player.previousPortalType == Portal.OVERWORLD_RETURN){
+						portalType = Portal.OVERWORLD;
 					} else if(Player.previousPortalType == Portal.ITEM){
 						portalType = Portal.ITEM_RETURN;
 					} else if(Player.previousPortalType == Portal.ITEM_RETURN){

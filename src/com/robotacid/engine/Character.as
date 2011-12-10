@@ -1,5 +1,6 @@
 ﻿package com.robotacid.engine {
 	import com.robotacid.ai.Brain;
+	import com.robotacid.dungeon.Map;
 	import com.robotacid.gfx.ItemMovieClip;
 	import com.robotacid.gfx.Renderer;
 	import com.robotacid.phys.Collider;
@@ -51,7 +52,6 @@
 		public var tileCenter:Number;
 		public var victim:Character;
 		public var stepNoise:Boolean;
-		public var crushed:Boolean;
 		public var undead:Boolean;
 		public var inTheDark:Boolean;
 		public var debrisType:int;
@@ -98,7 +98,7 @@
 		public static const MIMIC:int = 11;
 		public static const NAGA:int = 12;
 		public static const MEDUSA:int = 13;
-		public static const UMBERHULK:int = 14;
+		public static const UMBER_HULK:int = 14;
 		public static const GOLEM:int = 15;
 		public static const BANSHEE:int = 16;
 		public static const WRAITH:int = 17;
@@ -199,11 +199,11 @@
 			xpReward = stats["xp rewards"][name] + stats["xp reward levels"][name] * level;
 			stun = stats["stuns"][name];
 			knockback = stats["knockbacks"][name];
-			endurance = stats["endurance"][name];
+			endurance = stats["endurances"][name];
+			undead = stats["undeads"][name] == 1;
 			debrisType = Renderer.BLOOD;
 			losBorder = Brain.DEFAULT_LOS_BORDER;
 			
-			undead = name == SKELETON;
 			
 			if(name == SKELETON){
 				debrisType = Renderer.BONE;
@@ -259,7 +259,7 @@
 			// and making them invisible will help the lighting engine conceal their presence.
 			// however - if they are moving, they may "pop" in and out of darkness, so we check around them
 			// for light
-			if(light || g.dungeon.level <= 0) inTheDark = false;
+			if(light || g.dungeon.type == Map.OUTSIDE_AREA) inTheDark = false;
 			else{
 				if(dir == 0){
 					if(g.lightMap.darkImage.getPixel32(mapX, mapY) != 0xFF000000) inTheDark = false;

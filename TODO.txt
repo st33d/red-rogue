@@ -1,4 +1,29 @@
-butcher stat
+
+Create fade to black transitions
+
+Put trap and secret quantities in Content
+
+change knock back value to multiplier of maximum knockback
+
+shooting a secret wall causing multiple "secret revealed" messages - unreproducable
+
+undead unequip bug
+
+chaos walls somehow leaving children with parent colliders - heisenbug
+
+implement underworld
+	implement set-piece dungeons
+	create base underworld layout and assign backdrop
+	put underworld portal on lvl 20
+	implement effects
+		novas
+		water
+			water must kill anything that goes in it
+	create death character
+		create npc class
+		create npc brain
+			create player brain - to manage keys and to manage confusion/fear state
+	
 
 prep for identify rune
 	Lore menu

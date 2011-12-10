@@ -1,5 +1,6 @@
 ﻿package com.robotacid.engine {
 	import com.robotacid.ai.Brain;
+	import com.robotacid.dungeon.Map;
 	import com.robotacid.geom.Pixel;
 	import com.robotacid.gfx.ItemMovieClip;
 	import com.robotacid.gfx.Renderer;
@@ -409,9 +410,9 @@
 				var portal:Portal;
 				if(source == EATEN){
 					if(target is Player){
-						Portal.createPortal(Portal.ROGUE, target.mapX, target.mapY);
+						Portal.createPortal(Portal.OVERWORLD, target.mapX, target.mapY, Map.OVERWORLD);
 					} else if(target is Minion){
-						portal = Portal.createPortal(Portal.MINION, target.mapX, target.mapY);
+						portal = Portal.createPortal(Portal.UNDERWORLD, target.mapX, target.mapY, Map.UNDERWORLD);
 					}
 				} else if(source == THROWN){
 					if(target is Monster){
@@ -452,7 +453,7 @@
 				g.lightMap.setLight(target, target.light - radius, target is Player ? 255 : 150);
 			} else if(name == UNDEAD){
 				// this rune's effect comes in to play when the target is killed and is not undead
-				if(!target.active && !buffer && !target.undead && !target.crushed){
+				if(!target.active && !buffer && !target.undead){
 					if(g.random.value() < 0.05 * level){
 						var mc:MovieClip;
 						if(source == THROWN || source == WEAPON){
@@ -462,7 +463,7 @@
 								g.console.print("minion is repaired");
 								renderer.createTeleportSparkRect(g.minion.collider, 20);
 							} else {
-								mc = new MinionMC();
+								mc = new SkeletonMC();
 								g.minion = new Minion(mc, target.collider.x + target.collider.width * 0.5, target.collider.y + target.collider.height, Character.SKELETON);
 								g.world.restoreCollider(g.minion.collider);
 								g.minion.collider.state = Collider.FALL;

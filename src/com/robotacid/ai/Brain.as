@@ -381,7 +381,7 @@
 								
 							} else if(node.y < char.mapY){
 								if(char.canClimb()){
-									if(!following && crushDanger()){
+									if(!following && stompDanger()){
 										state = FLEE;
 										count = delay + g.random.range(delay * 2);
 									} else {
@@ -618,8 +618,8 @@
 			return false;
 		}
 		
-		/* Returns true if the character is in danger of being crushed */
-		public function crushDanger():Boolean{
+		/* Returns true if the character is in danger of being stomped */
+		public function stompDanger():Boolean{
 			return (char.collider.y + char.collider.height > target.collider.y + target.collider.height * 0.5 &&
 				(
 					char.collider.x <= target.collider.x + target.collider.width + SCALE * 0.5 &&

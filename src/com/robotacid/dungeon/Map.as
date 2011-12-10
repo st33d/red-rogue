@@ -50,16 +50,25 @@
 		// types
 		public static const MAIN_DUNGEON:int = 0;
 		public static const ITEM_DUNGEON:int = 1;
+		public static const OUTSIDE_AREA:int = 2;
 		
 		// layers
 		public static const BACKGROUND:int = 0;
 		public static const BLOCKS:int = 1;
 		public static const ENTITIES:int = 2;
 		
+		// outside area levels
+		public static const OVERWORLD:int = 0;
+		public static const UNDERWORLD:int = 1;
+		
 		public static const LAYER_NUM:int = 3;
 		
 		public static const BACKGROUND_WIDTH:int = 8;
 		public static const BACKGROUND_HEIGHT:int = 8;
+		
+		public static const UNDERWORLD_BOAT_MIN:int = 8;
+		public static const UNDERWORLD_BOAT_MAX:int = 17;
+		public static const UNDERWORLD_PORTAL_X:int = 13;
 		
 		public static const ITEMS:Array = [38, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51];
 		
@@ -68,25 +77,30 @@
 			this.type = type;
 			layers = [];
 			portals = new Vector.<Pixel>();
+			
 			if(type == MAIN_DUNGEON){
-				if(level){
-					if(level > 0){
-						bitmap = new DungeonBitmap(level);
-						width = bitmap.width;
-						height = bitmap.height;
-						convertDungeonBitmap(bitmap.bitmapData);
-					} else {
-						createTestBed();
-					}
+				if(level > 0){
+					bitmap = new DungeonBitmap(level);
+					width = bitmap.width;
+					height = bitmap.height;
+					convertDungeonBitmap(bitmap.bitmapData);
 				} else {
-					createOverworld();
+					createTestBed();
 				}
+				
 			} else if(type == ITEM_DUNGEON){
 				var sideDungeonSize:int = 1 + (Number(level) / 10);
 				bitmap = new DungeonBitmap(sideDungeonSize);
 				width = bitmap.width;
 				height = bitmap.height;
 				convertDungeonBitmap(bitmap.bitmapData);
+				
+			} else if(type == OUTSIDE_AREA){
+				if(level == OVERWORLD){
+					createOverworld();
+				} else if(level == UNDERWORLD){
+					createUnderworld();
+				}
 			}
 			createBackground();
 			//bitmap.scaleX = bitmap.scaleY = 4;
@@ -356,14 +370,13 @@
 		/* Create the overworld
 		 *
 		 * The overworld is present to create a contrast with the dungeon. It is in colour and so
-		 * are you. You can wield no weapons here and your minion is unseen
-		 * There is a health stone for restoring health and a grindstone -
+		 * are you. There is a health stone for restoring health and a grindstone -
 		 * an allegory of improving yourself in the real world as opposed to a fantasy where
 		 * you kill people to better yourself
 		 */
 		public function createOverworld():void{
 			
-			bitmap = new DungeonBitmap(0);
+			bitmap = new DungeonBitmap(0, DungeonBitmap.AREA);
 			
 			width = bitmap.width;
 			height = bitmap.height;
@@ -394,12 +407,51 @@
 			g.content.populateLevel(0, bitmap, layers, type);
 		}
 		
+		/* Create the underworld
+		 *
+		 * The underworld is where the minion came from. It consists of a boat on the river Styx under a black
+		 * sky where stars are exploding. Death (an NPC) is there.
+		 */
+		public function createUnderworld():void{
+			
+			bitmap = new DungeonBitmap(1, DungeonBitmap.AREA);
+			
+			width = bitmap.width;
+			height = bitmap.height;
+			layers.push(createGrid(null, width, height));
+			// blocks - start with a full grid
+			layers.push(createGrid(1, width, height));
+			// game objects
+			layers.push(createGrid(null, width, height));
+			
+			fill(0, 1, 0, width-2, height-1, layers[BLOCKS]);
+			
+			// create the boat
+			fill(MapTileConverter.WALL, UNDERWORLD_BOAT_MIN, height - 2, UNDERWORLD_BOAT_MAX - UNDERWORLD_BOAT_MIN, 1, layers[BLOCKS]);
+			setValue(UNDERWORLD_BOAT_MIN, height - 3, BLOCKS, MapTileConverter.WALL);
+			setValue(UNDERWORLD_BOAT_MAX - 1, height - 3, BLOCKS, MapTileConverter.WALL);
+			
+			var portalXMLs:Vector.<XML> = g.content.getPortals(level, type);
+			if(portalXMLs.length){
+				setPortal(UNDERWORLD_PORTAL_X, height - 3, portalXMLs[0]);
+			}
+			
+			// the player may have left content on the underworld as a sort of bank
+			g.content.populateLevel(0, bitmap, layers, type);
+		}
+		
 		/* Creates a random parallax background */
 		public function createBackground():void{
 			var bitmapData:BitmapData;
-			if(level == 0){
-				var bitmap:Bitmap = new g.library.OverworldB;
-				bitmapData = bitmap.bitmapData;
+			if(type == OUTSIDE_AREA){
+				var bitmap:Bitmap;
+				if(level == OVERWORLD){
+					bitmap = new g.library.OverworldB;
+					bitmapData = bitmap.bitmapData;
+				} else if(level == UNDERWORLD){
+					bitmap = new g.library.UnderworldB;
+					bitmapData = bitmap.bitmapData;
+				}
 			} else {
 				bitmapData = new BitmapData(Game.SCALE * BACKGROUND_WIDTH, Game.SCALE * BACKGROUND_HEIGHT, true, 0x00000000);
 				var source:BitmapData;
@@ -490,8 +542,10 @@
 			var p:Pixel = new Pixel(x, y);
 			var portal:Portal = Content.convertXMLToEntity(x, y, xml);
 			g.portalHash[portal.type] = portal;
-			if(level == 0 && portal.type == Portal.ROGUE_RETURN){
-				portal.maskOverworldPortal();
+			if(type == OUTSIDE_AREA){
+				if(portal.type == Portal.OVERWORLD_RETURN || portal.type == Portal.UNDERWORLD_RETURN){
+					portal.maskPortalBase();
+				}
 			}
 			layers[ENTITIES][y][x] = portal;
 			if(isPortalToPreviousLevel(x, y, int(xml.@type), int(xml.@targetLevel))) start = p;
@@ -506,15 +560,22 @@
 		 * The logic follows: does this portal lead to the last level you were on */
 		public static function isPortalToPreviousLevel(x:int, y:int, type:int, targetLevel:int):Boolean{
 			if(type == Portal.STAIRS){
-				if(Player.previousPortalType == Portal.STAIRS && Player.previousLevel == targetLevel) return true;
-			} else if(type == Portal.ROGUE ){
-				if(Player.previousPortalType == Portal.ROGUE_RETURN && Player.previousLevel == 0) return true;
+				if(Player.previousPortalType == Portal.STAIRS){
+					if(Player.previousMapType == OUTSIDE_AREA && targetLevel == OVERWORLD) return true;
+					else if(Player.previousMapType == MAIN_DUNGEON && Player.previousLevel == targetLevel) return true;
+				}
+			} else if(type == Portal.OVERWORLD ){
+				if(Player.previousPortalType == Portal.OVERWORLD_RETURN) return true;
+			} else if(type == Portal.OVERWORLD_RETURN){
+				if(Player.previousPortalType == Portal.OVERWORLD) return true;
 			} else if(type == Portal.ITEM){
 				if(Player.previousPortalType == Portal.ITEM_RETURN) return true;
 			} else if(type == Portal.ITEM_RETURN){
 				if(Player.previousPortalType == Portal.ITEM) return true;
-			} else if(type == Portal.ROGUE_RETURN){
-				if(Player.previousPortalType == Portal.ROGUE) return true;
+			} else if(type == Portal.UNDERWORLD){
+				if(Player.previousPortalType == Portal.UNDERWORLD_RETURN) return true;
+			} else if(type == Portal.UNDERWORLD_RETURN){
+				if(Player.previousPortalType == Portal.UNDERWORLD) return true;
 			}
 			return false;
 		}

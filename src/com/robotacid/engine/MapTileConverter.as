@@ -1,5 +1,6 @@
 ﻿package com.robotacid.engine {
 	import com.robotacid.ai.Brain;
+	import com.robotacid.dungeon.Map;
 	import com.robotacid.gfx.BlitRect;
 	import com.robotacid.gfx.BlitSprite;
 	import com.robotacid.gfx.Renderer;
@@ -251,6 +252,7 @@
 						obj.restoreEffects();
 						if(obj is Monster){
 							Brain.monsterCharacters.push(obj);
+							if(!obj.mapInitialised) obj.mapInit();
 						}
 					} else if(obj is Item){
 						g.items.push(obj);
@@ -296,12 +298,12 @@
 			} else if(id == STAIRS_UP){
 				// stairs up
 				item = new Portal(mc, new Rectangle(x * Game.SCALE, y * Game.SCALE, Game.SCALE, Game.SCALE), Portal.STAIRS, g.dungeon.level - 1);
-				if(Player.previousLevel < g.dungeon.level && Player.previousPortalType == Portal.STAIRS) g.entrance = item;
+				if(Map.isPortalToPreviousLevel(x, y, Portal.STAIRS, g.dungeon.level - 1)) g.entrance = item;
 			} else if(id == STAIRS_DOWN){
 				// stairs down
-				if(g.dungeon.level == 0) mc = new Sprite();
+				if(g.dungeon.level == Map.OVERWORLD && g.dungeon.type == Map.OUTSIDE_AREA) mc = new Sprite();
 				item = new Portal(mc, new Rectangle(x * Game.SCALE, y * Game.SCALE, Game.SCALE, Game.SCALE), Portal.STAIRS, g.dungeon.level + 1);
-				if(Player.previousLevel > g.dungeon.level && Player.previousPortalType == Portal.STAIRS) g.entrance = item;
+				if(Map.isPortalToPreviousLevel(x, y, Portal.STAIRS, g.dungeon.level + 1)) g.entrance = item;
 			} else if(id == HEAL_STONE){
 				item = new Stone(x * Game.SCALE, y * Game.SCALE, Stone.HEALTH);
 			} else if(id == GRIND_STONE){

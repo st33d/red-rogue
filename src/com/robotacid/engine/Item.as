@@ -102,7 +102,7 @@
 		public static const HAMMER:int = 13;
 		public static const LONG_BOW:int = 14;
 		public static const GUN_BLADE:int = 15;
-		public static const AXE:int = 16;
+		public static const SCYTHE:int = 16;
 		public static const CHAOS_WAND:int = 17;
 		public static const LIGHTNING:int = 18;
 		public static const LEECH_WEAPON:int = 19;
