@@ -1,13 +1,8 @@
-
-Create fade to black transitions
-
-Put trap and secret quantities in Content
-
-change knock back value to multiplier of maximum knockback
+Create MusicManager
 
 shooting a secret wall causing multiple "secret revealed" messages - unreproducable
 
-undead unequip bug
+undead unequip bug - unreproducible?
 
 chaos walls somehow leaving children with parent colliders - heisenbug
 
@@ -23,7 +18,8 @@ implement underworld
 		create npc class
 		create npc brain
 			create player brain - to manage keys and to manage confusion/fear state
-	
+
+Finish undead rune
 
 prep for identify rune
 	Lore menu

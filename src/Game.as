@@ -32,6 +32,7 @@
 	import com.robotacid.ui.TextBox;
 	import com.robotacid.ui.MiniMap;
 	import com.robotacid.ui.Key;
+	import com.robotacid.ui.Transition;
 	import com.robotacid.util.clips.stopClips;
 	import com.robotacid.util.FPS;
 	import com.robotacid.util.HiddenInt;
@@ -73,7 +74,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 266;
+		public static const BUILD_NUM:int = 268;
 		
 		public static var g:Game;
 		public static var renderer:Renderer;
@@ -91,6 +92,7 @@
 		public var world:CollisionWorld;
 		public var random:XorRandom;
 		public var soundQueue:SoundQueue;
+		public var transition:Transition;
 		
 		// graphics
 		public var mapTileManager:MapTileManager;
@@ -191,6 +193,8 @@
 			
 			random = new XorRandom();
 			
+			transition = new Transition();
+			
 			lightning = new Lightning();
 			
 			var statsByteArray:ByteArray;
@@ -252,16 +256,6 @@
 			miniMapHolder = new Sprite();
 			addChild(miniMapHolder);
 			
-			if(!menu){
-				menu = new GameMenu(WIDTH, console.y, this);
-			}
-			menuHolder = new Sprite();
-			addChild(menuHolder);
-			menu.holder = menuHolder;
-			if(state == MENU){
-				menuHolder.addChild(menu);
-			}
-			
 			playerHealthBar = new ProgressBar(5, console.y - 13, MiniMap.WIDTH, 8);
 			playerHealthBar.barCol = 0xCCCCCC;
 			addChild(playerHealthBar);
@@ -279,6 +273,18 @@
 			addChild(enemyHealthBar);
 			enemyHealthBar.active = false;
 			enemyHealthBar.alpha = 0;
+			
+			addChild(transition);
+			
+			if(!menu){
+				menu = new GameMenu(WIDTH, console.y, this);
+			}
+			menuHolder = new Sprite();
+			addChild(menuHolder);
+			menu.holder = menuHolder;
+			if(state == MENU){
+				menuHolder.addChild(menu);
+			}
 			
 			if(!focusPrompt){
 				focusPrompt = new Sprite();
@@ -400,7 +406,7 @@
 			world = null;
 			Player.previousLevel = Map.OVERWORLD;
 			Player.previousPortalType = Portal.STAIRS;
-			Player.previousMapType = Map.OUTSIDE_AREA;
+			Player.previousMapType = Map.AREA;
 			
 			init();
 		}
@@ -455,13 +461,13 @@
 			// figure out where in hell's name we're going
 			var mapType:int = Map.MAIN_DUNGEON;
 			if(portalType == Portal.STAIRS){
-				if(n == 0) mapType = Map.OUTSIDE_AREA;
+				if(n == 0) mapType = Map.AREA;
 			} else if(portalType == Portal.ITEM){
 				mapType = Map.ITEM_DUNGEON;
 			} else if(portalType == Portal.UNDERWORLD){
-				mapType = Map.OUTSIDE_AREA;
+				mapType = Map.AREA;
 			} else if(portalType == Portal.OVERWORLD){
-				mapType = Map.OUTSIDE_AREA;
+				mapType = Map.AREA;
 			}
 			
 			dungeon = new Map(n, mapType);
@@ -470,7 +476,7 @@
 			
 			mapTileManager.newMap(dungeon.width, dungeon.height, dungeon.layers);
 			renderer.blockBitmapData = mapTileManager.layerToBitmapData(MapTileManager.BACKGROUND_LAYER);
-			if(dungeon.type != Map.OUTSIDE_AREA) renderer.blockBitmapData = mapTileManager.layerToBitmapData(MapTileManager.BLOCK_LAYER, renderer.blockBitmapData);
+			if(dungeon.type != Map.AREA) renderer.blockBitmapData = mapTileManager.layerToBitmapData(MapTileManager.BLOCK_LAYER, renderer.blockBitmapData);
 			
 			// modify the mapRect to conceal secrets
 			mapTileManager.mapRect = dungeon.bitmap.adjustedMapRect;
@@ -508,7 +514,7 @@
 			
 			// outside areas are set pieces, meant to give contrast to the dungeon and give the player
 			// and minion a back-story
-			if(mapType == Map.OUTSIDE_AREA){
+			if(mapType == Map.AREA){
 				
 				renderer.lightBitmap.visible = false;
 				miniMap.visible = false;
@@ -542,7 +548,7 @@
 			} else if(dungeon.level == -1){
 				renderer.lightBitmap.visible = false;
 				
-			} else if(Player.previousMapType == Map.OUTSIDE_AREA){
+			} else if(Player.previousMapType == Map.AREA){
 				if(!SoundManager.currentMusic) SoundManager.fadeMusic("music1");
 				renderer.lightBitmap.visible = true;
 				miniMap.visible = true;
@@ -604,106 +610,111 @@
 			
 			if(state == GAME) {
 				
-				var collider:Collider;
-				var entity:Entity;
-				var character:Character;
-				var effect:Effect;
-				
-				debug.clear();
-				debug.lineStyle(1, 0x00FF00);
-				// unfortunately lightning has to be drawn on the fly - so we clear it here
-				renderer.lightningShape.graphics.clear();
-				
-				world.main();
-				
-				// update chaos walls
-				for(i = chaosWalls.length - 1; i > -1; i--){
-					entity = chaosWalls[i];
-					if(entity.active)  entity.main();
-					else chaosWalls.splice(i, 1);
-				}
-				
-				// reset damping and update mapX/mapY before attacks
-				for(i = 0; i < world.colliders.length; i++){
-					collider = world.colliders[i];
-					if(collider.properties & Collider.CHARACTER){
-						collider.pushDamping = 0;
-						character = collider.userData as Character;
-						character.mapX = (collider.x + collider.width * 0.5) * INV_SCALE;
-						character.mapY = (collider.y + collider.height * 0.5) * INV_SCALE;
-						character.mapProperties = world.map[character.mapY][character.mapX];
+				if(transition.active) transition.main();
+				else {
+					var collider:Collider;
+					var entity:Entity;
+					var character:Character;
+					var effect:Effect;
+					
+					debug.clear();
+					debug.lineStyle(1, 0x00FF00);
+					// unfortunately lightning has to be drawn on the fly - so we clear it here
+					renderer.lightningShape.graphics.clear();
+					
+					world.main();
+					
+					// update chaos walls
+					for(i = chaosWalls.length - 1; i > -1; i--){
+						entity = chaosWalls[i];
+						if(entity.active)  entity.main();
+						else chaosWalls.splice(i, 1);
 					}
-				}
-				
-				if(player.active) player.main();
-				
-				// update items
-				for(i = items.length - 1; i > -1; i--){
-					entity = items[i];
-					if(entity.active){
-						if(entity.callMain) entity.main();
-					} else {
-						items.splice(i, 1);
+					
+					// reset damping and update mapX/mapY before attacks
+					for(i = 0; i < world.colliders.length; i++){
+						collider = world.colliders[i];
+						if(collider.properties & Collider.CHARACTER){
+							collider.pushDamping = 0;
+							character = collider.userData as Character;
+							character.mapX = (collider.x + collider.width * 0.5) * INV_SCALE;
+							character.mapY = (collider.y + collider.height * 0.5) * INV_SCALE;
+							character.mapProperties = world.map[character.mapY][character.mapX];
+						}
 					}
-				}
-				
-				// update the rest of the game objects
-				for(i = entities.length - 1; i > -1; i--){
-					entity = entities[i];
-					if(entity.active){
-						if(entity.callMain) entity.main();
-					} else {
-						entities.splice(i, 1);
+					
+					if(player.active){
+						player.main();
+						if(transition.active) return;
 					}
-				}
-				
-				// apply effects
-				for(i = effects.length - 1; i > -1; i--){
-					effect = effects[i];
-					if(effect.active){
-						effect.main();
-					} else {
-						effects.splice(i, 1);
+					
+					// update items
+					for(i = items.length - 1; i > -1; i--){
+						entity = items[i];
+						if(entity.active){
+							if(entity.callMain) entity.main();
+						} else {
+							items.splice(i, 1);
+						}
 					}
-				}
-				
-				// update portals
-				for(i = portals.length - 1; i > -1; i--){
-					entity = portals[i];
-					if(entity.active){
-						if(entity.callMain) entity.main();
-					} else {
-						portals.splice(i, 1);
+					
+					// update the rest of the game objects
+					for(i = entities.length - 1; i > -1; i--){
+						entity = entities[i];
+						if(entity.active){
+							if(entity.callMain) entity.main();
+						} else {
+							entities.splice(i, 1);
+						}
 					}
+					
+					// apply effects
+					for(i = effects.length - 1; i > -1; i--){
+						effect = effects[i];
+						if(effect.active){
+							effect.main();
+						} else {
+							effects.splice(i, 1);
+						}
+					}
+					
+					// update portals
+					for(i = portals.length - 1; i > -1; i--){
+						entity = portals[i];
+						if(entity.active){
+							if(entity.callMain) entity.main();
+						} else {
+							portals.splice(i, 1);
+						}
+					}
+					
+					soundQueue.play();
+					
+					if(player.active) miniMap.render();
+					
+					renderer.main();
+					
+					frameCount++;
+					
+					// examine the key buffer for cheat codes
+					if(!konamiCode && Key.matchLog(Key.KONAMI_CODE)){
+						konamiCode = true;
+						console.print("konami");
+					}
+					if(!colossalCaveCode && Key.matchLog(Key.COLOSSAL_CAVE_CODE)){
+						colossalCaveCode = true;
+						console.print("xyzzy");
+					}
+					
+					var mx:int = renderer.canvas.mouseX * INV_SCALE;
+					var my:int = renderer.canvas.mouseY * INV_SCALE;
+					
+					//if(mx >= 0 && my >= 0 && mx < Brain.dungeonGraph.width && my < Brain.dungeonGraph.height){
+					//var path:Vector.<Node> = Brain.dungeonGraph.getEscapePath(Brain.dungeonGraph.nodes[my][mx], Brain.dungeonGraph.nodes[player.mapY][player.mapX], 50);
+					//if(path) Brain.dungeonGraph.drawPath(path, debug, SCALE);
+					//}
+				
 				}
-				
-				soundQueue.play();
-				
-				if(player.active) miniMap.render();
-				
-				renderer.main();
-				
-				frameCount++;
-				
-				// examine the key buffer for cheat codes
-				if(!konamiCode && Key.matchLog(Key.KONAMI_CODE)){
-					konamiCode = true;
-					console.print("konami");
-				}
-				if(!colossalCaveCode && Key.matchLog(Key.COLOSSAL_CAVE_CODE)){
-					colossalCaveCode = true;
-					console.print("xyzzy");
-				}
-				
-				var mx:int = renderer.canvas.mouseX * INV_SCALE;
-				var my:int = renderer.canvas.mouseY * INV_SCALE;
-				
-				//if(mx >= 0 && my >= 0 && mx < Brain.dungeonGraph.width && my < Brain.dungeonGraph.height){
-				//var path:Vector.<Node> = Brain.dungeonGraph.getEscapePath(Brain.dungeonGraph.nodes[my][mx], Brain.dungeonGraph.nodes[player.mapY][player.mapX], 50);
-				//if(path) Brain.dungeonGraph.drawPath(path, debug, SCALE);
-				//}
-				
-				
 			}
 		}
 		

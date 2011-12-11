@@ -37,7 +37,7 @@ package com.robotacid.gfx {
 		public function SceneManager(mapLevel:int, mapType:int) {
 			this.mapLevel = mapLevel;
 			this.mapType = mapType;
-			if(mapLevel == Map.UNDERWORLD && mapType == Map.OUTSIDE_AREA){
+			if(mapLevel == Map.UNDERWORLD && mapType == Map.AREA){
 				fx = new Vector.<FX>();
 				for(i = 0; i < UNDERWORLD_NOVAS; i++){
 					fx[i] = renderer.addFX(g.random.range(g.dungeon.width * Game.SCALE), g.random.range(UNDERWORLD_NOVA_HEIGHT * Game.SCALE), renderer.novaBlit);
@@ -51,7 +51,7 @@ package com.robotacid.gfx {
 		
 		public function render():void{
 			// the underworld requires animation of waves and the constant upkeep of exploding stars in the sky
-			if(mapLevel == Map.UNDERWORLD && mapType == Map.OUTSIDE_AREA){
+			if(mapLevel == Map.UNDERWORLD && mapType == Map.AREA){
 				// maintain nova animations
 				var item:FX;
 				for(i = fx.length - 1; i > -1; i--){
@@ -69,7 +69,7 @@ package com.robotacid.gfx {
 		}
 		
 		public static function getSceneManager(level:int, type:int):SceneManager{
-			if(level == Map.UNDERWORLD && type == Map.OUTSIDE_AREA){
+			if(level == Map.UNDERWORLD && type == Map.AREA){
 				return new SceneManager(level, type);
 			}
 			return null;

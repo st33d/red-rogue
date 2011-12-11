@@ -50,7 +50,7 @@
 		// types
 		public static const MAIN_DUNGEON:int = 0;
 		public static const ITEM_DUNGEON:int = 1;
-		public static const OUTSIDE_AREA:int = 2;
+		public static const AREA:int = 2;
 		
 		// layers
 		public static const BACKGROUND:int = 0;
@@ -80,7 +80,7 @@
 			
 			if(type == MAIN_DUNGEON){
 				if(level > 0){
-					bitmap = new DungeonBitmap(level);
+					bitmap = new DungeonBitmap(level, type);
 					width = bitmap.width;
 					height = bitmap.height;
 					convertDungeonBitmap(bitmap.bitmapData);
@@ -90,12 +90,12 @@
 				
 			} else if(type == ITEM_DUNGEON){
 				var sideDungeonSize:int = 1 + (Number(level) / 10);
-				bitmap = new DungeonBitmap(sideDungeonSize);
+				bitmap = new DungeonBitmap(sideDungeonSize, type);
 				width = bitmap.width;
 				height = bitmap.height;
 				convertDungeonBitmap(bitmap.bitmapData);
 				
-			} else if(type == OUTSIDE_AREA){
+			} else if(type == AREA){
 				if(level == OVERWORLD){
 					createOverworld();
 				} else if(level == UNDERWORLD){
@@ -115,7 +115,7 @@
 		 */
 		public function createTestBed():void{
 			
-			bitmap = new DungeonBitmap(0);
+			bitmap = new DungeonBitmap(0, AREA);
 			
 			width = bitmap.width;
 			height = bitmap.height;
@@ -376,7 +376,7 @@
 		 */
 		public function createOverworld():void{
 			
-			bitmap = new DungeonBitmap(0, DungeonBitmap.AREA);
+			bitmap = new DungeonBitmap(OVERWORLD, AREA);
 			
 			width = bitmap.width;
 			height = bitmap.height;
@@ -414,7 +414,7 @@
 		 */
 		public function createUnderworld():void{
 			
-			bitmap = new DungeonBitmap(1, DungeonBitmap.AREA);
+			bitmap = new DungeonBitmap(UNDERWORLD, AREA);
 			
 			width = bitmap.width;
 			height = bitmap.height;
@@ -443,7 +443,7 @@
 		/* Creates a random parallax background */
 		public function createBackground():void{
 			var bitmapData:BitmapData;
-			if(type == OUTSIDE_AREA){
+			if(type == AREA){
 				var bitmap:Bitmap;
 				if(level == OVERWORLD){
 					bitmap = new g.library.OverworldB;
@@ -542,7 +542,7 @@
 			var p:Pixel = new Pixel(x, y);
 			var portal:Portal = Content.convertXMLToEntity(x, y, xml);
 			g.portalHash[portal.type] = portal;
-			if(type == OUTSIDE_AREA){
+			if(type == AREA){
 				if(portal.type == Portal.OVERWORLD_RETURN || portal.type == Portal.UNDERWORLD_RETURN){
 					portal.maskPortalBase();
 				}
@@ -561,7 +561,7 @@
 		public static function isPortalToPreviousLevel(x:int, y:int, type:int, targetLevel:int):Boolean{
 			if(type == Portal.STAIRS){
 				if(Player.previousPortalType == Portal.STAIRS){
-					if(Player.previousMapType == OUTSIDE_AREA && targetLevel == OVERWORLD) return true;
+					if(Player.previousMapType == AREA && targetLevel == OVERWORLD) return true;
 					else if(Player.previousMapType == MAIN_DUNGEON && Player.previousLevel == targetLevel) return true;
 				}
 			} else if(type == Portal.OVERWORLD ){
@@ -720,8 +720,10 @@
 		
 		/* This adds dart traps to the level */
 		public function setDartTraps():void{
+			var totalTraps:int = g.content.getTraps(level, type) - bitmap.pitTraps;
+			if(totalTraps == 0) return;
+			
 			var dartPos:Pixel;
-			var numTraps:int = level;
 			var trapPositions:Vector.<Pixel> = new Vector.<Pixel>();
 			var pixels:Vector.<uint> = bitmap.bitmapData.getVector(bitmap.bitmapData.rect);
 			var mapWidth:int = bitmap.bitmapData.width;
@@ -740,7 +742,7 @@
 				}
 			}
 			
-			while(numTraps > 0 && trapPositions.length > 0){
+			while(totalTraps > 0 && trapPositions.length > 0){
 				var trapIndex:int = g.random.range(trapPositions.length);
 				var trapPos:Pixel = trapPositions[trapIndex];
 				var trapType:int = 1 + g.random.range(2);
@@ -757,8 +759,8 @@
 				trap.mapY = trapPos.y;
 				trap.mapZ = MapTileManager.ENTITY_LAYER;
 				layers[ENTITIES][trapPos.y][trapPos.x] = trap;
-				numTraps--;
 				trapPositions.splice(trapIndex, 1);
+				totalTraps--;
 			}
 		}
 		

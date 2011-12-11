@@ -116,6 +116,7 @@
 				minimapFeature = null;
 			}
 			collider.world.removeCollider(collider);
+			g.content.removeSecret(g.dungeon.level, g.dungeon.type);
 		}
 		
 		/* A search action can reveal to the player where a secret wall is */

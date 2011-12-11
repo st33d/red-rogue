@@ -171,6 +171,7 @@
 				minimapFeature = null;
 			}
 			g.player.addXP(DISARMING_XP_REWARD * g.dungeon.level);
+			g.content.removeTrap(g.dungeon.level, g.dungeon.type);
 		}
 		
 		/* Launches a missile from the ceiling that bears a magic effect */

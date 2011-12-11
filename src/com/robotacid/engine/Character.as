@@ -147,6 +147,7 @@
 		public static const CRITICAL_MISS:Number = 0.05;
 		public static const QUICKENING_DELAY:int = 90;
 		public static const STUN_DECAY:Number = 1.0 / 90; // The denominator is maximum duration of stun in frames
+		public static const KNOCKBACK_DIST:Number = 16;
 		
 		public static const DEFAULT_COL:ColorTransform = new ColorTransform();
 		public static const INFRAVISION_COLS:Vector.<ColorTransform> = Vector.<ColorTransform>([DEFAULT_COL, new ColorTransform(1, 0, 0, 1, 255), new ColorTransform(1, 0.7, 0.7, 1, 50)]);
@@ -198,7 +199,7 @@
 			speed = stats["speeds"][name] + stats["speed levels"][name] * level;
 			xpReward = stats["xp rewards"][name] + stats["xp reward levels"][name] * level;
 			stun = stats["stuns"][name];
-			knockback = stats["knockbacks"][name];
+			knockback = stats["knockbacks"][name] * KNOCKBACK_DIST;
 			endurance = stats["endurances"][name];
 			undead = stats["undeads"][name] == 1;
 			debrisType = Renderer.BLOOD;
@@ -259,7 +260,7 @@
 			// and making them invisible will help the lighting engine conceal their presence.
 			// however - if they are moving, they may "pop" in and out of darkness, so we check around them
 			// for light
-			if(light || g.dungeon.type == Map.OUTSIDE_AREA) inTheDark = false;
+			if(light || g.dungeon.type == Map.AREA) inTheDark = false;
 			else{
 				if(dir == 0){
 					if(g.lightMap.darkImage.getPixel32(mapX, mapY) != 0xFF000000) inTheDark = false;

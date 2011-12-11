@@ -99,7 +99,7 @@
 				if(g.random.value() < surgeryChance){
 					var heartMc:Sprite = new HeartMC();
 					var heart:Item = new Item(heartMc, name, Item.HEART, level);
-					heart.collect(g.player);
+					heart.collect(g.player, false);
 					var victimName:String = Character.stats["names"][name];
 					g.console.print("rogue tore out a" + ((victimName.charAt(0).search(/[aeiou]/i) == 0) ? "n " : " ") + heart.nameToString());
 				}

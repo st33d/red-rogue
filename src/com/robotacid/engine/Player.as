@@ -61,7 +61,7 @@
 		
 		public static var previousLevel:int = Map.OVERWORLD;
 		public static var previousPortalType:int = Portal.STAIRS;
-		public static var previousMapType:int = Map.OUTSIDE_AREA;
+		public static var previousMapType:int = Map.AREA;
 		
 		public static const UP:int = 1;
 		public static const RIGHT:int = 2;
@@ -200,7 +200,17 @@
 				}
 				if(!portal){
 					g.console.print(Portal.usageMsg(portalType, portalTargetLevel));
-					g.changeLevel(portalTargetLevel, portalType);
+					g.transition.init(function():void{
+						g.changeLevel(portalTargetLevel, portalType);
+						// warm up the renderer
+						renderer.main();
+						if(g.dungeon.type != Map.AREA){
+							for(i = 0; i < 8; i++){
+								g.lightMap.main();
+							}
+							g.miniMap.render();
+						}
+					});
 				}
 			} else if(state == ENTERING){
 				

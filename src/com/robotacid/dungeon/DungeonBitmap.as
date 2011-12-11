@@ -20,6 +20,10 @@
 		public static var g:Game;
 		
 		public var level:int;
+		public var type:int;
+		public var size:int;
+		
+		public var pitTraps:int;
 		
 		public var rooms:Vector.<Room>;
 		
@@ -63,16 +67,17 @@
 		public static const SECRET:uint = 0xFFCCCCCC;
 		
 		// types
-		public static const DUNGEON:int = 0;
-		public static const AREA:int = 1;
+		public static const MAIN_DUNGEON:int = Map.MAIN_DUNGEON;
+		public static const ITEM_DUNGEON:int = Map.ITEM_DUNGEON;
+		public static const AREA:int = Map.AREA;
 		
 		public static const UP:int = 1;
 		public static const RIGHT:int = 1 << 1;
 		public static const DOWN:int = 1 << 2;
 		public static const LEFT:int = 1 << 3;
 		
-		public static const MAX_LEVEL:int = 5;
-		public static const MIN_LEVEL:int = 3;
+		public static const MAX_SIZE:int = 5;
+		public static const MIN_SIZE:int = 3;
 		
 		public static const SECRET_FREQ:Number = 0.5;
 		
@@ -85,7 +90,10 @@
 		/* Adobe don't provide this as a constant for some reason */
 		public static const MAXIMUM_PIXELS:int = 16769025;
 		
-		public function DungeonBitmap(level:int, type:int = DUNGEON) {
+		public function DungeonBitmap(level:int, type:int) {
+			
+			this.level = level;
+			this.type = type;
 			
 			var bitmapData:BitmapData;
 			
@@ -93,29 +101,30 @@
 				if(level == 0) bitmapData = createOverworld();
 				else if(level == 1) bitmapData = createUnderworld();
 				
-			} else if(type == DUNGEON){
-				if(level > MIN_LEVEL){
+			} else if(type == MAIN_DUNGEON || type == ITEM_DUNGEON){
+				
+				size = level;
+				
+				if(size > MIN_SIZE){
 					// the level parameter seems to fail at dishing out cool levels at about 8
 					// and beyond 5 the dungeons get crazily big and empty
 					// so I'm capping it at 5
-					level = level > MAX_LEVEL ? MAX_LEVEL : level;
+					size = size > MAX_SIZE ? MAX_SIZE : size;
 					// but we also get some cool levels earlier, so let's randomise
-					level = 1 + g.random.range(level);
-					level = level < MIN_LEVEL ? MIN_LEVEL : level;
+					size = 1 + g.random.range(size);
+					size = size < MIN_SIZE ? MIN_SIZE : size;
 				}
 				
-				this.level = level;
-				
 				// create pacing standard for this level
-				horizPace = Math.ceil(level * 0.5) * 3;
-				vertPace = Math.ceil(level * 0.5) * 2;
+				horizPace = Math.ceil(size * 0.5) * 3;
+				vertPace = Math.ceil(size * 0.5) * 2;
 				roominess = 5;
 				bitmapData = createRoomsAndTunnels();
 			}
 			
 			super(bitmapData, "auto", false);
 			
-			if(type == DUNGEON){
+			if(type == MAIN_DUNGEON || type == ITEM_DUNGEON){
 				while(!createRoutes()){}
 				createPits();
 				createSecrets();
@@ -148,7 +157,7 @@
 			
 				// create a list of rooms, then randomly assign a sibling
 				rooms = new Vector.<Room>();
-				for(i = 0; i < (roominess * level) + g.random.rangeInt(level * roominess); i++){
+				for(i = 0; i < (roominess * size) + g.random.rangeInt(size * roominess); i++){
 					rooms.push(new Room());
 				}
 				for(i = 0; i < rooms.length; i++){
@@ -691,6 +700,11 @@
 		/* This finds suitable locations for pits and digs them, leaving a trap marker for the Map class
 		 * to turn into a Trap Entity */
 		public function createPits():void{
+			
+			pitTraps = 0;
+			var totalPits:int = g.content.getTraps(level, type) * 0.5;
+			if(totalPits == 0) return;
+			
 			var mapWidth:int = bitmapData.width;
 			var pits:Vector.<int> = new Vector.<int>();
 			var pixels:Vector.<uint> = bitmapData.getVector(bitmapData.rect);
@@ -712,8 +726,7 @@
 			}
 			
 			// we have a selection of locations, it remains to select from them and dig
-			var num:int = level;
-			while(num > 0 && pits.length > 0){
+			while(totalPits > 0 && pits.length > 0){
 				var r:int = g.random.range(pits.length);
 				pixels[pits[r]] = PIT;
 				for(i = pits[r] + mapWidth; i < pixels.length - mapWidth * 2; i += mapWidth){
@@ -724,7 +737,8 @@
 					}
 				}
 				pits.splice(r, 1);
-				num--;
+				totalPits--;
+				pitTraps++;
 			}
 			
 			bitmapData.setVector(bitmapData.rect, pixels);
@@ -732,7 +746,12 @@
 		
 		/* This creates extra rooms on the edges of the map, hidden by a destructible wall */
 		public function createSecrets():void{
+			
+			var totalSecrets:int = g.content.getSecrets(level, type);
+			
 			adjustedMapRect = new Rectangle(0, 0, bitmapData.width * Game.SCALE, bitmapData.height * Game.SCALE);
+			
+			if(totalSecrets == 0) return;
 			
 			var mapWidth:int = bitmapData.width;
 			var secretsLeft:Vector.<int> = new Vector.<int>();
@@ -805,9 +824,11 @@
 				for(i = 0; i < rooms.length; i++){
 					rooms[i].x += 1 + room.width + corridorLength;
 				}
+				mapWidth = bitmapData.width;
+				totalSecrets--;
 			}
 			
-			mapWidth = bitmapData.width;
+			if(totalSecrets == 0) return;
 			
 			// right edge:
 			for(i = mapWidth + mapWidth - 1; i < pixels.length - mapWidth; i += mapWidth){
@@ -865,6 +886,7 @@
 				bitmapData.setVector(bitmapData.rect, pixels);
 				rightSecretWidth = (1 + room.width + corridorLength) * Game.SCALE;
 				rightSecretRoom = room;
+				mapWidth = bitmapData.width;
 			}
 		}
 		

@@ -301,7 +301,7 @@
 				if(Map.isPortalToPreviousLevel(x, y, Portal.STAIRS, g.dungeon.level - 1)) g.entrance = item;
 			} else if(id == STAIRS_DOWN){
 				// stairs down
-				if(g.dungeon.level == Map.OVERWORLD && g.dungeon.type == Map.OUTSIDE_AREA) mc = new Sprite();
+				if(g.dungeon.level == Map.OVERWORLD && g.dungeon.type == Map.AREA) mc = new Sprite();
 				item = new Portal(mc, new Rectangle(x * Game.SCALE, y * Game.SCALE, Game.SCALE, Game.SCALE), Portal.STAIRS, g.dungeon.level + 1);
 				if(Map.isPortalToPreviousLevel(x, y, Portal.STAIRS, g.dungeon.level + 1)) g.entrance = item;
 			} else if(id == HEAL_STONE){

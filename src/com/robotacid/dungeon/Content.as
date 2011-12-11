@@ -34,6 +34,8 @@
 		public var chestsByLevel:Vector.<Vector.<XML>>;
 		public var monstersByLevel:Vector.<Vector.<XML>>;
 		public var portalsByLevel:Vector.<Vector.<XML>>;
+		public var trapsByLevel:Vector.<int>;
+		public var secretsByLevel:Vector.<int>;
 		
 		public var itemDungeonContent:Object;
 		public var areaContent:Array;
@@ -47,11 +49,15 @@
 			chestsByLevel = new Vector.<Vector.<XML>>(TOTAL_LEVELS + 1);
 			monstersByLevel = new Vector.<Vector.<XML>>(TOTAL_LEVELS + 1);
 			portalsByLevel = new Vector.<Vector.<XML>>(TOTAL_LEVELS + 1);
+			trapsByLevel = new Vector.<int>();
+			secretsByLevel = new Vector.<int>();
 			for(level = 0; level <= TOTAL_LEVELS; level++){
 				obj = getLevelContent(level);
 				monstersByLevel[level] = obj.monsters;
 				chestsByLevel[level] = obj.chests;
-				portalsByLevel[level] = new Vector.<XML>()
+				portalsByLevel[level] = new Vector.<XML>();
+				trapsByLevel[level] = level * 2;
+				secretsByLevel[level] = 2;
 			}
 			areaContent = [];
 			for(level = 0; level < TOTAL_AREAS; level++){
@@ -174,6 +180,8 @@
 			portalXML.@type = Portal.ITEM_RETURN;
 			portalXML.@targetLevel = level;
 			itemDungeonContent.portals = Vector.<XML>([portalXML]);
+			itemDungeonContent.secrets = 2;
+			itemDungeonContent.traps = 2 * level;
 		}
 		
 		/* Retargets the underworld portal */
@@ -221,7 +229,7 @@
 			
 			// distribute
 			
-			if(mapType != Map.OUTSIDE_AREA){
+			if(mapType != Map.AREA){
 				// just going to go for a random drop for now.
 				// I intend to figure out a distribution pattern later
 				while(monsters.length){
@@ -286,7 +294,7 @@
 			} else if(mapType == Map.ITEM_DUNGEON){
 				while(itemDungeonContent.portals.length) list.push(itemDungeonContent.portals.pop());
 				
-			} else if(mapType == Map.OUTSIDE_AREA){
+			} else if(mapType == Map.AREA){
 				while(areaContent[level].portals.length) list.push(areaContent[level].portals.pop());
 				
 			}
@@ -304,6 +312,44 @@
 						return;
 					}
 				}
+			}
+		}
+		
+		/* Returns the amount of secrets in this part of the dungeon */
+		public function getSecrets(dungeonLevel:int, dungeonType:int):int{
+			if(dungeonType == Map.MAIN_DUNGEON){
+				return secretsByLevel[dungeonLevel];
+			} else if(dungeonType == Map.ITEM_DUNGEON){
+				return itemDungeonContent.secrets;
+			}
+			return 0;
+		}
+		
+		/* Returns the amount of traps in this part of the dungeon */
+		public function getTraps(dungeonLevel:int, dungeonType:int):int{
+			if(dungeonType == Map.MAIN_DUNGEON){
+				return trapsByLevel[dungeonLevel];
+			} else if(dungeonType == Map.ITEM_DUNGEON){
+				return itemDungeonContent.traps;
+			}
+			return 0;
+		}
+		
+		/* Removes a secret for good */
+		public function removeSecret(dungeonLevel:int, dungeonType:int):void{
+			if(dungeonType == Map.MAIN_DUNGEON){
+				secretsByLevel[dungeonLevel]--;
+			} else if(dungeonType == Map.ITEM_DUNGEON){
+				itemDungeonContent.secrets--;
+			}
+		}
+		
+		/* Removes a trap for good */
+		public function removeTrap(dungeonLevel:int, dungeonType:int):void{
+			if(dungeonType == Map.MAIN_DUNGEON){
+				trapsByLevel[dungeonLevel]--;
+			} else if(dungeonType == Map.ITEM_DUNGEON){
+				itemDungeonContent.traps--;
 			}
 		}
 		
@@ -380,7 +426,7 @@
 				chests = itemDungeonContent.chests;
 				portals = itemDungeonContent.portals;
 				
-			} else if(mapType == Map.OUTSIDE_AREA){
+			} else if(mapType == Map.AREA){
 				monsters = areaContent[level].monsters;
 				chests = areaContent[level].chests;
 				portals = areaContent[level].portals;

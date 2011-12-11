@@ -181,7 +181,7 @@
 				damage = stats["weapon damages"][name] + stats["weapon damage levels"][name] * level;
 				attack = stats["weapon attacks"][name] + stats["weapon attack levels"][name] * level;
 				stun = stats["weapon stuns"][name];
-				knockback = stats["weapon knockbacks"][name];
+				knockback = stats["weapon knockbacks"][name] * Character.KNOCKBACK_DIST;
 				butcher = stats["weapon butchers"][name];
 				range = stats["weapon ranges"][name];
 				

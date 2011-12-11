@@ -111,7 +111,7 @@
 					} else {
 						blit = renderer.portalFeatureBlit;
 					}
-					minimapFeature = g.miniMap.addFeature(mapX, mapY, blit);
+					minimapFeature = g.miniMap.addFeature(mapX, mapY, blit, this != g.entrance);
 				}
 				if(type == UNDERWORLD){
 					// heal the undead
@@ -122,7 +122,7 @@
 					var character:Character;
 					for(var i:int = 0; i < g.entities.length; i++){
 						character = g.entities[i] as Character;
-						if(character.undead && character.health < character.totalHealth && character.collider.intersects(rect)){
+						if(character && character.undead && character.health < character.totalHealth && character.collider.intersects(rect)){
 							character.applyHealth(character.totalHealth * UNDEAD_HEAL_RATE);
 							renderer.createTeleportSparkRect(character.collider, 5);
 						}
