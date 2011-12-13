@@ -664,8 +664,10 @@
 				if(armour) return null;
 				armour = item;
 				if(item.effects){
+					var effect:Effect;
 					for(var i:int = 0; i < item.effects.length; i++){
-						item.effects[i].apply(this);
+						effect = item.effects[i];
+						if(effect.applicable) effect.apply(this);
 					}
 				}
 				armour.gfx.x = armour.gfx.y = 0;
@@ -692,8 +694,10 @@
 			}
 			if(item == armour){
 				if(item.effects){
+					var effect:Effect;
 					for(i = 0; i < item.effects.length; i++){
-						item.effects[i].dismiss();
+						effect = item.effects[i];
+						if(effect.applicable) effect.dismiss();
 					}
 				}
 				armour = null;

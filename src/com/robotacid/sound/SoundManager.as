@@ -25,6 +25,7 @@
 		public static var volumes:Object/*Number*/ = {};
 		
 		public static var soundLoops:Object/*SoundLoop*/= {};
+		public static var musicTimes:Object/*int*/= {};
 		
 		public static var expendableChannels:Array/*SoundChannel*/ = [];
 		public static var expendableSounds:Array/*Sound*/= [];
@@ -194,6 +195,7 @@
 			
 			if(music){
 				if(soundChannels[currentMusic]){
+					musicTimes[currentMusic] = getTime();
 					soundChannels[currentMusic].stop();
 					delete soundChannels[currentMusic];
 				}
@@ -326,6 +328,7 @@
 						if(currentMusic){
 							soundLoops[currentMusic].fadeStep = -step;
 							soundLoops[currentMusic].fadeTarget = 0;
+							musicTimes[currentMusic] = getTime();
 						}
 						if(start >= sound.length) start %= sound.length;
 						
@@ -436,7 +439,10 @@
 						if(soundLoops[key].soundTransform.volume <= soundLoops[key].fadeTarget){
 							soundChannels[key].stop();
 							delete soundChannels[key];
-							if(key == currentMusic) currentMusic = null;
+							if(key == currentMusic){
+								musicTimes[currentMusic] = getTime();
+								currentMusic = null;
+							}
 							soundLoops[key].soundTransform.volume = soundLoops[key].fadeTarget;
 						} else {
 							soundChannels[key].soundTransform = soundLoops[key].soundTransform;
@@ -453,12 +459,6 @@
 				e.target.removeEventListener(Event.ENTER_FRAME, fadeUpdate);
 				fading = false;
 			}
-		}
-		
-		/* When a game has music that changes between two tracks of identical pace, this method comes in handy */
-		public static function switchTwinMusic(name:String, step:Number = DEFAULT_FADE_STEP):void{
-			if(name == currentMusic) return;
-			fadeMusic(name, step, getTime());
 		}
 		
 		/* Find a low priority SoundChannel currently in use and stop it */

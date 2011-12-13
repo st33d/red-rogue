@@ -40,6 +40,7 @@
 		public var stairsUp:Pixel;
 		public var stairsDown:Pixel;
 		public var portals:Vector.<Pixel>;
+		public var zone:int;
 		
 		public var bitmap:DungeonBitmap;
 		
@@ -70,7 +71,10 @@
 		public static const UNDERWORLD_BOAT_MAX:int = 17;
 		public static const UNDERWORLD_PORTAL_X:int = 13;
 		
-		public static const ITEMS:Array = [38, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51];
+		public static const LEVELS_PER_ZONE:int = 5;
+		public static const ZONE_TOTAL:int = 4;
+		
+		public static const ZONE_NAMES:Vector.<String> = Vector.<String>(["dungeons", "sewers", "caves", "chaos"]);
 		
 		public function Map(level:int, type:int = MAIN_DUNGEON) {
 			this.level = level;
@@ -179,6 +183,8 @@
 		 * information
 		 */
 		public function convertDungeonBitmap(bitmapData:BitmapData):void{
+			zone = (level - 1) / LEVELS_PER_ZONE;
+			if(zone >= ZONE_TOTAL) zone = ZONE_TOTAL - 1;
 			width = bitmapData.width;
 			height = bitmapData.height;
 			// background

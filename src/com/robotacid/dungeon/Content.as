@@ -181,7 +181,7 @@
 			portalXML.@targetLevel = level;
 			itemDungeonContent.portals = Vector.<XML>([portalXML]);
 			itemDungeonContent.secrets = 2;
-			itemDungeonContent.traps = 2 * level;
+			itemDungeonContent.traps = 2 * (level <= TOTAL_LEVELS ? level : TOTAL_LEVELS);
 		}
 		
 		/* Retargets the underworld portal */
@@ -318,6 +318,7 @@
 		/* Returns the amount of secrets in this part of the dungeon */
 		public function getSecrets(dungeonLevel:int, dungeonType:int):int{
 			if(dungeonType == Map.MAIN_DUNGEON){
+				while(dungeonLevel >= secretsByLevel.length) secretsByLevel.push(2);
 				return secretsByLevel[dungeonLevel];
 			} else if(dungeonType == Map.ITEM_DUNGEON){
 				return itemDungeonContent.secrets;
@@ -328,6 +329,7 @@
 		/* Returns the amount of traps in this part of the dungeon */
 		public function getTraps(dungeonLevel:int, dungeonType:int):int{
 			if(dungeonType == Map.MAIN_DUNGEON){
+				while(dungeonLevel >= trapsByLevel.length) trapsByLevel.push(TOTAL_LEVELS * 2);
 				return trapsByLevel[dungeonLevel];
 			} else if(dungeonType == Map.ITEM_DUNGEON){
 				return itemDungeonContent.traps;

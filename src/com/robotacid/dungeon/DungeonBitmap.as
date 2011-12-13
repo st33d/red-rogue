@@ -317,6 +317,14 @@
 			
 			} while(!goodLevel);
 			
+			// remove floor nubs (pointless 1 square pits in the floor)
+			// they confuse enemies and the route planner puts ladders in them leading to nothing but a one square pit
+			var pixels:Vector.<uint> = data.getVector(data.rect);
+			for(i = data.width; i < pixels.length - data.width; i++){
+				if(pixels[i] == EMPTY && pixels[i - 1] == WALL && pixels[i + 1] == WALL && pixels[i + data.width] == WALL) pixels[i] = WALL;
+			}
+			data.setVector(data.rect, pixels);
+			
 			// trim the map, we may have a large portion of unused rock
 			var mapBounds:Rectangle = data.getColorBoundsRect(0xFFFFFFFF, EMPTY);
 			// the rooms will have to be moved!

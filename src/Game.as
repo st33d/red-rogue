@@ -74,7 +74,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 268;
+		public static const BUILD_NUM:int = 269;
 		
 		public static var g:Game;
 		public static var renderer:Renderer;
@@ -221,8 +221,13 @@
 			SoundManager.addSound(new RuneHitSound, "runeHit", 0.8);
 			SoundManager.addSound(new TeleportSound, "teleport", 0.8);
 			SoundManager.addSound(new HitSound, "hit", 0.6);
-			SoundManager.addSound(new MusicSound1, "music1", 1.0);
+			SoundManager.addSound(new IntroMusicSound, "introMusic", 1.0);
+			SoundManager.addSound(new DungeonsMusicSound, "dungeonsMusic", 1.0);
+			SoundManager.addSound(new SewersMusicSound, "sewersMusic", 1.0);
+			SoundManager.addSound(new CavesMusicSound, "cavesMusic", 1.0);
+			SoundManager.addSound(new ChaosMusicSound, "chaosMusic", 1.0);
 			soundQueue = new SoundQueue();
+			
 			
 			if (stage) init();
 			else addEventListener(Event.ADDED_TO_STAGE, init);
@@ -385,6 +390,8 @@
 			if(forceFocus){
 				onFocusLost();
 				forceFocus = false;
+			} else {
+				changeMusic();
 			}
 		}
 		
@@ -560,6 +567,7 @@
 			}
 			
 			player.enterLevel(entrance, Player.previousLevel < g.dungeon.level ? Collider.RIGHT : Collider.LEFT);
+			changeMusic();
 		}
 		
 		private function initPlayer():void{
@@ -572,7 +580,6 @@
 			minion.prepareToEnter(entrance);
 			player.enterLevel(entrance);
 			player.snapCamera();
-			SoundManager.playMusic("music1");
 		}
 		
 		private function addListeners():void{
@@ -745,6 +752,27 @@
 			return idMap;
 		}
 		
+		/* Switches to the appropriate music */
+		public function changeMusic():void{
+			var start:int;
+			var name:String;
+			if(state == UNFOCUSED){
+				if(!SoundManager.currentMusic || SoundManager.currentMusic != "introMusic"){
+					SoundManager.fadeMusic("introMusic");
+				}
+			} else {
+				if(dungeon.type == Map.AREA){
+					if(SoundManager.currentMusic) SoundManager.fadeMusic(SoundManager.currentMusic, -SoundManager.DEFAULT_FADE_STEP);
+				} else {
+					name = Map.ZONE_NAMES[dungeon.zone] + "Music";
+					if(!SoundManager.currentMusic || SoundManager.currentMusic != name){
+						start = int(SoundManager.musicTimes[name]);
+						SoundManager.fadeMusic(name, SoundManager.DEFAULT_FADE_STEP, start);
+					}
+				}
+			}
+		}
+		
 		private function mouseDown(e:MouseEvent):void{
 			mousePressed = true;
 			mouseCount = frameCount;
@@ -778,6 +806,7 @@
 			state = UNFOCUSED;
 			Key.forceClearKeys();
 			addChild(focusPrompt);
+			changeMusic();
 		}
 		
 		/* When focus returns we remove the splash screen -
@@ -790,6 +819,7 @@
 		private function onFocus(e:Event = null):void{
 			if(focusPrompt.parent) focusPrompt.parent.removeChild(focusPrompt);
 			if(state == UNFOCUSED) state = previousState;
+			changeMusic();
 		}
 	}
 	

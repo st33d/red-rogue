@@ -7,11 +7,7 @@ undead unequip bug - unreproducible?
 chaos walls somehow leaving children with parent colliders - heisenbug
 
 implement underworld
-	implement set-piece dungeons
-	create base underworld layout and assign backdrop
-	put underworld portal on lvl 20
 	implement effects
-		novas
 		water
 			water must kill anything that goes in it
 	create death character
@@ -23,9 +19,12 @@ Finish undead rune
 
 prep for identify rune
 	Lore menu
+		menu text panel
 	Reveal minimap
 	Identify all runes
 	Quests
+
+Menu change: is it possible to select an option without going back to the trunk	
 
 Add some how add a random offset to AI search values - they're in ints (fuck knows, coin flipping?)
 
