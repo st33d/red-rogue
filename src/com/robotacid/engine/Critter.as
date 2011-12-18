@@ -13,22 +13,26 @@ package com.robotacid.engine {
 	 */
 	public class Critter extends ColliderEntity{
 		
-		public var dir:int;
-		public var state:int;
-		public var count:int;
-		public var delay:int;
-		public var patrolAreaSet:Boolean;
-		public var patrolMin:Number;
-		public var patrolMax:Number;
-		public var speed:Number;
-		public var topOfThreadY:Number;
+		private var dir:int;
+		private var state:int;
+		private var count:int;
+		private var delay:int;
+		private var patrolAreaSet:Boolean;
+		private var patrolMin:Number;
+		private var patrolMax:Number;
+		private var speed:Number;
+		private var topOfThreadY:Number;
+		private var debrisType:int;
+		private var surface:int;
 		
-		public static const RAT:int = 0;
-		public static const SPIDER:int = 1;
+		public static const SPIDER:int = 0;
+		public static const RAT:int = 1;
 		public static const BAT:int = 2;
+		public static const COG:int = 3;
 		
 		public static const PATROL:int = 0;
 		public static const PAUSE:int = 1;
+		public static const DROP:int = 2;
 		
 		public static const UP:int = Collider.UP;
 		public static const RIGHT:int = Collider.RIGHT;
@@ -47,6 +51,8 @@ package com.robotacid.engine {
 				dir = g.random.value() < 0.5 ? LEFT : RIGHT;
 				createCollider(x, y, Collider.HEAD | Collider.SOLID, Collider.HEAD, Collider.FALL);
 				collider.stackCallback = hitFloor;
+				debrisType = Renderer.BLOOD;
+				
 			} else if(name == SPIDER){
 				delay = 15;
 				speed = 1;
@@ -56,6 +62,8 @@ package com.robotacid.engine {
 				topOfThreadY = y - SCALE * 0.5;
 				createCollider(x, y, Collider.HEAD | Collider.SOLID, Collider.HEAD, Collider.HOVER);
 				collider.dampingY = collider.dampingX;
+				debrisType = Renderer.BLOOD;
+				
 			} else if(name == BAT){
 				delay = 30;
 				speed = 1;
@@ -64,6 +72,37 @@ package com.robotacid.engine {
 				dir = g.random.value() < 0.5 ? LEFT : RIGHT;
 				createCollider(x, y, Collider.HEAD | Collider.SOLID, Collider.HEAD, Collider.FALL, false);
 				(gfx as MovieClip).gotoAndPlay("fly");
+				debrisType = Renderer.BLOOD;
+				
+			} else if(name == COG){
+				delay = 60;
+				speed = 1;
+				state = PATROL;
+				mapX = x * Game.INV_SCALE;
+				mapY = y * Game.INV_SCALE;
+				// get a surface to mount on
+				var surfaces:Array = [];
+				if(g.world.map[mapY - 1][mapX] & DOWN) surfaces.push(DOWN);
+				if(g.world.map[mapY + 1][mapX] & UP) surfaces.push(UP);
+				if(g.world.map[mapY][mapX - 1] & RIGHT) surfaces.push(RIGHT);
+				if(g.world.map[mapY][mapX + 1] & LEFT) surfaces.push(LEFT);
+				surface = surfaces[g.random.rangeInt(surfaces.length)];
+				if(surface & (UP | DOWN)){
+					if(surface == DOWN) y -= Game.SCALE * 0.5 - 2;
+					else if(surface == UP) y += Game.SCALE * 0.5 - 2;
+					dir = g.random.value() < 0.5 ? LEFT : RIGHT;
+				} else if(surface & (LEFT | RIGHT)){
+					if(surface == RIGHT) x -= Game.SCALE * 0.5 - 2;
+					else if(surface == LEFT) x += Game.SCALE * 0.5 - 2;
+					dir = g.random.value() < 0.5 ? UP : DOWN;
+				}
+				// a cogs collider exists at its hub
+				// so we have to create the collider manually
+				collider = new Collider(x - 2, y - 2, 4, 4, Game.SCALE, Collider.HEAD | Collider.SOLID, Collider.HEAD, Collider.HOVER);
+				collider.userData = this;
+				collider.dampingY = collider.dampingX;
+				debrisType = Renderer.STONE;
+				
 			}
 			count = delay;
 			callMain = true;
@@ -108,6 +147,7 @@ package com.robotacid.engine {
 				if(dir & LEFT) collider.vx -= speed;
 				if(dir & DOWN) collider.vy += speed;
 				if(dir & UP) collider.vy -= speed;
+				
 			} else if(state == PAUSE){
 				if(count-- <= 0){
 					count = delay + g.random.range(delay);
@@ -118,12 +158,32 @@ package com.robotacid.engine {
 						dir = g.random.value() < 0.5 ? LEFT : RIGHT;
 					}
 				}
+				
+			} else if(state == DROP){
+				collider.vy += speed * 2;
+				if(collider.pressure & DOWN){
+					patrolAreaSet = false;
+					surface = UP;
+					state = PATROL;
+				}
+			}
+			// check cogs are still mounted (they may have been attached to chaos walls)
+			if(name == COG){
+				if(
+					(surface == UP && !(g.world.map[mapY + 1][mapX] & UP)) ||
+					(surface == RIGHT && !(g.world.map[mapY][mapX - 1] & RIGHT)) ||
+					(surface == DOWN && !(g.world.map[mapY - 1][mapX] & DOWN)) ||
+					(surface == LEFT && !(g.world.map[mapY][mapX + 1] & LEFT))
+				){
+					state = DROP;
+					surface = 0;
+				}
 			}
 			var contact:Collider = collider.getContact();
 			if(contact){
 				if(name == RAT){
 					if(Math.abs(contact.vx) > Collider.MOVEMENT_TOLERANCE || collider.upContact || collider.downContact) kill();
-				} else if(name == SPIDER || name == BAT){
+				} else {
 					kill();
 				}
 			}
@@ -133,7 +193,10 @@ package com.robotacid.engine {
 		public function kill():void{
 			active = false;
 			collider.world.removeCollider(collider);
-			renderer.createDebrisRect(collider, 0, 10, Renderer.BLOOD);
+			renderer.createDebrisRect(collider, 0, 10, debrisType);
+			if(name == COG){
+				renderer.createDebrisRect(new Rectangle(collider.x - 4, collider.y - 4, 12, 12), 0, 20, debrisType);
+			}
 		}
 		
 		/* This walks a critter left and right in their patrol area
@@ -155,6 +218,15 @@ package com.robotacid.engine {
 				if(g.random.value() > 0.2) dir |= UP;
 				else dir &= ~UP;
 				
+			} else if(name == COG){
+				if(surface & (UP | DOWN)){
+					if(collider.x + collider.width >= patrolMax || (collider.pressure & RIGHT)) dir = LEFT;
+					if(collider.x <= patrolMin || (collider.pressure & LEFT)) dir = RIGHT;
+				} else if(surface & (LEFT | RIGHT)){
+					if(collider.y + collider.height >= patrolMax || (collider.pressure & DOWN)) dir = UP;
+					if(collider.y <= patrolMin || (collider.pressure & UP)) dir = DOWN;
+				}
+				
 			}
 		}
 		
@@ -164,6 +236,10 @@ package com.robotacid.engine {
 		public function setPatrolArea(map:Vector.<Vector.<int>>):void{
 			if(name == RAT) patrolMax = patrolMin = (mapX + 0.5) * SCALE;
 			else if(name == SPIDER) patrolMax = patrolMin = (mapY + 0.5) * SCALE;
+			else if(name == COG){
+				if(surface & (UP | DOWN)) patrolMax = patrolMin = (mapX + 0.5) * SCALE;
+				else if(surface & (RIGHT | LEFT)) patrolMax = patrolMin = (mapY + 0.5) * SCALE;
+			}
 			if(name == RAT){
 				while(
 					patrolMin > SCALE * 0.5 &&
@@ -179,6 +255,7 @@ package com.robotacid.engine {
 				){
 					patrolMax += SCALE;
 				}
+				
 			} else if(name == SPIDER){
 				patrolMin = collider.y - SCALE * 0.5;
 				while(
@@ -188,6 +265,52 @@ package com.robotacid.engine {
 				){
 					patrolMax += SCALE;
 				}
+				
+			} else if(name == COG){
+				if(surface & (UP | DOWN)){
+					while(
+						patrolMin > SCALE * 0.5 &&
+						!(map[mapY][((patrolMin - SCALE) * INV_SCALE) >> 0] & Collider.WALL) &&
+						(
+							(surface == UP && (map[mapY + 1][((patrolMin - SCALE) * INV_SCALE) >> 0] & surface)) ||
+							(surface == DOWN && (map[mapY - 1][((patrolMin - SCALE) * INV_SCALE) >> 0] & surface))
+						)
+					){
+						patrolMin -= SCALE;
+					}
+					while(
+						patrolMax < (map[0].length - 0.5) * SCALE &&
+						!(map[mapY][((patrolMax + SCALE) * INV_SCALE) >> 0] & Collider.WALL) &&
+						(
+							(surface == UP && (map[mapY + 1][((patrolMax + SCALE) * INV_SCALE) >> 0] & surface)) ||
+							(surface == DOWN && (map[mapY - 1][((patrolMax + SCALE) * INV_SCALE) >> 0] & surface))
+						)
+					){
+						patrolMax += SCALE;
+					}
+				} else if(surface & (RIGHT | LEFT)){
+					while(
+						patrolMin > SCALE * 0.5 &&
+						!(map[((patrolMin - SCALE) * INV_SCALE) >> 0][mapX] & Collider.WALL) &&
+						(
+							(surface == LEFT && (map[((patrolMin - SCALE) * INV_SCALE) >> 0][mapX + 1] & surface)) ||
+							(surface == RIGHT && (map[((patrolMin - SCALE) * INV_SCALE) >> 0][mapX - 1] & surface))
+						)
+					){
+						patrolMin -= SCALE;
+					}
+					while(
+						patrolMax < (map[0].length - 0.5) * SCALE &&
+						!(map[((patrolMax + SCALE) * INV_SCALE) >> 0][mapX] & Collider.WALL) &&
+						(
+							(surface == LEFT && (map[((patrolMax + SCALE) * INV_SCALE) >> 0][mapX + 1] & surface)) ||
+							(surface == RIGHT && (map[((patrolMax + SCALE) * INV_SCALE) >> 0][mapX - 1] & surface))
+						)
+					){
+						patrolMax += SCALE;
+					}
+				}
+				
 			}
 			patrolAreaSet = true;
 		}
@@ -201,6 +324,7 @@ package com.robotacid.engine {
 				gfx.y = (collider.y + collider.height + 0.5) >> 0;
 				if ((dir & LEFT) && gfx.scaleX != 1) gfx.scaleX = 1;
 				else if ((dir & RIGHT) && gfx.scaleX != -1) gfx.scaleX = -1;
+				
 			} else if(name == SPIDER){
 				gfx.x = (collider.x + collider.width * 0.5) >> 0;
 				gfx.y = (collider.y + collider.height * 0.5) >> 0;
@@ -213,9 +337,19 @@ package com.robotacid.engine {
 				mc.graphics.beginFill(0xFFFFFF, 0.5);
 				mc.graphics.drawRect(0, topOfThreadY - collider.y, 1, collider.y - topOfThreadY);
 				mc.graphics.endFill();
+				
 			} else if(name == BAT){
 				gfx.x = (collider.x + collider.width * 0.5) >> 0;
 				gfx.y = (collider.y + 0.5) >> 0;
+				
+			} else if(name == COG){
+					gfx.x = (collider.x + collider.width * 0.5 + 0.5) >> 0;
+					gfx.y = (collider.y + collider.width * 0.5 + 0.5) >> 0;
+				if(surface == DOWN) gfx.y -= 4;
+				else if(surface == UP) gfx.y += 4;
+				else if(surface == RIGHT) gfx.x -= 4;
+				else if(surface == LEFT) gfx.x += 4;
+				
 			}
 			super.render();
 		}

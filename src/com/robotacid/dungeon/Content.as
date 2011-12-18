@@ -467,7 +467,6 @@
 		 * 
 		 * Currently set up for just Monsters */
 		public static function createCharacterXML(dungeonLevel:int, type:int):XML{
-			var characterXML:XML = <character />;
 			var name:int;
 			var level:int = -1 + g.random.range(dungeonLevel);
 			if(type == Character.MONSTER){
@@ -479,15 +478,11 @@
 					if(name >= Game.MAX_LEVEL) continue;
 				}
 			}
-			characterXML.@name = name;
-			characterXML.@type = type;
-			characterXML.@level = level;
-			return characterXML;
+			return <character name={name} type={type} level={level} />;
 		}
 		
 		/* Create a random item appropriate for the dungeon level */
 		public static function createItemXML(dungeonLevel:int, type:int):XML{
-			var itemXML:XML = <item />;
 			var enchantments:int = -2 + g.random.range(dungeonLevel);
 			var name:int;
 			var level:int = Math.min(1 + g.random.range(dungeonLevel), 20);
@@ -504,18 +499,18 @@
 			if(nameRange > dungeonLevel) nameRange = dungeonLevel;
 			name = g.random.range(nameRange);
 			
-			itemXML.@name = name;
-			itemXML.@type = type;
-			itemXML.@level = level;
+			var itemXML:XML = <item name={name} type={type} level={level} />;
+
 			if(enchantments > 0){
 				var runeList:Vector.<int> = new Vector.<int>();
+				var enchantmentName:int, enchantmentNameRange:int;
 				while(enchantments--){
-					nameRange = g.random.range(Item.stats["rune names"].length);
-					if(nameRange > dungeonLevel) nameRange = dungeonLevel;
-					name = g.random.range(nameRange);
+					enchantmentNameRange = g.random.range(Item.stats["rune names"].length);
+					if(enchantmentNameRange > dungeonLevel) enchantmentNameRange = dungeonLevel;
+					enchantmentName = g.random.range(enchantmentNameRange);
 					// some enchantments confer multiple extra enchantments -
 					// that can of worms will stay closed
-					if(!Effect.BANNED_RANDOM_ENCHANTMENTS[name]) runeList.push(name);
+					if(!Effect.BANNED_RANDOM_ENCHANTMENTS[enchantmentName]) runeList.push(enchantmentName);
 					else enchantments++;
 				}
 				// each effect must now be given a level, for this we do a bucket sort
@@ -527,9 +522,28 @@
 				}
 				for(i = 0; i < bucket.length; i++){
 					if(bucket[i]){
-						var effectXML:XML = <effect />;
-						effectXML.@name = i;
-						effectXML.@level = bucket[i];
+						var effectXML:XML = <effect name={i} level={bucket[i]} />;
+						itemXML.appendChild(effectXML);
+					}
+				}
+			}
+			// skull armour and fireflies always start with a free enchantment
+			var enchantXMLList:XMLList;
+			if(type == Item.ARMOUR){
+				if(name == Item.FIRE_FLIES){
+					enchantXMLList = itemXML..effect.(@["name"] == Effect.LIGHT)
+					if(enchantXMLList.length()){
+						enchantXMLList[0].@level = int(enchantXMLList[0].@level) + 1;
+					} else {
+						effectXML =<effect name={Effect.LIGHT} level="1" />
+						itemXML.appendChild(effectXML);
+					}
+				} else if(name == Item.SKULL){
+					enchantXMLList = itemXML..effect.(@["name"] == Effect.UNDEAD)
+					if(enchantXMLList.length()){
+						enchantXMLList[0].@level = int(enchantXMLList[0].@level) + 1;
+					} else {
+						effectXML =<effect name={Effect.UNDEAD} level="1" />
 						itemXML.appendChild(effectXML);
 					}
 				}

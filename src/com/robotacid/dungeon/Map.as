@@ -53,6 +53,12 @@
 		public static const ITEM_DUNGEON:int = 1;
 		public static const AREA:int = 2;
 		
+		// zones
+		public static const DUNGEONS:int = 0;
+		public static const SEWERS:int = 1;
+		public static const CAVES:int = 2;
+		public static const CHAOS:int = 3;
+		
 		// layers
 		public static const BACKGROUND:int = 0;
 		public static const BLOCKS:int = 1;
@@ -81,10 +87,14 @@
 			this.type = type;
 			layers = [];
 			portals = new Vector.<Pixel>();
+			if(type == MAIN_DUNGEON || type == ITEM_DUNGEON){
+				zone = (level - 1) / LEVELS_PER_ZONE;
+				if(zone >= ZONE_TOTAL) zone = ZONE_TOTAL - 1;
+			}
 			
 			if(type == MAIN_DUNGEON){
 				if(level > 0){
-					bitmap = new DungeonBitmap(level, type);
+					bitmap = new DungeonBitmap(level, type, zone);
 					width = bitmap.width;
 					height = bitmap.height;
 					convertDungeonBitmap(bitmap.bitmapData);
@@ -94,7 +104,7 @@
 				
 			} else if(type == ITEM_DUNGEON){
 				var sideDungeonSize:int = 1 + (Number(level) / 10);
-				bitmap = new DungeonBitmap(sideDungeonSize, type);
+				bitmap = new DungeonBitmap(sideDungeonSize, type, zone);
 				width = bitmap.width;
 				height = bitmap.height;
 				convertDungeonBitmap(bitmap.bitmapData);
@@ -107,7 +117,7 @@
 				}
 			}
 			createBackground();
-			//bitmap.scaleX = bitmap.scaleY = 4;
+			//bitmap.scaleX = bitmap.scaleY = 2;
 			//g.addChild(bitmap);
 			
 		}
@@ -141,16 +151,17 @@
 			setStairsUp(15, height - 2);
 			setStairsDown(10, height - 2);
 			
-			setValue(9, height - 2, BLOCKS, MapTileConverter.WALL);
+			//setValue(9, height - 2, BLOCKS, MapTileConverter.WALL);
+			//setValue(5, height - 2, ENTITIES, MapTileConverter.COG);
 			
 			
 			// create trap
 			//setValue(13, height - 5, BLOCKS, 1);
 			//setValue(13, height - 1, ENTITIES, 56);
 			
-			setValue(11, height - 2, BLOCKS, MapTileConverter.LADDER);
-			setValue(11, height - 3, BLOCKS, MapTileConverter.LADDER);
-			setValue(11, height - 4, BLOCKS, MapTileConverter.LADDER);
+			//setValue(11, height - 2, BLOCKS, MapTileConverter.LADDER);
+			//setValue(11, height - 3, BLOCKS, MapTileConverter.LADDER);
+			//setValue(11, height - 4, BLOCKS, MapTileConverter.LADDER);
 			
 			// monster debug
 			//createCharacter(10, height - 2, 2, 1);
@@ -177,14 +188,10 @@
 			//layers[BLOCKS][44][10] = 1;
 		}
 		
-		
-		
 		/* This is where we convert our map template into a dungeon proper made of tileIds and other
 		 * information
 		 */
 		public function convertDungeonBitmap(bitmapData:BitmapData):void{
-			zone = (level - 1) / LEVELS_PER_ZONE;
-			if(zone >= ZONE_TOTAL) zone = ZONE_TOTAL - 1;
 			width = bitmapData.width;
 			height = bitmapData.height;
 			// background
@@ -369,8 +376,8 @@
 			
 			// now add some flavour
 			createChaosWalls(pixels);
-			setDartTraps();
-			addCritters();
+			createDartTraps();
+			createCritters();
 		}
 		
 		/* Create the overworld
@@ -633,51 +640,63 @@
 		}
 		
 		/* Adds critters to the level - decorative entites that squish on contact */
-		public function addCritters():void{
+		public function createCritters():void{
 			
-			// create critter bias
-			var ratios:Array = [];
-			var total:Number = g.random.value();
-			ratios.push(1 - total);
-			var temp:Number = total;
-			total -= g.random.range(total);
-			ratios.push(temp - total);
-			ratios.push(total);
-			randomiseArray(ratios, g.random);
+			// the compiler won't let me create this as a constant so I have to drop it in here
+			// better than resorting to magic numbers I suppose
+			var ZONE_CRITTERS:Array = [
+				[MapTileConverter.SPIDER, MapTileConverter.SPIDER, MapTileConverter.SPIDER, MapTileConverter.BAT, MapTileConverter.RAT],
+				[MapTileConverter.RAT, MapTileConverter.RAT, MapTileConverter.RAT, MapTileConverter.BAT, MapTileConverter.SPIDER],
+				[MapTileConverter.BAT, MapTileConverter.BAT, MapTileConverter.BAT, MapTileConverter.RAT, MapTileConverter.SPIDER],
+				[MapTileConverter.COG, MapTileConverter.COG, MapTileConverter.COG, MapTileConverter.RAT, MapTileConverter.SPIDER, MapTileConverter.BAT]
+			];
 			
-			var r:int, c:int, critterNum:int, breaker:int;
-			critterNum = Math.sqrt(width * height) * ratios[0];
-			breaker = 0;
+			var critterPalette:Array = ZONE_CRITTERS[zone];
+			var r:int, c:int, critterId:int;
+			var critterNum:int = Math.sqrt(width * height) * 1.25;
+			var breaker:int = 0;
+			
 			while(critterNum){
+				
 				r = 1 + g.random.range(bitmap.height - 1);
 				c = 1 + g.random.range(bitmap.width - 1);
-				if(!layers[Map.ENTITIES][r][c] && layers[Map.BLOCKS][r][c] != 1 && (bitmap.bitmapData.getPixel32(c, r + 1) == DungeonBitmap.LEDGE || layers[Map.BLOCKS][r + 1][c] == 1)){
-						
-					layers[Map.ENTITIES][r][c] = MapTileConverter.RAT;
-					critterNum--;
-				}
-				if((breaker++) > 1000) break;
-			}
-			critterNum = Math.sqrt(width * height) * ratios[1];
-			breaker = 0;
-			while(critterNum){
-				r = 1 + g.random.range(bitmap.height - 1);
-				c = 1 + g.random.range(bitmap.width - 1);
-				if(!layers[Map.ENTITIES][r][c] && layers[Map.BLOCKS][r][c] != 1 && layers[Map.BLOCKS][r - 1][c] == 1 && bitmap.bitmapData.getPixel32(c, r - 1) != DungeonBitmap.PIT){
-						
-					layers[Map.ENTITIES][r][c] = MapTileConverter.SPIDER;
-					critterNum--;
-				}
-				if((breaker++) > 1000) break;
-			}
-			critterNum = Math.sqrt(width * height) * ratios[2];
-			breaker = 0;
-			while(critterNum){
-				r = 1 + g.random.range(bitmap.height - 1);
-				c = 1 + g.random.range(bitmap.width - 1);
-				if(!layers[Map.ENTITIES][r][c] && layers[Map.BLOCKS][r][c] != 1 && layers[Map.BLOCKS][r - 1][c] == 1 && bitmap.bitmapData.getPixel32(c, r - 1) != DungeonBitmap.PIT){
-						
-					layers[Map.ENTITIES][r][c] = MapTileConverter.BAT;
+				critterId = critterPalette[g.random.rangeInt(critterPalette.length)];
+				
+				// may god forgive me for this if statement:
+				if(
+					!layers[Map.ENTITIES][r][c] &&
+					layers[Map.BLOCKS][r][c] != 1 &&
+					(
+						(
+							critterId == MapTileConverter.RAT &&
+							(
+								bitmap.bitmapData.getPixel32(c, r + 1) == DungeonBitmap.LEDGE ||
+								bitmap.bitmapData.getPixel32(c, r + 1) == DungeonBitmap.LADDER_LEDGE ||
+								layers[Map.BLOCKS][r + 1][c] == MapTileConverter.WALL
+							)
+						) ||
+						(
+							(critterId == MapTileConverter.SPIDER || critterId == MapTileConverter.BAT) &&
+							(
+								layers[Map.BLOCKS][r - 1][c] == MapTileConverter.WALL &&
+								bitmap.bitmapData.getPixel32(c, r - 1) != DungeonBitmap.PIT
+							)
+						) ||
+						(
+							critterId == MapTileConverter.COG &&
+							(
+								(
+									layers[Map.BLOCKS][r - 1][c] == MapTileConverter.WALL &&
+									bitmap.bitmapData.getPixel32(c, r - 1) != DungeonBitmap.PIT
+								) ||
+								layers[Map.BLOCKS][r + 1][c] == MapTileConverter.WALL ||
+								layers[Map.BLOCKS][r][c - 1] == MapTileConverter.WALL ||
+								layers[Map.BLOCKS][r][c + 1] == MapTileConverter.WALL
+							)
+						)
+					)
+				){
+					layers[Map.ENTITIES][r][c] = critterId;
 					critterNum--;
 				}
 				if((breaker++) > 1000) break;
@@ -725,7 +744,7 @@
 		}
 		
 		/* This adds dart traps to the level */
-		public function setDartTraps():void{
+		public function createDartTraps():void{
 			var totalTraps:int = g.content.getTraps(level, type) - bitmap.pitTraps;
 			if(totalTraps == 0) return;
 			

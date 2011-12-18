@@ -74,7 +74,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 269;
+		public static const BUILD_NUM:int = 272;
 		
 		public static var g:Game;
 		public static var renderer:Renderer;
@@ -414,6 +414,7 @@
 			Player.previousLevel = Map.OVERWORLD;
 			Player.previousPortalType = Portal.STAIRS;
 			Player.previousMapType = Map.AREA;
+			SoundManager.musicTimes = {};
 			
 			init();
 		}

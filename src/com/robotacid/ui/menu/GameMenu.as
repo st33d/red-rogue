@@ -485,7 +485,6 @@
 			} else if(previousMenuList.options[previousMenuList.selection] == inventoryList.enchantOption){
 				item = option.userData;
 				var rune:Item = inventoryList.options[inventoryList.selection].userData;
-				
 				effect = new Effect(rune.name, 1, 1);
 				
 				Item.revealName(rune.name, inventoryList);

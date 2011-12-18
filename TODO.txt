@@ -1,9 +1,5 @@
-Create MusicManager
-
 shooting a secret wall causing multiple "secret revealed" messages - unreproducable
-
 undead unequip bug - unreproducible?
-
 chaos walls somehow leaving children with parent colliders - heisenbug
 
 implement underworld
@@ -14,6 +10,13 @@ implement underworld
 		create npc class
 		create npc brain
 			create player brain - to manage keys and to manage confusion/fear state
+
+			
+Add sceneManager to Overworld
+	create teleport sparks over entrance
+	
+Create zone art
+	create cog critter
 
 Finish undead rune
 

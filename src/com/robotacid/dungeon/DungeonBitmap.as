@@ -21,6 +21,7 @@
 		
 		public var level:int;
 		public var type:int;
+		public var zone:int;
 		public var size:int;
 		
 		public var pitTraps:int;
@@ -71,6 +72,12 @@
 		public static const ITEM_DUNGEON:int = Map.ITEM_DUNGEON;
 		public static const AREA:int = Map.AREA;
 		
+		// zones
+		public static const DUNGEONS:int = Map.DUNGEONS;
+		public static const SEWERS:int = Map.SEWERS;
+		public static const CAVES:int = Map.CAVES;
+		public static const CHAOS:int = Map.CHAOS;
+		
 		public static const UP:int = 1;
 		public static const RIGHT:int = 1 << 1;
 		public static const DOWN:int = 1 << 2;
@@ -87,19 +94,30 @@
 		public static const UNDERWORLD_WIDTH:int = 20;
 		public static const UNDERWORLD_HEIGHT:int = 13;
 		
+		public static const ZONE_ROOMINESS:Array = [
+			5, 4, 5, 4
+		];
+		public static const ZONE_HORIZ_PACE:Array = [
+			3, 4, 3, 3
+		];
+		public static const ZONE_VERT_PACE:Array = [
+			2, 1, 3, 2
+		];
+		
 		/* Adobe don't provide this as a constant for some reason */
 		public static const MAXIMUM_PIXELS:int = 16769025;
 		
-		public function DungeonBitmap(level:int, type:int) {
+		public function DungeonBitmap(level:int, type:int, zone:int = 0) {
 			
 			this.level = level;
 			this.type = type;
+			this.zone = zone;
 			
 			var bitmapData:BitmapData;
 			
 			if(type == AREA){
-				if(level == 0) bitmapData = createOverworld();
-				else if(level == 1) bitmapData = createUnderworld();
+				if(level == Map.OVERWORLD) bitmapData = createOverworld();
+				else if(level == Map.UNDERWORLD) bitmapData = createUnderworld();
 				
 			} else if(type == MAIN_DUNGEON || type == ITEM_DUNGEON){
 				
@@ -116,10 +134,14 @@
 				}
 				
 				// create pacing standard for this level
-				horizPace = Math.ceil(size * 0.5) * 3;
-				vertPace = Math.ceil(size * 0.5) * 2;
-				roominess = 5;
+				horizPace = Math.ceil(size * 0.5) * ZONE_HORIZ_PACE[zone];
+				vertPace = Math.ceil(size * 0.5) * ZONE_VERT_PACE[zone];
+				roominess = ZONE_ROOMINESS[zone];
 				bitmapData = createRoomsAndTunnels();
+				
+				//var temp:Bitmap = new Bitmap(bitmapData.clone());
+				//temp.scaleX = temp.scaleY = 2;
+				//Game.g.addChild(temp);
 			}
 			
 			super(bitmapData, "auto", false);
@@ -160,13 +182,23 @@
 				for(i = 0; i < (roominess * size) + g.random.rangeInt(size * roominess); i++){
 					rooms.push(new Room());
 				}
+				var pick:int;
 				for(i = 0; i < rooms.length; i++){
-					//for(j = 0; j < 1 + random(1); j++){
-						do{
-							var pick:int = g.random.range(rooms.length);
-						} while(pick == i);
-						rooms[i].siblings.push(rooms[pick]);
-					//}
+					do{
+						pick = g.random.range(rooms.length);
+					} while(pick == i);
+					rooms[i].siblings.push(rooms[pick]);
+				}
+				// add more siblings in sewers and chaos
+				if(zone == SEWERS || zone == CHAOS){					
+					for(i = 0; i < rooms.length; i++){
+						for(j = 0; j < g.random.rangeInt(3); j++){
+							do{
+								pick = g.random.range(rooms.length);
+							} while(pick == i);
+							rooms[i].siblings.push(rooms[pick]);
+						}
+					}
 				}
 				
 				// now the hard part, positioning and then connecting them:
@@ -305,6 +337,21 @@
 					}
 				}
 				
+				// create random crags on caves and chaos levels
+				if(zone == CAVES || zone == CHAOS){
+					for(i = 0; i < (data.width + data.height) * 3; i++){
+						c = 1 + g.random.rangeInt(data.width - 1);
+						r = 1 + g.random.rangeInt(data.height - 1);
+						if(data.getPixel32(c, r) == WALL && (
+							data.getPixel32(c - 1, r) == DIGGING ||
+							data.getPixel32(c + 1, r) == DIGGING ||
+							data.getPixel32(c, r + 1) == DIGGING
+						)){
+							data.setPixel32(c, r, DIGGING);
+						}
+					}
+				}
+				
 				// did the room generation create two separate networks?
 				data.floodFill(rooms[0].x, rooms[0].y, EMPTY);
 				
@@ -321,7 +368,9 @@
 			// they confuse enemies and the route planner puts ladders in them leading to nothing but a one square pit
 			var pixels:Vector.<uint> = data.getVector(data.rect);
 			for(i = data.width; i < pixels.length - data.width; i++){
-				if(pixels[i] == EMPTY && pixels[i - 1] == WALL && pixels[i + 1] == WALL && pixels[i + data.width] == WALL) pixels[i] = WALL;
+				if(pixels[i] == EMPTY && pixels[i - 1] == WALL && pixels[i + 1] == WALL && pixels[i + data.width] == WALL){
+					pixels[i] = WALL;
+				}
 			}
 			data.setVector(data.rect, pixels);
 			

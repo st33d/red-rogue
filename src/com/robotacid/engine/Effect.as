@@ -246,9 +246,15 @@
 						}
 					}
 				}
-				if(i == item.effects.length) item.effects.push(this);
+				if(i == item.effects.length){
+					// wizard hats double their first enchantment
+					if(item.type == Item.ARMOUR && item.name == Item.WIZARD_HAT) level++;
+					item.effects.push(this);
+				}
 			} else {
 				item.effects = new Vector.<Effect>();
+				// wizard hats double their first enchantment
+				if(item.type == Item.ARMOUR && item.name == Item.WIZARD_HAT) level++;
 				item.effects.push(this);
 				
 				// upon enchanting this item for the first time, there is a chance it may become cursed
