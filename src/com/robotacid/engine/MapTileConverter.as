@@ -95,10 +95,6 @@
 		public static const LADDER_TOP_LEDGE_START_LEFT_END:int = 40;
 		public static const LADDER_TOP_LEDGE_START_RIGHT_END:int = 41;
 		
-		public static const SECRET_WALL:int = 54;
-		public static const PIT:int = 55;
-		public static const POISON_DART:int = 56;
-		public static const TELEPORT_DART:int = 57;
 		public static const STAIRS_UP:int = 58;
 		public static const STAIRS_DOWN:int = 59;
 		public static const HEAL_STONE:int = 60;
@@ -169,9 +165,9 @@
 			,
 			,
 			Sprite,// secret wall
-			Sprite,//55
-			Sprite,
-			Sprite,
+			,//55
+			,
+			,
 			StairsUpMC,
 			StairsDownMC,
 			Sprite,//60
@@ -284,20 +280,9 @@
 				mc.y = y * r.scale;
 			}
 			
+			// objects defined by index and created on the fly
 			
-			// build tiles
-			
-			if(id == 4){
-				
-			} else if(id == SECRET_WALL){
-				item = new Stone(x * Game.SCALE, y * Game.SCALE, Stone.SECRET_WALL);
-			} else if(id == PIT){
-				item = new Trap(mc, x, y, Trap.PIT);
-			} else if(id == POISON_DART){
-				item = new Trap(mc, x, y, Trap.POISON_DART);
-			} else if(id == TELEPORT_DART){
-				item = new Trap(mc, x, y, Trap.TELEPORT_DART);
-			} else if(id == STAIRS_UP){
+			if(id == STAIRS_UP){
 				// stairs up
 				item = new Portal(mc, new Rectangle(x * Game.SCALE, y * Game.SCALE, Game.SCALE, Game.SCALE), Portal.STAIRS, g.dungeon.level - 1);
 				if(Map.isPortalToPreviousLevel(x, y, Portal.STAIRS, g.dungeon.level - 1)) g.entrance = item;
@@ -319,7 +304,6 @@
 			} else if(id == COG){
 				item = new Critter(mc, (x + 0.5) * Game.SCALE, (y + 0.5) * Game.SCALE, Critter.COG);
 			}
-			
 			
 			// just gfx?
 			else {

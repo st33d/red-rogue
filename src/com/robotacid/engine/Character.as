@@ -858,11 +858,7 @@
 		}
 		
 		override public function toXML():XML {
-			var xml:XML = <character />;
-			xml.@name = name;
-			xml.@type = type;
-			xml.@level = level;
-			xml.@health = health;
+			var xml:XML = <character name={name} type={type} level={level} />;
  			if(effects && effects.length){
 				for(var i:int = 0; i < effects.length; i++){
 					if(effects[i].source != Effect.ARMOUR){

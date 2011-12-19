@@ -497,13 +497,7 @@
 		}
 		
 		override public function toXML():XML{
-			var xml:XML = <item />;
-			xml.@name = name;
-			xml.@type = type;
-			xml.@level = level;
-			xml.@location = location;
-			xml.@curseState = curseState;
-			xml.@user = user ? user.trueNameToString() : "";
+			var xml:XML = <item name={name} type={type} level={level} location={location} curseState={curseState} user={user ? user.trueNameToString() : ""} />;
 			if(effects && effects.length){
 				for(var i:int = 0; i < effects.length; i++){
 					xml.appendChild(effects[i].toXML());

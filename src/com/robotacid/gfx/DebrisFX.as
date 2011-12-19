@@ -29,6 +29,7 @@
 			this.print = print;
 			this.smear = smear;
 			this.map = map;
+			looped = true;
 			mapX = x * Game.INV_SCALE;
 			mapY = y * Game.INV_SCALE;
 			px = x;

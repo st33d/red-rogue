@@ -74,7 +74,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 272;
+		public static const BUILD_NUM:int = 273;
 		
 		public static var g:Game;
 		public static var renderer:Renderer;
@@ -380,7 +380,7 @@
 			
 			// modify the mapRect to conceal secrets
 			mapTileManager.mapRect = renderer.camera.mapRect = dungeon.bitmap.adjustedMapRect;
-			miniMap = new MiniMap(world.map, this);
+			miniMap = new MiniMap(world.map, this, renderer);
 			miniMap.y = miniMap.x = 5;
 			miniMapHolder.addChild(miniMap);
 			initPlayer();

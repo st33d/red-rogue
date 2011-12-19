@@ -363,7 +363,7 @@
 					callMain = true;
 				} else {
 					// stun the target for an extra long duration
-					target.applyStun(2);
+					target.applyStun(STUPEFY_PER_LEVEL * level * 2);
 					return;
 				}
 				
@@ -423,7 +423,7 @@
 				} else if(source == THROWN){
 					if(target is Monster){
 						portal = Portal.createPortal(Portal.MONSTER, target.mapX, target.mapY);
-						portal.setMonsterTemplate(target as Monster);
+						portal.setMonsterTemplate(target.toXML());
 					}
 				}
 				
@@ -527,12 +527,7 @@
 		}
 		
 		public function toXML():XML{
-			var xml:XML = <effect />;
-			xml.@name = name;
-			xml.@level = level;
-			xml.@count = count;
-			xml.@source = source;
-			return xml;
+			return <effect name={name} level={level} count={count} source = {source} />;
 		}
 		
 		/* Get a random location on the map to teleport to - aims for somewhere not too immediate */

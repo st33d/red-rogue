@@ -1,12 +1,13 @@
 ﻿package com.robotacid.engine {
 	import com.robotacid.ai.Brain;
+	import com.robotacid.dungeon.Content;
 	import com.robotacid.dungeon.Map;
 	import com.robotacid.geom.Pixel;
 	import com.robotacid.gfx.BlitSprite;
 	import com.robotacid.gfx.Renderer;
 	import com.robotacid.phys.Collider;
 	import com.robotacid.sound.SoundManager;
-	import com.robotacid.ui.MinimapFeature;
+	import com.robotacid.ui.MinimapFX;
 	import com.robotacid.util.HiddenInt;
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
@@ -32,12 +33,14 @@
 		public var disarmingRect:Rectangle;
 		public var disarmingContact:Boolean;
 		
-		private var minimapFeature:MinimapFeature;
+		private var minimapFX:MinimapFX;
 		
 		// type flags
 		public static const PIT:int = 0;
 		public static const POISON_DART:int = 1;
 		public static const TELEPORT_DART:int = 2;
+		public static const STUPEFY_DART:int = 3;
+		public static const MONSTER_PORTAL:int = 4;
 		
 		public static const PIT_COVER_DELAY:int = 7;
 		
@@ -49,9 +52,11 @@
 			revealed = false;
 			if(type == PIT){
 				rect = new Rectangle(mapX * Game.SCALE, -1 + mapY * Game.SCALE, SCALE, SCALE);
-			} else if(dartPos){
+			} else {
 				rect = new Rectangle(mapX * Game.SCALE, -1 + mapY * Game.SCALE, SCALE, 5);
-				dartGun = new Point((dartPos.x + 0.5) * Game.SCALE, (dartPos.y + 1) * Game.SCALE);
+				if(dartPos){
+					dartGun = new Point((dartPos.x + 0.5) * Game.SCALE, (dartPos.y + 1) * Game.SCALE);
+				}
 			}
 			disarmingRect = new Rectangle((mapX - 1) * Game.SCALE, -1 + (mapY * Game.SCALE), SCALE * 3, 5);
 			callMain = true;
@@ -91,10 +96,6 @@
 				if(count == 0){
 					if(type == PIT){
 						active = false;
-						if(minimapFeature) {
-							minimapFeature.active = false;
-							minimapFeature = null;
-						}
 						g.world.map[mapY][mapX] = Collider.UP | Collider.LEDGE;
 					}
 				}
@@ -137,15 +138,37 @@
 						break;
 					}
 				}
+				if(!minimapFX) g.miniMap.addFX(mapX, mapY, renderer.featureRevealedBlit);
+				else{
+					minimapFX.active = false;
+					minimapFX = null;
+				}
 				
 			} else if(type == POISON_DART){
 				g.console.print("poison trap triggered");
 				g.soundQueue.add("throw");
-				shootDart(new Effect(Effect.POISON, g.dungeon.level, Effect.THROWN));
+				shootDart(new Effect(Effect.POISON, g.dungeon.level < Game.MAX_LEVEL ? g.dungeon.level : Game.MAX_LEVEL, Effect.THROWN));
+			} else if(type == STUPEFY_DART){
+				g.console.print("stupefy trap triggered");
+				g.soundQueue.add("throw");
+				shootDart(new Effect(Effect.STUPEFY, g.dungeon.level < Game.MAX_LEVEL ? g.dungeon.level : Game.MAX_LEVEL, Effect.THROWN));
 			} else if(type == TELEPORT_DART){
 				g.console.print("teleport trap triggered");
 				g.soundQueue.add("throw");
 				shootDart(new Effect(Effect.TELEPORT, Game.MAX_LEVEL, Effect.THROWN));
+				
+			} else if(type == MONSTER_PORTAL){
+				g.console.print("monster trap triggered");
+				var portal:Portal = Portal.createPortal(Portal.MONSTER, mapX, mapY - 1, g.dungeon.level);
+				portal.setMonsterTemplate(Content.createCharacterXML(g.dungeon.level < Game.MAX_LEVEL ? g.dungeon.level : Game.MAX_LEVEL, Character.MONSTER));
+				// monster portal traps are triggered once and then destroy themselves
+				active = false;
+				if(!minimapFX) g.miniMap.addFX(mapX, mapY, renderer.featureRevealedBlit);
+				else{
+					minimapFX.active = false;
+					minimapFX = null;
+				}
+				return;
 			}
 			// a trap that still exists after being triggered gets revealed
 			if(!revealed && active && type != PIT){
@@ -158,7 +181,7 @@
 			var trapRevealedB:Bitmap = new g.library.TrapRevealedB();
 			trapRevealedB.y = -SCALE;
 			(gfx as Sprite).addChild(trapRevealedB);
-			minimapFeature = g.miniMap.addFeature(mapX, mapY, renderer.searchFeatureBlit, true);
+			minimapFX = g.miniMap.addFeature(mapX, mapY, renderer.searchFeatureBlit, true);
 			revealed = true;
 		}
 		
@@ -166,9 +189,9 @@
 		public function disarm():void{
 			if(!active) return;
 			active = false;
-			if(minimapFeature) {
-				minimapFeature.active = false;
-				minimapFeature = null;
+			if(minimapFX) {
+				minimapFX.active = false;
+				minimapFX = null;
 			}
 			g.player.addXP(DISARMING_XP_REWARD * g.dungeon.level);
 			g.content.removeTrap(g.dungeon.level, g.dungeon.type);

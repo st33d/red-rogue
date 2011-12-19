@@ -376,7 +376,7 @@
 			
 			// now add some flavour
 			createChaosWalls(pixels);
-			createDartTraps();
+			createOtherTraps();
 			createCritters();
 		}
 		
@@ -402,10 +402,10 @@
 			fill(0, 1, 0, width-2, height-1, layers[BLOCKS]);
 			
 			// create the grindstone and healstone
-			layers[BLOCKS][height - 2][1] = 1;
-			layers[ENTITIES][height - 2][1] = 60;
-			layers[BLOCKS][height - 2][width - 2] = 1;
-			layers[ENTITIES][height - 2][width - 2] = 61;
+			layers[BLOCKS][height - 2][1] = MapTileConverter.WALL;
+			layers[ENTITIES][height - 2][1] = MapTileConverter.HEAL_STONE;
+			layers[BLOCKS][height - 2][width - 2] = MapTileConverter.WALL;
+			layers[ENTITIES][height - 2][width - 2] = MapTileConverter.GRIND_STONE;
 			
 			var portalXMLs:Vector.<XML> = g.content.getPortals(level, type);
 			if(portalXMLs.length){
@@ -743,8 +743,18 @@
 			}
 		}
 		
-		/* This adds dart traps to the level */
-		public function createDartTraps():void{
+		/* This adds traps other than pit traps to the level */
+		public function createOtherTraps():void{
+			
+			// the compiler won't let me create this as a constant so I have to drop it in here
+			// better than resorting to magic numbers I suppose
+			var ZONE_TRAPS:Array = [
+				[Trap.TELEPORT_DART],
+				[Trap.STUPEFY_DART, Trap.TELEPORT_DART],
+				[Trap.STUPEFY_DART, Trap.POISON_DART, Trap.TELEPORT_DART],
+				[Trap.MONSTER_PORTAL, Trap.STUPEFY_DART, Trap.POISON_DART, Trap.TELEPORT_DART]
+			];
+			
 			var totalTraps:int = g.content.getTraps(level, type) - bitmap.pitTraps;
 			if(totalTraps == 0) return;
 			
@@ -767,19 +777,25 @@
 				}
 			}
 			
+			var trapIndex:int, trapPos:Pixel, trapType:int, sprite:Sprite, trap:Trap;
+			
 			while(totalTraps > 0 && trapPositions.length > 0){
-				var trapIndex:int = g.random.range(trapPositions.length);
-				var trapPos:Pixel = trapPositions[trapIndex];
-				var trapType:int = 1 + g.random.range(2);
-				var sprite:Sprite = new Sprite();
+				trapIndex = g.random.range(trapPositions.length);
+				trapPos = trapPositions[trapIndex];
+				trapType = ZONE_TRAPS[zone][g.random.rangeInt(ZONE_TRAPS[zone].length)];
+				sprite = new Sprite();
 				sprite.x = trapPos.x * Game.SCALE;
 				sprite.y = trapPos.y * Game.SCALE;
-				// get dart gun position
-				dartPos = trapPos.copy();
-				do{
-					dartPos.y--;
-				} while(pixels[dartPos.x + dartPos.y * width] != DungeonBitmap.WALL);
-				var trap:Trap = new Trap(sprite, trapPos.x, trapPos.y, trapType, dartPos);
+				if(trapType != Trap.MONSTER_PORTAL){
+					// get dart gun position
+					dartPos = trapPos.copy();
+					do{
+						dartPos.y--;
+					} while(pixels[dartPos.x + dartPos.y * width] != DungeonBitmap.WALL);
+				} else {
+					dartPos = null;
+				}
+				trap = new Trap(sprite, trapPos.x, trapPos.y, trapType, dartPos);
 				trap.mapX = trapPos.x;
 				trap.mapY = trapPos.y;
 				trap.mapZ = MapTileManager.ENTITY_LAYER;

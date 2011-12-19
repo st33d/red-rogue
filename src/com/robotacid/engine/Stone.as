@@ -5,7 +5,7 @@
 	import com.robotacid.gfx.Renderer;
 	import com.robotacid.phys.Collider;
 	import com.robotacid.sound.SoundManager;
-	import com.robotacid.ui.MinimapFeature;
+	import com.robotacid.ui.MinimapFX;
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
 	import flash.display.DisplayObject;
@@ -23,7 +23,7 @@
 		
 		public var revealed:Boolean;
 		
-		private var minimapFeature:MinimapFeature;
+		private var minimapFeature:MinimapFX;
 		
 		public static const SECRET_WALL:int = 0;
 		public static const HEALTH:int = 1;

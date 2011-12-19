@@ -20,7 +20,6 @@
 	public class BlitClip extends BlitSprite{
 		
 		public var frames:Vector.<BitmapData>;
-		public var totalFrames:int;
 		
 		public function BlitClip(mc:MovieClip = null, colorTransform:ColorTransform = null) {
 			frames = new Vector.<BitmapData>();

@@ -5,7 +5,7 @@
 	import com.robotacid.phys.Collider;
 	import com.robotacid.sound.SoundManager;
 	import com.robotacid.ui.menu.InventoryMenuList;
-	import com.robotacid.ui.MinimapFeature;
+	import com.robotacid.ui.MinimapFX;
 	import flash.display.BitmapData;
 	import flash.display.DisplayObject;
 	
@@ -26,7 +26,7 @@
 		
 		public var enterCount:int;
 		
-		private var minimapFeature:MinimapFeature;
+		private var minimapFX:MinimapFX;
 		
 		public static const ENTER_DELAY:int = 30;
 		
@@ -50,7 +50,7 @@
 		}
 		
 		public function addMinimapFeature():void{
-			minimapFeature = g.miniMap.addFeature(mapX, mapY, renderer.minionFeatureBlit);
+			minimapFX = g.miniMap.addFeature(mapX, mapY, renderer.minionFeatureBlit);
 		}
 		
 		override public function createCollider(x:Number, y:Number, properties:int, ignoreProperties:int, state:int = 0, positionByBase:Boolean = true):void {
@@ -75,8 +75,8 @@
 			}
 			if(state == WALKING) brain.main();
 			super.main();
-			minimapFeature.x = mapX;
-			minimapFeature.y = mapY;
+			minimapFX.x = mapX;
+			minimapFX.y = mapY;
 		}
 		
 		/* The minion waits for the player to finish using the stairs */
@@ -137,7 +137,7 @@
 				g.minionHealthBar.visible = false;
 				g.menu.summonOption.active = false;
 				g.menu.update();
-				minimapFeature.active = false;
+				minimapFX.active = false;
 			} else {
 				if(temp_weapon) equip(temp_weapon);
 				if(temp_armour) equip(temp_armour);

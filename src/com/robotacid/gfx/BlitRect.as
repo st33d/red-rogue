@@ -22,6 +22,7 @@
 		public var dx:int, dy:int;
 		public var rect:Rectangle;
 		public var col:uint;
+		public var totalFrames:int;
 		
 		public static var p:Point = new Point();
 		
@@ -32,6 +33,7 @@
 			this.width = width;
 			this.height = height;
 			this.col = col;
+			totalFrames = 1;
 			rect = new Rectangle(x, y, width, height);
 		}
 		public function render(destination:BitmapData, frame:int = 0):void{

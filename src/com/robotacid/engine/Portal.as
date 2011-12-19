@@ -5,7 +5,7 @@
 	import com.robotacid.engine.Entity;
 	import com.robotacid.gfx.BlitClip;
 	import com.robotacid.phys.Collider;
-	import com.robotacid.ui.MinimapFeature;
+	import com.robotacid.ui.MinimapFX;
 	import flash.display.Bitmap;
 	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
@@ -31,7 +31,7 @@
 		
 		private var count:int;
 		
-		private var minimapFeature:MinimapFeature;
+		private var minimapFX:MinimapFX;
 		private var monsterTemplate:XML;
 		private var monsterEntryCount:int;
 		private var monsterTotal:int;
@@ -57,7 +57,6 @@
 		public static const OPEN_CLOSE_DELAY:int = 8;
 		public static const SCALE_STEP:Number = 1.0 / OPEN_CLOSE_DELAY;
 		public static const GFX_STEP:Number = (SCALE * 0.5) / OPEN_CLOSE_DELAY;
-		public static const MONSTERS_PER_LEVEL:int = 2;
 		public static const MONSTERS_ENTRY_DELAY:int = 8;
 		public static const UNDEAD_HEAL_RATE:Number = 0.05;
 		
@@ -93,9 +92,6 @@
 					gfx.x = mapX * SCALE;
 					gfx.y = mapY * SCALE;
 					state = OPEN;
-					if(type == MONSTER){
-						count = MONSTERS_PER_LEVEL * g.dungeon.level;
-					}
 				}
 			} else if(state == OPEN){
 				// if the portal is visible on the map - then make the portal icon on the map visible
@@ -111,7 +107,7 @@
 					} else {
 						blit = renderer.portalFeatureBlit;
 					}
-					minimapFeature = g.miniMap.addFeature(mapX, mapY, blit, this != g.entrance);
+					minimapFX = g.miniMap.addFeature(mapX, mapY, blit, this != g.entrance);
 				}
 				if(type == UNDERWORLD){
 					// heal the undead
@@ -173,9 +169,10 @@
 		
 		public function close():void{
 			g.mapTileManager.removeTile(this, mapX, mapY, mapZ);
-			minimapFeature.active = false;
+			minimapFX.active = false;
 			free = false;
 			state = CLOSING;
+			count = OPEN_CLOSE_DELAY;
 		}
 		
 		/* Covers the bottom edge of a portal to make it neater in outside areas */
@@ -191,11 +188,11 @@
 		}
 		
 		/* Creates the type of monster that will pour out of the portal */
-		public function setMonsterTemplate(monster:Monster):void{
-			monsterTemplate = monster.toXML();
+		public function setMonsterTemplate(xml:XML):void{
+			monsterTemplate = xml;
 			// strip the monster of items - this is not an item farming spell
 			delete monsterTemplate.item;
-			monsterTotal = g.dungeon.level * MONSTERS_PER_LEVEL;
+			monsterTotal = g.dungeon.level < Game.MAX_LEVEL ? g.dungeon.level : Game.MAX_LEVEL;
 			monsterEntryCount = MONSTERS_ENTRY_DELAY;
 		}
 		
@@ -205,18 +202,12 @@
 		}
 		
 		override public function toXML():XML {
-			var xml:XML = <portal />;
-			xml.@type = type;
-			xml.@targetLevel = targetLevel;
-			return xml;
+			return <portal type={type} targetLevel={targetLevel} />;
 		}
 		
 		/* Used by Map to create a way back to the main dungeon from an item portal */
-		public static function getReturnPortalXML():XML{
-			var xml:XML = <portal />;
-			xml.@type = ITEM_RETURN;
-			xml.@targetLevel = Player.previousLevel;
-			return xml;
+		public static function getItemReturnPortalXML():XML{
+			return <portal type={ITEM_RETURN} targetLevel={Player.previousLevel}/>;
 		}
 		
 		/* Generates a portal within a level - only one portal of each type is allowed in the game */

@@ -10,7 +10,6 @@
 	public class FadingBlitRect extends BlitRect{
 		
 		public var frames:Array;
-		public var totalFrames:int;
 		
 		public function FadingBlitRect(dx:int = 0, dy:int = 0, width:int = 1, height:int = 1, totalFrames:int = 1, col:uint = 0xFF000000) {
 			super(dx, dy, width, height, col);

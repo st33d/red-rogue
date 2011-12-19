@@ -176,28 +176,21 @@
 		/* Creates content for the enchanted item side-dungeon */
 		public function setItemDungeonContent(item:Item, level:int):void{
 			itemDungeonContent = getLevelContent(level, item.toXML());
-			var portalXML:XML = <portal />;
-			portalXML.@type = Portal.ITEM_RETURN;
-			portalXML.@targetLevel = level;
-			itemDungeonContent.portals = Vector.<XML>([portalXML]);
+			itemDungeonContent.portals = Vector.<XML>([<portal type={Portal.ITEM_RETURN} targetLevel={level} />]);
 			itemDungeonContent.secrets = 2;
 			itemDungeonContent.traps = 2 * (level <= TOTAL_LEVELS ? level : TOTAL_LEVELS);
 		}
 		
 		/* Retargets the underworld portal */
 		public function setUnderworldPortal(level:int):void{
-			var portalXML:XML = <portal />;
-			portalXML.@type = Portal.UNDERWORLD_RETURN;
-			portalXML.@targetLevel = level;
-			areaContent[Map.UNDERWORLD].portals = Vector.<XML>([portalXML]);
+			areaContent[Map.UNDERWORLD].portals = Vector.<XML>([<portal type={Portal.UNDERWORLD_RETURN} targetLevel={level} />]);
 		}
 		
 		/* Creates or retargets the overworld portal */
 		public function setOverworldPortal(level:int):void{
 			var portalXML:XML
 			if(areaContent[Map.OVERWORLD].portals.length == 0){
-				portalXML = <portal />;
-				portalXML.@type = Portal.OVERWORLD_RETURN;
+				portalXML = <portal type={Portal.OVERWORLD_RETURN} />;
 				areaContent[Map.OVERWORLD].portals = Vector.<XML>([portalXML]);
 			} else {
 				portalXML = areaContent[Map.OVERWORLD].portals[0];
@@ -243,7 +236,7 @@
 				while(chests.length){
 					r = 1 + g.random.range(bitmap.height - 2);
 					c = 1 + g.random.range(bitmap.width - 2);
-					if(layers[Map.ENTITIES][r + 1][c] != MapTileConverter.PIT && !layers[Map.ENTITIES][r][c] && layers[Map.BLOCKS][r][c] != 1 && (bitmap.bitmapData.getPixel32(c, r + 1) == DungeonBitmap.LEDGE || layers[Map.BLOCKS][r + 1][c] == 1)){
+					if(!layers[Map.ENTITIES][r][c] && layers[Map.BLOCKS][r][c] != 1 && (bitmap.bitmapData.getPixel32(c, r + 1) == DungeonBitmap.LEDGE || layers[Map.BLOCKS][r + 1][c] == 1)){
 						//trace(chestsByLevel[level][0].toXMLString());
 						layers[Map.ENTITIES][r][c] = convertXMLToEntity(c, r, chests.shift());
 					}
@@ -485,7 +478,7 @@
 		public static function createItemXML(dungeonLevel:int, type:int):XML{
 			var enchantments:int = -2 + g.random.range(dungeonLevel);
 			var name:int;
-			var level:int = Math.min(1 + g.random.range(dungeonLevel), 20);
+			var level:int = Math.min(1 + g.random.range(dungeonLevel), Game.MAX_LEVEL);
 			var nameRange:int;
 			if(type == Item.ARMOUR){
 				nameRange = Item.ITEM_MAX;

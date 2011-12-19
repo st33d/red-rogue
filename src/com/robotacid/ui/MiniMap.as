@@ -1,5 +1,7 @@
 ﻿package com.robotacid.ui {
 	import com.robotacid.gfx.BlitClip;
+	import com.robotacid.gfx.FX;
+	import com.robotacid.gfx.Renderer;
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
 	import flash.display.Shape;
@@ -17,11 +19,12 @@
 	public class MiniMap extends Sprite{
 		
 		public var g:Game;
+		public var renderer:Renderer;
 		
 		public var view:Rectangle;
 		public var window:Bitmap;
 		public var bitmapData:BitmapData;
-		public var features:Vector.<MinimapFeature>;
+		public var fx:Vector.<MinimapFX>;
 		
 		private var searchRectBorder:Rectangle;
 		
@@ -34,12 +37,11 @@
 		
 		private static var point:Point = new Point();
 		private static var i:int;
-		private static var feature:MinimapFeature;
+		private static var fxItem:MinimapFX;
 		
-		public function MiniMap(blockMap:Vector.<Vector.<int>>, g:Game):void{
+		public function MiniMap(blockMap:Vector.<Vector.<int>>, g:Game, renderer:Renderer):void{
 			this.g = g;
-			
-			MinimapFeature.minimap = this;
+			this.renderer = renderer;
 			
 			bitmapData = new BitmapData(blockMap[0].length, blockMap.length, true, 0x00000000);
 			window = new Bitmap(new BitmapData(WIDTH, HEIGHT, true, 0x00000000));
@@ -59,20 +61,28 @@
 			
 			searchRectBorder = new Rectangle(0, 0, 1, 1);
 			
-			features = new Vector.<MinimapFeature>();
+			fx = new Vector.<MinimapFX>();
 			view = new Rectangle(0, 0, WIDTH, HEIGHT);
 		}
 		
-		public function addFeature(x:Number, y:Number, blit:BlitClip, searchReveal:Boolean = false):MinimapFeature{
-			var feature:MinimapFeature = new MinimapFeature(x, y, blit, searchReveal);
-			features.push(feature);
+		/* Adds an animation to depict a given item on the minimap, searchReveal adds a visual "ping" to emphasise the discovery */
+		public function addFeature(x:Number, y:Number, blit:BlitClip, searchReveal:Boolean = false):MinimapFX{
+			var feature:MinimapFX = addFX(x, y, blit, null, 0, true);
+			if(searchReveal) addFX(x, y, renderer.featureRevealedBlit);
 			return feature;
+		}
+		
+		public function addFX(x:Number, y:Number, blit:BlitClip, dir:Point = null, delay:int = 0, looped:Boolean = false):MinimapFX{
+			var fxItem:MinimapFX = new MinimapFX(x, y, blit, window.bitmapData, view, dir, delay, looped);
+			fx.push(fxItem);
+			return fxItem;
 		}
 		
 		public function newMap(blockMap:Vector.<Vector.<int>>):void{
 			bitmapData = new BitmapData(blockMap[0].length, blockMap.length, true, 0x00000000);
-			features.length = 0;
+			fx.length = 0;
 		}
+		
 		public function render():void {
 			view.x = g.player.mapX - int(WIDTH * 0.5);
 			view.y = g.player.mapY - int(HEIGHT * 0.5);
@@ -84,18 +94,10 @@
 				drawSearchRadius(g.player.searchRadius);
 			}
 			
-			for(i = features.length - 1; i > -1; i--) {
-				feature = features[i];
-				if(feature.active) {
-					if(
-						feature.x + feature.blit.dx + feature.blit.width >= view.x &&
-						feature.y + feature.blit.dy + feature.blit.height >= view.y &&
-						feature.x + feature.blit.dx <= view.x + view.width &&
-						feature.y + feature.blit.dy <= view.y + view.height
-					)
-					feature.render();
-				}
-				else features.splice(i, 1);
+			for(i = fx.length - 1; i > -1; i--) {
+				fxItem = fx[i];
+				if(fxItem.active) fxItem.main();
+				else fx.splice(i, 1);
 			}
 		}
 		
