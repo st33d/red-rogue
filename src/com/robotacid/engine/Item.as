@@ -171,7 +171,7 @@
 			stacked = false;
 			callMain = true;
 			user = null;
-			twinkleCount = TWINKLE_DELAY + g.random.range(TWINKLE_DELAY);
+			twinkleCount = TWINKLE_DELAY + game.random.range(TWINKLE_DELAY);
 		}
 		
 		public function setStats():void{
@@ -264,24 +264,24 @@
 		
 		override public function main():void {
 			if(collider.state == Collider.STACK){
-				if(!g.mapTileManager.contains(collider.x + collider.width * 0.5, collider.y + collider.height * 0.5)) remove();
+				if(!game.mapTileManager.contains(collider.x + collider.width * 0.5, collider.y + collider.height * 0.5)) remove();
 			}
 			// concealing the item in the dark will help avoid showing a clipped effect on the edge
 			// of the light map
-			if(g.dungeon.level <= 0) gfx.visible = true;
-			else gfx.visible = g.lightMap.darkImage.getPixel32(mapX, mapY) != 0xFF000000 || g.player.infravision > 1;
+			if(game.dungeon.level <= 0) gfx.visible = true;
+			else gfx.visible = game.lightMap.darkImage.getPixel32(mapX, mapY) != 0xFF000000 || game.player.infravision > 1;
 			
 			if(gfx.visible){
 				// create a twinkle twinkle effect when the item is on the map to collect
 				if(twinkleCount-- <= 0){
-					renderer.addFX(collider.x + g.random.range(collider.width), collider.y + g.random.range(collider.height), renderer.twinkleBlit);
-					twinkleCount = TWINKLE_DELAY + g.random.range(TWINKLE_DELAY);
+					renderer.addFX(collider.x + game.random.range(collider.width), collider.y + game.random.range(collider.height), renderer.twinkleBlit);
+					twinkleCount = TWINKLE_DELAY + game.random.range(TWINKLE_DELAY);
 				}
 			}
 			
 			// check for collection by player
-			if((g.player.actions & Collider.UP) && collider.intersects(g.player.collider) && !g.player.indifferent){
-				collect(g.player);
+			if((game.player.actions & Collider.UP) && collider.intersects(game.player.collider) && !game.player.indifferent){
+				collect(game.player);
 			}
 		}
 		
@@ -292,8 +292,8 @@
 			}
 			location = INVENTORY;
 			if(character is Player){
-				g.menu.inventoryList.addItem(this);
-				if(print) g.console.print("picked up " + nameToString());
+				game.menu.inventoryList.addItem(this);
+				if(print) game.console.print("picked up " + nameToString());
 			} else character.loot.push(this);
 			gfx.filters = [];
 			gfx.visible = true;
@@ -309,8 +309,8 @@
 			createCollider((mx + 0.5) * Game.SCALE, (my + 1) * Game.SCALE, Collider.ITEM | Collider.SOLID, 0, Collider.FALL);
 			this.active = active;
 			if(active){
-				g.items.push(this);
-				g.world.restoreCollider(collider);
+				game.items.push(this);
+				game.world.restoreCollider(collider);
 			}
 		}
 		
@@ -333,7 +333,7 @@
 		/* Can this item be enchanted? */
 		public function enchantable(runeName:int):Boolean{
 			if(runeName == XP && level == Game.MAX_LEVEL) return false;
-			else if(runeName == PORTAL && (g.dungeon.level == 0 || g.dungeon.type == Map.ITEM_DUNGEON)) return false;
+			else if(runeName == PORTAL && (game.dungeon.level == 0 || game.dungeon.type == Map.ITEM_DUNGEON)) return false;
 			if(!effects) return true;
 			for(var i:int = 0; i < effects.length; i++){
 				if(effects[i].name == runeName && effects[i].level >= Game.MAX_LEVEL) return false;
@@ -354,11 +354,11 @@
 		
 		/* Reveals that this item is cursed in the menu */
 		public function revealCurse():void{
-			if(user && (user == g.player || user == g.minion)){
+			if(user && (user == game.player || user == game.minion)){
 				var str:String = nameToString();
 				str = str.substr(str.indexOf(":") + 1);
-				g.console.print("the " + str + " is cursed!");
-				if(user.undead) g.console.print("but the dead are unaffected...");
+				game.console.print("the " + str + " is cursed!");
+				if(user.undead) game.console.print("but the dead are unaffected...");
 			}
 			curseState = CURSE_REVEALED;
 		}
@@ -383,7 +383,7 @@
 							if(brain && brain.target == user) brain.clear();
 						}
 						if(character.type == Character.PLAYER && character.weapon){
-							g.menu.missileOption.active = false;
+							game.menu.missileOption.active = false;
 						}
 					} else if(character.type == Character.MONSTER){
 						character.collider.ignoreProperties |= Collider.PLAYER | Collider.HEAD;
@@ -413,7 +413,7 @@
 					if(character.type == Character.PLAYER || character.type == Character.MINION){
 						character.collider.ignoreProperties &= ~(Collider.MONSTER | Collider.HEAD);
 						if(character.type == Character.PLAYER && character.weapon){
-							g.menu.missileOption.active = Boolean(character.weapon.range & (MISSILE | THROWN));
+							game.menu.missileOption.active = Boolean(character.weapon.range & (MISSILE | THROWN));
 						}
 					} else if(character.type == Character.MONSTER){
 						character.collider.ignoreProperties &= ~(Collider.PLAYER | Collider.HEAD);
@@ -428,8 +428,8 @@
 		
 		override public function nameToString():String {
 			var str:String = "";
-			if(user && user == g.player) str += "w: ";
-			else if(user && user == g.minion) str += "m: ";
+			if(user && user == game.player) str += "w: ";
+			else if(user && user == game.minion) str += "m: ";
 			//if(stack > 0) str += stack + "x ";
 			//if(level > 0) str += "+" + level + " ";
 			
@@ -456,7 +456,7 @@
 		}
 		override public function remove():void {
 			super.remove();
-			g.items.splice(g.items.indexOf(this), 1);
+			game.items.splice(game.items.indexOf(this), 1);
 		}
 		
 		/* Is 'item' essentially identical to this Item, suggesting we can stack the two */

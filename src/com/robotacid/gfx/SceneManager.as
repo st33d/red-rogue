@@ -5,6 +5,7 @@ package com.robotacid.gfx {
 	import flash.display.Shape;
 	import flash.geom.Matrix;
 	import flash.geom.Point;
+	import flash.geom.Rectangle;
 	/**
 	 * Generates custom FX objects and overlays for certain areas
 	 * 
@@ -12,7 +13,7 @@ package com.robotacid.gfx {
 	 */
 	public class SceneManager {
 		
-		public static var g:Game;
+		public static var game:Game;
 		public static var renderer:Renderer;
 		
 		public var mapLevel:int;
@@ -40,36 +41,46 @@ package com.robotacid.gfx {
 			if(mapLevel == Map.UNDERWORLD && mapType == Map.AREA){
 				fx = new Vector.<FX>();
 				for(i = 0; i < UNDERWORLD_NOVAS; i++){
-					fx[i] = renderer.addFX(g.random.range(g.dungeon.width * Game.SCALE), g.random.range(UNDERWORLD_NOVA_HEIGHT * Game.SCALE), renderer.novaBlit);
-					fx[i].frame = g.random.rangeInt(renderer.novaBlit.totalFrames);
+					fx[i] = new FX(game.random.range(game.dungeon.width * Game.SCALE), game.random.range(UNDERWORLD_NOVA_HEIGHT * Game.SCALE), renderer.novaBlit, renderer.bitmapData, renderer.bitmap);
+					fx[i].frame = game.random.rangeInt(renderer.novaBlit.totalFrames);
 				}
-				var bitmap:Bitmap = new g.library.WaveB()
+				var bitmap:Bitmap = new game.library.WaveB()
 				bitmapData = bitmap.bitmapData;
 				vx = 0;
 			}
 		}
 		
-		public function render():void{
-			// the underworld requires animation of waves and the constant upkeep of exploding stars in the sky
+		public function renderBackground():void{
 			if(mapLevel == Map.UNDERWORLD && mapType == Map.AREA){
-				// maintain nova animations
+				// the underworld requires the constant upkeep of exploding stars in the sky
 				var item:FX;
 				for(i = fx.length - 1; i > -1; i--){
 					item = fx[i];
-					if(!item.active) fx[i] = renderer.addFX(g.random.range(g.dungeon.width * Game.SCALE), g.random.range(UNDERWORLD_NOVA_HEIGHT * Game.SCALE), renderer.novaBlit);
+					if(!item.active) fx[i] = new FX(game.random.range(game.dungeon.width * Game.SCALE), game.random.range(UNDERWORLD_NOVA_HEIGHT * Game.SCALE), renderer.novaBlit, renderer.bitmapData, renderer.bitmap);
+					else item.main();
 				}
-				// render the waves
+				
+			}
+		}
+		
+		public function renderForeground():void{
+			if(mapLevel == Map.UNDERWORLD && mapType == Map.AREA){
+				// the underworld requires animation of waves
 				if(vx < bitmapData.width) vx += WAVE_SPEED;
 				else vx = 0;
 				point.y = -renderer.bitmap.y + UNDERWORLD_WAVE_HEIGHT * Game.SCALE-bitmapData.height;
-				for(point.x = -bitmapData.width + vx; point.x < g.dungeon.width * Game.SCALE; point.x += bitmapData.width){
+				for(point.x = -bitmapData.width + vx; point.x < game.dungeon.width * Game.SCALE; point.x += bitmapData.width){
 					renderer.bitmapData.copyPixels(bitmapData, bitmapData.rect, point, null, null, true);
 				}
+				
+			} else if(mapLevel == Map.OVERWORLD && mapType == Map.AREA){
+				// the overworld requires an effect over the stairwell to imply the time loop spell
+				renderer.createTeleportSparkRect(new Rectangle(12 * Game.SCALE, (game.dungeon.height - 2) * Game.SCALE, Game.SCALE, Game.SCALE), 2);
 			}
 		}
 		
 		public static function getSceneManager(level:int, type:int):SceneManager{
-			if(level == Map.UNDERWORLD && type == Map.AREA){
+			if(type == Map.AREA){
 				return new SceneManager(level, type);
 			}
 			return null;

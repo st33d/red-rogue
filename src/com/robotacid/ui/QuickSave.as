@@ -32,7 +32,7 @@ package com.robotacid.ui {
 	 */
 	public class QuickSave{
 		
-		public static function save(g:Game, playerData:Boolean = false):void{
+		public static function save(game:Game, playerData:Boolean = false):void{
 			
 			var customKeys:Array = Key.custom;
 			
@@ -47,33 +47,33 @@ package com.robotacid.ui {
 				obj.playerData = true;
 				// we only save on stairs but the level doesn't change till the animation
 				// finishes, so we have to take a reading from the player's state
-				obj.dungeonLevel = g.dungeon.level + (Player.previousLevel < Player.previousLevel ? 1 : -1);
+				obj.dungeonLevel = game.dungeon.level + (Player.previousLevel < Player.previousLevel ? 1 : -1);
 				obj.previousLevel = Player.previousLevel;
 				obj.previousPortalType = Player.previousPortalType;
-				obj.player = g.player.toXML();
-				obj.minion = g.minion ? g.minion.toXML() : null;
+				obj.player = game.player.toXML();
+				obj.minion = game.minion ? game.minion.toXML() : null;
 				// here come the items
 				var items:Vector.<XML> = new Vector.<XML>();
-				for(i = 0; i < g.menu.inventoryList.options.length; i++){
+				for(i = 0; i < game.menu.inventoryList.options.length; i++){
 					// item may be stacked - load into XML as separate items
-					for(j = 0; j < (g.menu.inventoryList.options[i] as MenuOptionStack).total; j++){
-						items.push(g.menu.inventoryList.options[i].userData.toXML());
+					for(j = 0; j < (game.menu.inventoryList.options[i] as MenuOptionStack).total; j++){
+						items.push(game.menu.inventoryList.options[i].userData.toXML());
 					}
 				}
 				obj.items = items;
 				// now the content manager stocks
-				obj.chestsByLevel = g.content.chestsByLevel;
-				obj.monstersByLevel = g.content.monstersByLevel;
-				obj.portalsByLevel = g.content.portalsByLevel;
-				obj.itemDungeonContent = g.content.itemDungeonContent;
+				obj.chestsByLevel = game.content.chestsByLevel;
+				obj.monstersByLevel = game.content.monstersByLevel;
+				obj.portalsByLevel = game.content.portalsByLevel;
+				obj.itemDungeonContent = game.content.itemDungeonContent;
 				// runes revealed
 				obj.runeNames = Item.runeNames;
 			}
 			
 			// save the hotkeymaps
 			var hotKeyMaps:Vector.<XML> = new Vector.<XML>();
-			for(i = 0; i < g.menu.hotKeyMaps.length; i++){
-				if(g.menu.hotKeyMaps[i]) hotKeyMaps.push(g.menu.hotKeyMaps[i].toXML());
+			for(i = 0; i < game.menu.hotKeyMaps.length; i++){
+				if(game.menu.hotKeyMaps[i]) hotKeyMaps.push(game.menu.hotKeyMaps[i].toXML());
 				else hotKeyMaps.push(null);
 			}
 			obj.hotKeyMaps = hotKeyMaps;
@@ -88,10 +88,10 @@ package com.robotacid.ui {
 			sharedObject.data.byteArray = byteArray;
 			sharedObject.flush();
 			sharedObject.close();
-			g.console.print("saved game data");
+			game.console.print("saved game data");
 		}
 		
-		public static function load(g:Game):void{
+		public static function load(game:Game):void{
 			var sharedObject:SharedObject = SharedObject.getLocal("red_rogue");
 			var exists:Boolean = false;
 			for each(var a:* in sharedObject.data) {
@@ -117,37 +117,37 @@ package com.robotacid.ui {
 				
 				if(obj.playerData){
 					// first reset the game
-					g.menu.inventoryList.reset();
-					g.menu.inventoryOption.active = false;
-					g.reset();
+					game.menu.inventoryList.reset();
+					game.menu.inventoryOption.active = false;
+					game.reset();
 					// then restructure player and the minion
 					var playerXML:XML = obj.player;
 					// the character may have been reskinned, so we just force a reskin anyway
-					g.player.changeName(int(playerXML.@name));
-					g.player.level = int(playerXML.@level);
-					g.player.xp = Number(playerXML.@xp);
-					g.player.health = Number(playerXML.@health);
-					g.player.applyHealth(0);
-					g.player.addXP(0);
+					game.player.changeName(int(playerXML.@name));
+					game.player.level = int(playerXML.@level);
+					game.player.xp = Number(playerXML.@xp);
+					game.player.health = Number(playerXML.@health);
+					game.player.applyHealth(0);
+					game.player.addXP(0);
 					
 					for each(enchantment in playerXML.effect){
-						effect = new Effect(int(enchantment.@name), int(enchantment.@level), int(enchantment.@source), g.player, int(enchantment.@count));
+						effect = new Effect(int(enchantment.@name), int(enchantment.@level), int(enchantment.@source), game.player, int(enchantment.@count));
 					}
 					if(obj.minion){
 						var minonXML:XML = obj.minion;
-						g.minion.level = int(minonXML.@level);
+						game.minion.level = int(minonXML.@level);
 						// the character may have been reskinned, so we just force a reskin anyway
-						g.minion.changeName(int(minonXML.@name));
-						g.minion.health = Number(minonXML.@health);
-						g.minion.applyHealth(0);
+						game.minion.changeName(int(minonXML.@name));
+						game.minion.health = Number(minonXML.@health);
+						game.minion.applyHealth(0);
 						for each(enchantment in minonXML.effect){
-							effect = new Effect(int(enchantment.@name), int(enchantment.@level), int(enchantment.@source), g.minion, int(enchantment.@count));
+							effect = new Effect(int(enchantment.@name), int(enchantment.@level), int(enchantment.@source), game.minion, int(enchantment.@count));
 						}
 					} else {
-						g.minion.active = false;
-						Brain.playerCharacters.splice(Brain.playerCharacters.indexOf(g.minion), 1);
-						g.minion = null;
-						g.minionHealthBar.visible = false;
+						game.minion.active = false;
+						Brain.playerCharacters.splice(Brain.playerCharacters.indexOf(game.minion), 1);
+						game.minion = null;
+						game.minionHealthBar.visible = false;
 					}
 					// runes revealed
 					Item.runeNames = obj.runeNames;
@@ -160,12 +160,12 @@ package com.robotacid.ui {
 					var name:int, level:int, type:int;
 					var className:Class;
 					for(i = 0; i < obj.items.length; i++){
-						g.menu.inventoryOption.active = true;
+						game.menu.inventoryOption.active = true;
 						xml = obj.items[i];
 						name = xml.@name;
 						level = xml.@level;
 						type = xml.@type;
-						item = new Item(g.library.getItemGfx(name, type), name, type, level);
+						item = new Item(game.library.getItemGfx(name, type), name, type, level);
 						item.location = xml.@location;
 						item.curseState = xml.@curseState;
 						// is this item enchanted?
@@ -173,11 +173,11 @@ package com.robotacid.ui {
 							effect = new Effect(enchantment.@name, enchantment.@level, 0);
 							effect.enchant(item);
 						}
-						g.menu.inventoryList.addItem(item);
+						game.menu.inventoryList.addItem(item);
 						if(xml.@user == "rogue"){
-							g.player.equip(item);
+							game.player.equip(item);
 						} else if(xml.@user == "minion"){
-							g.minion.equip(item);
+							game.minion.equip(item);
 						}
 					}
 					// restock the content manager
@@ -185,20 +185,20 @@ package com.robotacid.ui {
 					// into storage... Thanks Adobe!
 					// so we have to reconstruct the content manager item by item
 					for(i = 0; i < Content.TOTAL_LEVELS; i++){
-						g.content.chestsByLevel[i].length = 0;
-						g.content.monstersByLevel[i].length = 0;
-						g.content.portalsByLevel[i].length = 0;
+						game.content.chestsByLevel[i].length = 0;
+						game.content.monstersByLevel[i].length = 0;
+						game.content.portalsByLevel[i].length = 0;
 						for(j = 0; j < obj.chestsByLevel[i].length; j++){
-							g.content.chestsByLevel[i].push(obj.chestsByLevel[i][j]);
+							game.content.chestsByLevel[i].push(obj.chestsByLevel[i][j]);
 						}
 						for(j = 0; j < obj.monstersByLevel[i].length; j++){
-							g.content.monstersByLevel[i].push(obj.monstersByLevel[i][j]);
+							game.content.monstersByLevel[i].push(obj.monstersByLevel[i][j]);
 						}
 						for(j = 0; j < obj.portalsByLevel[i].length; j++){
-							g.content.portalsByLevel[i].push(obj.portalsByLevel[i][j]);
+							game.content.portalsByLevel[i].push(obj.portalsByLevel[i][j]);
 						}
 					}
-					g.content.itemDungeonContent = obj.itemDungeonContent;
+					game.content.itemDungeonContent = obj.itemDungeonContent;
 					
 					Player.previousLevel = obj.previousLevel;
 					Player.previousPortalType = obj.previousPortalType;
@@ -216,22 +216,22 @@ package com.robotacid.ui {
 						portalType = Portal.ITEM;
 					}
 					// call for a new level
-					g.changeLevel(int(obj.dungeonLevel), portalType, true);
+					game.changeLevel(int(obj.dungeonLevel), portalType, true);
 				}
 				
 				// load the hotkeymaps
 				for(i = 0; i < obj.hotKeyMaps.length; i++){
 					if(obj.hotKeyMaps[i]){
-						var hotKeyMap:HotKeyMap = new HotKeyMap(i, g.menu);
+						var hotKeyMap:HotKeyMap = new HotKeyMap(i, game.menu);
 						hotKeyMap.init(obj.hotKeyMaps[i]);
-						g.menu.hotKeyMaps[i] = hotKeyMap;
+						game.menu.hotKeyMaps[i] = hotKeyMap;
 					}
-					else g.menu.hotKeyMaps[i] = null;
+					else game.menu.hotKeyMaps[i] = null;
 				}
 				
-				g.console.print("loaded game data");
+				game.console.print("loaded game data");
 			} else {
-				g.console.print("no save data");
+				game.console.print("no save data");
 			}
 			
 		}

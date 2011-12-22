@@ -31,9 +31,9 @@
 		//
 		// These can't be made static due to some completely illegal references I'm getting away
 		// with below
-		public var g:Game;
+		public var game:Game;
 		public var renderer:Renderer;
-		public var r:MapTileManager;
+		public var mapTileManager:MapTileManager;
 		
 		private var item:*;
 		private var n:int;
@@ -105,7 +105,7 @@
 		public static const BAT:int = 64;
 		public static const COG:int = 65;
 		
-		// These references are technically illegal. Game.g doesn't even exist yet, but some how the
+		// These references are technically illegal. Game.game doesn't even exist yet, but some how the
 		// compiler is letting the issue slide so long as I don't static reference Game
 		public static var ID_TO_GRAPHIC:Array = [
 			"",						// 0
@@ -117,12 +117,12 @@
 			,
 			,
 			,
-			new BlitSprite(new Game.g.library.BackB1),
-			new BlitSprite(new Game.g.library.BackB2),// 10
-			new BlitSprite(new Game.g.library.BackB3),
-			new BlitSprite(new Game.g.library.BackB4),
-			new BlitSprite(new Game.g.library.LadderB),
-			new BlitSprite(new Game.g.library.LadderTopB),
+			new BlitSprite(new Game.game.library.BackB1),
+			new BlitSprite(new Game.game.library.BackB2),// 10
+			new BlitSprite(new Game.game.library.BackB3),
+			new BlitSprite(new Game.game.library.BackB4),
+			new BlitSprite(new Game.game.library.LadderB),
+			new BlitSprite(new Game.game.library.LadderTopB),
 			new BlitSprite(new LedgeMC9),// 15
 			new BlitSprite(new LedgeMC4),
 			new BlitSprite(new LedgeMC1),
@@ -178,9 +178,9 @@
 			CogMC
 		];
 		
-		public function MapTileConverter(r:MapTileManager, g:Game, renderer:Renderer) {
-			this.r = r;
-			this.g = g;
+		public function MapTileConverter(r:MapTileManager, game:Game, renderer:Renderer) {
+			this.mapTileManager = r;
+			this.game = game;
 			this.renderer = renderer;
 			
 		}
@@ -210,13 +210,13 @@
 		 * When createTile finds an array of information to convert it will return a stacked array
 		 */
 		public function createTile(x:int, y:int):*{
-			if(!r.map[y]){
-				trace("out of bounds y "+y+" "+r.height);
+			if(!mapTileManager.map[y]){
+				trace("out of bounds y "+y+" "+mapTileManager.height);
 			}
-			if(!r.map[y][x]) return null;
+			if(!mapTileManager.map[y][x]) return null;
 			
-			if(r.map[y][x] is Array){
-				array = r.map[y][x];
+			if(mapTileManager.map[y][x] is Array){
+				array = mapTileManager.map[y][x];
 				tile = [];
 				var temp:*;
 				for(i = 0; i < array.length; i++){
@@ -227,25 +227,25 @@
 				}
 				if(tile.length == 0) tile = null;
 			} else {
-				tile = convertIndicesToObjects(x, y, r.map[y][x])
+				tile = convertIndicesToObjects(x, y, mapTileManager.map[y][x])
 			}
 			// clear map position - the object is now roaming in the engine
-			if(!r.bitmapLayer) r.map[y][x] = null;
+			if(!mapTileManager.bitmapLayer) mapTileManager.map[y][x] = null;
 			return tile;
 			
 		}
 		
 		public function convertIndicesToObjects(x:int, y:int, obj:*):*{
 			if(obj is Entity){
-				if(obj.addToEntities) g.entities.push(obj);
+				if(obj.addToEntities) game.entities.push(obj);
 				obj.active = true;
 				if(obj is Chest){
-					g.items.push(obj);
+					game.items.push(obj);
 				} else if(obj is Portal){
 					if(obj.seen) obj.callMain = false;
-					g.portals.push(obj);
+					game.portals.push(obj);
 				} else if(obj is ColliderEntity){
-					g.world.restoreCollider(obj.collider);
+					game.world.restoreCollider(obj.collider);
 					if(obj is Character){
 						obj.restoreEffects();
 						if(obj is Monster){
@@ -253,9 +253,9 @@
 							if(!obj.mapInitialised) obj.mapInit();
 						}
 					} else if(obj is Item){
-						g.items.push(obj);
+						game.items.push(obj);
 					} else if(obj is ChaosWall){
-						g.chaosWalls.push(obj);
+						game.chaosWalls.push(obj);
 					}
 				}
 				
@@ -267,32 +267,32 @@
 			if (!obj || id == 0) return null;
 			
 			// is this id a Blit object?
-			if(r.bitmapLayer){
+			if(mapTileManager.bitmapLayer){
 				return ID_TO_GRAPHIC[id];
 			}
-			n = x + y * r.width;
+			n = x + y * mapTileManager.width;
 			// generate MovieClip
 			if(id > 0 && ID_TO_GRAPHIC[id]){
 				mc = new ID_TO_GRAPHIC[id];
 			}
 			if(mc != null){
-				mc.x = x * r.scale;
-				mc.y = y * r.scale;
+				mc.x = x * mapTileManager.scale;
+				mc.y = y * mapTileManager.scale;
 			}
 			
 			// objects defined by index and created on the fly
 			
 			if(id == STAIRS_UP){
 				// stairs up
-				item = new Portal(mc, new Rectangle(x * Game.SCALE, y * Game.SCALE, Game.SCALE, Game.SCALE), Portal.STAIRS, g.dungeon.level - 1);
-				if(Map.isPortalToPreviousLevel(x, y, Portal.STAIRS, g.dungeon.level - 1)) g.entrance = item;
+				item = new Portal(mc, new Rectangle(x * Game.SCALE, y * Game.SCALE, Game.SCALE, Game.SCALE), Portal.STAIRS, game.dungeon.level - 1);
+				if(Map.isPortalToPreviousLevel(x, y, Portal.STAIRS, game.dungeon.level - 1)) game.entrance = item;
 			} else if(id == STAIRS_DOWN){
 				// stairs down
-				if(g.dungeon.level == Map.OVERWORLD && g.dungeon.type == Map.AREA) mc = new Sprite();
-				item = new Portal(mc, new Rectangle(x * Game.SCALE, y * Game.SCALE, Game.SCALE, Game.SCALE), Portal.STAIRS, g.dungeon.level + 1);
-				if(Map.isPortalToPreviousLevel(x, y, Portal.STAIRS, g.dungeon.level + 1)) g.entrance = item;
+				if(game.dungeon.level == Map.OVERWORLD && game.dungeon.type == Map.AREA) mc = new Sprite();
+				item = new Portal(mc, new Rectangle(x * Game.SCALE, y * Game.SCALE, Game.SCALE, Game.SCALE), Portal.STAIRS, game.dungeon.level + 1);
+				if(Map.isPortalToPreviousLevel(x, y, Portal.STAIRS, game.dungeon.level + 1)) game.entrance = item;
 			} else if(id == HEAL_STONE){
-				item = new Stone(x * Game.SCALE, y * Game.SCALE, Stone.HEALTH);
+				item = new Stone(x * Game.SCALE, y * Game.SCALE, Stone.HEAL);
 			} else if(id == GRIND_STONE){
 				item = new Stone(x * Game.SCALE, y * Game.SCALE, Stone.GRIND);
 			} else if(id == RAT){
@@ -313,10 +313,10 @@
 			if(item != null){
 				item.mapX = item.initX = x;
 				item.mapY = item.initY = y;
-				item.mapZ = r.currentLayer;
-				item.tileId = r.map[y][x];
+				item.mapZ = mapTileManager.currentLayer;
+				item.tileId = mapTileManager.map[y][x];
 				if(item is ColliderEntity){
-					g.world.restoreCollider(item.collider);
+					game.world.restoreCollider(item.collider);
 				}
 				if(!item.free){
 					return item;

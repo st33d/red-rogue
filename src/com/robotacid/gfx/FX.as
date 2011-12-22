@@ -12,7 +12,7 @@
 	*/
 	public class FX extends Point{
 		
-		public static var g:Game;
+		public static var game:Game;
 		public static var renderer:Renderer;
 		
 		public var blit:BlitRect;

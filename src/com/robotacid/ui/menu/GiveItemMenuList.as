@@ -11,7 +11,7 @@ package com.robotacid.ui.menu {
 	 */
 	public class GiveItemMenuList extends MenuList {
 		
-		public var g:Game;
+		public var game:Game;
 		public var menu:Menu;
 		public var itemXML:XML;
 		public var targetXMLNode:XML;
@@ -38,10 +38,10 @@ package com.robotacid.ui.menu {
 		
 		public var cursedList:MenuList;
 		
-		public function GiveItemMenuList(menu:Menu, g:Game) {
+		public function GiveItemMenuList(menu:Menu, game:Game) {
 			super();
 			this.menu = menu;
-			this.g = g;
+			this.game = game;
 			
 			enchanting = false;
 			
@@ -155,7 +155,7 @@ package com.robotacid.ui.menu {
 				itemXML.@curseState = cursedList.selection;
 			}
 			var item:Item = Content.convertXMLToEntity(0, 0, itemXML);
-			item.collect(g.player);
+			item.collect(game.player);
 			active = false;
 		}
 		

@@ -69,11 +69,11 @@
 			//Game.debug.drawRect(rect.x, rect.y, rect.width, rect.height);
 			// check the player is fully on the trap before springing it
 			if(
-				g.player.collider.x >= rect.x &&
-				g.player.collider.x + g.player.collider.width <= rect.x + rect.width &&
-				g.player.collider.y < rect.y + rect.height &&
-				g.player.collider.y + g.player.collider.height > rect.y &&
-				!g.player.indifferent
+				game.player.collider.x >= rect.x &&
+				game.player.collider.x + game.player.collider.width <= rect.x + rect.width &&
+				game.player.collider.y < rect.y + rect.height &&
+				game.player.collider.y + game.player.collider.height > rect.y &&
+				!game.player.indifferent
 			){
 				if(!contact){
 					contact = true;
@@ -82,21 +82,21 @@
 			} else if(contact){
 				contact = false;
 			}
-			if(revealed && disarmingRect.intersects(g.player.collider)){
+			if(revealed && disarmingRect.intersects(game.player.collider)){
 				if(!disarmingContact){
 					disarmingContact = true;
-					g.player.addDisarmableTrap(this);
+					game.player.addDisarmableTrap(this);
 				}
 			} else if(disarmingContact){
 				disarmingContact = false;
-				g.player.removeDisarmableTrap(this);
+				game.player.removeDisarmableTrap(this);
 			}
 			if(count){
 				count--;
 				if(count == 0){
 					if(type == PIT){
 						active = false;
-						g.world.map[mapY][mapX] = Collider.UP | Collider.LEDGE;
+						game.world.map[mapY][mapX] = Collider.UP | Collider.LEDGE;
 					}
 				}
 			}
@@ -106,64 +106,64 @@
 			if(type == PIT){
 				if(count) return;
 				count = PIT_COVER_DELAY;
-				g.console.print("pit trap triggered");
+				game.console.print("pit trap triggered");
 				renderer.createDebrisRect(rect, 0, 100, Renderer.STONE);
 				renderer.shake(0, 3);
-				g.soundQueue.add("kill");
-				g.world.map[mapY][mapX] = 0;
-				g.mapTileManager.removeTile(this, mapX, mapY, mapZ);
+				game.soundQueue.add("kill");
+				game.world.map[mapY][mapX] = 0;
+				game.mapTileManager.removeTile(this, mapX, mapY, mapZ);
 				renderer.blockBitmapData.fillRect(new Rectangle(mapX * SCALE, mapY * SCALE, SCALE, SCALE), 0x00000000);
 				var blit:BlitSprite = MapTileConverter.ID_TO_GRAPHIC[MapTileConverter.LEDGE_SINGLE];
 				blit.x = mapX * SCALE;
 				blit.y = mapY * SCALE;
 				blit.render(renderer.blockBitmapData);
 				// check to see if any colliders are on this and drop them
-				var dropped:Vector.<Collider> = g.world.getCollidersIn(rect);
+				var dropped:Vector.<Collider> = game.world.getCollidersIn(rect);
 				var dropCollider:Collider;
 				for(var i:int = 0; i < dropped.length; i++){
 					dropCollider = dropped[i];
 					dropCollider.divorce();
 				}
 				// make sure the player can't disarm a trap that no longer exists
-				if(g.player.disarmableTraps.indexOf(this) > -1){
-					g.player.removeDisarmableTrap(this);
+				if(game.player.disarmableTraps.indexOf(this) > -1){
+					game.player.removeDisarmableTrap(this);
 				}
 				disarmingRect = new Rectangle(0, 0, 1, 1);
 				// the dungeon graph is currently unaware of a new route
 				// we need to educate it by looking down from the node that must be above the
 				// pit to the node that must be below it
-				for(var r:int = mapY; r < g.dungeon.height; r++){
+				for(var r:int = mapY; r < game.dungeon.height; r++){
 					if(Brain.dungeonGraph.nodes[r][mapX]){
 						Brain.dungeonGraph.nodes[mapY - 1][mapX].connections.push(Brain.dungeonGraph.nodes[r][mapX]);
 						break;
 					}
 				}
-				if(!minimapFX) g.miniMap.addFX(mapX, mapY, renderer.featureRevealedBlit);
+				if(!minimapFX) game.miniMap.addFX(mapX, mapY, renderer.featureRevealedBlit);
 				else{
 					minimapFX.active = false;
 					minimapFX = null;
 				}
 				
 			} else if(type == POISON_DART){
-				g.console.print("poison trap triggered");
-				g.soundQueue.add("throw");
-				shootDart(new Effect(Effect.POISON, g.dungeon.level < Game.MAX_LEVEL ? g.dungeon.level : Game.MAX_LEVEL, Effect.THROWN));
+				game.console.print("poison trap triggered");
+				game.soundQueue.add("throw");
+				shootDart(new Effect(Effect.POISON, game.dungeon.level < Game.MAX_LEVEL ? game.dungeon.level : Game.MAX_LEVEL, Effect.THROWN));
 			} else if(type == STUPEFY_DART){
-				g.console.print("stupefy trap triggered");
-				g.soundQueue.add("throw");
-				shootDart(new Effect(Effect.STUPEFY, g.dungeon.level < Game.MAX_LEVEL ? g.dungeon.level : Game.MAX_LEVEL, Effect.THROWN));
+				game.console.print("stupefy trap triggered");
+				game.soundQueue.add("throw");
+				shootDart(new Effect(Effect.STUPEFY, game.dungeon.level < Game.MAX_LEVEL ? game.dungeon.level : Game.MAX_LEVEL, Effect.THROWN));
 			} else if(type == TELEPORT_DART){
-				g.console.print("teleport trap triggered");
-				g.soundQueue.add("throw");
+				game.console.print("teleport trap triggered");
+				game.soundQueue.add("throw");
 				shootDart(new Effect(Effect.TELEPORT, Game.MAX_LEVEL, Effect.THROWN));
 				
 			} else if(type == MONSTER_PORTAL){
-				g.console.print("monster trap triggered");
-				var portal:Portal = Portal.createPortal(Portal.MONSTER, mapX, mapY - 1, g.dungeon.level);
-				portal.setMonsterTemplate(Content.createCharacterXML(g.dungeon.level < Game.MAX_LEVEL ? g.dungeon.level : Game.MAX_LEVEL, Character.MONSTER));
+				game.console.print("monster trap triggered");
+				var portal:Portal = Portal.createPortal(Portal.MONSTER, mapX, mapY - 1, game.dungeon.level);
+				portal.setMonsterTemplate(Content.createCharacterXML(game.dungeon.level < Game.MAX_LEVEL ? game.dungeon.level : Game.MAX_LEVEL, Character.MONSTER));
 				// monster portal traps are triggered once and then destroy themselves
 				active = false;
-				if(!minimapFX) g.miniMap.addFX(mapX, mapY, renderer.featureRevealedBlit);
+				if(!minimapFX) game.miniMap.addFX(mapX, mapY, renderer.featureRevealedBlit);
 				else{
 					minimapFX.active = false;
 					minimapFX = null;
@@ -178,10 +178,10 @@
 		
 		/* Adds a graphic to this trap to show the player where it is and adds a feature to the minimap */
 		public function reveal():void{
-			var trapRevealedB:Bitmap = new g.library.TrapRevealedB();
+			var trapRevealedB:Bitmap = new game.library.TrapRevealedB();
 			trapRevealedB.y = -SCALE;
 			(gfx as Sprite).addChild(trapRevealedB);
-			minimapFX = g.miniMap.addFeature(mapX, mapY, renderer.searchFeatureBlit, true);
+			minimapFX = game.miniMap.addFeature(mapX, mapY, renderer.searchFeatureBlit, true);
 			revealed = true;
 		}
 		
@@ -193,8 +193,8 @@
 				minimapFX.active = false;
 				minimapFX = null;
 			}
-			g.player.addXP(DISARMING_XP_REWARD * g.dungeon.level);
-			g.content.removeTrap(g.dungeon.level, g.dungeon.type);
+			game.player.addXP(DISARMING_XP_REWARD * game.dungeon.level);
+			game.content.removeTrap(game.dungeon.level, game.dungeon.type);
 		}
 		
 		/* Launches a missile from the ceiling that bears a magic effect */

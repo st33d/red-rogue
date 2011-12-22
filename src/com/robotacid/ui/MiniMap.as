@@ -18,7 +18,7 @@
 	 */
 	public class MiniMap extends Sprite{
 		
-		public var g:Game;
+		public var game:Game;
 		public var renderer:Renderer;
 		
 		public var view:Rectangle;
@@ -39,8 +39,8 @@
 		private static var i:int;
 		private static var fxItem:MinimapFX;
 		
-		public function MiniMap(blockMap:Vector.<Vector.<int>>, g:Game, renderer:Renderer):void{
-			this.g = g;
+		public function MiniMap(blockMap:Vector.<Vector.<int>>, game:Game, renderer:Renderer):void{
+			this.game = game;
 			this.renderer = renderer;
 			
 			bitmapData = new BitmapData(blockMap[0].length, blockMap.length, true, 0x00000000);
@@ -84,14 +84,14 @@
 		}
 		
 		public function render():void {
-			view.x = g.player.mapX - int(WIDTH * 0.5);
-			view.y = g.player.mapY - int(HEIGHT * 0.5);
+			view.x = game.player.mapX - int(WIDTH * 0.5);
+			view.y = game.player.mapY - int(HEIGHT * 0.5);
 			window.bitmapData.fillRect(window.bitmapData.rect, 0x66666666);
 			window.bitmapData.copyPixels(bitmapData, view, point, null, null, true);
 			
 			// illustrate the search area as a hollow square
-			if(g.player.searchRadius > -1){
-				drawSearchRadius(g.player.searchRadius);
+			if(game.player.searchRadius > -1){
+				drawSearchRadius(game.player.searchRadius);
 			}
 			
 			for(i = fx.length - 1; i > -1; i--) {

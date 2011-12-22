@@ -48,7 +48,7 @@ package com.robotacid.engine {
 				delay = 12;
 				speed = 3;
 				state = PATROL;
-				dir = g.random.value() < 0.5 ? LEFT : RIGHT;
+				dir = game.random.value() < 0.5 ? LEFT : RIGHT;
 				createCollider(x, y, Collider.HEAD | Collider.SOLID, Collider.HEAD, Collider.FALL);
 				collider.stackCallback = hitFloor;
 				debrisType = Renderer.BLOOD;
@@ -57,7 +57,7 @@ package com.robotacid.engine {
 				delay = 15;
 				speed = 1;
 				state = PATROL;
-				dir = g.random.value() < 0.5 ? UP : DOWN;
+				dir = game.random.value() < 0.5 ? UP : DOWN;
 				// spiders should always be placed on the ceiling
 				topOfThreadY = y - SCALE * 0.5;
 				createCollider(x, y, Collider.HEAD | Collider.SOLID, Collider.HEAD, Collider.HOVER);
@@ -69,7 +69,7 @@ package com.robotacid.engine {
 				speed = 1;
 				state = PATROL;
 				patrolAreaSet = true;
-				dir = g.random.value() < 0.5 ? LEFT : RIGHT;
+				dir = game.random.value() < 0.5 ? LEFT : RIGHT;
 				createCollider(x, y, Collider.HEAD | Collider.SOLID, Collider.HEAD, Collider.FALL, false);
 				(gfx as MovieClip).gotoAndPlay("fly");
 				debrisType = Renderer.BLOOD;
@@ -82,19 +82,19 @@ package com.robotacid.engine {
 				mapY = y * Game.INV_SCALE;
 				// get a surface to mount on
 				var surfaces:Array = [];
-				if(g.world.map[mapY - 1][mapX] & DOWN) surfaces.push(DOWN);
-				if(g.world.map[mapY + 1][mapX] & UP) surfaces.push(UP);
-				if(g.world.map[mapY][mapX - 1] & RIGHT) surfaces.push(RIGHT);
-				if(g.world.map[mapY][mapX + 1] & LEFT) surfaces.push(LEFT);
-				surface = surfaces[g.random.rangeInt(surfaces.length)];
+				if(game.world.map[mapY - 1][mapX] & DOWN) surfaces.push(DOWN);
+				if(game.world.map[mapY + 1][mapX] & UP) surfaces.push(UP);
+				if(game.world.map[mapY][mapX - 1] & RIGHT) surfaces.push(RIGHT);
+				if(game.world.map[mapY][mapX + 1] & LEFT) surfaces.push(LEFT);
+				surface = surfaces[game.random.rangeInt(surfaces.length)];
 				if(surface & (UP | DOWN)){
 					if(surface == DOWN) y -= Game.SCALE * 0.5 - 2;
 					else if(surface == UP) y += Game.SCALE * 0.5 - 2;
-					dir = g.random.value() < 0.5 ? LEFT : RIGHT;
+					dir = game.random.value() < 0.5 ? LEFT : RIGHT;
 				} else if(surface & (LEFT | RIGHT)){
 					if(surface == RIGHT) x -= Game.SCALE * 0.5 - 2;
 					else if(surface == LEFT) x += Game.SCALE * 0.5 - 2;
-					dir = g.random.value() < 0.5 ? UP : DOWN;
+					dir = game.random.value() < 0.5 ? UP : DOWN;
 				}
 				// a cogs collider exists at its hub
 				// so we have to create the collider manually
@@ -111,13 +111,13 @@ package com.robotacid.engine {
 		private function hitFloor():void{
 			mapX = (collider.x + collider.width * 0.5) * INV_SCALE;
 			mapY = (collider.y + collider.height * 0.5) * INV_SCALE;
-			setPatrolArea(g.world.map);
+			setPatrolArea(game.world.map);
 		}
 		
 		override public function main():void {
 			
 			// offscreen check
-			if(!g.mapTileManager.intersects(collider)){
+			if(!game.mapTileManager.intersects(collider)){
 				remove();
 				return;
 			}
@@ -128,13 +128,13 @@ package com.robotacid.engine {
 			if(state == PATROL){
 				if(patrolAreaSet){
 					patrol();
-				} else (setPatrolArea(g.world.map));
+				} else (setPatrolArea(game.world.map));
 				if(count-- <= 0){
 					if(name == BAT && !(collider.pressure & UP)){
 						dir = UP;
 						
 					} else {
-						count = delay + g.random.range(delay);
+						count = delay + game.random.range(delay);
 						state = PAUSE;
 						if(name == BAT){
 							(gfx as MovieClip).gotoAndStop("idle");
@@ -150,12 +150,12 @@ package com.robotacid.engine {
 				
 			} else if(state == PAUSE){
 				if(count-- <= 0){
-					count = delay + g.random.range(delay);
+					count = delay + game.random.range(delay);
 					state = PATROL;
 					if(name == BAT){
 						(gfx as MovieClip).gotoAndPlay("fly");
 						collider.state = Collider.FALL;
-						dir = g.random.value() < 0.5 ? LEFT : RIGHT;
+						dir = game.random.value() < 0.5 ? LEFT : RIGHT;
 					}
 				}
 				
@@ -170,10 +170,10 @@ package com.robotacid.engine {
 			// check cogs are still mounted (they may have been attached to chaos walls)
 			if(name == COG){
 				if(
-					(surface == UP && !(g.world.map[mapY + 1][mapX] & UP)) ||
-					(surface == RIGHT && !(g.world.map[mapY][mapX - 1] & RIGHT)) ||
-					(surface == DOWN && !(g.world.map[mapY - 1][mapX] & DOWN)) ||
-					(surface == LEFT && !(g.world.map[mapY][mapX + 1] & LEFT))
+					(surface == UP && !(game.world.map[mapY + 1][mapX] & UP)) ||
+					(surface == RIGHT && !(game.world.map[mapY][mapX - 1] & RIGHT)) ||
+					(surface == DOWN && !(game.world.map[mapY - 1][mapX] & DOWN)) ||
+					(surface == LEFT && !(game.world.map[mapY][mapX + 1] & LEFT))
 				){
 					state = DROP;
 					surface = 0;
@@ -215,7 +215,7 @@ package com.robotacid.engine {
 				if(collider.x + collider.width >= patrolMax || (collider.pressure & RIGHT)) dir = LEFT;
 				if(collider.x <= patrolMin || (collider.pressure & LEFT)) dir = RIGHT;
 				//if((gfx as MovieClip).currentFrame > (gfx as MovieClip).totalFrames * 0.2) dir |= UP;
-				if(g.random.value() > 0.2) dir |= UP;
+				if(game.random.value() > 0.2) dir |= UP;
 				else dir &= ~UP;
 				
 			} else if(name == COG){

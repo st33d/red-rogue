@@ -70,7 +70,7 @@
 		
 		public static const TOTAL_LAYERS:int = 3;
 		
-		public function MapTileManager(g:Game, canvas:Sprite, scale:Number, width:int, height:int, viewWidth:Number, viewHeight:Number){
+		public function MapTileManager(game:Game, canvas:Sprite, scale:Number, width:int, height:int, viewWidth:Number, viewHeight:Number){
 			this.canvas = canvas;
 			this.scale = scale;
 			invScale = 1.0 / scale;
@@ -78,7 +78,7 @@
 			this.height = height;
 			this.viewWidth = viewWidth;
 			this.viewHeight = viewHeight;
-			converter = new MapTileConverter(this, g, Game.renderer);
+			converter = new MapTileConverter(this, game, Game.renderer);
 			scrollX = true;
 			scrollY = true;
 			setBorder([0, 0, 3], [0, 0, 3]);

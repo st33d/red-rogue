@@ -96,11 +96,11 @@ package com.robotacid.engine {
 		override public function main():void {
 			//Game.debug.drawCircle(collider.x + SCALE * 0.5, collider.y + SCALE * 0.5, 8);
 			if(state == IDLE){
-				distX = g.player.mapX - mapX;
+				distX = game.player.mapX - mapX;
 				if(distX < 0) distX = -distX;
-				distY = g.player.mapY - mapY;
+				distY = game.player.mapY - mapY;
 				if(distY < 0) distY = -distY;
-				if(distX + distY < READY_DIST && g.lightMap.darkImage.getPixel32(mapX, mapY) != 0xFF000000){
+				if(distX + distY < READY_DIST && game.lightMap.darkImage.getPixel32(mapX, mapY) != 0xFF000000){
 					ready();
 				}
 			} else if(state == READY){
@@ -118,7 +118,7 @@ package com.robotacid.engine {
 					count = RETIRE_DELAY;
 					renderer.shake(collider.vx, collider.vy);
 					collider.vx = collider.vy = 0;
-					g.soundQueue.add("thud", 3);
+					game.soundQueue.add("thud", 3);
 				}
 			} else if(state == RETIRE){
 				if(count){
@@ -136,11 +136,11 @@ package com.robotacid.engine {
 			state = READY;
 			chaosWalls[mapY][mapX] = null;
 			// remove from map renderer
-			g.world.map[mapY][mapX] = 0;
-			g.mapTileManager.removeTile(this, mapX, mapY, mapZ);
+			game.world.map[mapY][mapX] = 0;
+			game.mapTileManager.removeTile(this, mapX, mapY, mapZ);
 			renderer.blockBitmapData.fillRect(new Rectangle(mapX * SCALE, mapY * SCALE, SCALE, SCALE), 0x00000000);
 			// show empty on minimap
-			g.miniMap.bitmapData.setPixel32(mapX, mapY, LightMap.MINIMAP_EMPTY_COL);
+			game.miniMap.bitmapData.setPixel32(mapX, mapY, LightMap.MINIMAP_EMPTY_COL);
 			gfx.visible = true;
 			free = true;
 		}
@@ -155,11 +155,11 @@ package com.robotacid.engine {
 			if(mapY < mapHeight - 1 && chaosWalls[mapY + 1][mapX]) chaosWalls[mapY + 1][mapX].ready();
 			// find shelter options - chaos walls should be out of the way now
 			var pixels:Array = [];
-			if(mapX > 0 && (g.world.map[mapY][mapX - 1] & Collider.WALL)) pixels.push(new Pixel(mapX - 1, mapY));
-			if(mapY > 0 && (g.world.map[mapY - 1][mapX] & Collider.WALL)) pixels.push(new Pixel(mapX, mapY - 1));
-			if(mapX < mapWidth - 1 && (g.world.map[mapY][mapX + 1] & Collider.WALL)) pixels.push(new Pixel(mapX + 1, mapY));
-			if(mapY < mapHeight - 1 && (g.world.map[mapY + 1][mapX] & Collider.WALL)) pixels.push(new Pixel(mapX, mapY + 1));
-			target = pixels[g.random.rangeInt(pixels.length)];
+			if(mapX > 0 && (game.world.map[mapY][mapX - 1] & Collider.WALL)) pixels.push(new Pixel(mapX - 1, mapY));
+			if(mapY > 0 && (game.world.map[mapY - 1][mapX] & Collider.WALL)) pixels.push(new Pixel(mapX, mapY - 1));
+			if(mapX < mapWidth - 1 && (game.world.map[mapY][mapX + 1] & Collider.WALL)) pixels.push(new Pixel(mapX + 1, mapY));
+			if(mapY < mapHeight - 1 && (game.world.map[mapY + 1][mapX] & Collider.WALL)) pixels.push(new Pixel(mapX, mapY + 1));
+			target = pixels[game.random.rangeInt(pixels.length)];
 			collider.divorce();
 			if(target.y < mapY) collider.vy = -SPEED;
 			else if(target.x > mapX) collider.vx = SPEED;
@@ -192,17 +192,17 @@ package com.robotacid.engine {
 				var blit:BlitRect;
 				var print:FadingBlitRect;
 				for(var i:int = 0; i < 5; i++){
-					if(g.random.value() < 0.5){
+					if(game.random.value() < 0.5){
 						blit = renderer.smallDebrisBlits[Renderer.STONE];
 						print = renderer.smallFadeBlits[Renderer.STONE];
 					} else {
 						blit = renderer.bigDebrisBlits[Renderer.STONE];
 						print = renderer.bigFadeBlits[Renderer.STONE];
 					}
-					if(collider.vy < 0) renderer.addDebris(collider.x + g.random.range(collider.width), collider.y + collider.height, blit, 0, g.random.range(3), print, true);
-					else if(collider.vx > 0) renderer.addDebris(collider.x + collider.width, collider.y + g.random.range(collider.height), blit, -g.random.range(3), 0, print, true);
-					else if(collider.vy > 0) renderer.addDebris(collider.x + g.random.range(collider.width), collider.y - 1, blit, 0, -g.random.range(5), print, true);
-					else if(collider.vx < 0) renderer.addDebris(collider.x - 1, collider.y + g.random.range(collider.height), blit, g.random.range(3), 0, print, true);
+					if(collider.vy < 0) renderer.addDebris(collider.x + game.random.range(collider.width), collider.y + collider.height, blit, 0, game.random.range(3), print, true);
+					else if(collider.vx > 0) renderer.addDebris(collider.x + collider.width, collider.y + game.random.range(collider.height), blit, -game.random.range(3), 0, print, true);
+					else if(collider.vy > 0) renderer.addDebris(collider.x + game.random.range(collider.width), collider.y - 1, blit, 0, -game.random.range(5), print, true);
+					else if(collider.vx < 0) renderer.addDebris(collider.x - 1, collider.y + game.random.range(collider.height), blit, game.random.range(3), 0, print, true);
 				}
 			} else if(state == RETIRE){
 				if(cogDisplacement > 0){
@@ -223,7 +223,7 @@ package com.robotacid.engine {
 		}
 		
 		override public function remove():void {
-			g.chaosWalls.splice(g.chaosWalls.indexOf(this), 1);
+			game.chaosWalls.splice(game.chaosWalls.indexOf(this), 1);
 			super.remove();
 		}
 	}

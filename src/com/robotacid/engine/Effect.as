@@ -20,7 +20,7 @@
 	 */
 	public class Effect {
 		
-		public static var g:Game;
+		public static var game:Game;
 		public static var renderer:Renderer;
 		
 		public var active:Boolean;
@@ -90,12 +90,12 @@
 						var current_radius:int = Math.ceil(level * 0.5);
 						var new_radius:int = Math.ceil((level - 1) * 0.5);
 						if(new_radius < current_radius){
-							g.lightMap.setLight(target, (target.light - current_radius) + new_radius, target is Player ? 255 : 150);
+							game.lightMap.setLight(target, (target.light - current_radius) + new_radius, target is Player ? 255 : 150);
 						}
 						level--;
 						count = DECAY_DELAY_PER_LEVEL;
 					} else {
-						if(target is Player) g.console.print("the " + nameToString() + " wears off");
+						if(target is Player) game.console.print("the " + nameToString() + " wears off");
 						dismiss();
 					}
 				}
@@ -134,7 +134,7 @@
 						target.thorns -= THORNS_PER_LEVEL;
 						level--;
 						if(level == 0){
-							if(target is Player) g.console.print("the " + nameToString() + " wears off");
+							if(target is Player) game.console.print("the " + nameToString() + " wears off");
 							dismiss();
 						} else {
 							count = DECAY_DELAY_PER_LEVEL;
@@ -180,13 +180,13 @@
 					nameRange = Item.ITEM_MAX;
 				}
 				// limit change by exploration - catch possible infinite loop
-				if(nameRange > g.deepestLevelReached) nameRange = g.deepestLevelReached;
+				if(nameRange > game.deepestLevelReached) nameRange = game.deepestLevelReached;
 				if(item.name == 0 && nameRange == 1){
 					newName = item.name == 1 ? 0 : 1;
 				} else {
-					while(newName == item.name) newName = g.random.range(nameRange);
+					while(newName == item.name) newName = game.random.range(nameRange);
 				}
-				var newGfx:DisplayObject = g.library.getItemGfx(newName, item.type);
+				var newGfx:DisplayObject = game.library.getItemGfx(newName, item.type);
 				item.gfx = newGfx;
 				item.name = newName;
 				item.setStats();
@@ -206,10 +206,10 @@
 				if(inventoryList){
 					renderer.createTeleportSparkRect(user.collider, 10);
 					item = inventoryList.removeItem(item);
-					item = randomEnchant(item, g.dungeon.level);
+					item = randomEnchant(item, game.dungeon.level);
 					item.location = Item.UNASSIGNED;
-					var portal:Portal = Portal.createPortal(Portal.ITEM, user.mapX, user.mapY, g.dungeon.level);
-					g.content.setItemDungeonContent(item, g.dungeon.level);
+					var portal:Portal = Portal.createPortal(Portal.ITEM, user.mapX, user.mapY, game.dungeon.level);
+					game.content.setItemDungeonContent(item, game.dungeon.level);
 				}
 				return item;
 				
@@ -219,7 +219,7 @@
 					if(inventoryList) item = inventoryList.removeItem(item);
 					item.location = Item.UNASSIGNED;
 					if(user) renderer.createDebrisRect(user.collider, 0, 10, Renderer.BLOOD);
-					g.console.print("leech was destroyed by anti-magic");
+					game.console.print("leech was destroyed by anti-magic");
 				} else {
 					// strip all enchantments
 					item.effects = null;
@@ -258,7 +258,7 @@
 				item.effects.push(this);
 				
 				// upon enchanting this item for the first time, there is a chance it may become cursed
-				if(g.random.value() < Item.CURSE_CHANCE) item.applyCurse();
+				if(game.random.value() < Item.CURSE_CHANCE) item.applyCurse();
 			}
 			
 			// non-applicable enchantments merely alter a stat on an item, they don't transmit effect objects to the target
@@ -285,9 +285,9 @@
 				// at least if it was cursed this is a good thing
 				if(user) renderer.createTeleportSparkRect(user.collider, 10);
 				item = inventoryList.removeItem(item);
-				dest = getTeleportTarget(g.player.mapX, g.player.mapY, g.world.map, g.mapTileManager.mapRect);
+				dest = getTeleportTarget(game.player.mapX, game.player.mapY, game.world.map, game.mapTileManager.mapRect);
 				item.dropToMap(dest.x, dest.y);
-				g.soundQueue.add("teleport");
+				game.soundQueue.add("teleport");
 			}
 			
 			return item;
@@ -311,7 +311,7 @@
 				// the light effect simply adds to the current radius of light on an object
 				var radius:int = Math.ceil(level * 0.5);
 				// the player is always lit at top strength - other things less so, for now.
-				g.lightMap.setLight(target, target.light + radius, target is Player ? 255 : 150);
+				game.lightMap.setLight(target, target.light + radius, target is Player ? 255 : 150);
 				if(source == WEAPON || source == THROWN || source == EATEN){
 					this.count = count > 0 ? count : DECAY_DELAY_PER_LEVEL;
 					callMain = true;
@@ -348,7 +348,7 @@
 					count = (21 - level) * ARMOUR_COUNTDOWN_STEP;
 					callMain = true;
 				} else {
-					if(g.random.value() < 0.05 * level){
+					if(game.random.value() < 0.05 * level){
 						teleportCharacter(target);
 					}
 					// all other sources of teleport do not embed, they are one time effects only
@@ -371,15 +371,15 @@
 				if(source == EATEN || source == THROWN){
 					var newName:int;
 					// limit change by exploration - no infinite loop to catch here, there are two options from the start
-					var nameRange:int = g.deepestLevelReached + 1;
+					var nameRange:int = game.deepestLevelReached + 1;
 					if(target.armour && target.armour.name == Item.FACE){
 						// when the character is wearing face armour, we only need change the race underneath
 						newName = (target.armour as Face).previousName;
-						while(newName == (target.armour as Face).previousName) newName = g.random.range(nameRange);
+						while(newName == (target.armour as Face).previousName) newName = game.random.range(nameRange);
 						(target.armour as Face).previousName = newName;
 					} else {
 						newName = target.name
-						while(newName == target.name) newName = g.random.range(nameRange);
+						while(newName == target.name) newName = game.random.range(nameRange);
 						target.changeName(newName);
 					}
 					return;
@@ -444,7 +444,7 @@
 			target.effects.push(this);
 			active = true;
 			
-			if(callMain) g.effects.push(this);
+			if(callMain) game.effects.push(this);
 		}
 		
 		/* Removes the effect from the target */
@@ -456,30 +456,30 @@
 			
 			if(name == LIGHT){
 				var radius:int = Math.ceil(level * 0.5);
-				g.lightMap.setLight(target, target.light - radius, target is Player ? 255 : 150);
+				game.lightMap.setLight(target, target.light - radius, target is Player ? 255 : 150);
 			} else if(name == UNDEAD){
 				// this rune's effect comes in to play when the target is killed and is not undead
 				if(!target.active && !buffer && !target.undead){
-					if(g.random.value() < 0.05 * level){
+					if(game.random.value() < 0.05 * level){
 						var mc:MovieClip;
 						if(source == THROWN || source == WEAPON){
 							// replenish the health of an exisiting minion
-							if(g.minion){
-								g.minion.applyHealth(g.minion.totalHealth);
-								g.console.print("minion is repaired");
-								renderer.createTeleportSparkRect(g.minion.collider, 20);
+							if(game.minion){
+								game.minion.applyHealth(game.minion.totalHealth);
+								game.console.print("minion is repaired");
+								renderer.createTeleportSparkRect(game.minion.collider, 20);
 							} else {
 								mc = new SkeletonMC();
-								g.minion = new Minion(mc, target.collider.x + target.collider.width * 0.5, target.collider.y + target.collider.height, Character.SKELETON);
-								g.world.restoreCollider(g.minion.collider);
-								g.minion.collider.state = Collider.FALL;
-								g.minion.state = Character.WALKING;
-								g.console.print("undead minion summoned");
+								game.minion = new Minion(mc, target.collider.x + target.collider.width * 0.5, target.collider.y + target.collider.height, Character.SKELETON);
+								game.world.restoreCollider(game.minion.collider);
+								game.minion.collider.state = Collider.FALL;
+								game.minion.state = Character.WALKING;
+								game.console.print("undead minion summoned");
 							}
 						} else if(source == ARMOUR || source == EATEN){
 							target.active = true;
 							target.applyHealth(target.totalHealth);
-							g.console.print(target.nameToString()+" returns as undead");
+							game.console.print(target.nameToString()+" returns as undead");
 							target.changeName(Character.SKELETON);
 						}
 					}
@@ -499,27 +499,27 @@
 				target.effectsBuffer.push(this);
 			}
 			
-			n = g.effects.indexOf(this);
-			if(n > -1) g.effects.splice(n, 1);
+			n = game.effects.indexOf(this);
+			if(n > -1) game.effects.splice(n, 1);
 			
 			target = null;
 		}
 		
 		/* Effects a teleportation upon a character */
-		private function teleportCharacter(target:Character):void{
+		public static function teleportCharacter(target:Character, dest:Pixel = null):void{
 			renderer.createTeleportSparkRect(target.collider, 20);
 			target.collider.divorce();
-			var dest:Pixel = getTeleportTarget(target.mapX, target.mapY, g.world.map, g.mapTileManager.mapRect);
+			if(!dest) dest = getTeleportTarget(target.mapX, target.mapY, game.world.map, game.mapTileManager.mapRect);
 			target.collider.x = -target.collider.width * 0.5 + (dest.x + 0.5) * Game.SCALE;
 			target.collider.y = -target.collider.height + (dest.y + 1) * Game.SCALE;
 			if(target is Player){
-				g.lightMap.blackOut();
+				game.lightMap.blackOut();
 				(target as Player).snapCamera();
 			} else if(target is Monster){
 				(target as Monster).brain.clear();
 			}
 			renderer.createTeleportSparkRect(target.collider, 20);
-			g.soundQueue.add("teleport");
+			game.soundQueue.add("teleport");
 		}
 		
 		public function nameToString():String{
@@ -534,8 +534,8 @@
 		public static function getTeleportTarget(startX:int, startY:int, map:Vector.<Vector.<int>>, mapRect:Rectangle):Pixel{
 			var finish:Pixel = new Pixel(startX, startY);
 			while((Math.abs(startX - finish.x) < MIN_TELEPORT_DIST && Math.abs(startY - finish.y) < MIN_TELEPORT_DIST) || (map[finish.y][finish.x] & Collider.WALL) || !mapRect.contains((finish.x + 0.5) * Game.SCALE, (finish.y + 0.5) * Game.SCALE)){
-				finish.x = g.random.range(map[0].length);
-				finish.y = g.random.range(map.length);
+				finish.x = game.random.range(map[0].length);
+				finish.y = game.random.range(map.length);
 			}
 			return finish;
 		}
@@ -544,12 +544,12 @@
 		public static function randomEnchant(item:Item, level:int):Item{
 			var name:int;
 			var nameRange:int;
-			var enchantments:int = 2 + g.random.range(level * 0.5);
+			var enchantments:int = 2 + game.random.range(level * 0.5);
 			var runeList:Vector.<int> = new Vector.<int>();
 			while(enchantments--){
-				nameRange = g.random.range(Item.stats["rune names"].length);
-				if(nameRange > g.deepestLevelReached) nameRange = g.deepestLevelReached;
-				name = g.random.range(nameRange);
+				nameRange = game.random.range(Item.stats["rune names"].length);
+				if(nameRange > game.deepestLevelReached) nameRange = game.deepestLevelReached;
+				name = game.random.range(nameRange);
 				// some enchantments confer multiple extra enchantments -
 				// that can of worms will stay closed
 				if(!Effect.BANNED_RANDOM_ENCHANTMENTS[name]) runeList.push(name);
@@ -570,7 +570,7 @@
 				}
 			}
 			// apply/remove curse?
-			if(item.curseState != Item.BLESSED && g.random.value() < 0.2){
+			if(item.curseState != Item.BLESSED && game.random.value() < 0.2){
 				if(item.curseState == Item.CURSE_HIDDEN || item.curseState == Item.CURSE_REVEALED) item.curseState = Item.NO_CURSE;
 				else item.curseState = Item.CURSE_HIDDEN;
 			}

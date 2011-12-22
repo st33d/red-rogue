@@ -76,7 +76,7 @@
 				gfx.y += SCALE * 0.5;
 				count = OPEN_CLOSE_DELAY;
 			}
-			if(active) g.portals.push(this);
+			if(active) game.portals.push(this);
 		}
 		
 		override public function main():void {
@@ -95,40 +95,40 @@
 				}
 			} else if(state == OPEN){
 				// if the portal is visible on the map - then make the portal icon on the map visible
-				if(!seen && g.lightMap.darkImage.getPixel32(mapX, mapY) != 0xFF000000){
+				if(!seen && game.lightMap.darkImage.getPixel32(mapX, mapY) != 0xFF000000){
 					seen = true;
 					var blit:BlitClip;
 					if(type == STAIRS){
-						if(targetLevel < g.dungeon.level) {
+						if(targetLevel < game.dungeon.level) {
 							blit = renderer.stairsUpFeatureBlit;
-						} else if(targetLevel > g.dungeon.level){
+						} else if(targetLevel > game.dungeon.level){
 							blit = renderer.stairsDownFeatureBlit;
 						}
 					} else {
 						blit = renderer.portalFeatureBlit;
 					}
-					minimapFX = g.miniMap.addFeature(mapX, mapY, blit, this != g.entrance);
+					minimapFX = game.miniMap.addFeature(mapX, mapY, blit, this != game.entrance);
 				}
 				if(type == UNDERWORLD){
 					// heal the undead
-					if(g.player.undead && g.player.health < g.player.totalHealth && g.player.collider.intersects(rect)){
-						g.player.applyHealth(g.player.totalHealth * UNDEAD_HEAL_RATE);
-						renderer.createTeleportSparkRect(g.player.collider, 5);
+					if(game.player.undead && game.player.health < game.player.totalHealth && game.player.collider.intersects(rect)){
+						game.player.applyHealth(game.player.totalHealth * UNDEAD_HEAL_RATE);
+						renderer.createTeleportSparkRect(game.player.collider, 5);
 					}
 					var character:Character;
-					for(var i:int = 0; i < g.entities.length; i++){
-						character = g.entities[i] as Character;
+					for(var i:int = 0; i < game.entities.length; i++){
+						character = game.entities[i] as Character;
 						if(character && character.undead && character.health < character.totalHealth && character.collider.intersects(rect)){
 							character.applyHealth(character.totalHealth * UNDEAD_HEAL_RATE);
 							renderer.createTeleportSparkRect(character.collider, 5);
 						}
 					}
 					// resurrect the minion if dead
-					if(!g.minion){
+					if(!game.minion){
 						var mc:MovieClip = new SkeletonMC();
-						g.minion = new Minion(mc, rect.x + rect.width * 0.5, rect.y + rect.height, Character.SKELETON);
-						g.minion.enterLevel(this);
-						g.console.print("undead minion returns");
+						game.minion = new Minion(mc, rect.x + rect.width * 0.5, rect.y + rect.height, Character.SKELETON);
+						game.minion.enterLevel(this);
+						game.console.print("undead minion returns");
 					}
 					
 				} else if(type == MONSTER){
@@ -141,7 +141,7 @@
 							if(monsterTotal){
 								monsterTotal--;
 								monster = Content.convertXMLToEntity(mapX, mapY, monsterTemplate);
-								g.entities.push(monster);
+								game.entities.push(monster);
 								Brain.monsterCharacters.push(monster);
 								monster.enterLevel(this);
 								monsterEntryCount = MONSTERS_ENTRY_DELAY;
@@ -160,15 +160,15 @@
 					gfx.y += GFX_STEP;
 				} else {
 					active = false;
-					if(g.portalHash[type] == this){
-						delete g.portalHash[type];
+					if(game.portalHash[type] == this){
+						delete game.portalHash[type];
 					}
 				}
 			}
 		}
 		
 		public function close():void{
-			g.mapTileManager.removeTile(this, mapX, mapY, mapZ);
+			game.mapTileManager.removeTile(this, mapX, mapY, mapZ);
 			minimapFX.active = false;
 			free = false;
 			state = CLOSING;
@@ -179,8 +179,8 @@
 		public function maskPortalBase():void{
 			var blackOut:Shape = new Shape();
 			var bitmap:Bitmap;
-			if(type == OVERWORLD_RETURN) bitmap = new g.library.OverworldB();
-			else if(type == UNDERWORLD_RETURN) bitmap = new g.library.UnderworldB();
+			if(type == OVERWORLD_RETURN) bitmap = new game.library.OverworldB();
+			else if(type == UNDERWORLD_RETURN) bitmap = new game.library.UnderworldB();
 			blackOut.graphics.beginBitmapFill(bitmap.bitmapData, new Matrix(1, 0, 0, 1, -mapX * Game.SCALE, -mapY * Game.SCALE), false);
 			blackOut.graphics.drawRect(-8, 16, 32, 8);
 			blackOut.graphics.endFill();
@@ -192,12 +192,12 @@
 			monsterTemplate = xml;
 			// strip the monster of items - this is not an item farming spell
 			delete monsterTemplate.item;
-			monsterTotal = g.dungeon.level < Game.MAX_LEVEL ? g.dungeon.level : Game.MAX_LEVEL;
+			monsterTotal = game.dungeon.level < Game.MAX_LEVEL ? game.dungeon.level : Game.MAX_LEVEL;
 			monsterEntryCount = MONSTERS_ENTRY_DELAY;
 		}
 		
 		override public function remove():void {
-			g.portals.splice(g.portals.indexOf(this), 1);
+			game.portals.splice(game.portals.indexOf(this), 1);
 			super.remove();
 		}
 		
@@ -214,17 +214,17 @@
 		public static function createPortal(type:int, mapX:int, mapY:int, targetLevel:int = 0):Portal{
 			var i:int, portal:Portal;
 			// check that the portal is on a surface - if not cast downwards and put it on one
-			while(!(g.world.map[mapY + 1][mapX] & Collider.UP)) mapY++;
+			while(!(game.world.map[mapY + 1][mapX] & Collider.UP)) mapY++;
 			// check we're not obscuring the level stairs.
 			// To avoid writing out the logic twice I'm popping an extra iteration in the loop to check the
 			// MapTileManager tile position
-			for(i = 0; i < g.portals.length + 1; i++){
-				if(i < g.portals.length) portal = g.portals[i];
-				else portal = g.mapTileManager.mapLayers[Map.ENTITIES][mapY][mapX] as Portal;
+			for(i = 0; i < game.portals.length + 1; i++){
+				if(i < game.portals.length) portal = game.portals[i];
+				else portal = game.mapTileManager.mapLayers[Map.ENTITIES][mapY][mapX] as Portal;
 				if(portal && portal.type == STAIRS && portal.mapX == mapX && portal.mapY == mapY){
 					// there will be a square to the side of the stairs free - that's the level generation logic
 					// check there is floor there
-					if(g.world.map[mapY + 1][mapX + 1] & Collider.UP){
+					if(game.world.map[mapY + 1][mapX + 1] & Collider.UP){
 						mapX++;
 					// fuck it - they can jump for the portal, they should have the sense not to put it in front of stairs
 					} else {
@@ -242,26 +242,26 @@
 			portal.mapZ = Map.ENTITIES;
 			
 			// the portal may have been generated outside of the mapRenderer zone
-			if(!g.mapTileManager.intersects(portal.rect)){
+			if(!game.mapTileManager.intersects(portal.rect)){
 				portal.remove();
 			}
 			
 			// only one player portal of a kind per level, existing portals are closed
 			if(type != MONSTER){
-				if(g.portalHash[type]){
-					g.portalHash[type].close();
+				if(game.portalHash[type]){
+					game.portalHash[type].close();
 				} else {
 					// the portal may be on another level, clear this portal type from the content manager
-					g.content.removePortalType(type);
+					game.content.removePortalType(type);
 				}
-				g.portalHash[type] = portal;
+				game.portalHash[type] = portal;
 			}
 			
 			// retarget overworld or underworld portals
 			if(type == OVERWORLD){
-				g.content.setOverworldPortal(g.dungeon.level);
+				game.content.setOverworldPortal(game.dungeon.level);
 			} else if(type == UNDERWORLD){
-				g.content.setUnderworldPortal(g.dungeon.level);
+				game.content.setUnderworldPortal(game.dungeon.level);
 			}
 			
 			return portal;
@@ -273,7 +273,7 @@
 				if(targetLevel == Map.OVERWORLD){
 					return "ascended to overworld";
 				} else {
-					return (targetLevel > g.dungeon.level ? "descended" : "ascended") + " to level " + targetLevel;
+					return (targetLevel > game.dungeon.level ? "descended" : "ascended") + " to level " + targetLevel;
 				}
 			} else if(type == Portal.OVERWORLD){
 				return "travelled to overworld";

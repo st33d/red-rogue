@@ -10,7 +10,7 @@
 	 */
 	public class InventoryMenuList extends MenuList{
 		
-		public var g:Game;
+		public var game:Game;
 		public var menu:Menu;
 		
 		public var equipmentList:MenuList;
@@ -32,10 +32,10 @@
 		public var itemToOption:Dictionary;
 		public var equipmentToOption:Dictionary;
 		
-		public function InventoryMenuList(menu:Menu, g:Game) {
+		public function InventoryMenuList(menu:Menu, game:Game) {
 			super();
 			this.menu = menu;
-			this.g = g;
+			this.game = game;
 			
 			// MENU LISTS
 			

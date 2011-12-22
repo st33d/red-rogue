@@ -13,7 +13,7 @@
 	 */
 	public class Entity {
 		
-		public static var g:Game;
+		public static var game:Game;
 		public static var renderer:Renderer;
 		
 		public var gfx:DisplayObject;
@@ -47,7 +47,7 @@
 			callMain = false;
 			light = 0;
 			entityNum = entityCount++;
-			if(addToEntities) g.entities.push(this);
+			if(addToEntities) game.entities.push(this);
 		}
 		
 		public function main():void{
@@ -73,13 +73,13 @@
 			if(active){
 				active = false;
 				// if there is already content on the id map, then we convert that content into an array
-				if(g.mapTileManager.mapLayers[mapZ][mapY][mapX]){
-					if(g.mapTileManager.mapLayers[mapZ][mapY][mapX] is Array){
-						g.mapTileManager.mapLayers[mapZ][mapY][mapX].push(this);
+				if(game.mapTileManager.mapLayers[mapZ][mapY][mapX]){
+					if(game.mapTileManager.mapLayers[mapZ][mapY][mapX] is Array){
+						game.mapTileManager.mapLayers[mapZ][mapY][mapX].push(this);
 					} else {
-						g.mapTileManager.mapLayers[mapZ][mapY][mapX] = [g.mapTileManager.mapLayers[mapZ][mapY][mapX], this];
+						game.mapTileManager.mapLayers[mapZ][mapY][mapX] = [game.mapTileManager.mapLayers[mapZ][mapY][mapX], this];
 					}
-				} else g.mapTileManager.mapLayers[mapZ][mapY][mapX] = this;
+				} else game.mapTileManager.mapLayers[mapZ][mapY][mapX] = this;
 			}
 		}
 		

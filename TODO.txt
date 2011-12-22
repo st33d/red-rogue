@@ -3,9 +3,6 @@ undead unequip bug - unreproducible?
 chaos walls somehow leaving children with parent colliders - heisenbug
 
 implement underworld
-	implement effects
-		water
-			water must kill anything that goes in it
 	create death character
 		create npc class
 		create npc brain

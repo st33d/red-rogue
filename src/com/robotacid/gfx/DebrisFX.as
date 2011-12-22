@@ -51,15 +51,15 @@
 				mapY = y * Game.INV_SCALE;
 				// react to scenery
 				// off scroller?
-				if(!g.mapTileManager.contains(x, y)){
+				if(!game.mapTileManager.contains(x, y)){
 					active = false;
 					return;
 				}
 				// block collision
-				if(g.world.map[mapY][mapX] > Collider.EMPTY && !(g.world.map[mapY][mapX] & ignoreProperties)){
+				if(game.world.map[mapY][mapX] > Collider.EMPTY && !(game.world.map[mapY][mapX] & ignoreProperties)){
 					// resolve and kill
 					getVector();
-					cast = Cast.ray(px, py, dx, dy, g.world, ignoreProperties);
+					cast = Cast.ray(px, py, dx, dy, game.world, ignoreProperties);
 					x = px + cast.distance * dx;
 					y = py + cast.distance * dy;
 					if(print) printFade();

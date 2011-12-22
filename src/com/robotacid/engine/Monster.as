@@ -22,8 +22,8 @@
 		public static const BUTCHER_CHANCE:Number = 0.1;
 		public static const BARE_HANDED_BUTCHER_BONUS:Number = 0.15;
 		
-		public function Monster(mc:DisplayObject, x:Number, y:Number, name:int, level:int, items:Vector.<Item>){
-			super(mc, x, y, name, MONSTER, level, false);
+		public function Monster(gfx:DisplayObject, x:Number, y:Number, name:int, level:int, items:Vector.<Item>){
+			super(gfx, x, y, name, MONSTER, level, false);
 			
 			// we do want monsters on the Entities list, but not just yet
 			addToEntities = true;
@@ -31,7 +31,6 @@
 			missileIgnore |= Collider.MONSTER;
 			
 			brain = new Brain(this, Brain.MONSTER);
-			
 			Brain.monsterCharacters.push(this);
 			
 			// monsters carrying loot should equip themselves, however
@@ -63,7 +62,7 @@
 		
 		override public function main():void {
 			// offscreen check
-			if(!g.mapTileManager.intersects(collider, SCALE * 2)){
+			if(!game.mapTileManager.intersects(collider, SCALE * 2)){
 				remove();
 				return;
 			}
@@ -75,9 +74,9 @@
 			super.applyDamage(n, source, knockback, critical, aggressor);
 			// poison effects on multiple characters could cause the bar to flicker between victims,
 			// so we focus on the last person who was attacked physically
-			if(active && this == g.player.victim){
-				g.enemyHealthBar.setValue(health, totalHealth);
-				g.enemyHealthBar.activate();
+			if(active && this == game.player.victim){
+				game.enemyHealthBar.setValue(health, totalHealth);
+				game.enemyHealthBar.activate();
 			}
 		}
 		
@@ -91,17 +90,17 @@
 			}
 			loot = new Vector.<Item>();
 			super.death(cause, decapitation);
-			g.enemyHealthBar.deactivate();
+			game.enemyHealthBar.deactivate();
 			
 			// determine if the player manages to pluck out the monster's heart
-			if(aggressor == g.player){
+			if(aggressor == game.player){
 				var surgeryChance:Number = BUTCHER_CHANCE + (aggressor.weapon == null ? BARE_HANDED_BUTCHER_BONUS : aggressor.weapon.butcher);
-				if(g.random.value() < surgeryChance){
+				if(game.random.value() < surgeryChance){
 					var heartMc:Sprite = new HeartMC();
 					var heart:Item = new Item(heartMc, name, Item.HEART, level);
-					heart.collect(g.player, false);
+					heart.collect(game.player, false);
 					var victimName:String = Character.stats["names"][name];
-					g.console.print("rogue tore out a" + ((victimName.charAt(0).search(/[aeiou]/i) == 0) ? "n " : " ") + heart.nameToString());
+					game.console.print("rogue tore out a" + ((victimName.charAt(0).search(/[aeiou]/i) == 0) ? "n " : " ") + heart.nameToString());
 				}
 			}
 			

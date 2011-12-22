@@ -61,11 +61,11 @@
 			}
 			collider.dampingX = 1;
 			collider.dampingY = 1;
-			g.world.restoreCollider(collider);
+			game.world.restoreCollider(collider);
 			
 			// runes glow when they are converted to missiles
 			if(type == RUNE){
-				g.lightMap.setLight(this, 3, 112);
+				game.lightMap.setLight(this, 3, 112);
 				
 			}
 			// set graphic offset
@@ -163,26 +163,26 @@
 				}
 				// blood
 				renderer.createDebrisSpurt(collider.x + collider.width * 0.5, collider.y + collider.height * 0.5, dx > 0 ? 5 : -5, 5, character.debrisType);
-				g.soundQueue.add("hit");
+				game.soundQueue.add("hit");
 				
 			} else if(type == RUNE){
 				if(character.type & Character.STONE){
 					kill();
 					return;
 				}
-				Item.revealName(effect.name, g.menu.inventoryList);
-				g.console.print(effect.nameToString() + " cast upon " + character.nameToString());
+				Item.revealName(effect.name, game.menu.inventoryList);
+				game.console.print(effect.nameToString() + " cast upon " + character.nameToString());
 				effect.apply(character);
-				g.soundQueue.add("runeHit");
+				game.soundQueue.add("runeHit");
 				
 			} else if(type == DART){
 				if(character.type & Character.STONE){
 					kill();
 					return;
 				}
-				g.console.print(effect.nameToString() + " dart hits " + character.nameToString());
+				game.console.print(effect.nameToString() + " dart hits " + character.nameToString());
 				effect.apply(character);
-				g.soundQueue.add("runeHit");
+				game.soundQueue.add("runeHit");
 			}
 			kill();
 		}

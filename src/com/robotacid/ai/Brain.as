@@ -31,7 +31,7 @@
 	
 	public class Brain{
 		
-		public static var g:Game;
+		public static var game:Game;
 		
 		public var char:Character;
 		public var target:Character;
@@ -113,8 +113,8 @@
 			patrolAreaSet = false;
 			state = PATROL;
 			delay = Character.stats["pauses"][char.name];
-			count = delay + g.random.range(delay);
-			char.looking = g.random.value() < 0.5 ? LEFT : RIGHT;
+			count = delay + game.random.range(delay);
+			char.looking = game.random.value() < 0.5 ? LEFT : RIGHT;
 			dontRunIntoTheWallCount = 0;
 			sheduleIndex = 0;
 			allyIndex = 0;
@@ -164,19 +164,19 @@
 							//Game.debug.moveTo(char.x, char.y);
 							//Game.debug.lineTo(patrolMinX, char.y);
 						}
-						else (setPatrolArea(g.world.map));
+						else (setPatrolArea(game.world.map));
 						if(count-- <= 0){
-							count = delay + g.random.range(delay);
+							count = delay + game.random.range(delay);
 							state = PAUSE;
 							char.actions = char.dir = 0;
 						}
 					} else if(allegiance == PLAYER){
-						if(g.player.state != Character.QUICKENING) follow(leader);
+						if(game.player.state != Character.QUICKENING) follow(leader);
 						else char.dir = 0;
 					}
 				} else if(state == PAUSE){
 					if(count-- <= 0){
-						count = delay + g.random.range(delay);
+						count = delay + game.random.range(delay);
 						state = PATROL;
 					}
 				}
@@ -206,7 +206,7 @@
 								scheduleTargetPos.x < charPos.x  + char.losBorder && scheduleTargetPos.x > charPos.x - char.losBorder &&
 								scheduleTargetPos.y > charPos.y - char.losBorder && scheduleTargetPos.y < charPos.y + char.losBorder
 							){
-								if(Cast.los(charPos, scheduleTarget.collider, new Point((char.looking & RIGHT) ? 1 : -1, 0), 0.5, g.world, ignore)){
+								if(Cast.los(charPos, scheduleTarget.collider, new Point((char.looking & RIGHT) ? 1 : -1, 0), 0.5, game.world, ignore)){
 									state = ATTACK;
 									target = scheduleTarget;
 									count = 0;
@@ -232,7 +232,7 @@
 					)
 				){
 					state = FLEE;
-					count = delay + g.random.range(delay * 2);
+					count = delay + game.random.range(delay * 2);
 				}
 				
 				if(!target.active){
@@ -248,7 +248,7 @@
 						// we want fleeing characters in the dark to go back to patrolling
 						// but not if they're on a ladder
 						if(char.collider.state == Collider.HOVER){
-							count = 1 + g.random.range(delay);
+							count = 1 + game.random.range(delay);
 						} else {
 							target = null;
 							patrolAreaSet = false;
@@ -329,7 +329,7 @@
 					char.collider.state == Collider.HOVER
 				){
 					state = FLEE;
-					count = delay + g.random.range(delay * 2);
+					count = delay + game.random.range(delay * 2);
 				}
 			
 			// perform an A* search to locate the target
@@ -342,7 +342,7 @@
 					
 					if(path){
 						
-						//if(char == g.minion) dungeonGraph.drawPath(path, Game.debug, SCALE);
+						//if(char == game.minion) dungeonGraph.drawPath(path, Game.debug, SCALE);
 						//dungeonGraph.drawPath(path, Game.debug, SCALE);
 						
 						node = path[path.length - 1];
@@ -383,7 +383,7 @@
 								if(char.canClimb()){
 									if(!following && stompDanger()){
 										state = FLEE;
-										count = delay + g.random.range(delay * 2);
+										count = delay + game.random.range(delay * 2);
 									} else {
 										char.actions |= UP;
 									}
@@ -434,7 +434,7 @@
 					
 					if(path){
 						
-						//if(char == g.minion) dungeonGraph.drawPath(path, Game.debug, SCALE);
+						//if(char == game.minion) dungeonGraph.drawPath(path, Game.debug, SCALE);
 						//dungeonGraph.drawPath(path, Game.debug, SCALE);
 						
 						node = path[path.length - 1];
@@ -605,12 +605,12 @@
 			var test:Cast = null;
 			var rect:Rectangle = char.collider;
 			if(char.looking & RIGHT){
-				test = Cast.horiz(rect.x + rect.width - Collider.INTERVAL_TOLERANCE, rect.y + rect.height * 0.5, 1, length, ignore, g.world);
+				test = Cast.horiz(rect.x + rect.width - Collider.INTERVAL_TOLERANCE, rect.y + rect.height * 0.5, 1, length, ignore, game.world);
 				if(test && test.collider == target.collider) {
 					return true;
 				}
 			} else if(char.looking & LEFT){
-				test = Cast.horiz(rect.x, rect.y + rect.height * 0.5, -1, length, ignore, g.world);
+				test = Cast.horiz(rect.x, rect.y + rect.height * 0.5, -1, length, ignore, game.world);
 				if(test && test.collider == target.collider) {
 					return true;
 				}

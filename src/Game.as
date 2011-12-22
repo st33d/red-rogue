@@ -66,6 +66,8 @@
 	 * Red Rogue
 	 *
 	 * A roguelike platform game
+	 * 
+	 * This is the top level class that serves as a Controller to the rest of the code
 	 *
 	 * @author Aaron Steed, robotacid.com
 	 */
@@ -74,9 +76,9 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 273;
+		public static const BUILD_NUM:int = 275;
 		
-		public static var g:Game;
+		public static var game:Game;
 		public static var renderer:Renderer;
 		public static var debug:Graphics;
 		public static var debugStay:Graphics;
@@ -128,7 +130,6 @@
 		public var frameCount:int;
 		public var mouseCount:int;
 		public var mousePressed:Boolean;
-		public var god_mode:Boolean;
 		public var paused:Boolean;
 		public var shakeDirX:int;
 		public var shakeDirY:int;
@@ -172,18 +173,18 @@
 			renderer = new Renderer(this);
 			renderer.init();
 			
-			g = this;
-			Entity.g = this;
-			LightMap.g = this;
-			Effect.g = this;
-			FX.g = this;
-			Map.g = this;
-			Content.g = this;
-			Brain.g = this;
-			DungeonBitmap.g = this;
-			Lightning.g = this;
-			ItemMovieClip.g = this;
-			SceneManager.g = this;
+			game = this;
+			Entity.game = this;
+			LightMap.game = this;
+			Effect.game = this;
+			FX.game = this;
+			Map.game = this;
+			Content.game = this;
+			Brain.game = this;
+			DungeonBitmap.game = this;
+			Lightning.game = this;
+			ItemMovieClip.game = this;
+			SceneManager.game = this;
 			
 			Effect.BANNED_RANDOM_ENCHANTMENTS[Effect.PORTAL] = true;
 			Effect.BANNED_RANDOM_ENCHANTMENTS[Effect.NULL] = true;
@@ -543,7 +544,7 @@
 					}
 					player.changeName(Character.ROGUE, new RogueColMC());
 					if(minion && minion.name != Character.SKELETON){
-						skinMc = g.library.getCharacterGfx(Character.SKELETON);
+						skinMc = game.library.getCharacterGfx(Character.SKELETON);
 						minion.changeName(Character.SKELETON, skinMc);
 						console.print("minion reverts to undead form");
 					}
@@ -567,7 +568,7 @@
 				}
 			}
 			
-			player.enterLevel(entrance, Player.previousLevel < g.dungeon.level ? Collider.RIGHT : Collider.LEFT);
+			player.enterLevel(entrance, Player.previousLevel < game.dungeon.level ? Collider.RIGHT : Collider.LEFT);
 			changeMusic();
 		}
 		
@@ -602,7 +603,7 @@
 			
 			// copy out these debug tools when needed
 			//var t:int = getTimer();
-			//info.text = g.player.mapX + " " + g.player.mapY;
+			//info.text = game.player.mapX + " " + game.player.mapY;
 			//info.appendText("pixels" + (getTimer() - t) + "\n"); t = getTimer();
 			
 			//var mouseMapX:int = INV_SCALE * canvas.mouseX;
@@ -610,7 +611,7 @@
 			//if(Brain.dungeonGraph.nodes[mouseMapY][mouseMapX] && Brain.dungeonGraph.nodes[player.mapY][player.mapX]){
 				//var path:Vector.<Node> = Brain.dungeonGraph.getPath(Brain.dungeonGraph.nodes[player.mapY][player.mapX], Brain.dungeonGraph.nodes[mouseMapY][mouseMapX], 100);
 				//if(path){
-					//if(path.length == 0) trace(g.frameCount);
+					//if(path.length == 0) trace(game.frameCount);
 					//Brain.dungeonGraph.drawPath(path, debug, SCALE);
 				//}
 			//}

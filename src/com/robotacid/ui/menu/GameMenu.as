@@ -29,7 +29,7 @@
 	 */
 	public class GameMenu extends Menu{
 		
-		public var g:Game;
+		public var game:Game;
 		
 		public var inventoryList:InventoryMenuList;
 		public var optionsList:MenuList;
@@ -65,8 +65,8 @@
 		public var onOffList:MenuList;
 		public var onOffOption:ToggleMenuOption;
 		
-		public function GameMenu(width:Number, height:Number, g:Game) {
-			this.g = g;
+		public function GameMenu(width:Number, height:Number, game:Game) {
+			this.game = game;
 			super(width, height);
 			init();
 		}
@@ -79,13 +79,13 @@
 			
 			var trunk:MenuList = new MenuList();
 			
-			inventoryList = new InventoryMenuList(this, g);
+			inventoryList = new InventoryMenuList(this, game);
 			optionsList = new MenuList();
 			actionsList = new MenuList();
 			debugList = new MenuList();
 			creditsList = new MenuList();
 			
-			giveItemList = new GiveItemMenuList(this, g);
+			giveItemList = new GiveItemMenuList(this, game);
 			soundList = new MenuList();
 			menuMoveList = new MenuList(Vector.<MenuOption>([
 				new MenuOption("1", null, false),
@@ -263,9 +263,9 @@
 			if(option.userData is Item){
 				var item:Item = option.userData;
 				if(item.type == Item.WEAPON || item.type == Item.ARMOUR){
-					inventoryList.equipOption.state = (item.user && item.user == g.player) ? 1 : 0;
-					inventoryList.equipMinionOption.state = (item.user && item.user == g.minion) ? 1 : 0;
-					inventoryList.equipMinionOption.active = Boolean(g.minion);
+					inventoryList.equipOption.state = (item.user && item.user == game.player) ? 1 : 0;
+					inventoryList.equipMinionOption.state = (item.user && item.user == game.minion) ? 1 : 0;
+					inventoryList.equipMinionOption.active = Boolean(game.minion);
 					inventoryList.enchantmentList.update(item);
 					
 					// cursed items disable equipping items of that type, they cannot be dropped either (except by the dead)
@@ -278,29 +278,29 @@
 					
 					// no equipping face armour on the overworld
 					if(item.type == Item.ARMOUR && item.name == Item.FACE){
-						if(g.dungeon.level == 0){
+						if(game.dungeon.level == 0){
 							inventoryList.equipOption.active = false;
 							inventoryList.equipMinionOption.active = false;
 						}
 					}
-					inventoryList.dropOption.active = g.player.undead || item.curseState != Item.CURSE_REVEALED;
+					inventoryList.dropOption.active = game.player.undead || item.curseState != Item.CURSE_REVEALED;
 					
 				} else if(item.type == Item.HEART){
-					if(!hotKeyMapRecord) inventoryList.eatOption.active = g.player.health < g.player.totalHealth;
+					if(!hotKeyMapRecord) inventoryList.eatOption.active = game.player.health < game.player.totalHealth;
 					else inventoryList.eatOption.active = true;
-					if(!hotKeyMapRecord) inventoryList.feedMinionOption.active = Boolean(g.minion) && g.minion.health < g.minion.totalHealth;
+					if(!hotKeyMapRecord) inventoryList.feedMinionOption.active = Boolean(game.minion) && game.minion.health < game.minion.totalHealth;
 					else inventoryList.feedMinionOption.active = true;
 					
 				} else if(item.type == Item.RUNE){
-					inventoryList.throwOption.active = g.player.attackCount >= 1;
+					inventoryList.throwOption.active = game.player.attackCount >= 1;
 					inventoryList.eatOption.active = true;
-					inventoryList.feedMinionOption.active = Boolean(g.minion);
+					inventoryList.feedMinionOption.active = Boolean(game.minion);
 					if(item.name == Effect.XP){
-						if(g.minion) inventoryList.feedMinionOption.active = g.minion.level < Game.MAX_LEVEL;
-						inventoryList.eatOption.active = g.player.level < Game.MAX_LEVEL;
+						if(game.minion) inventoryList.feedMinionOption.active = game.minion.level < Game.MAX_LEVEL;
+						inventoryList.eatOption.active = game.player.level < Game.MAX_LEVEL;
 					} else if(item.name == Effect.PORTAL){
-						inventoryList.eatOption.active = g.dungeon.type == Map.MAIN_DUNGEON;
-						if(g.minion) inventoryList.feedMinionOption.active = inventoryList.eatOption.active;
+						inventoryList.eatOption.active = game.dungeon.type == Map.MAIN_DUNGEON;
+						if(game.minion) inventoryList.feedMinionOption.active = inventoryList.eatOption.active;
 					}
 				}
 				
@@ -315,7 +315,7 @@
 				renderMenu();
 				
 			} else if(option.name == "fullscreen"){
-				onOffOption.state = g.stage.displayState == "normal" ? 1 : 0;
+				onOffOption.state = game.stage.displayState == "normal" ? 1 : 0;
 				renderMenu();
 				
 			} else if(option == inventoryList.enchantOption){
@@ -327,7 +327,7 @@
 			} else if(option == giveItemOption){
 				
 			} else if(option == actionsOption){
-				if(g.player.weapon) missileOption.active = g.player.attackCount >= 1 && !g.player.indifferent && Boolean(g.player.weapon.range & (Item.MISSILE | Item.THROWN));
+				if(game.player.weapon) missileOption.active = game.player.attackCount >= 1 && !game.player.indifferent && Boolean(game.player.weapon.range & (Item.MISSILE | Item.THROWN));
 			} else if(currentMenuList == menuMoveList){
 				moveDelay = currentMenuList.selection + 1;
 			}
@@ -340,58 +340,58 @@
 			// equipping items on the player - toggle logic follows
 			if(option == inventoryList.equipOption){
 				item = previousMenuList.options[previousMenuList.selection].userData;
-				if(item.location == Item.EQUIPPED && item.user == g.player){
-					item = g.player.unequip(item);
+				if(item.location == Item.EQUIPPED && item.user == game.player){
+					item = game.player.unequip(item);
 					// indifference armour is one-shot
-					if(item.name == Item.INDIFFERENCE) item = indifferenceCrumbles(item, g.player);
+					if(item.name == Item.INDIFFERENCE) item = indifferenceCrumbles(item, game.player);
 				} else {
 					if(item.type == Item.WEAPON){
-						if(g.player.weapon) g.player.unequip(g.player.weapon);
-						if(g.minion && g.minion.weapon && g.minion.weapon == item) g.minion.unequip(g.minion.weapon);
+						if(game.player.weapon) game.player.unequip(game.player.weapon);
+						if(game.minion && game.minion.weapon && game.minion.weapon == item) game.minion.unequip(game.minion.weapon);
 					}
 					if(item.type == Item.ARMOUR){
-						if(g.player.armour){
-							prevItem = g.player.armour;
-							g.player.unequip(g.player.armour);
+						if(game.player.armour){
+							prevItem = game.player.armour;
+							game.player.unequip(game.player.armour);
 							// indifference armour is one-shot
-							if(prevItem.name == Item.INDIFFERENCE) prevItem = indifferenceCrumbles(prevItem, g.player);
+							if(prevItem.name == Item.INDIFFERENCE) prevItem = indifferenceCrumbles(prevItem, game.player);
 						}
-						if(g.minion && g.minion.armour && g.minion.armour == item) g.minion.unequip(g.minion.armour);
+						if(game.minion && game.minion.armour && game.minion.armour == item) game.minion.unequip(game.minion.armour);
 						// indifference armour is one-shot
 						if(item.name == Item.INDIFFERENCE){
-							g.console.print("indifference is fragile");
+							game.console.print("indifference is fragile");
 						}
 					}
-					item = g.player.equip(item);
+					item = game.player.equip(item);
 				}
 			
 			// equipping items on minions - toggle logic follows
 			} else if(option == inventoryList.equipMinionOption){
 				item = previousMenuList.options[previousMenuList.selection].userData;
-				if(item.location == Item.EQUIPPED && item.user == g.minion){
-					item = g.minion.unequip(item);
+				if(item.location == Item.EQUIPPED && item.user == game.minion){
+					item = game.minion.unequip(item);
 					// indifference armour is one-shot
-					if(item.name == Item.INDIFFERENCE) item = indifferenceCrumbles(item, g.minion);
+					if(item.name == Item.INDIFFERENCE) item = indifferenceCrumbles(item, game.minion);
 				} else {
 					if(item.type == Item.WEAPON){
-						if(g.minion.weapon) g.minion.unequip(g.minion.weapon);
-						if(g.player.weapon && g.player.weapon == item) g.player.unequip(g.player.weapon);
+						if(game.minion.weapon) game.minion.unequip(game.minion.weapon);
+						if(game.player.weapon && game.player.weapon == item) game.player.unequip(game.player.weapon);
 					}
 					if(item.type == Item.ARMOUR){
-						if(g.minion.armour){
-							prevItem = g.minion.armour;
-							g.minion.unequip(g.minion.armour);
+						if(game.minion.armour){
+							prevItem = game.minion.armour;
+							game.minion.unequip(game.minion.armour);
 							// indifference armour is one-shot
-							if(prevItem.name == Item.INDIFFERENCE) prevItem = indifferenceCrumbles(prevItem, g.minion);
+							if(prevItem.name == Item.INDIFFERENCE) prevItem = indifferenceCrumbles(prevItem, game.minion);
 						}
-						if(g.player.armour && g.player.armour == item) g.player.unequip(g.player.armour);
+						if(game.player.armour && game.player.armour == item) game.player.unequip(game.player.armour);
 						// indifference armour is one-shot
 						if(item.name == Item.INDIFFERENCE){
-							g.console.print("indifference is fragile");
-							g.minion.brain.clear();
+							game.console.print("indifference is fragile");
+							game.minion.brain.clear();
 						}
 					}
-					item = g.minion.equip(item);
+					item = game.minion.equip(item);
 				}
 				
 			// dropping items
@@ -399,43 +399,43 @@
 				item = previousMenuList.options[previousMenuList.selection].userData;
 				if(item.user) item = item.user.unequip(item);
 				item = inventoryList.removeItem(item);
-				item.dropToMap(g.player.mapX, g.player.mapY);
+				item.dropToMap(game.player.mapX, game.player.mapY);
 				
 			// eating items
 			} else if(option == inventoryList.eatOption){
 				item = previousMenuList.options[previousMenuList.selection].userData;
 				if(item.type == Item.HEART){
-					g.player.applyHealth(Character.stats["healths"][item.name] + Character.stats["health levels"][item.name] * item.level);
+					game.player.applyHealth(Character.stats["healths"][item.name] + Character.stats["health levels"][item.name] * item.level);
 				} else if(item.type == Item.RUNE){
 					Item.revealName(item.name, inventoryList);
-					effect = new Effect(item.name, 20, Effect.EATEN, g.player);
+					effect = new Effect(item.name, 20, Effect.EATEN, game.player);
 				}
 				inventoryList.removeItem(item);
-				g.console.print("rogue eats " + item.nameToString());
+				game.console.print("rogue eats " + item.nameToString());
 			
 			// feeding runes to the minion
 			} else if(option == inventoryList.feedMinionOption){
 				item = previousMenuList.options[previousMenuList.selection].userData;
 				if(item.type == Item.HEART){
-					g.minion.applyHealth(Character.stats["healths"][item.name] + Character.stats["health levels"][item.level]);
+					game.minion.applyHealth(Character.stats["healths"][item.name] + Character.stats["health levels"][item.level]);
 				} else if(item.type == Item.RUNE){
 					Item.revealName(item.name, inventoryList);
-					effect = new Effect(item.name, 20, Effect.EATEN, g.minion);
+					effect = new Effect(item.name, 20, Effect.EATEN, game.minion);
 				}
 				inventoryList.removeItem(item);
-				g.console.print("minion eats " + item.nameToString());
+				game.console.print("minion eats " + item.nameToString());
 			
 			// loading / saving / new game
 			} else if(option == sureOption){
 				if(previousMenuList.options[previousMenuList.selection] == loadOption){
-					QuickSave.load(g);
+					QuickSave.load(game);
 				} else if(previousMenuList.options[previousMenuList.selection] == saveOption){
-					QuickSave.save(g);
+					QuickSave.save(game);
 				} else if(previousMenuList.options[previousMenuList.selection] == newGameOption){
 					inventoryList.reset();
 					inventoryOption.active = false;
 					actionsOption.active = false;
-					g.reset();
+					game.reset();
 				}
 			
 			} else if(option == onOffOption){
@@ -479,7 +479,7 @@
 			} else if(option == inventoryList.throwOption){
 				item = previousMenuList.options[previousMenuList.selection].userData;
 				item = inventoryList.removeItem(item);
-				g.player.shoot(Missile.RUNE, new Effect(item.name, 20, Effect.THROWN));
+				game.player.shoot(Missile.RUNE, new Effect(item.name, 20, Effect.THROWN));
 			
 			// enchanting items
 			} else if(previousMenuList.options[previousMenuList.selection] == inventoryList.enchantOption){
@@ -488,13 +488,13 @@
 				effect = new Effect(rune.name, 1, 1);
 				
 				Item.revealName(rune.name, inventoryList);
-				g.console.print(item.nameToString() + " enchanted with " + rune.nameToString());
+				game.console.print(item.nameToString() + " enchanted with " + rune.nameToString());
 				
 				// items need to be unequipped and then equipped again to apply their new settings to a Character
 				var user:Character = item.user;
 				if(user) item = user.unequip(item);
 				
-				item = effect.enchant(item, inventoryList, user ? user : g.player);
+				item = effect.enchant(item, inventoryList, user ? user : game.player);
 				
 				if(user && item.location == Item.INVENTORY) item = user.equip(item);
 				
@@ -502,29 +502,29 @@
 			
 			// exit the level
 			} else if(option == exitLevelOption){
-				g.player.exitLevel(exitLevelOption.userData as Portal);
+				game.player.exitLevel(exitLevelOption.userData as Portal);
 				exitLevelOption.active = false;
-				g.player.disarmableTraps.length = 0;
+				game.player.disarmableTraps.length = 0;
 				disarmTrapOption.active = false;
 			
 			// searching
 			} else if(option == searchOption){
-				g.player.search();
-				g.console.print("beginning search, please stay still...");
+				game.player.search();
+				game.console.print("beginning search, please stay still...");
 			
 			// summoning
 			} else if(option == summonOption){
-				if(g.minion) g.minion.teleportToPlayer();
+				if(game.minion) game.minion.teleportToPlayer();
 			
 			// disarming
 			} else if(option == disarmTrapOption){
-				g.console.print("trap" + (g.player.disarmableTraps.length > 1 ? "s" : "") + " disarmed");
-				g.player.disarmTraps();
+				game.console.print("trap" + (game.player.disarmableTraps.length > 1 ? "s" : "") + " disarmed");
+				game.player.disarmTraps();
 				disarmTrapOption.active = false;
 			
 			// missile weapons
 			} else if(option == missileOption){
-				g.player.shoot(Missile.ITEM);
+				game.player.shoot(Missile.ITEM);
 			
 			// creating an item
 			} else if(option == giveItemList.createOption){
@@ -557,9 +557,9 @@
 		
 		/* Activates fullscreen mode */
 		private function fullscreen():void{
-			g.stage.fullScreenSourceRect = new Rectangle(0, 0, Game.WIDTH * 2, Game.HEIGHT * 2);
-			g.stage.scaleMode = StageScaleMode.SHOW_ALL;
-			g.stage.displayState = "fullScreen";
+			game.stage.fullScreenSourceRect = new Rectangle(0, 0, Game.WIDTH * 2, Game.HEIGHT * 2);
+			game.stage.scaleMode = StageScaleMode.SHOW_ALL;
+			game.stage.displayState = "fullScreen";
 		}
 		
 		/* Takes a screen shot of the game (sans menu) and opens a file browser to save it as a png */
@@ -567,7 +567,7 @@
 			visible = false;
 			if(Game.dialog) Game.dialog.visible = false;
 			var bitmapData:BitmapData = new BitmapData(Game.WIDTH * 2, Game.HEIGHT * 2, true, 0x00000000);
-			bitmapData.draw(g, g.transform.matrix);
+			bitmapData.draw(game, game.transform.matrix);
 			FileManager.save(PNGEncoder.encode(bitmapData, {"creator":"red-rogue"}), "screenshot.png");
 			if(Game.dialog) Game.dialog.visible = true;
 			visible = true;
@@ -575,7 +575,7 @@
 		
 		/* Whenever armour of indifference is removed it is destroyed */
 		private function indifferenceCrumbles(item:Item, user:Character):Item{
-			g.console.print("indifference crumbles");
+			game.console.print("indifference crumbles");
 			Game.renderer.createDebrisRect(user.collider, 0, 10, Renderer.STONE);
 			inventoryList.removeItem(item);
 			return null;

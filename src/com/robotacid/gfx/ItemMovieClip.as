@@ -16,7 +16,7 @@ package com.robotacid.gfx {
 	 */
 	public class ItemMovieClip extends MovieClip {
 		
-		public static var g:Game;
+		public static var game:Game;
 		public static var renderer:Renderer;
 		
 		// in extending MovieClip we get a conflict with "name"
@@ -178,16 +178,16 @@ package com.robotacid.gfx {
 					
 				} else if(_name == Item.BLOOD){
 					if(character.state != Character.EXITING && character.state != Character.ENTERING){
-						if(g.frameCount){
+						if(game.frameCount){
 							var blit:BlitRect, print:BlitRect;
-							if(g.random.value() < 0.5){
+							if(game.random.value() < 0.5){
 								blit = renderer.smallDebrisBlits[Renderer.BLOOD];
 								print = renderer.smallFadeBlits[Renderer.BLOOD];
 							} else {
 								blit = renderer.bigDebrisBlits[Renderer.BLOOD];
 								print = renderer.bigFadeBlits[Renderer.BLOOD];
 							}
-							renderer.addDebris(character.collider.x + character.collider.width * 0.5, (character.collider.y + character.collider.height) - g.random.range(gfx.height), blit, (-3 + g.random.range(6)), (-3 - g.random.range(5)), print, true);
+							renderer.addDebris(character.collider.x + character.collider.width * 0.5, (character.collider.y + character.collider.height) - game.random.range(gfx.height), blit, (-3 + game.random.range(6)), (-3 - game.random.range(5)), print, true);
 						}
 					}
 				} else if(_name == Item.INVISIBILITY){

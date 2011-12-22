@@ -28,7 +28,7 @@ package com.robotacid.engine {
 			if(!equipping){
 				previousName = character.name;
 				equipping = true;
-				if(level != character.name) character.changeName(level, g.library.getCharacterGfx(level));
+				if(level != character.name) character.changeName(level, game.library.getCharacterGfx(level));
 				equipping = false;
 			}
 		}
@@ -36,14 +36,14 @@ package com.robotacid.engine {
 		/* Restores the race of the character - the equipping flag is used to prevent recursion */
 		override public function removeBuff(character:Character):void {
 			if(!equipping){
-				if(previousName != level) character.changeName(previousName, g.library.getCharacterGfx(previousName));
+				if(previousName != level) character.changeName(previousName, game.library.getCharacterGfx(previousName));
 				previousName = -1;
 			}
 		}
 		
 		/* We need to fetch a head graphic */
 		override public function setDroppedRender():void {
-			gfx = g.library.getCharacterHeadGfx(level);
+			gfx = game.library.getCharacterHeadGfx(level);
 			gfx.filters = [DROP_GLOW_FILTER];
 		}
 		
@@ -54,8 +54,8 @@ package com.robotacid.engine {
 		
 		override public function nameToString():String {
 			var str:String = "";
-			if(user && user == g.player) str += "w: ";
-			else if(user && user == g.minion) str += "m: ";
+			if(user && user == game.player) str += "w: ";
+			else if(user && user == game.minion) str += "m: ";
 			return str + Character.stats["names"][level] + " face";
 		}
 		

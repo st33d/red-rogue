@@ -355,7 +355,7 @@
 				
 				if(!fading){
 					fading = true;
-					Game.g.addEventListener(Event.ENTER_FRAME, fadeUpdate);
+					Game.game.addEventListener(Event.ENTER_FRAME, fadeUpdate);
 				}
 			} else {
 				if(step > 0){
@@ -406,7 +406,7 @@
 				
 				if(!fading){
 					fading = true;
-					Game.g.addEventListener(Event.ENTER_FRAME, fadeUpdate);
+					Game.game.addEventListener(Event.ENTER_FRAME, fadeUpdate);
 				}
 			} else {
 				if(step > 0){

@@ -1,6 +1,10 @@
 ﻿package com.robotacid.dungeon {
 	import com.robotacid.engine.ChaosWall;
 	import com.robotacid.engine.Character;
+	import com.robotacid.engine.ColliderEntity;
+	import com.robotacid.engine.ColliderEntitySensor;
+	import com.robotacid.engine.Effect;
+	import com.robotacid.engine.Item;
 	import com.robotacid.engine.MapTileConverter;
 	import com.robotacid.engine.MapTileManager;
 	import com.robotacid.engine.Player;
@@ -29,7 +33,7 @@
 	 */
 	public class Map {
 		
-		public static var g:Game;
+		public static var game:Game;
 		public static var renderer:Renderer;
 		
 		public var level:int;
@@ -118,7 +122,7 @@
 			}
 			createBackground();
 			//bitmap.scaleX = bitmap.scaleY = 2;
-			//g.addChild(bitmap);
+			//game.addChild(bitmap);
 			
 		}
 		
@@ -353,7 +357,7 @@
 			}
 			
 			// create access points
-			var portalXMLs:Vector.<XML> = g.content.getPortals(level, type);
+			var portalXMLs:Vector.<XML> = game.content.getPortals(level, type);
 			var portalType:int;
 			if(type == MAIN_DUNGEON){
 				createAccessPoint(Portal.STAIRS, sortRoomsTopWards);
@@ -366,12 +370,12 @@
 				// a good dungeon needs to be full of loot and monsters
 				// in comes the content manager to mete out a decent amount of action and reward per level
 				// content manager stocks are limited to avoid scumming
-				g.content.populateLevel(level, bitmap, layers, type);
+				game.content.populateLevel(level, bitmap, layers, type);
 				
 			} else if(type == ITEM_DUNGEON){
 				portalType = portalXMLs[0].@type;
 				createAccessPoint(portalType, sortRoomsTopWards, portalXMLs[0]);
-				g.content.populateLevel(level, bitmap, layers, type);
+				game.content.populateLevel(level, bitmap, layers, type);
 			}
 			
 			// now add some flavour
@@ -407,7 +411,7 @@
 			layers[BLOCKS][height - 2][width - 2] = MapTileConverter.WALL;
 			layers[ENTITIES][height - 2][width - 2] = MapTileConverter.GRIND_STONE;
 			
-			var portalXMLs:Vector.<XML> = g.content.getPortals(level, type);
+			var portalXMLs:Vector.<XML> = game.content.getPortals(level, type);
 			if(portalXMLs.length){
 				// given that there can only be one type of portal on the overworld - the rogue's portal
 				// we create the rogue's portal here
@@ -417,7 +421,7 @@
 			setStairsDown(12, height - 2);
 			
 			// the player may have left content on the overworld as a sort of bank
-			g.content.populateLevel(0, bitmap, layers, type);
+			game.content.populateLevel(0, bitmap, layers, type);
 		}
 		
 		/* Create the underworld
@@ -444,13 +448,32 @@
 			setValue(UNDERWORLD_BOAT_MIN, height - 3, BLOCKS, MapTileConverter.WALL);
 			setValue(UNDERWORLD_BOAT_MAX - 1, height - 3, BLOCKS, MapTileConverter.WALL);
 			
-			var portalXMLs:Vector.<XML> = g.content.getPortals(level, type);
+			var portalXMLs:Vector.<XML> = game.content.getPortals(level, type);
 			if(portalXMLs.length){
 				setPortal(UNDERWORLD_PORTAL_X, height - 3, portalXMLs[0]);
 			}
 			
 			// the player may have left content on the underworld as a sort of bank
-			g.content.populateLevel(0, bitmap, layers, type);
+			game.content.populateLevel(0, bitmap, layers, type);
+			
+			// create sensors to resolve any contact with the waters
+			var waterSensor:ColliderEntitySensor = new ColliderEntitySensor(
+				new Rectangle(Game.SCALE, -3 + (height - 1) * Game.SCALE, (width - 2) * Game.SCALE, 3),
+				underworldWaterCallback
+			)
+			
+			// create death
+			layers[ENTITIES][height - 2][UNDERWORLD_PORTAL_X - 3] = new Stone((UNDERWORLD_PORTAL_X - 3) * Game.SCALE, (height - 2) * Game.SCALE, Stone.DEATH);
+		}
+		
+		/* Resolves what happens to entities that fall in the water in the Underworld */
+		public static function underworldWaterCallback(colliderEntity:ColliderEntity):void{
+			if(colliderEntity is Item){
+				renderer.createTeleportSparkRect(colliderEntity.collider, 20);
+				colliderEntity.active = false;
+			} else if(colliderEntity is Character){
+				Effect.teleportCharacter(colliderEntity as Character, new Pixel(UNDERWORLD_PORTAL_X + 1, DungeonBitmap.UNDERWORLD_HEIGHT - 3));
+			}
 		}
 		
 		/* Creates a random parallax background */
@@ -459,10 +482,10 @@
 			if(type == AREA){
 				var bitmap:Bitmap;
 				if(level == OVERWORLD){
-					bitmap = new g.library.OverworldB;
+					bitmap = new game.library.OverworldB;
 					bitmapData = bitmap.bitmapData;
 				} else if(level == UNDERWORLD){
-					bitmap = new g.library.UnderworldB;
+					bitmap = new game.library.UnderworldB;
 					bitmapData = bitmap.bitmapData;
 				}
 			} else {
@@ -472,7 +495,7 @@
 				var x:int, y:int;
 				for(y = 0; y < BACKGROUND_HEIGHT * 0.5; y ++){
 					for(x = 0; x < BACKGROUND_WIDTH * 0.5; x ++){
-						source = renderer.backgroundBitmaps[g.random.rangeInt(renderer.backgroundBitmaps.length)].bitmapData;
+						source = renderer.backgroundBitmaps[game.random.rangeInt(renderer.backgroundBitmaps.length)].bitmapData;
 						point.x = x * Game.SCALE * 2;
 						point.y = y * Game.SCALE * 2;
 						bitmapData.copyPixels(source, source.rect, point);
@@ -502,10 +525,10 @@
 						pos = bitmap.bitmapData.getPixel32(c, r);
 					} while(pos != DungeonBitmap.WALL && r < portalRoom.y + portalRoom.height * 2);
 					r--;
-					if(goodPortalPosition(c, r, g.random.value() < 0.3)) candidates.push(new Pixel(c, r));
+					if(goodPortalPosition(c, r, game.random.value() < 0.3)) candidates.push(new Pixel(c, r));
 				}
 				if(candidates.length){
-					choice = candidates[g.random.rangeInt(candidates.length)];
+					choice = candidates[game.random.rangeInt(candidates.length)];
 				} else {
 					if(index == rooms.length - 1) throw new Error("failed to create portal");
 					else {
@@ -554,7 +577,7 @@
 		public function setPortal(x:int, y:int, xml:XML):void{
 			var p:Pixel = new Pixel(x, y);
 			var portal:Portal = Content.convertXMLToEntity(x, y, xml);
-			g.portalHash[portal.type] = portal;
+			game.portalHash[portal.type] = portal;
 			if(type == AREA){
 				if(portal.type == Portal.OVERWORLD_RETURN || portal.type == Portal.UNDERWORLD_RETURN){
 					portal.maskPortalBase();
@@ -658,9 +681,9 @@
 			
 			while(critterNum){
 				
-				r = 1 + g.random.range(bitmap.height - 1);
-				c = 1 + g.random.range(bitmap.width - 1);
-				critterId = critterPalette[g.random.rangeInt(critterPalette.length)];
+				r = 1 + game.random.range(bitmap.height - 1);
+				c = 1 + game.random.range(bitmap.width - 1);
+				critterId = critterPalette[game.random.rangeInt(critterPalette.length)];
 				
 				// may god forgive me for this if statement:
 				if(
@@ -734,7 +757,7 @@
 							pixels[(i + width) + 1] == DungeonBitmap.WALL
 						)
 					){
-						if(g.random.value() < 0.4){
+						if(game.random.value() < 0.4){
 							layers[ENTITIES][r][c] = new ChaosWall(c, r);
 							layers[BLOCKS][r][c] = MapTileConverter.WALL;
 						}
@@ -755,7 +778,7 @@
 				[Trap.MONSTER_PORTAL, Trap.STUPEFY_DART, Trap.POISON_DART, Trap.TELEPORT_DART]
 			];
 			
-			var totalTraps:int = g.content.getTraps(level, type) - bitmap.pitTraps;
+			var totalTraps:int = game.content.getTraps(level, type) - bitmap.pitTraps;
 			if(totalTraps == 0) return;
 			
 			var dartPos:Pixel;
@@ -780,9 +803,9 @@
 			var trapIndex:int, trapPos:Pixel, trapType:int, sprite:Sprite, trap:Trap;
 			
 			while(totalTraps > 0 && trapPositions.length > 0){
-				trapIndex = g.random.range(trapPositions.length);
+				trapIndex = game.random.range(trapPositions.length);
 				trapPos = trapPositions[trapIndex];
-				trapType = ZONE_TRAPS[zone][g.random.rangeInt(ZONE_TRAPS[zone].length)];
+				trapType = ZONE_TRAPS[zone][game.random.rangeInt(ZONE_TRAPS[zone].length)];
 				sprite = new Sprite();
 				sprite.x = trapPos.x * Game.SCALE;
 				sprite.y = trapPos.y * Game.SCALE;

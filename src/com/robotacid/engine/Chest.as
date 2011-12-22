@@ -42,17 +42,17 @@
 		override public function main():void {
 			// concealing the twinkle in the dark will help avoid showing a clipped effect on the edge
 			// of the light map
-			if(g.lightMap.darkImage.getPixel32(mapX, mapY) != 0xFF000000){
+			if(game.lightMap.darkImage.getPixel32(mapX, mapY) != 0xFF000000){
 				// create a twinkle twinkle effect so the player knows this is a collectable
 				if(twinkleCount-- <= 0){
-					renderer.addFX(rect.x + g.random.range(rect.width), rect.y + g.random.range(rect.height), renderer.twinkleBlit);
-					twinkleCount = TWINKLE_DELAY + g.random.range(TWINKLE_DELAY);
+					renderer.addFX(rect.x + game.random.range(rect.width), rect.y + game.random.range(rect.height), renderer.twinkleBlit);
+					twinkleCount = TWINKLE_DELAY + game.random.range(TWINKLE_DELAY);
 				}
 			}
 			
 			// check for collection by player
-			if((g.player.actions & Collider.UP) && rect.intersects(g.player.collider) && !g.player.indifferent){
-				collect(g.player);
+			if((game.player.actions & Collider.UP) && rect.intersects(game.player.collider) && !game.player.indifferent){
+				collect(game.player);
 			}
 		}
 		
@@ -62,11 +62,11 @@
 			for(var i:int = 0; i < contents.length; i++){
 				character.loot.push(contents[i]);
 				if(character is Player){
-					g.menu.inventoryList.addItem(contents[i]);
-					g.console.print("picked up " + contents[i].nameToString());
+					game.menu.inventoryList.addItem(contents[i]);
+					game.console.print("picked up " + contents[i].nameToString());
 				}
 			}
-			g.soundQueue.add("chestOpen");
+			game.soundQueue.add("chestOpen");
 			contents = null;
 			callMain = false;
 		}
@@ -86,8 +86,8 @@
 		
 		override public function remove():void {
 			super.remove();
-			var n:int = g.items.indexOf(this);
-			if(n > -1) g.items.splice(n, 1);
+			var n:int = game.items.indexOf(this);
+			if(n > -1) game.items.splice(n, 1);
 		}
 		
 		override public function toXML():XML {

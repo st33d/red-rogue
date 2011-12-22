@@ -17,7 +17,7 @@
 	 */
 	public class Lightning{
 		
-		public static var g:Game;
+		public static var game:Game;
 		
 		private var i:int;
 		private var best:Number;
@@ -68,7 +68,7 @@
 		 * in reaching its target or was blocked by a wall */
 		public function strike(gfx:Graphics, map:Vector.<Vector.<int>>, startX:Number, startY:Number, finishX:Number, finishY:Number):Boolean{
 			// by randomising the search order of nodes we avoid paths being weighted
-			randomiseArray(pos, g.random);
+			randomiseArray(pos, game.random);
 			
 			sx = startX * INV_SCALE;
 			sy = startY * INV_SCALE;
@@ -106,15 +106,15 @@
 				gfx.moveTo((SCALE * 0.5) + sx * SCALE, (SCALE * 0.5) + sy * SCALE);
 				dx = node.x - sx;
 				dy = node.y - sy;
-				dx += g.random.range(-dy) * 1.5 + g.random.range(dy) * 1.5;
-				dy += g.random.range(-dx) * 1.5 + g.random.range(dx) * 1.5;
+				dx += game.random.range(-dy) * 1.5 + game.random.range(dy) * 1.5;
+				dy += game.random.range(-dx) * 1.5 + game.random.range(dx) * 1.5;
 				sx += dx;
 				sy += dy;
 				mapX = sx * LIGHTNING_TO_MAP_CONVERSION;
 				mapY = sy * LIGHTNING_TO_MAP_CONVERSION;
 				if(mapX < 0 || mapY < 0 || mapX > mapWidth-1 || mapY > mapHeight-1 || (map[mapY][mapX] & Collider.WALL)) break;
 				gfx.lineTo((SCALE * 0.5) + sx * SCALE, (SCALE * 0.5) + sy * SCALE);
-				lightningBranch(gfx, sx, sy, dx, dy, mapX, mapY, g.random.value());
+				lightningBranch(gfx, sx, sy, dx, dy, mapX, mapY, game.random.value());
 				
 			}
 			
@@ -140,10 +140,10 @@
 			mapY = y * LIGHTNING_TO_MAP_CONVERSION;
 			if(mapX < 0 || mapY < 0 || mapX > mapWidth-1 || mapY > mapHeight-1 || (map[mapY][mapX] & Collider.WALL)) return;
 			gfx.lineTo((SCALE * 0.5) + x * SCALE, (SCALE * 0.5) + y * SCALE);
-			if(g.random.value() < decay){
-				dx += g.random.range(-dy) * 1.5 + g.random.range(dy) * 1.5;
-				dy += g.random.range(-dx) * 1.5 + g.random.range(dx) * 1.5;
-				lightningBranch(gfx, x, y, dx, dy, mapX, mapY, decay * g.random.value());
+			if(game.random.value() < decay){
+				dx += game.random.range(-dy) * 1.5 + game.random.range(dy) * 1.5;
+				dy += game.random.range(-dx) * 1.5 + game.random.range(dx) * 1.5;
+				lightningBranch(gfx, x, y, dx, dy, mapX, mapY, decay * game.random.value());
 			}
 			
 		}

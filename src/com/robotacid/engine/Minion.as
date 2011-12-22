@@ -30,27 +30,26 @@
 		
 		public static const ENTER_DELAY:int = 30;
 		
-		public function Minion(mc:DisplayObject, x:Number, y:Number, name:int) {
+		public function Minion(gfx:DisplayObject, x:Number, y:Number, name:int) {
 			
-			super(mc, x, y, name, MINION, g.player.level);
+			super(gfx, x, y, name, MINION, game.player.level);
 			
-			inventory = g.menu.inventoryList;
+			inventory = game.menu.inventoryList;
 			
 			missileIgnore |= Collider.PLAYER | Collider.MINION;
 			
-			brain = new Brain(this, Brain.PLAYER, g.player);
-			
+			brain = new Brain(this, Brain.PLAYER, game.player);
 			Brain.playerCharacters.push(this);
 			
-			g.minionHealthBar.visible = true;
-			g.menu.summonOption.active = true;
-			g.menu.update();
+			game.minionHealthBar.visible = true;
+			game.menu.summonOption.active = true;
+			game.menu.update();
 			
 			addMinimapFeature();
 		}
 		
 		public function addMinimapFeature():void{
-			minimapFX = g.miniMap.addFeature(mapX, mapY, renderer.minionFeatureBlit);
+			minimapFX = game.miniMap.addFeature(mapX, mapY, renderer.minionFeatureBlit);
 		}
 		
 		override public function createCollider(x:Number, y:Number, properties:int, ignoreProperties:int, state:int = 0, positionByBase:Boolean = true):void {
@@ -70,7 +69,7 @@
 				}
 			}
 			// offscreen check
-			if(!g.mapTileManager.intersects(collider, Game.SCALE * 2)){
+			if(!game.mapTileManager.intersects(collider, Game.SCALE * 2)){
 				teleportToPlayer();
 			}
 			if(state == WALKING) brain.main();
@@ -103,25 +102,25 @@
 		
 		override public function applyDamage(n:Number, source:String, knockback:Number = 0, critical:Boolean = false, aggressor:Character = null):void {
 			super.applyDamage(n, source, knockback, critical, aggressor);
-			g.minionHealthBar.setValue(health, totalHealth);
+			game.minionHealthBar.setValue(health, totalHealth);
 		}
 		
 		override public function applyHealth(n:Number):void {
 			super.applyHealth(n);
-			g.minionHealthBar.setValue(health, totalHealth);
+			game.minionHealthBar.setValue(health, totalHealth);
 		}
 		
 		/* This pulls the minion to the vicinity of the player */
 		public function teleportToPlayer():void{
 			renderer.createTeleportSparkRect(collider, 20);
 			collider.divorce();
-			collider.x = -collider.width * 0.5 + g.player.collider.x + g.player.collider.width * 0.5;
-			collider.y = -collider.height + g.player.collider.y + g.player.collider.height;
+			collider.x = -collider.width * 0.5 + game.player.collider.x + game.player.collider.width * 0.5;
+			collider.y = -collider.height + game.player.collider.y + game.player.collider.height;
 			mapX = (collider.x + collider.width * 0.5) * INV_SCALE;
 			mapY = (collider.y + collider.height * 0.5) * INV_SCALE;
 			renderer.createTeleportSparkRect(collider, 20);
 			brain.clear();
-			g.soundQueue.add("teleport");
+			game.soundQueue.add("teleport");
 		}
 		
 		override public function death(cause:String = "crushing", decapitation:Boolean = false, aggressor:Character = null):void {
@@ -133,10 +132,10 @@
 			super.death(cause, decapitation);
 			if(!active){
 				Brain.playerCharacters.splice(Brain.playerCharacters.indexOf(this), 1);
-				g.minion = null;
-				g.minionHealthBar.visible = false;
-				g.menu.summonOption.active = false;
-				g.menu.update();
+				game.minion = null;
+				game.minionHealthBar.visible = false;
+				game.menu.summonOption.active = false;
+				game.menu.update();
 				minimapFX.active = false;
 			} else {
 				if(temp_weapon) equip(temp_weapon);

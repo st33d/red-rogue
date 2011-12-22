@@ -52,7 +52,7 @@ package com.robotacid.engine {
 			gfx = new mcClass();
 			super(gfx, true);
 			createCollider(victim.gfx.x, victim.gfx.y, Collider.CORPSE | Collider.SOLID, Collider.CORPSE);
-			g.world.restoreCollider(collider);
+			game.world.restoreCollider(collider);
 			callMain = true;
 		}
 		
@@ -74,7 +74,7 @@ package com.robotacid.engine {
 		
 		public function kill():void{
 			renderer.createDebrisRect(collider, 0, 20, Renderer.BLOOD);
-			g.world.removeCollider(collider);
+			game.world.removeCollider(collider);
 			active = false;
 		}
 		
@@ -129,14 +129,14 @@ package com.robotacid.engine {
 			point = new Point(mc.x + mc.blood.x, mc.y + mc.blood.y);
 			
 			for(var i:int = 0; i < 8; i++){
-				if(g.random.value() < 0.8){
+				if(game.random.value() < 0.8){
 					blit = renderer.smallDebrisBlits[Renderer.BLOOD];
 					print = renderer.smallFadeBlits[Renderer.BLOOD];
 				} else {
 					blit = renderer.bigDebrisBlits[Renderer.BLOOD];
 					print = renderer.bigFadeBlits[Renderer.BLOOD];
 				}
-				renderer.addDebris(point.x + collider.vx * collider.dampingX, point.y + 5, blit, -1 + g.random.range(2), -5 -g.random.range(5), print, true);
+				renderer.addDebris(point.x + collider.vx * collider.dampingX, point.y + 5, blit, -1 + game.random.range(2), -5 -game.random.range(5), print, true);
 			}
 			gfx.x = (collider.x + collider.width * 0.5) >> 0;
 			gfx.y = Math.round(collider.y + collider.height);

@@ -51,7 +51,7 @@ package com.robotacid.ui {
 			okayButton.addEventListener(MouseEvent.ROLL_OVER, okayOver, false, 0, true);
 			okayButton.addEventListener(MouseEvent.ROLL_OUT, okayOut, false, 0, true);
 			addEventListener(Event.ENTER_FRAME, onEnterFrame, false, 0, true);
-			Game.g.addChild(this);
+			Game.game.addChild(this);
 			Key.forceClearKeys();
 			Key.lockOut = true;
 		}

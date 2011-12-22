@@ -32,11 +32,11 @@
 		public static const BLOOD_DELAY:int = 20;
 		
 		public function Head(victim:Character, damage:Number) {
-			gfx = g.library.getCharacterHeadGfx(victim.name);
+			gfx = game.library.getCharacterHeadGfx(victim.name);
 			super(gfx, true);
 			name = victim.name;
 			createCollider(victim.gfx.x, victim.collider.y + gfx.height, Collider.HEAD | Collider.SOLID, Collider.CORPSE);
-			g.world.restoreCollider(collider);
+			game.world.restoreCollider(collider);
 			if(victim.dir & RIGHT){
 				collider.vx -= INIT_V;
 			} else if(victim.dir & LEFT){
@@ -63,14 +63,14 @@
 				if(bloodCount > 0){
 					bloodCount--;
 					var blit:BlitRect, print:BlitRect;
-					if(g.random.value() < 0.5){
+					if(game.random.value() < 0.5){
 						blit = renderer.smallDebrisBlits[Renderer.BLOOD];
 						print = renderer.smallFadeBlits[Renderer.BLOOD];
 					} else {
 						blit = renderer.bigDebrisBlits[Renderer.BLOOD];
 						print = renderer.bigFadeBlits[Renderer.BLOOD];
 					}
-					renderer.addDebris(collider.x + collider.width * 0.5, collider.y + collider.height, blit, -1 + collider.vx + g.random.value(), -g.random.value(), print, true);
+					renderer.addDebris(collider.x + collider.width * 0.5, collider.y + collider.height, blit, -1 + collider.vx + game.random.value(), -game.random.value(), print, true);
 				}
 			}
 			soccerCheck();
@@ -94,10 +94,10 @@
 		
 		public function kill():void{
 			// create face armour and drop to the map
-			var face:Face = new Face(g.library.getCharacterHeadGfx(name), name);
+			var face:Face = new Face(game.library.getCharacterHeadGfx(name), name);
 			face.dropToMap(mapX, mapY);
 			renderer.createDebrisRect(collider, 0, 10, Renderer.BLOOD);
-			g.world.removeCollider(collider);
+			game.world.removeCollider(collider);
 			active = false;
 		}
 		

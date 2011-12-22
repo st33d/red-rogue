@@ -82,6 +82,7 @@
 		public static const MONSTER:int = 1 << 1;
 		public static const MINION:int = 1 << 2;
 		public static const STONE:int = 1 << 3;
+		public static const NON_PLAYER_CHARACTER:int = 1 << 4;
 		
 		// character names
 		public static const ROGUE:int = 0;
@@ -260,16 +261,16 @@
 			// and making them invisible will help the lighting engine conceal their presence.
 			// however - if they are moving, they may "pop" in and out of darkness, so we check around them
 			// for light
-			if(light || g.dungeon.type == Map.AREA) inTheDark = false;
+			if(light || game.dungeon.type == Map.AREA) inTheDark = false;
 			else{
 				if(dir == 0){
-					if(g.lightMap.darkImage.getPixel32(mapX, mapY) != 0xFF000000) inTheDark = false;
+					if(game.lightMap.darkImage.getPixel32(mapX, mapY) != 0xFF000000) inTheDark = false;
 					else inTheDark = true;
 				} else if(dir & (RIGHT | LEFT)){
-					if(g.lightMap.darkImage.getPixel32(mapX, mapY) != 0xFF000000 || g.lightMap.darkImage.getPixel32(mapX + 1, mapY) != 0xFF000000 || g.lightMap.darkImage.getPixel32(mapX - 1, mapY) != 0xFF000000) inTheDark = false;
+					if(game.lightMap.darkImage.getPixel32(mapX, mapY) != 0xFF000000 || game.lightMap.darkImage.getPixel32(mapX + 1, mapY) != 0xFF000000 || game.lightMap.darkImage.getPixel32(mapX - 1, mapY) != 0xFF000000) inTheDark = false;
 					else inTheDark = true;
 				} else if(dir & (UP | DOWN)){
-					if(g.lightMap.darkImage.getPixel32(mapX, mapY) != 0xFF000000 || g.lightMap.darkImage.getPixel32(mapX, mapY + 1) != 0xFF000000 || g.lightMap.darkImage.getPixel32(mapX, mapY - 1) != 0xFF000000) inTheDark = false;
+					if(game.lightMap.darkImage.getPixel32(mapX, mapY) != 0xFF000000 || game.lightMap.darkImage.getPixel32(mapX, mapY + 1) != 0xFF000000 || game.lightMap.darkImage.getPixel32(mapX, mapY - 1) != 0xFF000000) inTheDark = false;
 					else inTheDark = true;
 				}
 			}
@@ -277,8 +278,8 @@
 			// set visibility - account for player infravision and changes to their infravision
 			// this is handled here instead of at the rendering stage to save us the cost of the method call
 			// to get into the rendering method
-			gfx.visible = !inTheDark || (g.player.infravision);
-			var targetInfravisionRenderState:int = !inTheDark ? 0 : g.player.infravision;
+			gfx.visible = !inTheDark || (game.player.infravision);
+			var targetInfravisionRenderState:int = !inTheDark ? 0 : game.player.infravision;
 			if(infravisionRenderState != targetInfravisionRenderState){
 				gfx.transform.colorTransform = INFRAVISION_COLS[targetInfravisionRenderState];
 				infravisionRenderState = targetInfravisionRenderState;
@@ -382,9 +383,9 @@
 									} else if(dir & LEFT){
 										renderer.createDebrisSpurt(p.x >= target.collider.x + target.collider.width ? p.x : target.collider.x + target.collider.width, p.y, 2, 8, target.debrisType);
 									}
-									g.soundQueue.add("hit");
+									game.soundQueue.add("hit");
 								} else {
-									g.soundQueue.add("miss");
+									game.soundQueue.add("miss");
 								}
 								if(state != QUICKENING) state = LUNGING;
 							}
@@ -442,23 +443,23 @@
 					node = null;
 					if(type == MINION || type == PLAYER){
 						if(Brain.monsterCharacters.length){
-							node = Brain.monsterCharacters[g.random.rangeInt(Brain.monsterCharacters.length)];
+							node = Brain.monsterCharacters[game.random.rangeInt(Brain.monsterCharacters.length)];
 						}
 					} else if(type == MONSTER){
 						if(Brain.playerCharacters.length){
-							node = Brain.playerCharacters[g.random.rangeInt(Brain.playerCharacters.length)];
+							node = Brain.playerCharacters[game.random.rangeInt(Brain.playerCharacters.length)];
 						}
 					}
 					if(!node || !node.active || node.collider.x + node.collider.width * 0.5 < collider.x + collider.width * 0.5){
 						node = null;
-						tx = g.mapTileManager.width * SCALE;
-						ty = g.random.range(g.mapTileManager.height) * SCALE;
+						tx = game.mapTileManager.width * SCALE;
+						ty = game.random.range(game.mapTileManager.height) * SCALE;
 					} else {
 						tx = node.collider.x + node.collider.width * 0.5;
 						ty = node.collider.y + node.collider.height * 0.5;
 					}
-					if(g.lightning.strike(renderer.lightningShape.graphics, g.world.map, p.x, p.y, tx, ty) && node && enemy(node.collider.userData)){
-						node.applyDamage(g.random.value(), "quickening");
+					if(game.lightning.strike(renderer.lightningShape.graphics, game.world.map, p.x, p.y, tx, ty) && node && enemy(node.collider.userData)){
+						node.applyDamage(game.random.value(), "quickening");
 						renderer.createDebrisSpurt(tx, ty, 5, 5, node.debrisType);
 					}
 					// lightning from the left hand
@@ -467,42 +468,42 @@
 					node = null;
 					if(type == MINION || type == PLAYER){
 						if(Brain.monsterCharacters.length){
-							node = Brain.monsterCharacters[g.random.rangeInt(Brain.monsterCharacters.length)];
+							node = Brain.monsterCharacters[game.random.rangeInt(Brain.monsterCharacters.length)];
 						}
 					} else if(type == MONSTER){
 						if(Brain.playerCharacters.length){
-							node = Brain.playerCharacters[g.random.rangeInt(Brain.playerCharacters.length)];
+							node = Brain.playerCharacters[game.random.rangeInt(Brain.playerCharacters.length)];
 						}
 					}
 					if(!node || !node.active || node.collider.x + node.collider.width * 0.5 > collider.x + collider.width * 0.5){
 						node = null;
 						tx = 0;
-						ty = g.random.range(g.mapTileManager.height) * SCALE;
+						ty = game.random.range(game.mapTileManager.height) * SCALE;
 					} else {
 						tx = node.collider.x + node.collider.width * 0.5;
 						ty = node.collider.y + node.collider.height * 0.5;
 					}
-					if(g.lightning.strike(renderer.lightningShape.graphics, g.world.map, p.x, p.y, tx, ty) && node && enemy(node.collider.userData)){
-						node.applyDamage(g.random.value(), "quickening");
+					if(game.lightning.strike(renderer.lightningShape.graphics, game.world.map, p.x, p.y, tx, ty) && node && enemy(node.collider.userData)){
+						node.applyDamage(game.random.value(), "quickening");
 						renderer.createDebrisSpurt(tx, ty, -5, 5, node.debrisType);
 					}
 				}
 				if(quickeningCount-- <= 0){
 					state = WALKING;
 					gfx.transform.colorTransform = new ColorTransform();
-					if(this is Player) g.console.print("welcome to level " + level + " " + nameToString());
+					if(this is Player) game.console.print("welcome to level " + level + " " + nameToString());
 				}
 			} else if(state == ENTERING){
 				moving = true;
 				if(portal.type == Portal.STAIRS){
-					if(portal.targetLevel < g.dungeon.level){
+					if(portal.targetLevel < game.dungeon.level){
 						if(moveCount){
 							if(dir == RIGHT) gfx.x += STAIRS_SPEED;
 							else if(dir == LEFT) gfx.x -= STAIRS_SPEED;
 							gfx.y += STAIRS_SPEED;
 						}
 						if(gfx.y >= (portal.mapY + 1) * Game.SCALE) portal = null;
-					} else if(portal.targetLevel > g.dungeon.level){
+					} else if(portal.targetLevel > game.dungeon.level){
 						if(moveCount){
 							if(dir == RIGHT) gfx.x += STAIRS_SPEED;
 							else if(dir == LEFT) gfx.x -= STAIRS_SPEED;
@@ -521,12 +522,12 @@
 					}
 				}
 				if(!portal){
-					g.world.restoreCollider(collider);
+					game.world.restoreCollider(collider);
 					collider.state = Collider.FALL;
 					state = WALKING;
 				}
 			}
-			//trace(g.blockMap[((rect.y + rect.height - 1) * INV_SCALE) >> 0][mapX] & Block.LADDER);
+			//trace(game.blockMap[((rect.y + rect.height - 1) * INV_SCALE) >> 0][mapX] & Block.LADDER);
 			//trace(mapX);
 			
 			if(attackCount < 1){
@@ -559,10 +560,10 @@
 				var head:Head = new Head(this, totalHealth * 0.5);
 				var corpse:Corpse = new Corpse(this);
 			}
-			g.console.print(stats["names"][name] + " " + method + " by " + cause);
+			game.console.print(stats["names"][name] + " " + method + " by " + cause);
 			renderer.shake(0, 3);
-			g.soundQueue.add("kill");
-			if(type == MONSTER) g.player.addXP(xpReward);
+			game.soundQueue.add("kill");
+			if(type == MONSTER) game.player.addXP(xpReward);
 			if(effects) removeEffects();
 			if(!active && collider.world) collider.world.removeCollider(collider);
 		}
@@ -576,9 +577,9 @@
 				gfx.x = (portal.mapX + 0.5) * Game.SCALE + PORTAL_DISTANCE;
 			}
 			if(portal.type == Portal.STAIRS){
-				if(portal.targetLevel > g.dungeon.level){
+				if(portal.targetLevel > game.dungeon.level){
 					gfx.y = (portal.mapY + 1) * Game.SCALE + PORTAL_DISTANCE;
-				} else if(portal.targetLevel < g.dungeon.level){
+				} else if(portal.targetLevel < game.dungeon.level){
 					gfx.y = (portal.mapY + 1) * Game.SCALE - PORTAL_DISTANCE;
 				}
 			} else {
@@ -621,7 +622,7 @@
 		 * shit if I'm in a pinch */
 		public function canClimb():Boolean{
 			return ((mapProperties & Collider.LADDER) ||
-			(g.world.map[((collider.y + collider.height + Collider.INTERVAL_TOLERANCE) * INV_SCALE) >> 0][mapX] & Collider.LADDER)) &&
+			(game.world.map[((collider.y + collider.height + Collider.INTERVAL_TOLERANCE) * INV_SCALE) >> 0][mapX] & Collider.LADDER)) &&
 			collider.x + collider.width >= LADDER_LEFT + mapX * SCALE &&
 			collider.x <= LADDER_RIGHT + mapX * SCALE;
 		}
@@ -719,7 +720,7 @@
 		public function hit(character:Character, range:int):int{
 			if(indifferent) return MISS;
 			attackCount = 0;
-			var attackRoll:Number = g.random.value();
+			var attackRoll:Number = game.random.value();
 			if(attackRoll >= CRITICAL_HIT)
 				return CRITICAL | STUN;
 			else if(attackRoll <= CRITICAL_MISS)
@@ -728,7 +729,7 @@
 				// stun roll
 				var enduranceDamping:Number = 1.0 - (character.endurance + (character.armour ? character.armour.endurance : 0));
 				var stunCheck:Number = (stun + (weapon && (weapon.range & range) ? weapon.stun : 0)) * enduranceDamping;
-				if(stunCheck && g.random.value() <= stunCheck) return HIT | STUN;
+				if(stunCheck && game.random.value() <= stunCheck) return HIT | STUN;
 				return HIT;
 			}
 				
@@ -757,7 +758,7 @@
 					item = weapon;
 				} else if(weapon.range & Item.THROWN){
 					item = unequip(weapon);
-					item = g.menu.inventoryList.removeItem(item);
+					item = game.menu.inventoryList.removeItem(item);
 					item.location = Item.FLIGHT;
 					missileMc = item.gfx;
 				}
@@ -765,9 +766,9 @@
 				missileMc = new ThrownRuneMC();
 			}
 			if(type == Missile.ITEM) {
-				g.soundQueue.add("bowShoot");
+				game.soundQueue.add("bowShoot");
 			} else if (type == Missile.RUNE){
-				g.soundQueue.add("throw");
+				game.soundQueue.add("throw");
 			}
 			missileMc.scaleX = (looking & RIGHT) ? 1 : -1;
 			var missile:Missile = new Missile(missileMc, collider.x + collider.width * 0.5, collider.y + collider.height * 0.5, type, this, (looking & RIGHT) ? 1 : -1, 0, 5, missileIgnore, effect, item);
@@ -835,7 +836,7 @@
 			// change gfx
 			this.name = name;
 			if(!gfx){
-				this.gfx = gfx = g.library.getCharacterGfx(name);
+				this.gfx = gfx = game.library.getCharacterGfx(name);
 			} else{
 				this.gfx = gfx;
 			}
@@ -847,7 +848,7 @@
 				restore = true;
 			}
 			createCollider(collider.x + collider.width * 0.5, collider.y + collider.height, collider.properties, collider.ignoreProperties, Collider.FALL);
-			if(restore) g.world.restoreCollider(collider);
+			if(restore) game.world.restoreCollider(collider);
 			
 			// change stats - items will be equipped to the new graphic in the setStats method
 			var originalHealthRatio:Number = health / totalHealth;
@@ -902,7 +903,7 @@
 				if(!moving) moveCount = 0;
 				else {
 					if(stepNoise && moving && moveCount == 0 && moveFrame == 0){
-						g.soundQueue.add("step");
+						game.soundQueue.add("step");
 					}
 					moveCount = (moveCount + 1) % MOVE_DELAY;
 					// flip between climb frames as we move
@@ -988,7 +989,7 @@
 					if(state == STUNNED){
 						renderer.stunBlit.x = -renderer.bitmap.x + gfx.x;
 						renderer.stunBlit.y = -renderer.bitmap.y + gfx.y - (collider.height + 2);
-						renderer.stunBlit.render(renderer.bitmapData, g.frameCount % renderer.stunBlit.totalFrames);
+						renderer.stunBlit.render(renderer.bitmapData, game.frameCount % renderer.stunBlit.totalFrames);
 					}
 				}
 			}
