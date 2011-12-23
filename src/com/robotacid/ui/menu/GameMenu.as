@@ -38,6 +38,7 @@
 		public var creditsList:MenuList;
 		
 		public var giveItemList:GiveItemMenuList;
+		public var raceList:MenuList;
 		public var sureList:MenuList;
 		public var soundList:MenuList;
 		public var menuMoveList:MenuList;
@@ -54,6 +55,8 @@
 		public var screenshotOption:MenuOption;
 		
 		public var giveItemOption:MenuOption;
+		public var changeRogueRaceOption:MenuOption;
+		public var changeMinionRaceOption:MenuOption;
 		public var loadOption:MenuOption;
 		public var saveOption:MenuOption;
 		public var newGameOption:MenuOption;
@@ -75,6 +78,8 @@
 		 * as possible, so it will end up being quite long.
 		 */
 		public function init():void{
+			var i:int;
+			
 			// MENU LISTS
 			
 			var trunk:MenuList = new MenuList();
@@ -86,6 +91,7 @@
 			creditsList = new MenuList();
 			
 			giveItemList = new GiveItemMenuList(this, game);
+			raceList = new MenuList();
 			soundList = new MenuList();
 			menuMoveList = new MenuList(Vector.<MenuOption>([
 				new MenuOption("1", null, false),
@@ -118,6 +124,13 @@
 			giveItemOption = new MenuOption("give item", giveItemList);
 			giveItemOption.help = "put a custom item in the player's inventory";
 			giveItemOption.recordable = false;
+			
+			changeRogueRaceOption = new MenuOption("change rogue race", raceList);
+			changeRogueRaceOption.help = "change the current race of the rogue";
+			changeRogueRaceOption.recordable = false;
+			changeMinionRaceOption = new MenuOption("change minion race", raceList);
+			changeMinionRaceOption.help = "change the current race of the minion";
+			changeMinionRaceOption.recordable = false;
 			
 			initChangeKeysMenuOption();
 			changeKeysOption.help = "change the movement keys, menu key and hot keys"
@@ -187,6 +200,12 @@
 			actionsList.options.push(missileOption);
 			
 			debugList.options.push(giveItemOption);
+			debugList.options.push(changeRogueRaceOption);
+			debugList.options.push(changeMinionRaceOption);
+			
+			for(i = 0; i < Character.stats["names"].length; i++){
+				raceList.options.push(new MenuOption(Character.stats["names"][i]));
+			}
 			
 			creditsList.options.push(steedOption);
 			creditsList.options.push(nateOption);
@@ -229,7 +248,7 @@
 				  <branch selection="1" name="summon" context="null"/>
 				</hotKey>
 			];
-			var i:int, hotKeyMap:HotKeyMap;
+			var hotKeyMap:HotKeyMap;
 			for(i = 0; i < defaultHotKeyXML.length; i++){
 				hotKeyMap = new HotKeyMap(i, this);
 				hotKeyMap.init(defaultHotKeyXML[i]);
@@ -536,7 +555,24 @@
 				
 			} else if(option == nateOption){
 				navigateToURL(new URLRequest("http://icefishingep.tk"), "_blank");
+				
+			// changing race
+			} else if(currentMenuList == raceList){
+				if(previousMenuList.options[previousMenuList.selection] == changeRogueRaceOption){
+					if(game.player.armour && game.player.armour.name == Item.FACE) game.player.unequip(game.player.armour);
+					game.player.changeName(currentMenuList.selection);
+					game.console.print("changed rogue to " + game.player.nameToString());
+				} else if(previousMenuList.options[previousMenuList.selection] == changeMinionRaceOption){
+					if(!game.minion){
+						game.console.print("resurrect the minion with the undead rune applied to a monster before using this option");
+					} else {
+						if(game.minion.armour && game.minion.armour.name == Item.FACE) game.minion.unequip(game.minion.armour);
+						game.minion.changeName(currentMenuList.selection);
+						game.console.print("changed minion to " + game.minion.nameToString());
+					}
+				}
 			}
+			
 			
 		}
 		/* In the event of player death, we need to change the menu to deactivate the inventory,

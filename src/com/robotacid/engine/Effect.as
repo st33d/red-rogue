@@ -115,6 +115,17 @@
 						healthStep = targetTotalHealth / (2 * DECAY_DELAY_PER_LEVEL * (1 + Game.MAX_LEVEL - level));
 					}
 				}
+			} else if(name == UNDEAD){
+				// we get here because the effect is applied actively to undead characters
+				if(source == ARMOUR){
+					target.applyHealth(healthStep);
+					// track the target's totalHealth, so when they level up we boost the heal
+					if(targetTotalHealth != target.totalHealth){
+						targetTotalHealth = target.totalHealth;
+						healthStep = targetTotalHealth / (2 * DECAY_DELAY_PER_LEVEL * (1 + Game.MAX_LEVEL - level));
+					}
+				}
+				
 			} else if(name == POISON){
 				if(count){
 					count--;
@@ -341,6 +352,29 @@
 				}
 				callMain = true;
 				
+			} else if(name == UNDEAD){
+				// if the target is undead, the effect acts like an instant heal rune
+				if(target.undead){
+					if(source == WEAPON || source == THROWN || source == EATEN){
+						target.applyHealth((target.totalHealth / Game.MAX_LEVEL) * level);
+						return;
+						
+					} else if(source == ARMOUR){
+						targetTotalHealth = target.totalHealth;
+						healthStep = targetTotalHealth / (2 * DECAY_DELAY_PER_LEVEL * (1 + Game.MAX_LEVEL - level));
+					}
+					callMain = true;
+				}
+				if(source == WEAPON || source == EATEN || source == THROWN){
+					healthStep = (target.totalHealth * 2) / (1 + Game.MAX_LEVEL - level);
+					healthStep /= (DECAY_DELAY_PER_LEVEL * 2);
+					this.count = count > 0 ? count : DECAY_DELAY_PER_LEVEL * 2;
+				} else if(source == ARMOUR){
+					targetTotalHealth = target.totalHealth;
+					healthStep = targetTotalHealth / (2 * DECAY_DELAY_PER_LEVEL * (1 + Game.MAX_LEVEL - level));
+				}
+				callMain = true;
+				
 			} else if(name == TELEPORT){
 				// teleport enchanted armour will randomly hop the wearer around the map, the stronger
 				// the effect, the more frequent the jumps
@@ -459,28 +493,35 @@
 				game.lightMap.setLight(target, target.light - radius, target is Player ? 255 : 150);
 			} else if(name == UNDEAD){
 				// this rune's effect comes in to play when the target is killed and is not undead
-				if(!target.active && !buffer && !target.undead){
+				// face armour complicates this a little
+				var living:Boolean = true;
+				if(target.armour){
+					if(target.armour.name == Item.FACE && Character.stats["undeads"][(target.armour as Face).previousName] == 1) living = false;
+				} else if(target.undead){
+					living = false;
+				}
+				if(!target.active && !buffer && living){
 					if(game.random.value() < 0.05 * level){
 						var mc:MovieClip;
-						if(source == THROWN || source == WEAPON){
-							// replenish the health of an exisiting minion
-							if(game.minion){
-								game.minion.applyHealth(game.minion.totalHealth);
-								game.console.print("minion is repaired");
-								renderer.createTeleportSparkRect(game.minion.collider, 20);
-							} else {
-								mc = new SkeletonMC();
-								game.minion = new Minion(mc, target.collider.x + target.collider.width * 0.5, target.collider.y + target.collider.height, Character.SKELETON);
-								game.world.restoreCollider(game.minion.collider);
-								game.minion.collider.state = Collider.FALL;
-								game.minion.state = Character.WALKING;
-								game.console.print("undead minion summoned");
-							}
-						} else if(source == ARMOUR || source == EATEN){
+						// resurrect the player or the minion as a skeleton
+						if(target == game.player || target == game.minion){
 							target.active = true;
 							target.applyHealth(target.totalHealth);
 							game.console.print(target.nameToString()+" returns as undead");
 							target.changeName(Character.SKELETON);
+						
+						} else {
+							// replenish the health of the minion
+							if(game.minion){
+								game.minion.applyHealth(game.minion.totalHealth);
+								game.console.print("the minion is healed by this sacrifice");
+								renderer.createTeleportSparkRect(game.minion.collider, 20);
+							
+							// or open the underworld portal here if the minion had been destroyed
+							} else {
+								var portal:Portal = Portal.createPortal(Portal.UNDERWORLD, target.mapX, target.mapY, Map.UNDERWORLD);
+								game.console.print("the underworld portal is opened by this sacrifice");
+							}
 						}
 					}
 				}

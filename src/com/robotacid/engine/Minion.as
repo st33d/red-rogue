@@ -42,6 +42,7 @@
 			Brain.playerCharacters.push(this);
 			
 			game.minionHealthBar.visible = true;
+			game.minionHealthBar.setValue(health, totalHealth);
 			game.menu.summonOption.active = true;
 			game.menu.update();
 			

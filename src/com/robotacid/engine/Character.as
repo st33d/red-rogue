@@ -245,8 +245,14 @@
 		}
 		
 		override public function createCollider(x:Number, y:Number, properties:int, ignoreProperties:int, state:int = 0, positionByBase:Boolean = true):void {
-			super.createCollider(x, y, properties, ignoreProperties, state, positionByBase);
-			collider.crushCallback = death;
+			// characters are thinner than their graphics, so we have to read their widths from the stats
+			var bounds:Rectangle = gfx.getBounds(gfx);
+			var w:Number = stats["widths"][name];
+			collider = new Collider(x - w * 0.5, y - bounds.height, w, bounds.height, Game.SCALE, properties, ignoreProperties, state);
+			collider.userData = this;
+			mapX = (collider.x + collider.width * 0.5) * Game.INV_SCALE;
+			mapY = (collider.y + collider.height * 0.5) * Game.INV_SCALE;
+			
 			if(!(type & STONE)){
 				collider.stompCallback = stompCallback;
 			}
