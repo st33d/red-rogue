@@ -2,6 +2,7 @@
 	import com.robotacid.dungeon.Map;
 	import com.robotacid.engine.Character;
 	import com.robotacid.engine.Effect;
+	import com.robotacid.engine.Face;
 	import com.robotacid.engine.Item;
 	import com.robotacid.engine.Missile;
 	import com.robotacid.engine.Player;
@@ -504,7 +505,7 @@
 			} else if(previousMenuList.options[previousMenuList.selection] == inventoryList.enchantOption){
 				item = option.userData;
 				var rune:Item = inventoryList.options[inventoryList.selection].userData;
-				effect = new Effect(rune.name, 1, 1);
+				effect = new Effect(rune.name, 1);
 				
 				Item.revealName(rune.name, inventoryList);
 				game.console.print(item.nameToString() + " enchanted with " + rune.nameToString());
@@ -559,16 +560,24 @@
 			// changing race
 			} else if(currentMenuList == raceList){
 				if(previousMenuList.options[previousMenuList.selection] == changeRogueRaceOption){
-					if(game.player.armour && game.player.armour.name == Item.FACE) game.player.unequip(game.player.armour);
-					game.player.changeName(currentMenuList.selection);
-					game.console.print("changed rogue to " + game.player.nameToString());
+					if(game.player.armour && game.player.armour.name == Item.FACE){
+						(game.player.armour as Face).previousName = currentMenuList.selection;
+						game.console.print("changed rogue to " + Character.stats["names"][name]);
+					} else {
+						game.player.changeName(currentMenuList.selection);
+						game.console.print("changed rogue to " + game.player.nameToString());
+					}
 				} else if(previousMenuList.options[previousMenuList.selection] == changeMinionRaceOption){
 					if(!game.minion){
 						game.console.print("resurrect the minion with the undead rune applied to a monster before using this option");
 					} else {
-						if(game.minion.armour && game.minion.armour.name == Item.FACE) game.minion.unequip(game.minion.armour);
-						game.minion.changeName(currentMenuList.selection);
-						game.console.print("changed minion to " + game.minion.nameToString());
+						if(game.minion.armour && game.minion.armour.name == Item.FACE){
+							(game.minion.armour as Face).previousName = currentMenuList.selection;
+							game.console.print("changed minion to " + Character.stats["names"][name]);
+						} else {
+							game.minion.changeName(currentMenuList.selection);
+							game.console.print("changed minion to " + game.minion.nameToString());
+						}
 					}
 				}
 			}

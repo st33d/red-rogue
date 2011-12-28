@@ -33,6 +33,7 @@
 		public var weapon:Item;
 		public var armour:Item;
 		public var brain:Brain;
+		public var racialEffect:Effect;
 		
 		// states
 		public var level:int;
@@ -74,6 +75,7 @@
 		public var thorns:Number;
 		public var indifferent:Boolean;
 		public var losBorder:Number;
+		public var specialAttack:Boolean;
 		
 		private var hitResult:int;
 		
@@ -149,6 +151,7 @@
 		public static const QUICKENING_DELAY:int = 90;
 		public static const STUN_DECAY:Number = 1.0 / 90; // The denominator is maximum duration of stun in frames
 		public static const KNOCKBACK_DIST:Number = 16;
+		public static const SPECIAL_ATTACK_PER_LEVEL:Number = 1.0 / 40;
 		
 		public static const DEFAULT_COL:ColorTransform = new ColorTransform();
 		public static const INFRAVISION_COLS:Vector.<ColorTransform> = Vector.<ColorTransform>([DEFAULT_COL, new ColorTransform(1, 0, 0, 1, 255), new ColorTransform(1, 0.7, 0.7, 1, 50)]);
@@ -237,6 +240,23 @@
 				}
 			}
 			
+			if(name == TROLL){
+				racialEffect = new Effect(Effect.HEAL, level, Effect.ARMOUR, this, 0, true);
+			} else {
+				racialEffect = null;
+			}
+			
+			specialAttack =
+				name == NYMPH ||
+				name == WEREWOLF ||
+				name == MIMIC ||
+				name == NAGA ||
+				name == MEDUSA ||
+				name == UMBER_HULK ||
+				name == BANSHEE ||
+				name == MIND_FLAYER ||
+				name == RAKSHASA;
+			
 			indifferent = false;
 			
 			// re-equip
@@ -262,6 +282,11 @@
 			
 			move();
 			if(!active) return;
+			
+			// any passive effects a race enjoys are updated with the racialEffect object
+			if(racialEffect){
+				racialEffect.main();
+			}
 			
 			// lighting check - if the monster is in total darkness, we need not tend to their animation
 			// and making them invisible will help the lighting engine conceal their presence.
@@ -351,6 +376,7 @@
 									if(weapon && weapon.effects && target.active && !(target.type & STONE)){
 										target.applyWeaponEffects(weapon);
 									}
+									if(specialAttack && target.active && (!(target.type & STONE) || name == NYMPH)) racialAttack(target);
 									var meleeWeapon:Boolean = Boolean(weapon && (weapon.range & Item.MELEE));
 									// knockback
 									var enduranceDamping:Number = 1.0 - (target.endurance + (target.armour ? target.armour.endurance : 0));
@@ -390,6 +416,7 @@
 										renderer.createDebrisSpurt(p.x >= target.collider.x + target.collider.width ? p.x : target.collider.x + target.collider.width, p.y, 2, 8, target.debrisType);
 									}
 									game.soundQueue.add("hit");
+									
 								} else {
 									game.soundQueue.add("miss");
 								}
@@ -836,6 +863,78 @@
 			}
 		}
 		
+		/* Some races have a special attack as their racial ability, this method is executed during a successful melee strike */
+		public function racialAttack(target:Character):void{
+			
+			// racial attacks require a roll to see if they are executed (level based with racial modifiers)
+			var roll:Number = game.random.value();
+			if(name == NYMPH) roll *= 1.5;
+			else if(name == MIND_FLAYER) roll *= 0.5;
+			if(roll > level * SPECIAL_ATTACK_PER_LEVEL) return;
+			
+			var effect:Effect;
+			
+			// steal attack
+			if(name == NYMPH){
+				var item:Item;
+				if(target.weapon){
+					item = target.weapon;
+				} else if(target.armour){
+					item = target.armour;
+				}
+				if(item){
+					var user:Character = item.user;
+					item = target.unequip(item);
+					if(user == game.player || user == game.minion){
+						item = game.menu.inventoryList.removeItem(item);
+					}
+					target.dropItem(item);
+					item.collect(this, false);
+					game.console.print(nameToString() + " stole " + item.nameToString());
+				}
+				
+			// polymorph target into a werewolf
+			} else if(name == WEREWOLF){
+				game.console.print(target.nameToString() + " falls to the werewolf curse");
+				target.changeName(WEREWOLF);
+			
+			// polymorph into target
+			} else if(name == MIMIC){
+				changeName(target.name);
+				
+			// poison attack
+			} else if(name == NAGA){
+				effect = new Effect(Effect.POISON, level, Effect.THROWN, target);
+				
+			// stun attack
+			} else if(name == MEDUSA){
+				effect = new Effect(Effect.STUPEFY, level, Effect.THROWN, target);
+				
+			// confuse attack
+			} else if(name == UMBER_HULK){
+				
+			// fear attack
+			} else if(name == BANSHEE){
+				
+			// level drain attack
+			} else if(name == MIND_FLAYER){
+				if(target.level > 1){
+					target.level--;
+					target.setStats();
+					game.console.print(nameToString() + " drains a level from " + target.nameToString());
+					if(this == game.player) game.player.addXP(target.level + 1);
+					if(target == game.player){
+						// update the player's experience bar
+						game.player.addXP(0);
+					}
+				}
+				
+			// chaos attack
+			} else if(name == RAKSHASA){
+				
+			}
+		}
+		
 		public function changeName(name:int, gfx:MovieClip = null):void{
 			if(this.name == name && !gfx) return;
 			
@@ -854,7 +953,10 @@
 				restore = true;
 			}
 			createCollider(collider.x + collider.width * 0.5, collider.y + collider.height, collider.properties, collider.ignoreProperties, Collider.FALL);
-			if(restore) game.world.restoreCollider(collider);
+			if(restore){
+				game.world.restoreCollider(collider);
+				collider.resolveMapInsertion();
+			}
 			
 			// change stats - items will be equipped to the new graphic in the setStats method
 			var originalHealthRatio:Number = health / totalHealth;

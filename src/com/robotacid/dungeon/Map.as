@@ -12,6 +12,7 @@
 	import com.robotacid.engine.Stone;
 	import com.robotacid.engine.Trap;
 	import com.robotacid.geom.Pixel;
+	import com.robotacid.gfx.BlitSprite;
 	import com.robotacid.gfx.Renderer;
 	import com.robotacid.phys.Collider;
 	import com.robotacid.util.array.randomiseArray;
@@ -640,9 +641,9 @@
 			// the compiler won't let me create this as a constant so I have to drop it in here
 			// better than resorting to magic numbers I suppose
 			var ZONE_CRITTERS:Array = [
-				[MapTileConverter.SPIDER, MapTileConverter.SPIDER, MapTileConverter.SPIDER, MapTileConverter.BAT, MapTileConverter.RAT],
-				[MapTileConverter.RAT, MapTileConverter.RAT, MapTileConverter.RAT, MapTileConverter.BAT, MapTileConverter.SPIDER],
-				[MapTileConverter.BAT, MapTileConverter.BAT, MapTileConverter.BAT, MapTileConverter.RAT, MapTileConverter.SPIDER],
+				[MapTileConverter.SPIDER, MapTileConverter.SPIDER, MapTileConverter.SPIDER, MapTileConverter.SPIDER, MapTileConverter.BAT, MapTileConverter.RAT],
+				[MapTileConverter.RAT, MapTileConverter.RAT, MapTileConverter.RAT, MapTileConverter.RAT, MapTileConverter.BAT, MapTileConverter.SPIDER],
+				[MapTileConverter.BAT, MapTileConverter.BAT, MapTileConverter.BAT, MapTileConverter.BAT, MapTileConverter.RAT, MapTileConverter.SPIDER],
 				[MapTileConverter.COG, MapTileConverter.COG, MapTileConverter.COG, MapTileConverter.RAT, MapTileConverter.SPIDER, MapTileConverter.BAT]
 			];
 			
@@ -873,58 +874,146 @@
 						bitmapData.copyPixels(source, source.rect, point);
 					}
 				}
-				createPipes();
+				if(zone == SEWERS || zone == CHAOS) createPipes(bitmapData);
 			}
 			renderer.backgroundBitmapData = bitmapData;
 		}
 		
-		/* Create a maze of pipes in the background */
-		public function createPipes():void{
-			// create a number of pipe journeys
-			var pipeAgent:Pixel;
-			var i:int, dir:int, turnDelay:int;
-			var canvas:BitmapData = new BitmapData(width, height, true, DungeonBitmap.EMPTY);
-			for(i = 0; i < 10; i++){
-				dir = 1 << game.random.rangeInt(4);
-				turnDelay = game.random.range(5) + 5;
-				if(dir == Collider.UP) pipeAgent = new Pixel(game.random.range(width), height - 1);
-				else if(dir == Collider.RIGHT) pipeAgent = new Pixel(0, game.random.range(height));
-				else if(dir == Collider.DOWN) pipeAgent = new Pixel(game.random.range(width), 0);
-				else if(dir == Collider.LEFT) pipeAgent = new Pixel(width - 1, game.random.range(height));
-				do{
-					canvas.setPixel32(pipeAgent.x, pipeAgent.y, DungeonBitmap.WALL);
-					if(dir == Collider.UP) pipeAgent.y--;
-					else if(dir == Collider.RIGHT) pipeAgent.x++;
-					else if(dir == Collider.DOWN) pipeAgent.y++;
-					else if(dir == Collider.LEFT) pipeAgent.x--;
-					if(turnDelay-- <= 0){
-						turnDelay = game.random.range(5) + 5;
-						if(dir & (Collider.LEFT | Collider.RIGHT)) dir = game.random.value() < 0.5 ? Collider.UP : Collider.DOWN;
-						else if(dir & (Collider.UP | Collider.DOWN)) dir = game.random.value() < 0.5 ? Collider.RIGHT : Collider.LEFT;
-					}
-				} while(
-					canvas.getPixel32(pipeAgent.x, pipeAgent.y) == DungeonBitmap.EMPTY &&
-					pipeAgent.x < width && pipeAgent.x >= 0 &&
-					pipeAgent.y < height && pipeAgent.y >= 0
-				);
+		/* Create a maze of pipes on the background tiled image */
+		public function createPipes(bitmapData:BitmapData):void{
+			var pipeMap:Vector.<Vector.<int>> = new Vector.<Vector.<int>>();
+			var r:int, c:int, x:int, y:int;
+			for(r = 0; r < BACKGROUND_WIDTH; r++){
+				pipeMap[r] = new Vector.<int>();
+				for(c = 0; c < BACKGROUND_HEIGHT; c++){
+					pipeMap[r][c] = 0;
+				}
 			}
-			var pixels:Vector.<uint> = canvas.getVector(canvas.rect);
-			var r:int, c:int;
-			for(i = width; i < pixels.length - width; i++){
-				if(pixels[i] == DungeonBitmap.WALL){
-					dir = 0;
-					c = i % width;
-					r = i / width;
-					if(c == 0 || pixels[i - 1] == DungeonBitmap.WALL) dir |= Collider.LEFT;
-					if(c == width - 1 || pixels[i + 1] == DungeonBitmap.WALL) dir |= Collider.RIGHT;
-					if(r == 0 || pixels[i - width] == DungeonBitmap.WALL) dir |= Collider.UP;
-					if(r == height - 1 || pixels[i + width] == DungeonBitmap.WALL) dir |= Collider.DOWN;
-					layers[BACKGROUND][r][c] = MapTileConverter.getPipeTileIndex(dir);
+			var i:int, dir:int, turnDelay:int, newDir:int;
+			for(i = 0; i < 3; i++){
+				dir = 1 << game.random.rangeInt(4);
+				turnDelay = game.random.range(4) + 2;
+				if(dir == Collider.UP){
+					x = game.random.range(BACKGROUND_WIDTH);
+					y = BACKGROUND_HEIGHT - 1;
+				} else if(dir == Collider.RIGHT) {
+					x = 0;
+					y = game.random.range(BACKGROUND_HEIGHT);
+				} else if(dir == Collider.DOWN){
+					x = game.random.range(BACKGROUND_WIDTH);
+					y = 0;
+				} else if(dir == Collider.LEFT){
+					x = BACKGROUND_WIDTH - 1;
+					y = game.random.range(BACKGROUND_HEIGHT);
+				}
+				while(true){
+					// lay pipe
+					if(!pipeMap[y][x]){
+						if(dir & (Collider.RIGHT | Collider.LEFT)){
+							pipeMap[y][x] |= Collider.RIGHT | Collider.LEFT;
+						} else if(dir & (Collider.DOWN | Collider.UP)){
+							pipeMap[y][x] |= Collider.DOWN | Collider.UP;
+						}
+					} else {
+						if(dir == Collider.UP) pipeMap[y][x] |= Collider.DOWN;
+						else if(dir == Collider.RIGHT) pipeMap[y][x] |= Collider.LEFT;
+						else if(dir == Collider.DOWN) pipeMap[y][x] |= Collider.UP;
+						else if(dir == Collider.LEFT) pipeMap[y][x] |= Collider.RIGHT;
+						break;
+					}
+					// move agent
+					if(turnDelay-- <= 0){
+						turnDelay = game.random.range(4) + 2;
+						if(dir & (Collider.LEFT | Collider.RIGHT)) newDir = game.random.value() < 0.5 ? Collider.UP : Collider.DOWN;
+						else if(dir & (Collider.UP | Collider.DOWN)) newDir = game.random.value() < 0.5 ? Collider.RIGHT : Collider.LEFT;
+						// bend current pipe tile
+						pipeMap[y][x] &= ~dir;
+						pipeMap[y][x] |= newDir;
+						dir = newDir;
+					}
+					if(dir == Collider.UP){
+						y--;
+						if(y < 0) y = BACKGROUND_HEIGHT - 1;
+					} else if(dir == Collider.RIGHT){
+						x++;
+						if(x >= BACKGROUND_WIDTH) x = 0;
+					} else if(dir == Collider.DOWN){
+						y++;
+						if(y >= BACKGROUND_HEIGHT) y = 0;
+					} else if(dir == Collider.LEFT){
+						x--;
+						if(x < 0) x = BACKGROUND_WIDTH - 1;
+					}
+				}
+			}
+			// tidy up disconnected pipes
+			for(r = 0; r < BACKGROUND_HEIGHT; r++){
+				if(pipeMap[r][0] & Collider.LEFT){
+					c = BACKGROUND_WIDTH - 1;
+					while(c > -1){
+						if(pipeMap[r][c]){
+							pipeMap[r][c] |= Collider.RIGHT;
+							break;
+						} else {
+							pipeMap[r][c] |= Collider.LEFT | Collider.RIGHT;
+						}
+						c--;
+					}
+				}
+				if(pipeMap[r][BACKGROUND_WIDTH - 1] & Collider.RIGHT){
+					c = 0;
+					while(c < BACKGROUND_WIDTH){
+						if(pipeMap[r][c]){
+							pipeMap[r][c] |= Collider.LEFT;
+							break;
+						} else {
+							pipeMap[r][c] |= Collider.LEFT | Collider.RIGHT;
+						}
+						c++;
+					}
+				}
+			}
+			for(c = 0; c < BACKGROUND_WIDTH; c++){
+				if(pipeMap[0][c] & Collider.UP){
+					r = BACKGROUND_HEIGHT - 1;
+					while(r > -1){
+						if(pipeMap[r][c]){
+							pipeMap[r][c] |= Collider.DOWN;
+							break;
+						} else {
+							pipeMap[r][c] |= Collider.UP | Collider.DOWN;
+						}
+						r--;
+					}
+				}
+				if(pipeMap[BACKGROUND_HEIGHT - 1][c] & Collider.DOWN){
+					r = 0;
+					while(r < BACKGROUND_HEIGHT){
+						if(pipeMap[r][c]){
+							pipeMap[r][c] |= Collider.UP;
+							break;
+						} else {
+							pipeMap[r][c] |= Collider.UP | Collider.DOWN;
+						}
+						r++;
+					}
 				}
 			}
 			
-			//var bitmap:Bitmap = new Bitmap(canvas);
-			//bitmap.scaleX = bitmap.scaleY = 2;
+			var blit:BlitSprite;
+			for(r = 0; r < BACKGROUND_HEIGHT; r++){
+				for(c = 0; c < BACKGROUND_WIDTH; c++){
+					if(pipeMap[r][c]){
+						i = MapTileConverter.getPipeTileIndex(pipeMap[r][c]);
+						blit = MapTileConverter.ID_TO_GRAPHIC[i];
+						blit.x = c * Game.SCALE;
+						blit.y = r * Game.SCALE;
+						blit.render(bitmapData);
+					}
+				}
+			}
+			
+			//var bitmap:Bitmap = new Bitmap(bitmapData);
 			//game.addChild(bitmap);
 		}
 		

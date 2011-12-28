@@ -765,6 +765,28 @@ package com.robotacid.phys {
 			return null
 		}
 		
+		/* Pushes a collider out of any map surfaces it overlaps - used to resolve changing a collider's shape */
+		public function resolveMapInsertion():void{
+			var mapX:int, mapY:int;
+			
+			mapY = (y + height * 0.5) * world.invScale;
+			
+			mapX = x * world.invScale;
+			if((world.map[mapY][mapX] & RIGHT) && x >= (mapX + 0.5) * world.scale) x = (mapX + 1) * world.scale;
+			
+			mapX = (x + width - INTERVAL_TOLERANCE) * world.invScale;
+			if((world.map[mapY][mapX] & LEFT) && x + width - INTERVAL_TOLERANCE <= (mapX + 0.5) * world.scale) x = mapX * world.scale-width;
+			
+			mapX = (x + width * 0.5) * world.invScale;
+			
+			mapY = y * world.invScale;
+			if((world.map[mapY][mapX] & DOWN) && y >= (mapY + 0.5) * world.scale) y = (mapY + 1) * world.scale;
+			
+			mapY = (y + height - INTERVAL_TOLERANCE) * world.invScale;
+			if((world.map[mapY][mapX] & UP) && y + height - INTERVAL_TOLERANCE <= (mapY + 0.5) * world.scale) y = mapY * world.scale-height;
+			
+		}
+		
 		/* Draw debug diagram */
 		public function draw(gfx:Graphics):void{
 			gfx.lineStyle(1, 0x33AA66);

@@ -36,6 +36,7 @@
 		public var range:int;
 		public var position:int;
 		public var user:Character;
+		public var uniqueName:String;
 		
 		// stats
 		public var damage:Number;
@@ -171,6 +172,7 @@
 			stacked = false;
 			callMain = true;
 			user = null;
+			uniqueName = "";
 			twinkleCount = TWINKLE_DELAY + game.random.range(TWINKLE_DELAY);
 		}
 		
@@ -436,7 +438,8 @@
 			if(curseState == CURSE_REVEALED) str += "- ";
 			else if(effects) str += "+ ";
 			
-			if(type == RUNE) return str + "rune of " + runeNames[name];
+			if(uniqueName != "") return str + uniqueName;
+			else if(type == RUNE) return str + "rune of " + runeNames[name];
 			else if(type == ARMOUR) return str + stats["armour names"][name];
 			else if(type == WEAPON) return str + stats["weapon names"][name];
 			else if(type == HEART) return Character.stats["names"][name] + " heart";
@@ -497,7 +500,7 @@
 		}
 		
 		override public function toXML():XML{
-			var xml:XML = <item name={name} type={type} level={level} location={location} curseState={curseState} user={user ? user.trueNameToString() : ""} />;
+			var xml:XML = <item name={name} type={type} level={level} location={location} curseState={curseState} user={user ? user.trueNameToString() : ""} uniqueName={uniqueName} />;
 			if(effects && effects.length){
 				for(var i:int = 0; i < effects.length; i++){
 					xml.appendChild(effects[i].toXML());

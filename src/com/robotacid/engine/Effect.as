@@ -67,13 +67,13 @@
 		public static const MIN_TELEPORT_DIST:int = 10;
 		public static const ARMOUR_COUNTDOWN_STEP:int = 600 / 20;
 		
-		public function Effect(name:int, level:int, source:int, target:Character = null, count:int = 0) {
+		public function Effect(name:int, level:int, source:int = 0, target:Character = null, count:int = 0, racial:Boolean = false) {
 			this.name = name;
 			this.level = level;
 			this.source = source;
 			applicable = true;
 			if(target){
-				apply(target, count);
+				apply(target, count, racial);
 			}
 		}
 		
@@ -310,7 +310,7 @@
 		 * means that the effect is once only and is not to be stored in the character's
 		 * effect buffer
 		 */
-		public function apply(target:Character, count:int = 0):void{
+		public function apply(target:Character, count:int = 0, racial:Boolean = false):void{
 			
 			var callMain:Boolean = false;
 			var i:int;
@@ -474,11 +474,14 @@
 				
 			}
 			
-			if(!target.effects) target.effects = new Vector.<Effect>();
-			target.effects.push(this);
-			active = true;
-			
-			if(callMain) game.effects.push(this);
+			// racial effects are managed by the character class internally
+			if(!racial){
+				if(!target.effects) target.effects = new Vector.<Effect>();
+				target.effects.push(this);
+				active = true;
+				
+				if(callMain) game.effects.push(this);
+			}
 		}
 		
 		/* Removes the effect from the target */
@@ -568,7 +571,7 @@
 		}
 		
 		public function toXML():XML{
-			return <effect name={name} level={level} count={count} source = {source} />;
+			return <effect name={name} level={level} count={count} source={source} />;
 		}
 		
 		/* Get a random location on the map to teleport to - aims for somewhere not too immediate */

@@ -2,9 +2,6 @@ shooting a secret wall causing multiple "secret revealed" messages - unreproduca
 undead unequip bug - unreproducible?
 chaos walls somehow leaving children with parent colliders - heisenbug
 
-
-Finish undead rune
-
 prep for identify rune
 	Lore menu
 		menu text panel

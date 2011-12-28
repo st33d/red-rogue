@@ -10,6 +10,7 @@
 	import com.robotacid.engine.Monster;
 	import com.robotacid.engine.Player;
 	import com.robotacid.engine.Portal;
+	import com.robotacid.engine.Stone;
 	import com.robotacid.gfx.Renderer;
 	import flash.display.DisplayObject;
 	import flash.geom.Rectangle;
@@ -39,6 +40,10 @@
 		
 		public var itemDungeonContent:Object;
 		public var areaContent:Array;
+		
+		// special items
+		public var deathsScythe:Item;
+		public var yendor:Item;
 		
 		public static const TOTAL_LEVELS:int = 20;
 		public static const TOTAL_AREAS:int = 2;
@@ -73,6 +78,15 @@
 			portalXML.@targetLevel = Map.UNDERWORLD;
 			portalsByLevel[20].push(portalXML);
 			setUnderworldPortal(20);
+			createUniqueItems();
+		}
+		
+		/* All unique items exist in Content as well as outside */
+		private function createUniqueItems():void{
+			deathsScythe = new Item(new ScytheMC, Item.SCYTHE, Item.WEAPON, Game.MAX_LEVEL);
+			deathsScythe.uniqueName = "death's scythe";
+			var effect:Effect = new Effect(Effect.UNDEAD, Game.MAX_LEVEL);
+			effect.enchant(deathsScythe);
 		}
 		
 		// Equations for quantities on levels
@@ -406,6 +420,7 @@
 		
 		/* Used in concert with the recycleLevel() method to convert level assets to XML and store them */
 		public function recycleEntity(entity:Entity, level:int, mapType:int):void{
+			var i:int, item:Item, character:Character;
 			var chest:XML;
 			var monsters:Vector.<XML>;
 			var chests:Vector.<XML>;
@@ -428,8 +443,27 @@
 			}
 			
 			if(entity is Monster){
+				// strip Death's Scythe from the level to return it to Death
+				if(deathsScythe.location != Item.UNASSIGNED){
+					character = entity as Character;
+					for(i = character.loot.length - 1; i > -1 ; i--){
+						item = character.loot[i];
+						if(item == deathsScythe){
+							character.dropItem(item);
+							item.location = Item.UNASSIGNED;
+							break;
+						}
+					}
+				}
 				monsters.push(entity.toXML());
+				
 			} else if(entity is Item){
+				item = entity as Item;
+				// strip Death's Scythe from the level to return it to Death
+				if(item == deathsScythe){
+					item.location = Item.UNASSIGNED;
+					return;
+				}
 				if(chests.length > 0){
 					chest = chests[chests.length - 1];
 					if(chest.item.length < 1 + game.random.range(3)){
@@ -452,6 +486,13 @@
 			} else if(entity is Portal){
 				if((entity as Portal).type != Portal.STAIRS){
 					portals.push(entity.toXML());
+				}
+				
+			} else if(entity is Stone){
+				if((entity as Stone).name == Stone.DEATH){
+					if((entity as Stone).weapon && (entity as Stone).weapon.uniqueName == "death's scythe"){
+						
+					}
 				}
 			}
 		}

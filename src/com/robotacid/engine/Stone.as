@@ -75,8 +75,10 @@
 				revealed = true;
 				if(name == HEAL || name == GRIND) game.entities.push(this);
 				else if(name == DEATH){
-					var scythe:Item = new Item(new ScytheMC, Item.SCYTHE, Item.WEAPON, 1);
-					equip(scythe);
+					if(game.content.deathsScythe.location == Item.UNASSIGNED){
+						game.content.deathsScythe.collect(this, false);
+						equip(game.content.deathsScythe);
+					}
 				}
 			}
 		}
