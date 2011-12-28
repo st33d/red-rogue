@@ -76,7 +76,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 276;
+		public static const BUILD_NUM:int = 277;
 		
 		public static var game:Game;
 		public static var renderer:Renderer;
@@ -365,7 +365,8 @@
 			Brain.initDungeonGraph(dungeon.bitmap);
 			mapTileManager = new MapTileManager(this, renderer.canvas, SCALE, dungeon.width, dungeon.height, WIDTH, HEIGHT);
 			mapTileManager.setLayers(dungeon.layers);
-			renderer.blockBitmapData = mapTileManager.layerToBitmapData(MapTileManager.BLOCK_LAYER);
+			renderer.blockBitmapData = mapTileManager.layerToBitmapData(MapTileManager.BACKGROUND_LAYER);
+			renderer.blockBitmapData = mapTileManager.layerToBitmapData(MapTileManager.BLOCK_LAYER, renderer.blockBitmapData);
 			world = new CollisionWorld(dungeon.width, dungeon.height, SCALE);
 			world.map = createPropertyMap(mapTileManager.mapLayers[MapTileManager.BLOCK_LAYER]);
 			

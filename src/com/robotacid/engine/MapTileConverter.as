@@ -95,6 +95,20 @@
 		public static const LADDER_TOP_LEDGE_START_LEFT_END:int = 40;
 		public static const LADDER_TOP_LEDGE_START_RIGHT_END:int = 41;
 		
+		public static const PIPE_CORNER_RIGHT_DOWN:int = 42;
+		public static const PIPE_HORIZ1:int = 43;
+		public static const PIPE_CROSS:int = 44;
+		public static const PIPE_T_LEFT_DOWN_RIGHT:int = 45;
+		public static const PIPE_T_UP_RIGHT_DOWN:int = 46;
+		public static const PIPE_HORIZ2:int = 47;
+		public static const PIPE_CORNER_LEFT_UP:int = 48;
+		public static const PIPE_VERT1:int = 49;
+		public static const PIPE_T_LEFT_UP_DOWN:int = 50;
+		public static const PIPE_VERT2:int = 51;
+		public static const PIPE_T_RIGHT_UP_LEFT:int = 52;
+		public static const PIPE_CORNER_LEFT_DOWN:int = 53;
+		public static const PIPE_CORNER_UP_RIGHT:int = 54;
+		
 		public static const STAIRS_UP:int = 58;
 		public static const STAIRS_DOWN:int = 59;
 		public static const HEAL_STONE:int = 60;
@@ -152,19 +166,19 @@
 			new BlitSprite(new LedgeMC3),
 			new BlitSprite(new LedgeMC5),// 40
 			new BlitSprite(new LedgeMC7),
-			,
-			,
-			,
-			,// 45
-			,
-			,
-			,
-			,
-			,// 50
-			,
-			,
-			,
-			Sprite,// secret wall
+			new BlitSprite(new Game.game.library.PipeB1),
+			new BlitSprite(new Game.game.library.PipeB2),
+			new BlitSprite(new Game.game.library.PipeB3),
+			new BlitSprite(new Game.game.library.PipeB4),// 45
+			new BlitSprite(new Game.game.library.PipeB5),
+			new BlitSprite(new Game.game.library.PipeB6),
+			new BlitSprite(new Game.game.library.PipeB7),
+			new BlitSprite(new Game.game.library.PipeB8),
+			new BlitSprite(new Game.game.library.PipeB9),// 50
+			new BlitSprite(new Game.game.library.PipeB10),
+			new BlitSprite(new Game.game.library.PipeB11),
+			new BlitSprite(new Game.game.library.PipeB12),
+			new BlitSprite(new Game.game.library.PipeB13),
 			,//55
 			,
 			,
@@ -324,7 +338,8 @@
 			}
 			return null;
 		}
-		/* get block properties for a location */
+		
+		/* Get block properties for a location */
 		public static function getMapProperties(n:*):int {
 			// map location has parameters
 			if(!(n >= 0 || n <= 0) && n is String) {
@@ -338,6 +353,22 @@
 			if(n >= 24 && n <= 32) return Collider.LADDER | Collider.LEDGE | Collider.UP;
 			if(n > 0) return Collider.SOLID | Collider.WALL;
 			
+			return 0;
+		}
+		
+		/* Get a tile index for a pipe graphic based on directions the pipes are supposed to lead out of a tile */
+		public static function getPipeTileIndex(dirs:int):int{
+			if(dirs == (UP | RIGHT)) return PIPE_CORNER_UP_RIGHT;
+			else if(dirs == (UP | LEFT)) return PIPE_CORNER_LEFT_UP;
+			else if(dirs == (DOWN | LEFT)) return PIPE_CORNER_LEFT_DOWN;
+			else if(dirs == (DOWN | RIGHT)) return PIPE_CORNER_RIGHT_DOWN;
+			else if(dirs == (UP | RIGHT | LEFT)) return PIPE_T_RIGHT_UP_LEFT;
+			else if(dirs == (DOWN | RIGHT | LEFT)) return PIPE_T_LEFT_DOWN_RIGHT;
+			else if(dirs == (UP | RIGHT | DOWN)) return PIPE_T_UP_RIGHT_DOWN;
+			else if(dirs == (DOWN | UP | LEFT)) return PIPE_T_LEFT_UP_DOWN;
+			else if(dirs == (DOWN | UP)) return Game.game.random.value() < 0.5 ? PIPE_VERT1 : PIPE_VERT2;
+			else if(dirs == (LEFT | RIGHT)) return Game.game.random.value() < 0.5 ? PIPE_HORIZ1 : PIPE_HORIZ2;
+			else if(dirs == (DOWN | UP | LEFT | RIGHT)) return PIPE_CROSS;
 			return 0;
 		}
 		

@@ -16,10 +16,32 @@
 		
 		[Embed(source = "assets/banner.png")] public var BannerB:Class;
 		
-		[Embed(source = "assets/background/backwall1.png")] public var BackB1:Class;
-		[Embed(source = "assets/background/backwall2.png")] public var BackB2:Class;
-		[Embed(source = "assets/background/backwall3.png")] public var BackB3:Class;
-		[Embed(source = "assets/background/backwall4.png")] public var BackB4:Class;
+		[Embed(source = "assets/background/dungeon1.png")] public var BackB1:Class;
+		[Embed(source = "assets/background/dungeon2.png")] public var BackB2:Class;
+		[Embed(source = "assets/background/dungeon3.png")] public var BackB3:Class;
+		[Embed(source = "assets/background/dungeon4.png")] public var BackB4:Class;
+		[Embed(source = "assets/background/sewer1.png")] public var BackB5:Class;
+		[Embed(source = "assets/background/sewer2.png")] public var BackB6:Class;
+		[Embed(source = "assets/background/sewer3.png")] public var BackB7:Class;
+		[Embed(source = "assets/background/sewer4.png")] public var BackB8:Class;
+		[Embed(source = "assets/background/cave1.png")] public var BackB9:Class;
+		[Embed(source = "assets/background/cave2.png")] public var BackB10:Class;
+		[Embed(source = "assets/background/cave3.png")] public var BackB11:Class;
+		[Embed(source = "assets/background/cave4.png")] public var BackB12:Class;
+		
+		[Embed(source = "assets/background/pipe1.png")] public var PipeB1:Class; // corner: right, down
+		[Embed(source = "assets/background/pipe2.png")] public var PipeB2:Class; // horiz
+		[Embed(source = "assets/background/pipe3.png")] public var PipeB3:Class; // cross
+		[Embed(source = "assets/background/pipe4.png")] public var PipeB4:Class; // T: left, down, right
+		[Embed(source = "assets/background/pipe5.png")] public var PipeB5:Class; // T: up, right, down
+		[Embed(source = "assets/background/pipe6.png")] public var PipeB6:Class; // horiz
+		[Embed(source = "assets/background/pipe7.png")] public var PipeB7:Class; // corner: left, up
+		[Embed(source = "assets/background/pipe8.png")] public var PipeB8:Class; // vert
+		[Embed(source = "assets/background/pipe9.png")] public var PipeB9:Class; // T: left, up, down
+		[Embed(source = "assets/background/pipe10.png")] public var PipeB10:Class; // vert
+		[Embed(source = "assets/background/pipe11.png")] public var PipeB11:Class; // T: right, up, left
+		[Embed(source = "assets/background/pipe12.png")] public var PipeB12:Class; // corner: left, down
+		[Embed(source = "assets/background/pipe13.png")] public var PipeB13:Class; // corner: up, right
 		
 		[Embed(source = "assets/overworld.png")] public var OverworldB:Class;
 		[Embed(source = "assets/underworld.png")] public var UnderworldB:Class;
