@@ -3,8 +3,11 @@ undead unequip bug - unreproducible?
 chaos walls somehow leaving children with parent colliders - heisenbug
 
 prep for identify rune
+	bounce select - some options don't lead to the trunk when selected
+	visited option status - an option glows if it hasn't been selected before (can be set initially)
+	break inventory into categories
+	menu image / text panel
 	Lore menu
-		menu text panel
 	Reveal minimap
 	Identify all runes
 	Quests

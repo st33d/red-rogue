@@ -30,6 +30,7 @@
 		public static const LEFT:int = 8;
 		
 		public static const BLOOD_DELAY:int = 20;
+		public static const FACE_DROP_CHANCE:Number = 0.2;
 		
 		public function Head(victim:Character, damage:Number) {
 			gfx = game.library.getCharacterHeadGfx(victim.name);
@@ -93,9 +94,12 @@
 		}
 		
 		public function kill():void{
-			// create face armour and drop to the map
-			var face:Face = new Face(game.library.getCharacterHeadGfx(name), name);
-			face.dropToMap(mapX, mapY);
+			if(game.random.value() <= FACE_DROP_CHANCE){
+				// create face armour and drop to the map
+				var face:Face = new Face(game.library.getCharacterHeadGfx(name), name);
+				face.dropToMap(mapX, mapY);
+				game.console.print("a " + Character.stats["names"][name] + " face is created");
+			}
 			renderer.createDebrisRect(collider, 0, 10, Renderer.BLOOD);
 			game.world.removeCollider(collider);
 			active = false;

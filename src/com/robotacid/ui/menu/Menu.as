@@ -101,6 +101,7 @@
 		private var keysLocked:int;
 		private var keysHeldCount:int;
 		private var stackCount:int;
+		private var selectText:TextBox;
 		private var movementMovieClips:Vector.<MovieClip>;
 		private var movementGuideCount:int;
 		private var animatingSelection:Boolean;
@@ -220,6 +221,13 @@
 			addChild(selectionWindowTaperNext);
 			addChild(selectionWindowTaperPrevious);
 			
+			// selection prompt
+			selectText = new TextBox(LIST_WIDTH, 1 + LINE_SPACING + TextBox.BORDER_ALLOWANCE * 2, 0x00000000, 0x00000000, 0xFFDDDDDD);
+			selectText.text = "select";
+			selectText.x = textHolder.x + nextTextBox.x;
+			selectText.y = -(TextBox.BORDER_ALLOWANCE + 1) + textHolder.y + nextTextBox.y;
+			selectText.alpha = 0;
+			addChild(selectText);
 			// movement arrows illustate where we can progress on the menu
 			movementMovieClips = new Vector.<MovieClip>(4, true);
 			for(i = 0; i < movementMovieClips.length; i++){
@@ -666,10 +674,14 @@
 						movementMovieClips[DOWN_MOVE].visible = currentMenuList.selection < currentMenuList.options.length - 1;
 						movementMovieClips[RIGHT_MOVE].visible = currentMenuList.options[selection].active;
 						movementMovieClips[LEFT_MOVE].visible = Boolean(previousMenuList);
+						if(currentMenuList.options[selection].active && !nextMenuList && selectText.alpha < 1){
+							selectText.alpha += 0.1;
+						}
 					}
 				} else {
 					movementGuideCount = MOVEMENT_GUIDE_DELAY;
 					for(i = 0; i < movementMovieClips.length; i++) movementMovieClips[i].visible = false;
+					selectText.alpha = 0;
 				}
 			}
 			// check if there are directions loaded into the dirStack
