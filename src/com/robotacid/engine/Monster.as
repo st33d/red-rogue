@@ -97,7 +97,7 @@
 				var surgeryChance:Number = BUTCHER_CHANCE + (aggressor.weapon == null ? BARE_HANDED_BUTCHER_BONUS : aggressor.weapon.butcher);
 				if(game.random.value() < surgeryChance){
 					var heartMc:Sprite = new HeartMC();
-					var heart:Item = new Item(heartMc, name, Item.HEART, level);
+					var heart:Item = new Item(heartMc, name, Item.HEART, 0);
 					heart.collect(game.player, false);
 					var victimName:String = Character.stats["names"][name];
 					game.console.print("rogue tore out a" + ((victimName.charAt(0).search(/[aeiou]/i) == 0) ? "n " : " ") + heart.nameToString());

@@ -1,4 +1,5 @@
 ﻿package com.robotacid.engine {
+	import com.robotacid.dungeon.Content;
 	import com.robotacid.phys.Collider;
 	import com.robotacid.sound.SoundManager;
 	import flash.display.DisplayObject;
@@ -18,6 +19,7 @@
 		
 		public static const TWINKLE_DELAY:int = 20;
 		public static const OPEN_ID:int = 53;
+		public static const GNOLL_SCAVENGER_RATE:Number = 1.0 / 20;
 		
 		public function Chest(mc:DisplayObject, x:Number, y:Number, items:Vector.<Item>) {
 			super(mc, false, false);
@@ -60,11 +62,14 @@
 			(gfx as MovieClip).gotoAndStop("open");
 			tileId = ""+OPEN_ID;
 			for(var i:int = 0; i < contents.length; i++){
-				character.loot.push(contents[i]);
-				if(character is Player){
-					game.menu.inventoryList.addItem(contents[i]);
-					game.console.print("picked up " + contents[i].nameToString());
-				}
+				contents[i].collect(character);
+			}
+			// if the character is currently a gnoll they can roll for bonus treasure
+			if(character.name == Character.GNOLL && game.random.value() < GNOLL_SCAVENGER_RATE * character.level){
+				var type:int = [Item.WEAPON, Item.ARMOUR, Item.RUNE, Item.HEART][game.random.rangeInt(4)];
+				var item:Item = Content.convertXMLToEntity(0, 0, Content.createItemXML(game.dungeon.level, type));
+				item.collect(character, false);
+				if(character is Player) game.console.print("scavenged " + item.nameToString());
 			}
 			game.soundQueue.add("chestOpen");
 			contents = null;

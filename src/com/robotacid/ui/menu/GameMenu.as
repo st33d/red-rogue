@@ -425,7 +425,7 @@
 			} else if(option == inventoryList.eatOption){
 				item = previousMenuList.options[previousMenuList.selection].userData;
 				if(item.type == Item.HEART){
-					game.player.applyHealth(Character.stats["healths"][item.name] + Character.stats["health levels"][item.name] * item.level);
+					game.player.applyHealth((Character.stats["healths"][item.name] + Character.stats["health levels"][item.name] * game.player.level) * Item.HEALTH_PER_HEART);
 				} else if(item.type == Item.RUNE){
 					Item.revealName(item.name, inventoryList);
 					effect = new Effect(item.name, 20, Effect.EATEN, game.player);
@@ -433,11 +433,11 @@
 				inventoryList.removeItem(item);
 				game.console.print("rogue eats " + item.nameToString());
 			
-			// feeding runes to the minion
+			// feeding the minion
 			} else if(option == inventoryList.feedMinionOption){
 				item = previousMenuList.options[previousMenuList.selection].userData;
 				if(item.type == Item.HEART){
-					game.minion.applyHealth(Character.stats["healths"][item.name] + Character.stats["health levels"][item.level]);
+					game.minion.applyHealth((Character.stats["healths"][item.name] + Character.stats["health levels"][item.name] * game.minion.level) * Item.HEALTH_PER_HEART);
 				} else if(item.type == Item.RUNE){
 					Item.revealName(item.name, inventoryList);
 					effect = new Effect(item.name, 20, Effect.EATEN, game.minion);

@@ -156,6 +156,7 @@
 		public static const INDIFFERENCE_ALPHA:Number = 0.5;
 		/* We don't want the RNG to create leech and yendor items */
 		public static const ITEM_MAX:int = 19;
+		public static const HEALTH_PER_HEART:Number = 0.2;
 		
 		[Embed(source = "itemStats.json", mimeType = "application/octet-stream")] public static var statsData:Class;
 		public static var stats:Object;
@@ -494,7 +495,7 @@
 				else if(effects) str += "enchanted ";
 				str += stats["weapon names"][name];
 			} else if(type == HEART){
-				str += "this level " + level + " " + Character.stats["names"][name] + " heart\nrestores health when eaten";
+				str += "this " + Character.stats["names"][name] + " heart\nrestores some health when eaten";
 			}
 			return str;
 		}

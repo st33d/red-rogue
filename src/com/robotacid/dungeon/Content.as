@@ -529,6 +529,10 @@
 				nameRange = Item.stats["rune names"].length;
 				level = 0;
 				enchantments = 0;
+			} else if(type == Item.HEART){
+				nameRange = Game.MAX_LEVEL
+				level = 0;
+				enchantments = 0;
 			}
 			if(nameRange > dungeonLevel) nameRange = dungeonLevel;
 			name = game.random.range(nameRange);
