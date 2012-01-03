@@ -156,7 +156,7 @@
 		public static const INDIFFERENCE_ALPHA:Number = 0.5;
 		/* We don't want the RNG to create leech and yendor items */
 		public static const ITEM_MAX:int = 19;
-		public static const HEALTH_PER_HEART:Number = 0.2;
+		public static const HEALTH_PER_HEART:Number = 0.25;
 		
 		[Embed(source = "itemStats.json", mimeType = "application/octet-stream")] public static var statsData:Class;
 		public static var stats:Object;
