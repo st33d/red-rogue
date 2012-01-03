@@ -51,7 +51,9 @@
 			enchantOption = new MenuOption("enchant", equipmentList, false);
 			
 			equipOption = new ToggleMenuOption(["equip", "unequip"]);
+			equipOption.bounce = true;
 			equipMinionOption = new ToggleMenuOption(["equip minion", "unequip minion"]);
+			equipMinionOption.bounce = true;
 			dropOption = new MenuOption("drop");
 			eatOption = new MenuOption("eat");
 			feedMinionOption = new MenuOption("feed minion");
@@ -152,6 +154,17 @@
 					pointers[i].active = true;
 					pointers[i].recordable = true;
 				}
+			}
+			
+			// if the menu is currently sitting at one of the context menus, we need to step back
+			// this lets us avoid doing silly things like wearing hearts
+			if(
+				menu.currentMenuList == heartList ||
+				menu.currentMenuList == itemList ||
+				menu.currentMenuList == itemList ||
+				menu.currentMenuList == enchantmentList
+			){
+				menu.stepLeft();
 			}
 			
 			menu.update();

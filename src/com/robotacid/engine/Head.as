@@ -38,6 +38,7 @@
 			name = victim.name;
 			createCollider(victim.gfx.x, victim.collider.y + gfx.height, Collider.HEAD | Collider.SOLID, Collider.CORPSE);
 			game.world.restoreCollider(collider);
+			collider.resolveMapInsertion();
 			if(victim.dir & RIGHT){
 				collider.vx -= INIT_V;
 			} else if(victim.dir & LEFT){

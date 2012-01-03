@@ -341,7 +341,12 @@
 						hideChangeEvent = false;
 					} else {
 						dispatchEvent(new Event(Event.SELECT));
-						setTrunk(branch[0]);
+						if(!currentMenuList.options[currentMenuList.selection].bounce) setTrunk(branch[0]);
+						else {
+							// walk back and forth to shake out change events that will update the menu labels
+							stepLeft();
+							stepRight();
+						}
 					}
 				}
 			}
@@ -665,7 +670,7 @@
 						setDisabledLines(nextMenuList, nextTextBox);
 					}
 					if(movementGuideCount){
-						movementGuideCount--;
+						if(currentMenuList != keyChanger) movementGuideCount--;
 						if(movementGuideCount == 0){
 							for(i = 0; i < movementMovieClips.length; i++) movementMovieClips[i].gotoAndPlay(1);
 						}

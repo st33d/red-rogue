@@ -69,6 +69,8 @@
 		public var onOffList:MenuList;
 		public var onOffOption:ToggleMenuOption;
 		
+		private var fullscreenOn:Boolean;
+		
 		public function GameMenu(width:Number, height:Number, game:Game) {
 			this.game = game;
 			super(width, height);
@@ -172,8 +174,8 @@
 			nateOption = new MenuOption("nathan gallardo - music");
 			nateOption.help = "opens a window to nathan gallardo's site (where this game's OST is available) - icefishingep.tk";
 			
-			
 			onOffOption = new ToggleMenuOption(["off", "on"]);
+			onOffOption.bounce = true;
 			sureOption = new MenuOption("sure?");
 			
 			// OPTION ARRAYS
@@ -256,6 +258,9 @@
 				hotKeyMaps[i] = hotKeyMap;
 			}
 			
+			// this boolean allows the fullscreen option to "bounce"
+			fullscreenOn = false;
+			
 		}
 		
 		public function activate():void{
@@ -335,7 +340,8 @@
 				renderMenu();
 				
 			} else if(option.name == "fullscreen"){
-				onOffOption.state = game.stage.displayState == "normal" ? 1 : 0;
+				//onOffOption.state = game.stage.displayState == "normal" ? 1 : 0;
+				onOffOption.state = fullscreenOn ? 0 : 1;
 				renderMenu();
 				
 			} else if(option == inventoryList.enchantOption){
@@ -472,6 +478,7 @@
 				// toggle fullscreen
 				} else if(previousMenuList.options[previousMenuList.selection].name == "fullscreen"){
 					if(onOffOption.state == 1){
+						fullscreenOn = true;
 						if(!Game.dialog){
 							Game.dialog = new Dialog(
 								"activate fullscreen",
@@ -480,6 +487,7 @@
 							);
 						}
 					} else {
+						fullscreenOn = false;
 						stage.displayState = "normal";
 						stage.scaleMode = StageScaleMode.NO_SCALE;
 					}
@@ -582,6 +590,8 @@
 				}
 			}
 			
+			// if the menu is open, force a renderer update so the player can see the changes
+			if(parent) Game.renderer.main();
 			
 		}
 		/* In the event of player death, we need to change the menu to deactivate the inventory,

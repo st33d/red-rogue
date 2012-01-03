@@ -10,6 +10,8 @@
 		public var name:String;
 		public var active:Boolean;
 		public var target:MenuList;
+		public var visited:Boolean;
+		public var bounce:Boolean; // set to true to make selection go back to the same position as before
 		public var help:String;
 		public var recordable:Boolean; // set to false to prevent a hot key recording of this option
 		

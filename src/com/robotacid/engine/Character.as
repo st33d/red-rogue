@@ -570,6 +570,7 @@
 		}
 		
 		private function stompCallback(stomper:Collider):void{
+			if(state == QUICKENING || state == DEAD) return;
 			applyStun(0.5);
 			var center:Number = collider.x + collider.width * 0.5;
 			var stomperCenter:Number = stomper.x + stomper.width * 0.5;
