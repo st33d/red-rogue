@@ -1,11 +1,8 @@
 shooting a secret wall causing multiple "secret revealed" messages - unreproducable
 undead unequip bug - unreproducible?
 chaos walls somehow leaving children with parent colliders - heisenbug
-stomp on character whilst quickening leads to vanishing - fixable?
 
 prep for identify rune
-	bounce select - make some options not lead to the trunk when selected
-	visited option status - an option glows if it hasn't been selected before (can be set initially)
 	break inventory into categories
 	menu image / text panel
 	Lore menu

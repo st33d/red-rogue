@@ -132,6 +132,7 @@
 			itemOption.context = context;
 			itemOption.userData = item;
 			itemOption.help = item.getHelpText();
+			itemOption.visited = false;
 			options.push(itemOption);
 			selection = options.length - 1;
 			itemToOption[item] = itemOption

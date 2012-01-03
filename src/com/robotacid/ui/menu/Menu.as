@@ -12,6 +12,7 @@
 	import flash.display.Shape;
 	import flash.display.Sprite;
 	import flash.events.Event;
+	import flash.geom.ColorTransform;
 	import flash.geom.Matrix;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
@@ -105,6 +106,7 @@
 		private var movementMovieClips:Vector.<MovieClip>;
 		private var movementGuideCount:int;
 		private var animatingSelection:Boolean;
+		private var notVistitedColFrame:int;
 		
 		public static const LIST_WIDTH:Number = 100;
 		public static const LINE_SPACING:Number = 11;
@@ -114,6 +116,8 @@
 		public static const KEYS_HELD_DELAY:int = 5;
 		public static const MOVEMENT_GUIDE_DELAY:int = 30;
 		public static const DEFAULT_MOVE_DELAY:int = 4;
+		public static const DISABLED_COL:ColorTransform = new ColorTransform(1, 1, 1, 1, -100, -100, -100);
+		public static var NOT_VISITED_COLS:Vector.<ColorTransform>;
 		
 		// game key properties
 		public static const UP_KEY:int = 0;
@@ -149,6 +153,9 @@
 			movementGuideCount = MOVEMENT_GUIDE_DELAY;
 			hideChangeEvent = false;
 			animatingSelection = false;
+			
+			// initialise NOT_VISITED_COLS
+			initNotVisitedCols();
 			
 			// initialise the branch recorders - these will help examine the history of
 			// menu usage
@@ -303,6 +310,9 @@
 				(hotKeyMapRecord && currentMenuList.options[selection].recordable) ||
 				(!hotKeyMapRecord && currentMenuList.options[selection].active)
 			){
+				// mark option visited
+				currentMenuList.options[currentMenuList.selection].visited = true;
+				
 				// walk forward
 				if(nextMenuList){
 					// recording?
@@ -387,7 +397,7 @@
 				previousTextBox.setSize(LIST_WIDTH, LINE_SPACING * previousMenuList.options.length + TextBox.BORDER_ALLOWANCE);
 				previousTextBox.text = previousMenuList.optionsToString();
 				previousTextBox.y = -previousMenuList.selection * LINE_SPACING - TextBox.BORDER_ALLOWANCE;
-				setDisabledLines(previousMenuList, previousTextBox);
+				setLineCols(previousMenuList, previousTextBox);
 				previousTextBox.visible = true;
 				selectionWindowTaperPrevious.visible = true;
 			} else {
@@ -401,7 +411,7 @@
 				currentTextBox.setSize(LIST_WIDTH, LINE_SPACING * currentMenuList.options.length + TextBox.BORDER_ALLOWANCE);
 				currentTextBox.text = currentMenuList.optionsToString();
 				currentTextBox.y = -currentMenuList.selection * LINE_SPACING - TextBox.BORDER_ALLOWANCE;
-				setDisabledLines(currentMenuList, currentTextBox);
+				setLineCols(currentMenuList, currentTextBox);
 			}
 			if(currentMenuList.options[selection].active && nextMenuList){
 				if(nextMenuList == keyChanger){
@@ -410,7 +420,7 @@
 				nextTextBox.setSize(LIST_WIDTH, LINE_SPACING * nextMenuList.options.length + TextBox.BORDER_ALLOWANCE);
 				nextTextBox.text = nextMenuList.optionsToString();
 				nextTextBox.y = -nextMenuList.selection * LINE_SPACING - TextBox.BORDER_ALLOWANCE;
-				setDisabledLines(nextMenuList, nextTextBox);
+				setLineCols(nextMenuList, nextTextBox);
 				nextTextBox.visible = true;
 				selectionWindowTaperNext.visible = true;
 			} else {
@@ -419,15 +429,22 @@
 			}
 		}
 		
-		/* Updates the rendering of disabled MenuOptions */
-		public function setDisabledLines(menuList:MenuList, textBox:TextBox):void{
+		/* Updates the rendering of coloured MenuOptions (disabled and not-visited) */
+		public function setLineCols(menuList:MenuList, textBox:TextBox):void{
+			var menuOption:MenuOption;
 			for(var i:int = 0; i < menuList.options.length; i++){
+				menuOption = menuList.options[i];
+				// disabled
 				if(
 					!(
-						(hotKeyMapRecord && menuList.options[i].recordable) ||
-						(!hotKeyMapRecord && menuList.options[i].active)
+						(hotKeyMapRecord && menuOption.recordable) ||
+						(!hotKeyMapRecord && menuOption.active)
 					)
-				) textBox.setDisabledLine(i);
+				) textBox.setLineCol(i, DISABLED_COL);
+				// not visited
+				if(!menuOption.visited){
+					textBox.setLineCol(i, NOT_VISITED_COLS[notVistitedColFrame]);
+				}
 			}
 		}
 		
@@ -659,16 +676,20 @@
 				if(dir == 0 && dirStack.length == 0){
 					if(previousTextBox.visible){
 						previousTextBox.updateMarquee();
-						setDisabledLines(previousMenuList, previousTextBox);
+						setLineCols(previousMenuList, previousTextBox);
 					}
 					if(currentTextBox.visible){
 						currentTextBox.updateMarquee();
-						setDisabledLines(currentMenuList, currentTextBox);
+						setLineCols(currentMenuList, currentTextBox);
 					}
 					if(nextTextBox.visible){
 						nextTextBox.updateMarquee();
-						setDisabledLines(nextMenuList, nextTextBox);
+						setLineCols(nextMenuList, nextTextBox);
 					}
+					// update the visited glow frame
+					notVistitedColFrame++;
+					if(notVistitedColFrame >= NOT_VISITED_COLS.length) notVistitedColFrame = 0;
+					
 					if(movementGuideCount){
 						if(currentMenuList != keyChanger) movementGuideCount--;
 						if(movementGuideCount == 0){
@@ -850,6 +871,19 @@
 				hotKeyMenuList.options.push(option);
 			}
 			hotKeyOption.target = hotKeyMenuList
+		}
+		
+		/* Initialise the glow on non visited options */
+		private function initNotVisitedCols():void{
+			NOT_VISITED_COLS = new Vector.<ColorTransform>();
+			var colSteps:Number = 30;
+			var step:Number = Math.PI / colSteps;
+			var colMax:Number = 100;
+			var colTransform:ColorTransform;
+			for(var i:int = 0; i < colSteps; i++){
+				colTransform = new ColorTransform(1, 1, 1, 1, colMax * Math.sin(step * i), colMax * Math.sin(step * i), colMax * Math.sin(step * i), colMax * Math.sin(step * i));
+				NOT_VISITED_COLS.push(colTransform);
+			}
 		}
 		
 		/* Changes the name of a menu option associated with a key to a given keyCode */

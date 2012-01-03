@@ -20,13 +20,16 @@
 		
 		// hot key maps need to find paths of similar context when the original path is removed
 		public var context:String;
-		public var hotKeyOption:Boolean = false;
+		public var hotKeyOption:Boolean;
 		
 		public function MenuOption(name:String, target:MenuList = null, active:Boolean = true) {
 			this.name = name;
 			this.target = target;
 			this.active = active;
-			this.recordable = true;
+			recordable = true;
+			visited = true;
+			bounce = false;
+			hotKeyOption = false;
 		}
 		
 	}

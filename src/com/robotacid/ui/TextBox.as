@@ -444,13 +444,10 @@ package com.robotacid.ui {
 			draw();
 		}
 		
-		/* Draws a background coloured alpha shape over a line of text.
-		 * requires that disabledShape.graphics.clear() be called first
-		 * because you may want to shadow out multiple lines
-		 */
-		public function setDisabledLine(n:int):void{
+		/* Applies a ColorTransform to a line of text */
+		public function setLineCol(n:int, col:ColorTransform):void{
 			var disableRect:Rectangle = new Rectangle(BORDER_ALLOWANCE, BORDER_ALLOWANCE + n * lineSpacing, _width - BORDER_ALLOWANCE * 2, lineSpacing - 1);
-			bitmapData.colorTransform(disableRect, new ColorTransform(1, 1, 1, 1, -100, -100, -100));
+			bitmapData.colorTransform(disableRect, col);
 		}
 		
 		public function drawBorder():void{
