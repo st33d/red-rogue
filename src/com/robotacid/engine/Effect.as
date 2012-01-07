@@ -46,6 +46,7 @@
 		public static const PORTAL:int = Item.PORTAL;
 		public static const STUPEFY:int = Item.STUPEFY;
 		public static const NULL:int = Item.NULL;
+		public static const CHAOS:int = Item.CHAOS;
 		
 		public static var BANNED_RANDOM_ENCHANTMENTS:Array = [];
 		

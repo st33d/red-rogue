@@ -110,11 +110,11 @@
 			
 			// MENU OPTIONS
 			
-			inventoryOption = new MenuOption("inventory", inventoryList, false);
+			inventoryOption = new MenuOption("inventory", inventoryList);
 			inventoryOption.help = "a list of items the rogue currently possesses in her handbag of holding";
-			inventoryOption.recordable = false;
-			inventoryList.pointers = new Vector.<MenuOption>();
-			inventoryList.pointers.push(inventoryOption);
+			//inventoryOption.recordable = false;
+			//inventoryList.pointers = new Vector.<MenuOption>();
+			//inventoryList.pointers.push(inventoryOption);
 			var optionsOption:MenuOption = new MenuOption("options", optionsList);
 			optionsOption.help = "change game settings";
 			actionsOption = new MenuOption("actions", actionsList, false);
@@ -345,7 +345,7 @@
 				renderMenu();
 				
 			} else if(option == inventoryList.enchantOption){
-				var runeName:int = inventoryList.options[inventoryList.selection].userData.name;
+				var runeName:int = inventoryList.runesList.options[inventoryList.runesList.selection].userData.name;
 				for(var i:int = 0; i < inventoryList.equipmentList.options.length; i++){
 					inventoryList.equipmentList.options[i].active = inventoryList.equipmentList.options[i].userData.enchantable(runeName);
 				}
@@ -433,7 +433,7 @@
 				if(item.type == Item.HEART){
 					game.player.applyHealth((Character.stats["healths"][item.name] + Character.stats["health levels"][item.name] * game.player.level) * Item.HEALTH_PER_HEART);
 				} else if(item.type == Item.RUNE){
-					Item.revealName(item.name, inventoryList);
+					Item.revealName(item.name, inventoryList.runesList);
 					effect = new Effect(item.name, 20, Effect.EATEN, game.player);
 				}
 				inventoryList.removeItem(item);
@@ -445,7 +445,7 @@
 				if(item.type == Item.HEART){
 					game.minion.applyHealth((Character.stats["healths"][item.name] + Character.stats["health levels"][item.name] * game.minion.level) * Item.HEALTH_PER_HEART);
 				} else if(item.type == Item.RUNE){
-					Item.revealName(item.name, inventoryList);
+					Item.revealName(item.name, inventoryList.runesList);
 					effect = new Effect(item.name, 20, Effect.EATEN, game.minion);
 				}
 				inventoryList.removeItem(item);
@@ -459,7 +459,6 @@
 					QuickSave.save(game);
 				} else if(previousMenuList.options[previousMenuList.selection] == newGameOption){
 					inventoryList.reset();
-					inventoryOption.active = false;
 					actionsOption.active = false;
 					game.reset();
 				}
@@ -512,10 +511,10 @@
 			// enchanting items
 			} else if(previousMenuList.options[previousMenuList.selection] == inventoryList.enchantOption){
 				item = option.userData;
-				var rune:Item = inventoryList.options[inventoryList.selection].userData;
+				var rune:Item = inventoryList.runesList.options[inventoryList.runesList.selection].userData;
 				effect = new Effect(rune.name, 1);
 				
-				Item.revealName(rune.name, inventoryList);
+				Item.revealName(rune.name, inventoryList.runesList);
 				game.console.print(item.nameToString() + " enchanted with " + rune.nameToString());
 				
 				// items need to be unequipped and then equipped again to apply their new settings to a Character

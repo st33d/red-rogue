@@ -6,6 +6,7 @@
 	import com.robotacid.phys.Cast;
 	import com.robotacid.phys.Collider;
 	import com.robotacid.ui.menu.InventoryMenuList;
+	import com.robotacid.ui.menu.MenuList;
 	import com.robotacid.ui.menu.MenuOptionStack;
 	import com.robotacid.util.HiddenInt;
 	import flash.display.DisplayObject;
@@ -143,6 +144,7 @@
 		public static const PORTAL:int = 9;
 		public static const STUPEFY:int = 10;
 		public static const NULL:int = 11;
+		public static const CHAOS:int = 20;
 		
 		// curse states
 		public static const NO_CURSE:int = 0;
@@ -448,13 +450,17 @@
 			return str
 		}
 		
-		public static function revealName(n:int, inventoryList:InventoryMenuList):void{
-			if(runeNames[n] != "?") return;
+		public static function revealName(n:int, runesList:MenuList):void{
+			if(runeNames[n] != "?" || n == CHAOS) return;
 			runeNames[n] = stats["rune names"][n];
-			for(var i:int = 0; i < inventoryList.options.length; i++){
-				if((inventoryList.options[i].userData as Item).type == RUNE && (inventoryList.options[i].userData as Item).name == n){
-					(inventoryList.options[i] as MenuOptionStack).singleName = (inventoryList.options[i].userData as Item).nameToString();
-					(inventoryList.options[i] as MenuOptionStack).total = (inventoryList.options[i] as MenuOptionStack).total;
+			var optionStack:MenuOptionStack;
+			var item:Item;
+			for(var i:int = 0; i < runesList.options.length; i++){
+				optionStack = runesList.options[i] as MenuOptionStack;
+				item = optionStack.userData as Item;
+				if(item.name == n){
+					optionStack.singleName = item.nameToString();
+					break;
 				}
 			}
 		}

@@ -4,6 +4,9 @@ chaos walls somehow leaving children with parent colliders - heisenbug
 
 prep for identify rune
 	break inventory into categories
+	
+		something turned the inventory menu off - find it
+	
 	menu image / text panel
 	Lore menu
 	Reveal minimap

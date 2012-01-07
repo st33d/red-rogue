@@ -386,7 +386,6 @@
 		
 		/* Select an item as a weapon or armour */
 		override public function equip(item:Item):Item{
-			item = inventory.unstack(item);
 			super.equip(item);
 			// set the active state and name of the missile option in the menu
 			if(item.type == Item.WEAPON){
@@ -402,7 +401,6 @@
 		/* Unselect item as equipped */
 		override public function unequip(item:Item):Item{
 			super.unequip(item);
-			item = inventory.stack(item);
 			if(item.type == Item.WEAPON) game.menu.missileOption.active = false;
 			inventory.updateItem(item);
 			return item;

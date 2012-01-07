@@ -87,7 +87,6 @@
 		
 		/* Select an item as a weapon or armour */
 		override public function equip(item:Item):Item {
-			item = inventory.unstack(item);
 			super.equip(item);
 			if(item.curseState == Item.CURSE_HIDDEN) item.revealCurse();
 			inventory.updateItem(item);
@@ -96,7 +95,6 @@
 		/* Unselect item as equipped */
 		override public function unequip(item:Item):Item{
 			super.unequip(item);
-			item = inventory.stack(item);
 			inventory.updateItem(item);
 			return item;
 		}

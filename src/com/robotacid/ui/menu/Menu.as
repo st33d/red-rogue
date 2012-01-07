@@ -310,9 +310,6 @@
 				(hotKeyMapRecord && currentMenuList.options[selection].recordable) ||
 				(!hotKeyMapRecord && currentMenuList.options[selection].active)
 			){
-				// mark option visited
-				currentMenuList.options[currentMenuList.selection].visited = true;
-				
 				// walk forward
 				if(nextMenuList){
 					// recording?
@@ -731,6 +728,9 @@
 							// illegal move
 							dir = 0;
 						}
+						// mark option visited
+						currentMenuList.options[currentMenuList.selection].visited = true;
+						
 					} else break;
 				} while(dir == 0);
 				if(dir) moveCount = moveReset;

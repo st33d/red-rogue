@@ -54,12 +54,12 @@ package com.robotacid.ui {
 				obj.minion = game.minion ? game.minion.toXML() : null;
 				// here come the items
 				var items:Vector.<XML> = new Vector.<XML>();
-				for(i = 0; i < game.menu.inventoryList.options.length; i++){
+				/*for(i = 0; i < game.menu.inventoryList.options.length; i++){
 					// item may be stacked - load into XML as separate items
 					for(j = 0; j < (game.menu.inventoryList.options[i] as MenuOptionStack).total; j++){
 						items.push(game.menu.inventoryList.options[i].userData.toXML());
 					}
-				}
+				}*/
 				obj.items = items;
 				// now the content manager stocks
 				obj.chestsByLevel = game.content.chestsByLevel;
