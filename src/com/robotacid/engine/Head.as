@@ -30,7 +30,7 @@
 		public static const LEFT:int = 8;
 		
 		public static const BLOOD_DELAY:int = 20;
-		public static const FACE_DROP_CHANCE:Number = 0.2;
+		public static const FACE_DROP_CHANCE:Number = 0.25;
 		
 		public function Head(victim:Character, damage:Number) {
 			gfx = game.library.getCharacterHeadGfx(victim.name);

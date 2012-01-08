@@ -90,6 +90,18 @@ package com.robotacid.phys{
 			return collider;
 		}
 		
+		/* Removes a position on "map" and divorces any colliders that have adopted the position as a parent */
+		public function removeMapPosition(mapX:int, mapY:int):void{
+			map[mapY][mapX] = 0;
+			var i:int, collider:Collider;
+			for(i = 0; i < colliders.length; i++){
+				collider = colliders[i];
+				if(collider.mapCollider && collider.parent == collider.mapCollider && collider.x == mapX * scale && collider.y == mapY * scale){
+					collider.divorce();
+				}
+			}
+		}
+		
 		/* Removes a Collider from the simulation */
 		public function removeCollider(collider:Collider):void{
 			collider.divorce();

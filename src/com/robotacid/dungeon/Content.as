@@ -95,16 +95,16 @@
 		public function equipmentQuantityPerLevel(level:int):int{
 			if(level <= 0) return 0;
 			if(level > TOTAL_LEVELS) level = TOTAL_LEVELS;
-			var n:int = (level + game.random.range(3)) * 0.5;
-			return n == (n >> 0) ? n : (n >> 0) + 1;
+			var n:Number = (level + game.random.range(3)) * 0.5;
+			return n == (n >> 0) ? n : (n >> 0) + 1; // inline Math.ceil()
 		}
 		
 		// min: level / 2, max: (level + 1) / 2
 		public function runeQuantityPerLevel(level:int):int{
 			if(level <= 0) return 0;
 			if(level > TOTAL_LEVELS) level = TOTAL_LEVELS;
-			var n:int = (level + game.random.range(2)) * 0.5;
-			return n == (n >> 0) ? n : (n >> 0) + 1;
+			var n:Number = (level + game.random.range(2)) * 0.5;
+			return n == (n >> 0) ? n : (n >> 0) + 1; // inline Math.ceil()
 		}
 		
 		// min: 5 + level * 2, max: 10 + level 3

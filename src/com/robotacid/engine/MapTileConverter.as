@@ -345,7 +345,7 @@
 			if(!(n >= 0 || n <= 0) && n is String) {
 				n = n.match(/\d+/)[0];
 			}
-		
+			
 			if(n == LADDER) return Collider.LADDER;
 			if(n == LADDER_TOP) return 0;
 			if(n >= 15 && n <= 23) return Collider.UP | Collider.LEDGE;

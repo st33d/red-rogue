@@ -110,7 +110,7 @@
 				renderer.createDebrisRect(rect, 0, 100, Renderer.STONE);
 				renderer.shake(0, 3);
 				game.soundQueue.add("kill");
-				game.world.map[mapY][mapX] = 0;
+				game.world.removeMapPosition(mapX, mapY);
 				game.mapTileManager.removeTile(this, mapX, mapY, mapZ);
 				renderer.blockBitmapData.fillRect(new Rectangle(mapX * SCALE, mapY * SCALE, SCALE, SCALE), 0x00000000);
 				var blit:BlitSprite = MapTileConverter.ID_TO_GRAPHIC[MapTileConverter.LEDGE_SINGLE];

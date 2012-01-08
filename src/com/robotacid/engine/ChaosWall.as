@@ -136,7 +136,7 @@ package com.robotacid.engine {
 			state = READY;
 			chaosWalls[mapY][mapX] = null;
 			// remove from map renderer
-			game.world.map[mapY][mapX] = 0;
+			game.world.removeMapPosition(mapX, mapY);
 			game.mapTileManager.removeTile(this, mapX, mapY, mapZ);
 			renderer.blockBitmapData.fillRect(new Rectangle(mapX * SCALE, mapY * SCALE, SCALE, SCALE), 0x00000000);
 			// show empty on minimap
