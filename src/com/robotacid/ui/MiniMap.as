@@ -27,6 +27,7 @@
 		public var fx:Vector.<MinimapFX>;
 		
 		private var searchRectBorder:Rectangle;
+		private var playerBitmapData:BitmapData;
 		
 		public static const WIDTH:int = 55;
 		public static const HEIGHT:int = 41;
@@ -47,7 +48,7 @@
 			window = new Bitmap(new BitmapData(WIDTH, HEIGHT, true, 0x00000000));
 			addChild(window);
 			
-			var playerBitmapData:BitmapData = new BitmapData(3, 3, true, 0xFFFFFFFF);
+			playerBitmapData = new BitmapData(3, 3, true, 0xFFFFFFFF);
 			playerBitmapData.setPixel32(1, 1, 0x00000000);
 			var playerBitmap:Bitmap = new Bitmap(playerBitmapData);
 			playerBitmap.x = -1 + (WIDTH * 0.5) >> 0;
@@ -84,8 +85,8 @@
 		}
 		
 		public function render():void {
-			view.x = game.player.mapX - int(WIDTH * 0.5);
-			view.y = game.player.mapY - int(HEIGHT * 0.5);
+			view.x = game.player.mapX - ((WIDTH * 0.5) >> 0);
+			view.y = game.player.mapY - ((HEIGHT * 0.5) >> 0);
 			window.bitmapData.fillRect(window.bitmapData.rect, 0x66666666);
 			window.bitmapData.copyPixels(bitmapData, view, point, null, null, true);
 			
@@ -99,6 +100,33 @@
 				if(fxItem.active) fxItem.main();
 				else fx.splice(i, 1);
 			}
+		}
+		
+		/* Renders the minimap to a given image */
+		public function renderTo(target:BitmapData):void{
+			var point:Point = new Point();
+			point.x = -game.player.mapX + ((target.width * 0.5) >> 0);
+			point.y = -game.player.mapY + ((target.height * 0.5) >> 0);
+			target.copyPixels(bitmapData, bitmapData.rect, point, null, null, true);
+			
+			var temp:Rectangle;
+			var view:Rectangle = new Rectangle(-point.x, -point.y, target.width, target.height);
+			for(i = fx.length - 1; i > -1; i--) {
+				fxItem = fx[i];
+				if(fxItem.active){
+					// hijack the view in the MinimapFX item
+					temp = fxItem.view;
+					fxItem.view = view;
+					fxItem.bitmapData = target;
+					fxItem.main();
+					fxItem.view = temp;
+					fxItem.bitmapData = window.bitmapData;
+				}
+				else fx.splice(i, 1);
+			}
+			point.x = -1 + ((target.width * 0.5) >> 0);
+			point.y = -1 + ((target.height * 0.5) >> 0);
+			target.copyPixels(playerBitmapData, playerBitmapData.rect, point, null, null, true);
 		}
 		
 		/* Draw a square describing the current extent of the search */

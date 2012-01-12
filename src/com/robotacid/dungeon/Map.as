@@ -16,6 +16,7 @@
 	import com.robotacid.gfx.Renderer;
 	import com.robotacid.phys.Collider;
 	import com.robotacid.util.array.randomiseArray;
+	import com.robotacid.util.XorRandom;
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
 	import flash.display.Sprite;
@@ -37,6 +38,8 @@
 		
 		public static var game:Game;
 		public static var renderer:Renderer;
+		public static var random:XorRandom;
+		public static var seed:uint = 0;
 		
 		public var level:int;
 		public var type:int;
@@ -100,6 +103,7 @@
 			
 			if(type == MAIN_DUNGEON){
 				if(level > 0){
+					random.r = game.content.getSeed(level, type);
 					bitmap = new DungeonBitmap(level, type, zone);
 					width = bitmap.width;
 					height = bitmap.height;
@@ -109,6 +113,7 @@
 				}
 				
 			} else if(type == ITEM_DUNGEON){
+				random.r = game.content.getSeed(level, type);
 				var sideDungeonSize:int = 1 + (Number(level) / 10);
 				bitmap = new DungeonBitmap(sideDungeonSize, type, zone);
 				width = bitmap.width;
@@ -498,10 +503,10 @@
 						pos = bitmap.bitmapData.getPixel32(c, r);
 					} while(pos != DungeonBitmap.WALL && r < portalRoom.y + portalRoom.height * 2);
 					r--;
-					if(goodPortalPosition(c, r, game.random.value() < 0.3)) candidates.push(new Pixel(c, r));
+					if(goodPortalPosition(c, r, random.value() < 0.3)) candidates.push(new Pixel(c, r));
 				}
 				if(candidates.length){
-					choice = candidates[game.random.rangeInt(candidates.length)];
+					choice = candidates[random.rangeInt(candidates.length)];
 				} else {
 					if(index == rooms.length - 1) throw new Error("failed to create portal");
 					else {
@@ -654,9 +659,9 @@
 			
 			while(critterNum){
 				
-				r = 1 + game.random.range(bitmap.height - 1);
-				c = 1 + game.random.range(bitmap.width - 1);
-				critterId = critterPalette[game.random.rangeInt(critterPalette.length)];
+				r = 1 + random.range(bitmap.height - 1);
+				c = 1 + random.range(bitmap.width - 1);
+				critterId = critterPalette[random.rangeInt(critterPalette.length)];
 				
 				// may god forgive me for this if statement:
 				if(
@@ -730,7 +735,7 @@
 							pixels[(i + width) + 1] == DungeonBitmap.WALL
 						)
 					){
-						if(game.random.value() < 0.4){
+						if(random.value() < 0.4){
 							layers[ENTITIES][r][c] = new ChaosWall(c, r);
 							layers[BLOCKS][r][c] = MapTileConverter.WALL;
 						}
@@ -776,9 +781,9 @@
 			var trapIndex:int, trapPos:Pixel, trapType:int, sprite:Sprite, trap:Trap;
 			
 			while(totalTraps > 0 && trapPositions.length > 0){
-				trapIndex = game.random.range(trapPositions.length);
+				trapIndex = random.range(trapPositions.length);
 				trapPos = trapPositions[trapIndex];
-				trapType = ZONE_TRAPS[zone][game.random.rangeInt(ZONE_TRAPS[zone].length)];
+				trapType = ZONE_TRAPS[zone][random.rangeInt(ZONE_TRAPS[zone].length)];
 				sprite = new Sprite();
 				sprite.x = trapPos.x * Game.SCALE;
 				sprite.y = trapPos.y * Game.SCALE;
@@ -868,7 +873,7 @@
 				var x:int, y:int;
 				for(y = 0; y < BACKGROUND_HEIGHT * 0.5; y ++){
 					for(x = 0; x < BACKGROUND_WIDTH * 0.5; x ++){
-						source = renderer.zoneBackgroundBitmaps[zone][game.random.rangeInt(renderer.zoneBackgroundBitmaps[zone].length)].bitmapData;
+						source = renderer.zoneBackgroundBitmaps[zone][random.rangeInt(renderer.zoneBackgroundBitmaps[zone].length)].bitmapData;
 						point.x = x * Game.SCALE * 2;
 						point.y = y * Game.SCALE * 2;
 						bitmapData.copyPixels(source, source.rect, point);
@@ -891,20 +896,20 @@
 			}
 			var i:int, dir:int, turnDelay:int, newDir:int;
 			for(i = 0; i < 3; i++){
-				dir = 1 << game.random.rangeInt(4);
-				turnDelay = game.random.range(4) + 2;
+				dir = 1 << random.rangeInt(4);
+				turnDelay = random.range(4) + 2;
 				if(dir == Collider.UP){
-					x = game.random.range(BACKGROUND_WIDTH);
+					x = random.range(BACKGROUND_WIDTH);
 					y = BACKGROUND_HEIGHT - 1;
 				} else if(dir == Collider.RIGHT) {
 					x = 0;
-					y = game.random.range(BACKGROUND_HEIGHT);
+					y = random.range(BACKGROUND_HEIGHT);
 				} else if(dir == Collider.DOWN){
-					x = game.random.range(BACKGROUND_WIDTH);
+					x = random.range(BACKGROUND_WIDTH);
 					y = 0;
 				} else if(dir == Collider.LEFT){
 					x = BACKGROUND_WIDTH - 1;
-					y = game.random.range(BACKGROUND_HEIGHT);
+					y = random.range(BACKGROUND_HEIGHT);
 				}
 				while(true){
 					// lay pipe
@@ -923,9 +928,9 @@
 					}
 					// move agent
 					if(turnDelay-- <= 0){
-						turnDelay = game.random.range(4) + 2;
-						if(dir & (Collider.LEFT | Collider.RIGHT)) newDir = game.random.value() < 0.5 ? Collider.UP : Collider.DOWN;
-						else if(dir & (Collider.UP | Collider.DOWN)) newDir = game.random.value() < 0.5 ? Collider.RIGHT : Collider.LEFT;
+						turnDelay = random.range(4) + 2;
+						if(dir & (Collider.LEFT | Collider.RIGHT)) newDir = random.value() < 0.5 ? Collider.UP : Collider.DOWN;
+						else if(dir & (Collider.UP | Collider.DOWN)) newDir = random.value() < 0.5 ? Collider.RIGHT : Collider.LEFT;
 						// bend current pipe tile
 						pipeMap[y][x] &= ~dir;
 						pipeMap[y][x] |= newDir;

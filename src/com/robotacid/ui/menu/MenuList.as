@@ -20,10 +20,12 @@
 		
 		public var options:Vector.<MenuOption>;
 		public var selection:int;
+		public var accessible:Boolean;
 		
 		public function MenuList(options:Vector.<MenuOption> = null) {
 			if(options) this.options = options;
 			else this.options = new Vector.<MenuOption>();
+			accessible = true;
 			selection = 0;
 		}
 		

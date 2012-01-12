@@ -76,7 +76,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 285;
+		public static const BUILD_NUM:int = 286;
 		
 		public static var game:Game;
 		public static var renderer:Renderer;
@@ -238,6 +238,8 @@
 		private function init(e:Event = null):void {
 			removeEventListener(Event.ADDED_TO_STAGE, init);
 			
+			Map.random = new XorRandom(Map.seed);
+			
 			// KEYS INIT
 			if(!Key.initialized){
 				Key.init(stage);
@@ -284,6 +286,9 @@
 			
 			if(!menu){
 				menu = new GameMenu(WIDTH, console.y, this);
+			} else {
+				// update the rng seed
+				if(Map.seed == 0) menu.seedInputList.option.name = "" + Map.random.seed;
 			}
 			menuHolder = new Sprite();
 			addChild(menuHolder);
@@ -358,6 +363,7 @@
 			// This stuff that follows requires the bones of a level to initialise
 			
 			Brain.initCharacterLists();
+			
 			content = new Content();
 			
 			// DEBUG HERE ==========================================================================================

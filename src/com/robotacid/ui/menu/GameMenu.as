@@ -33,8 +33,9 @@
 		public var game:Game;
 		
 		public var inventoryList:InventoryMenuList;
-		public var optionsList:MenuList;
 		public var actionsList:MenuList;
+		public var loreList:MenuList;
+		public var optionsList:MenuList;
 		public var debugList:MenuList;
 		public var creditsList:MenuList;
 		
@@ -43,6 +44,8 @@
 		public var sureList:MenuList;
 		public var soundList:MenuList;
 		public var menuMoveList:MenuList;
+		public var mapInfo:MenuInfo;
+		public var seedInputList:MenuInputList;
 		
 		public var inventoryOption:MenuOption;
 		public var actionsOption:MenuOption;
@@ -53,14 +56,15 @@
 		public var searchOption:MenuOption;
 		public var disarmTrapOption:MenuOption;
 		public var missileOption:ToggleMenuOption;
-		public var screenshotOption:MenuOption;
 		
+		public var screenshotOption:MenuOption;
 		public var giveItemOption:MenuOption;
 		public var changeRogueRaceOption:MenuOption;
 		public var changeMinionRaceOption:MenuOption;
 		public var loadOption:MenuOption;
 		public var saveOption:MenuOption;
 		public var newGameOption:MenuOption;
+		public var seedOption:MenuOption;
 		public var sureOption:MenuOption;
 		
 		public var steedOption:MenuOption;
@@ -88,8 +92,9 @@
 			var trunk:MenuList = new MenuList();
 			
 			inventoryList = new InventoryMenuList(this, game);
-			optionsList = new MenuList();
 			actionsList = new MenuList();
+			loreList = new MenuList();
+			optionsList = new MenuList();
 			debugList = new MenuList();
 			creditsList = new MenuList();
 			
@@ -107,18 +112,21 @@
 			
 			onOffList = new MenuList();
 			sureList = new MenuList();
+			seedInputList = new MenuInputList("" + Map.random.seed,/[0-9]/, String(uint.MAX_VALUE).length, seedInputCallback);
+			seedInputList.promptName = "enter number";
+			
+			mapInfo = new MenuInfo(renderMap, true);
 			
 			// MENU OPTIONS
 			
 			inventoryOption = new MenuOption("inventory", inventoryList);
 			inventoryOption.help = "a list of items the rogue currently possesses in her handbag of holding";
-			//inventoryOption.recordable = false;
-			//inventoryList.pointers = new Vector.<MenuOption>();
-			//inventoryList.pointers.push(inventoryOption);
 			var optionsOption:MenuOption = new MenuOption("options", optionsList);
 			optionsOption.help = "change game settings";
 			actionsOption = new MenuOption("actions", actionsList, false);
 			actionsOption.help = "perform actions like searching for traps and going up and down stairs";
+			var loreOption:MenuOption = new MenuOption("lore", loreList);
+			loreOption.help = "information that has been gathered about the world.";
 			debugOption = new MenuOption("debug", debugList);
 			debugOption.help = "debug tools for allowing access to game elements that are hard to find in a procedurally generated world"
 			var creditsOption:MenuOption = new MenuOption("credits", creditsList);
@@ -128,12 +136,20 @@
 			giveItemOption.help = "put a custom item in the player's inventory";
 			giveItemOption.recordable = false;
 			
-			changeRogueRaceOption = new MenuOption("change rogue race", raceList);
-			changeRogueRaceOption.help = "change the current race of the rogue";
-			changeRogueRaceOption.recordable = false;
-			changeMinionRaceOption = new MenuOption("change minion race", raceList);
-			changeMinionRaceOption.help = "change the current race of the minion";
-			changeMinionRaceOption.recordable = false;
+			exitLevelOption = new MenuOption("exit level", null, false);
+			exitLevelOption.help = "exit this level when standing next to a stairway";
+			summonOption = new MenuOption("summon");
+			summonOption.help = "teleport your minion to your location";
+			searchOption = new MenuOption("search");
+			searchOption.help = "search immediate area for traps and secret areas. the player must not move till the search is over, or it will be aborted";
+			disarmTrapOption = new MenuOption("disarm trap", null, false);
+			disarmTrapOption.help = "disarms any revealed traps that the rogue is standing next to";
+			missileOption = new ToggleMenuOption(["shoot", "throw"], null, false);
+			missileOption.help = "shoot/throw a missile using one's equipped weapon";
+			missileOption.context = "missile";
+			
+			var mapOption:MenuOption = new MenuOption("map", mapInfo);
+			mapOption.recordable = false;
 			
 			initChangeKeysMenuOption();
 			changeKeysOption.help = "change the movement keys, menu key and hot keys"
@@ -148,6 +164,8 @@
 			fullScreenOption.help = "toggle fullscreen.\nthe flash player only allows use of the cursor keys and space when fullscreen.";
 			screenshotOption = new MenuOption("screenshot");
 			screenshotOption.help = "take a screen shot of the game (making the menu temporarily invisible) and open a filebrowser to save the screenshot to the desktop.";
+			seedOption = new MenuOption("set rng seed", seedInputList);
+			seedOption.help = "set the current random seed value used to generate levels and content.\nenter no value for a random seed value.";
 			var menuMoveOption:MenuOption = new MenuOption("menu move speed", menuMoveList);
 			menuMoveOption.help = "change the speed that the menu moves. lower values move the menu faster. simply move the selection to change the speed.";
 			loadOption = new MenuOption("load", sureList, false);
@@ -156,18 +174,6 @@
 			saveOption.help = "disabled whilst I work out how permadeath and save and quit work";
 			newGameOption = new MenuOption("new game", sureList);
 			newGameOption.help = "start a new game";
-			
-			exitLevelOption = new MenuOption("exit level", null, false);
-			exitLevelOption.help = "exit this level when standing next to a stairway";
-			summonOption = new MenuOption("summon");
-			summonOption.help = "teleport your minion to your location";
-			searchOption = new MenuOption("search");
-			searchOption.help = "search immediate area for traps and secret areas. the player must not move till the search is over, or it will be aborted";
-			disarmTrapOption = new MenuOption("disarm trap", null, false);
-			disarmTrapOption.help = "disarms any revealed traps that the rogue is standing next to";
-			missileOption = new ToggleMenuOption(["shoot", "throw"], null, false);
-			missileOption.help = "shoot/throw a missile using one's equipped weapon";
-			missileOption.context = "missile";
 			
 			steedOption = new MenuOption("aaron steed - code/art/design");
 			steedOption.help = "opens a window to aaron steed's site - robotacid.com";
@@ -178,13 +184,29 @@
 			onOffOption.bounce = true;
 			sureOption = new MenuOption("sure?");
 			
+			changeRogueRaceOption = new MenuOption("change rogue race", raceList);
+			changeRogueRaceOption.help = "change the current race of the rogue";
+			changeRogueRaceOption.recordable = false;
+			changeMinionRaceOption = new MenuOption("change minion race", raceList);
+			changeMinionRaceOption.help = "change the current race of the minion";
+			changeMinionRaceOption.recordable = false;
+			
 			// OPTION ARRAYS
 			
 			trunk.options.push(inventoryOption);
 			trunk.options.push(actionsOption);
+			trunk.options.push(loreOption);
 			trunk.options.push(optionsOption);
 			trunk.options.push(debugOption);
 			trunk.options.push(creditsOption);
+			
+			actionsList.options.push(searchOption);
+			actionsList.options.push(summonOption);
+			actionsList.options.push(disarmTrapOption);
+			actionsList.options.push(exitLevelOption);
+			actionsList.options.push(missileOption);
+			
+			loreList.options.push(mapOption);
 			
 			optionsList.options.push(soundOption);
 			optionsList.options.push(fullScreenOption);
@@ -192,15 +214,10 @@
 			optionsList.options.push(menuMoveOption);
 			optionsList.options.push(changeKeysOption);
 			optionsList.options.push(hotKeyOption);
+			optionsList.options.push(seedOption);
 			optionsList.options.push(loadOption);
 			optionsList.options.push(saveOption);
 			optionsList.options.push(newGameOption);
-			
-			actionsList.options.push(searchOption);
-			actionsList.options.push(summonOption);
-			actionsList.options.push(disarmTrapOption);
-			actionsList.options.push(exitLevelOption);
-			actionsList.options.push(missileOption);
 			
 			debugList.options.push(giveItemOption);
 			debugList.options.push(changeRogueRaceOption);
@@ -633,6 +650,22 @@
 			Game.renderer.createDebrisRect(user.collider, 0, 10, Renderer.STONE);
 			inventoryList.removeItem(item);
 			return null;
+		}
+		
+		/* Callback for mapInfo rendering */
+		private function renderMap():void{
+			var col:uint = infoTextBox.backgroundCol;
+			infoTextBox.backgroundCol = 0x99666666;
+			infoTextBox.drawBorder();
+			infoTextBox.backgroundCol = col;
+			game.miniMap.renderTo(infoTextBox.bitmapData);
+		}
+		
+		/* Callback for seed input */
+		private function seedInputCallback(inputList:MenuInputList):void{
+			Map.seed = uint(inputList.input);
+			trace("new seed: " + Map.random.seed);
+			game.console.print("create a new game to use seed");
 		}
 		
 	}

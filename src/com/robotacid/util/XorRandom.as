@@ -12,7 +12,8 @@ package com.robotacid.util {
 	public class XorRandom {
 		
 		public static const MAX_RATIO:Number = 1 / uint.MAX_VALUE;
-		public static var r:uint;
+		public var r:uint;
+		public var seed:uint;
 		
 		public function XorRandom(seed:uint = 0) {
 			if(seed){
@@ -20,6 +21,7 @@ package com.robotacid.util {
 			} else {
 				r = Math.random() * uint.MAX_VALUE;
 			}
+			this.seed = r;
 		}
 		/* Returns a number from 0 - 1 */
 		public function value():Number{

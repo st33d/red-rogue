@@ -37,6 +37,7 @@
 		public var portalsByLevel:Vector.<Vector.<XML>>;
 		public var trapsByLevel:Vector.<int>;
 		public var secretsByLevel:Vector.<int>;
+		public var seedsByLevel:Vector.<uint>;
 		
 		public var itemDungeonContent:Object;
 		public var areaContent:Array;
@@ -56,6 +57,7 @@
 			portalsByLevel = new Vector.<Vector.<XML>>(TOTAL_LEVELS + 1);
 			trapsByLevel = new Vector.<int>();
 			secretsByLevel = new Vector.<int>();
+			seedsByLevel = new Vector.<uint>();
 			for(level = 0; level <= TOTAL_LEVELS; level++){
 				obj = getLevelContent(level);
 				monstersByLevel[level] = obj.monsters;
@@ -63,6 +65,8 @@
 				portalsByLevel[level] = new Vector.<XML>();
 				trapsByLevel[level] = level * 2;
 				secretsByLevel[level] = 2;
+				Map.random.value();
+				seedsByLevel[level] = Map.random.r;
 			}
 			areaContent = [];
 			for(level = 0; level < TOTAL_AREAS; level++){
@@ -95,7 +99,7 @@
 		public function equipmentQuantityPerLevel(level:int):int{
 			if(level <= 0) return 0;
 			if(level > TOTAL_LEVELS) level = TOTAL_LEVELS;
-			var n:Number = (level + game.random.range(3)) * 0.5;
+			var n:Number = (level + Map.random.range(3)) * 0.5;
 			return n == (n >> 0) ? n : (n >> 0) + 1; // inline Math.ceil()
 		}
 		
@@ -103,7 +107,7 @@
 		public function runeQuantityPerLevel(level:int):int{
 			if(level <= 0) return 0;
 			if(level > TOTAL_LEVELS) level = TOTAL_LEVELS;
-			var n:Number = (level + game.random.range(2)) * 0.5;
+			var n:Number = (level + Map.random.range(2)) * 0.5;
 			return n == (n >> 0) ? n : (n >> 0) + 1; // inline Math.ceil()
 		}
 		
@@ -111,7 +115,7 @@
 		public function monsterQuantityPerLevel(level:int):int{
 			if(level <= 0) return 0;
 			if(level > TOTAL_LEVELS) level = TOTAL_LEVELS;
-			return 5 + game.random.range(6) + level * (2 + game.random.range(2));
+			return 5 + Map.random.range(6) + level * (2 + Map.random.range(2));
 		}
 		
 		/* Create a satisfactory amount of monsters and loot for a level
@@ -133,7 +137,7 @@
 			var quantity:int;
 			quantity = equipmentQuantityPerLevel(level);
 			while(quantity--){
-				equipment.push(createItemXML(level, game.random.value() < 0.5 ? Item.WEAPON : Item.ARMOUR));
+				equipment.push(createItemXML(level, Map.random.value() < 0.5 ? Item.WEAPON : Item.ARMOUR));
 			}
 			quantity = runeQuantityPerLevel(level);
 			while(quantity--){
@@ -146,7 +150,7 @@
 			
 			// equipment needs to be distributed amongst monsters and
 			// runes need to go in chests
-			var equippedMonsters:int = 1 + game.random.range(equipment.length - 1);
+			var equippedMonsters:int = 1 + Map.random.range(equipment.length - 1);
 			if(monsters.length < equippedMonsters) equippedMonsters = monsters.length;
 			var loot:XML;
 			while(equippedMonsters--){
@@ -166,11 +170,11 @@
 			}
 			// the rest goes in chests, upto 3 items can go in a chest
 			while(equipment.length || runes.length){
-				var chestQuantity:int = 1 + game.random.range(3);
+				var chestQuantity:int = 1 + Map.random.range(3);
 				if(chestQuantity > equipment.length + runes.length) chestQuantity = equipment.length + runes.length;
 				var chest:XML = <chest />;
 				while(chestQuantity){
-					if(game.random.value() < 0.5){
+					if(Map.random.value() < 0.5){
 						if(runes.length){
 							chest.appendChild(runes.shift());
 							chestQuantity--;
@@ -187,12 +191,24 @@
 			return obj;
 		}
 		
+		/* Return the pre-generated seed value for creating a given level */
+		public function getSeed(level:int, type:int):uint{
+			if(type == Map.MAIN_DUNGEON){
+				while(level >= seedsByLevel.length) seedsByLevel.push(Math.random() * uint.MAX_VALUE);
+				return seedsByLevel[level];
+			} else if(type == Map.ITEM_DUNGEON){
+				return itemDungeonContent.seed;
+			}
+			return Math.random() * uint.MAX_VALUE;
+		}
+		
 		/* Creates content for the enchanted item side-dungeon */
 		public function setItemDungeonContent(item:Item, level:int):void{
 			itemDungeonContent = getLevelContent(level, item.toXML());
 			itemDungeonContent.portals = Vector.<XML>([<portal type={Portal.ITEM_RETURN} targetLevel={level} />]);
 			itemDungeonContent.secrets = 2;
 			itemDungeonContent.traps = 2 * (level <= TOTAL_LEVELS ? level : TOTAL_LEVELS);
+			itemDungeonContent.seed = Math.random() * uint.MAX_VALUE;
 		}
 		
 		/* Retargets the underworld portal */
@@ -240,16 +256,16 @@
 				// just going to go for a random drop for now.
 				// I intend to figure out a distribution pattern later
 				while(monsters.length){
-					r = 1 + game.random.range(bitmap.height - 1);
-					c = 1 + game.random.range(bitmap.width - 1);
+					r = 1 + Map.random.range(bitmap.height - 1);
+					c = 1 + Map.random.range(bitmap.width - 1);
 					if(!layers[Map.ENTITIES][r][c] && layers[Map.BLOCKS][r][c] != 1 && (bitmap.bitmapData.getPixel32(c, r + 1) == DungeonBitmap.LEDGE || layers[Map.BLOCKS][r + 1][c] == 1)){
 						//trace(monstersByLevel[level][0].toXMLString());
 						layers[Map.ENTITIES][r][c] = convertXMLToEntity(c, r, monsters.shift());
 					}
 				}
 				while(chests.length){
-					r = 1 + game.random.range(bitmap.height - 2);
-					c = 1 + game.random.range(bitmap.width - 2);
+					r = 1 + Map.random.range(bitmap.height - 2);
+					c = 1 + Map.random.range(bitmap.width - 2);
 					if(!layers[Map.ENTITIES][r][c] && layers[Map.BLOCKS][r][c] != 1 && (bitmap.bitmapData.getPixel32(c, r + 1) == DungeonBitmap.LEDGE || layers[Map.BLOCKS][r + 1][c] == 1)){
 						//trace(chestsByLevel[level][0].toXMLString());
 						layers[Map.ENTITIES][r][c] = convertXMLToEntity(c, r, chests.shift());
@@ -274,7 +290,7 @@
 					chest = convertXMLToEntity(0, 0, areaContent[level].chests.shift());
 					while(chest.contents.length){
 						item = chest.contents.shift();
-						c = minX + game.random.range(maxX - minX);
+						c = minX + Map.random.range(maxX - minX);
 						item.dropToMap(c, r, false);
 						if(layers[Map.ENTITIES][r][c]){
 							if(layers[Map.ENTITIES][r][c] is Array){
@@ -466,7 +482,7 @@
 				}
 				if(chests.length > 0){
 					chest = chests[chests.length - 1];
-					if(chest.item.length < 1 + game.random.range(3)){
+					if(chest.item.length < 1 + Map.random.range(3)){
 						chest.appendChild(entity.toXML());
 					} else {
 						chest = <chest />;
@@ -502,12 +518,12 @@
 		 * Currently set up for just Monsters */
 		public static function createCharacterXML(dungeonLevel:int, type:int):XML{
 			var name:int;
-			var level:int = -1 + game.random.range(dungeonLevel);
+			var level:int = -1 + Map.random.range(dungeonLevel);
 			if(type == Character.MONSTER){
 				var range:int = dungeonLevel + 2;
 				if(dungeonLevel > Game.MAX_LEVEL) range = Game.MAX_LEVEL + 2;
 				while(name < 1 || name > dungeonLevel || name >= Game.MAX_LEVEL){
-					name = game.random.range(range);
+					name = Map.random.range(range);
 					if(name > dungeonLevel) name = dungeonLevel;
 					if(name >= Game.MAX_LEVEL) continue;
 				}
@@ -517,9 +533,9 @@
 		
 		/* Create a random item appropriate for the dungeon level */
 		public static function createItemXML(dungeonLevel:int, type:int):XML{
-			var enchantments:int = -2 + game.random.range(dungeonLevel);
+			var enchantments:int = -2 + Map.random.range(dungeonLevel);
 			var name:int;
-			var level:int = Math.min(1 + game.random.range(dungeonLevel), Game.MAX_LEVEL);
+			var level:int = Math.min(1 + Map.random.range(dungeonLevel), Game.MAX_LEVEL);
 			var nameRange:int;
 			if(type == Item.ARMOUR){
 				nameRange = Item.ITEM_MAX;
@@ -535,7 +551,7 @@
 				enchantments = 0;
 			}
 			if(nameRange > dungeonLevel) nameRange = dungeonLevel;
-			name = game.random.range(nameRange);
+			name = Map.random.range(nameRange);
 			
 			var itemXML:XML = <item name={name} type={type} level={level} />;
 
@@ -543,9 +559,9 @@
 				var runeList:Vector.<int> = new Vector.<int>();
 				var enchantmentName:int, enchantmentNameRange:int;
 				while(enchantments--){
-					enchantmentNameRange = game.random.range(Item.stats["rune names"].length);
+					enchantmentNameRange = Map.random.range(Item.stats["rune names"].length);
 					if(enchantmentNameRange > dungeonLevel) enchantmentNameRange = dungeonLevel;
-					enchantmentName = game.random.range(enchantmentNameRange);
+					enchantmentName = Map.random.range(enchantmentNameRange);
 					// some enchantments confer multiple extra enchantments -
 					// that can of worms will stay closed
 					if(!Effect.BANNED_RANDOM_ENCHANTMENTS[enchantmentName]) runeList.push(enchantmentName);

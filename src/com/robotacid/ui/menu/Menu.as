@@ -57,6 +57,7 @@
 		public var previousTextBox:TextBox;
 		public var currentTextBox:TextBox;
 		public var nextTextBox:TextBox;
+		public var infoTextBox:TextBox;
 		public var capture:CaptureBitmap;
 		public var selectionCopyBitmap:Bitmap;
 		public var hideChangeEvent:Boolean;
@@ -70,6 +71,7 @@
 		public var hotKeyMapRecord:HotKeyMap;
 		public var changeKeysOption:MenuOption;
 		public var hotKeyOption:MenuOption;
+		public var inputOption:MenuOption;
 		
 		public var previousMenuList:MenuList;
 		public var currentMenuList:MenuList;
@@ -107,6 +109,7 @@
 		private var movementGuideCount:int;
 		private var animatingSelection:Boolean;
 		private var notVistitedColFrame:int;
+		private var inputKeyPressed:Boolean;
 		
 		public static const LIST_WIDTH:Number = 100;
 		public static const LINE_SPACING:Number = 11;
@@ -194,15 +197,20 @@
 			nextTextBox.alpha = 0.7;
 			nextTextBox.wordWrap = false;
 			nextTextBox.marquee = true;
+			infoTextBox = new TextBox(110, 169, 0x66111111, 0xFF999999, 0xFFDDDDDD);
+			infoTextBox.visible = false;
 			capture = new CaptureBitmap();
 			capture.visible = false;
 			
 			previousTextBox.x = -LIST_WIDTH;
 			nextTextBox.x = LIST_WIDTH;
+			infoTextBox.x = LIST_WIDTH;
+			infoTextBox.y = -77;
 			
 			textHolder.addChild(previousTextBox);
 			textHolder.addChild(currentTextBox);
 			textHolder.addChild(nextTextBox);
+			textHolder.addChild(infoTextBox);
 			textHolder.addChild(capture);
 			
 			previousTextBox.visible = false;
@@ -258,7 +266,7 @@
 			
 			if(trunk) setTrunk(trunk);
 			
-			addEventListener(Event.ENTER_FRAME, onEnterFrame, false, 0, true);
+			addEventListener(Event.ENTER_FRAME, main, false, 0, true);
 			
 		}
 		
@@ -307,8 +315,10 @@
 		 */
 		public function stepRight():void{
 			if(
-				(hotKeyMapRecord && currentMenuList.options[selection].recordable) ||
-				(!hotKeyMapRecord && currentMenuList.options[selection].active)
+				!(nextMenuList && !nextMenuList.accessible) && (
+					(hotKeyMapRecord && currentMenuList.options[selection].recordable) ||
+					(!hotKeyMapRecord && currentMenuList.options[selection].active)
+				)
 			){
 				// walk forward
 				if(nextMenuList){
@@ -330,6 +340,7 @@
 					previousMenuList = currentMenuList;
 					currentMenuList = nextMenuList;
 					if(currentMenuList == keyChanger) keyLock = true;
+					if(currentMenuList is MenuInputList) (currentMenuList as MenuInputList).begin();
 					update();
 					
 				// nothing to walk forward to - call the SELECT event
@@ -385,7 +396,7 @@
 			}
 		}
 		
-		/* This renders the current menu state, though it is better to use the select()
+		/* This renders the current menu state, though it is better to use select()
 		 * as it will also update the branchString property and update
 		 * what MenuList leads from the currently selected MenuOption.
 		 */
@@ -411,16 +422,25 @@
 				setLineCols(currentMenuList, currentTextBox);
 			}
 			if(currentMenuList.options[selection].active && nextMenuList){
-				if(nextMenuList == keyChanger){
-					keyChanger.options[0].name = Key.keyString(Key.custom[selection]);
+				if(nextMenuList is MenuInfo){
+					(nextMenuList as MenuInfo).renderCallback();
+					infoTextBox.visible = true;
+					selectionWindowTaperNext.visible = false;
+					nextTextBox.visible = false;
+				} else {
+					if(nextMenuList == keyChanger){
+						keyChanger.options[0].name = Key.keyString(Key.custom[selection]);
+					}
+					nextTextBox.setSize(LIST_WIDTH, LINE_SPACING * nextMenuList.options.length + TextBox.BORDER_ALLOWANCE);
+					nextTextBox.text = nextMenuList.optionsToString();
+					nextTextBox.y = -nextMenuList.selection * LINE_SPACING - TextBox.BORDER_ALLOWANCE;
+					setLineCols(nextMenuList, nextTextBox);
+					nextTextBox.visible = true;
+					selectionWindowTaperNext.visible = true;
+					infoTextBox.visible = false;
 				}
-				nextTextBox.setSize(LIST_WIDTH, LINE_SPACING * nextMenuList.options.length + TextBox.BORDER_ALLOWANCE);
-				nextTextBox.text = nextMenuList.optionsToString();
-				nextTextBox.y = -nextMenuList.selection * LINE_SPACING - TextBox.BORDER_ALLOWANCE;
-				setLineCols(nextMenuList, nextTextBox);
-				nextTextBox.visible = true;
-				selectionWindowTaperNext.visible = true;
 			} else {
+				infoTextBox.visible = false;
 				nextTextBox.visible = false;
 				selectionWindowTaperNext.visible = false;
 			}
@@ -453,6 +473,7 @@
 			capture.visible = nextTextBox.visible;
 			capture.alpha = nextTextBox.alpha;
 			nextTextBox.alpha = 0;
+			infoTextBox.alpha = 0;
 			nextAlphaStep = SIDE_ALPHAS / moveReset;
 			captureAlphaStep = -SIDE_ALPHAS / moveReset;
 			
@@ -475,6 +496,7 @@
 			capture.visible = nextTextBox.visible;
 			capture.alpha = nextTextBox.alpha;
 			nextTextBox.alpha = 0;
+			infoTextBox.alpha = 0;
 			nextAlphaStep = SIDE_ALPHAS / moveReset;
 			captureAlphaStep = -SIDE_ALPHAS / moveReset;
 			
@@ -491,25 +513,29 @@
 		
 		private function animateRight():void{
 			if(nextMenuList){
-				// capture the previous menu
-				capture.capture(previousTextBox);
-				capture.visible = previousTextBox.visible;
-				capture.alpha = previousTextBox.alpha;
-				stepRight();
+				if(nextMenuList.accessible){
+					// capture the previous menu
+					capture.capture(previousTextBox);
+					capture.visible = previousTextBox.visible;
+					capture.alpha = previousTextBox.alpha;
+					stepRight();
+					
+					previousTextBox.x += LIST_WIDTH;
+					currentTextBox.x += LIST_WIDTH;
+					nextTextBox.x += LIST_WIDTH;
+					infoTextBox.x += LIST_WIDTH;
+					previousTextBox.alpha = 1;
+					currentTextBox.alpha = SIDE_ALPHAS;
+					nextTextBox.alpha = 0;
+					infoTextBox.alpha = 0;
+					
+					previousAlphaStep = (SIDE_ALPHAS - 1.0) / moveReset;
+					currentAlphaStep = (1.0 - SIDE_ALPHAS) / moveReset;
+					nextAlphaStep = 1.0 / moveReset;
+					captureAlphaStep = -SIDE_ALPHAS / moveReset;
+					vx = -LIST_WIDTH / moveReset;
+				}
 				
-				previousTextBox.x += LIST_WIDTH;
-				currentTextBox.x += LIST_WIDTH;
-				nextTextBox.x += LIST_WIDTH;
-				previousTextBox.alpha = 1;
-				currentTextBox.alpha = SIDE_ALPHAS;
-				nextTextBox.alpha = 0;
-				
-				previousAlphaStep = (SIDE_ALPHAS - 1.0) / moveReset;
-				currentAlphaStep = (1.0 - SIDE_ALPHAS) / moveReset;
-				nextAlphaStep = 1.0 / moveReset;
-				captureAlphaStep = -SIDE_ALPHAS / moveReset;
-				vx = -LIST_WIDTH / moveReset;
-			
 			// initialise and launch menu selection animation
 			} else {
 				// capture an image of the current menu state
@@ -552,9 +578,15 @@
 		
 		private function animateLeft():void{
 			// capture the next menu
-			capture.capture(nextTextBox);
-			capture.visible = nextTextBox.visible;
-			capture.alpha = previousTextBox.alpha;
+			if(infoTextBox.visible){
+				capture.capture(infoTextBox);
+				capture.visible = infoTextBox.visible;
+				capture.alpha = 1;
+			} else {
+				capture.capture(nextTextBox);
+				capture.visible = nextTextBox.visible;
+				capture.alpha = previousTextBox.alpha;
+			}
 			stepLeft();
 			
 			previousTextBox.x -= LIST_WIDTH;
@@ -563,6 +595,7 @@
 			previousTextBox.alpha = 0;
 			currentTextBox.alpha = SIDE_ALPHAS;
 			nextTextBox.alpha = 1;
+			infoTextBox.alpha = 1;
 			
 			previousAlphaStep = 1.0 / moveReset;
 			currentAlphaStep = (1.0 - SIDE_ALPHAS) / moveReset;
@@ -578,12 +611,29 @@
 		
 		/* We listen for key input here, the keyLock property is used to stop the menu
 		 * endlessly firing the same selection */
-		public function onEnterFrame(e:Event = null):void{
-			var i:int, j:int;
-			// if the keyChanger is active, listen for keys to change the current key set
-			if(!keyLock && keyChanger && currentMenuList == keyChanger){
+		public function main(e:Event = null):void{
+			var i:int, j:int, newKey:int, inputList:MenuInputList;
+			// if we are listening for input:
+			if(currentMenuList is MenuInputList){
+				inputList = currentMenuList as MenuInputList;
 				if(Key.keysPressed){
-					var newKey:int = Key.keyLog[Key.KEY_LOG_LENGTH - 1];
+					if(!inputKeyPressed){
+						newKey = Key.keyLog[Key.KEY_LOG_LENGTH - 1];
+						if(inputList.newLineFinish && newKey == Keyboard.ENTER) inputList.finish();
+						else inputList.addChar(Key.keyString(newKey));
+						inputKeyPressed = true;
+						renderMenu();
+					}
+				} else {
+					inputKeyPressed = false;
+				}
+				keyLock = true;
+				if(inputList.done) stepLeft();
+			}
+			// if the keyChanger is active, listen for keys to change the current key set
+			if(!keyLock && currentMenuList == keyChanger){
+				if(Key.keysPressed){
+					newKey = Key.keyLog[Key.KEY_LOG_LENGTH - 1];
 					Key.custom[previousMenuList.selection] = newKey;
 					// change the menu names of the affected keys
 					changeKeyName(changeKeysOption.target.options[previousMenuList.selection], newKey);
@@ -683,19 +733,22 @@
 						nextTextBox.updateMarquee();
 						setLineCols(nextMenuList, nextTextBox);
 					}
+					if(infoTextBox.visible && (nextMenuList as MenuInfo).update){
+						(nextMenuList as MenuInfo).renderCallback();
+					}
 					// update the visited glow frame
 					notVistitedColFrame++;
 					if(notVistitedColFrame >= NOT_VISITED_COLS.length) notVistitedColFrame = 0;
 					
 					if(movementGuideCount){
-						if(currentMenuList != keyChanger) movementGuideCount--;
+						if(currentMenuList != keyChanger && !(currentMenuList is MenuInputList)) movementGuideCount--;
 						if(movementGuideCount == 0){
 							for(i = 0; i < movementMovieClips.length; i++) movementMovieClips[i].gotoAndPlay(1);
 						}
 					} else {
 						movementMovieClips[UP_MOVE].visible = currentMenuList.selection > 0;
 						movementMovieClips[DOWN_MOVE].visible = currentMenuList.selection < currentMenuList.options.length - 1;
-						movementMovieClips[RIGHT_MOVE].visible = currentMenuList.options[selection].active;
+						movementMovieClips[RIGHT_MOVE].visible = currentMenuList.options[selection].active && !(nextMenuList && !nextMenuList.accessible);
 						movementMovieClips[LEFT_MOVE].visible = Boolean(previousMenuList);
 						if(currentMenuList.options[selection].active && !nextMenuList && selectText.alpha < 1){
 							selectText.alpha += 0.1;
@@ -717,8 +770,10 @@
 						else if(
 							(dir & RIGHT) &&
 							(
-								(hotKeyMapRecord && currentMenuList.options[selection].recordable) ||
-								(!hotKeyMapRecord && currentMenuList.options[selection].active)
+								!(nextMenuList && !nextMenuList.accessible) && (
+									(hotKeyMapRecord && currentMenuList.options[selection].recordable) ||
+									(!hotKeyMapRecord && currentMenuList.options[selection].active)
+								)
 							)
 						){
 							animateRight();
@@ -755,16 +810,19 @@
 						if(dir & (UP | DOWN)){
 							currentTextBox.y += vy;
 							nextTextBox.alpha += nextAlphaStep;
+							infoTextBox.alpha += nextAlphaStep;
 							capture.alpha += captureAlphaStep;
 						}
 						if(dir & (RIGHT | LEFT)){
 							previousTextBox.x += vx;
 							currentTextBox.x += vx;
 							nextTextBox.x += vx;
+							infoTextBox.x += vx;
 							capture.x += vx;
 							previousTextBox.alpha += previousAlphaStep;
 							currentTextBox.alpha += currentAlphaStep;
 							nextTextBox.alpha += nextAlphaStep;
+							infoTextBox.alpha += nextAlphaStep;
 							capture.alpha += captureAlphaStep;
 						}
 						
@@ -775,8 +833,10 @@
 							currentTextBox.x = 0;
 							previousTextBox.x = -LIST_WIDTH;
 							nextTextBox.x = LIST_WIDTH;
+							infoTextBox.x = LIST_WIDTH;
 							currentTextBox.alpha = 1;
 							previousTextBox.alpha = nextTextBox.alpha = SIDE_ALPHAS;
+							infoTextBox.alpha = 1;
 							capture.alpha = 0;
 							dir = 0;
 							// reduce the animation time when holding down keys for fast browsing
@@ -822,7 +882,7 @@
 			select(currentMenuList.selection);
 		}
 		
-		/* Returns a MenuOption that leads to a MenuList offering the ability to redefine keys. */
+		/* Inits a MenuOption that leads to a MenuList offering the ability to redefine keys. */
 		public function initChangeKeysMenuOption():void{
 			var keyChangerOption:MenuOption = new MenuOption("no key data");
 			var keyChangerOptions:Vector.<MenuOption> = new Vector.<MenuOption>();
@@ -843,6 +903,11 @@
 			}
 			changeKeysOption = new MenuOption("change keys", changeKeysMenuList);
 			changeKeysOption.recordable = false;
+		}
+		
+		public function initInputMenuOption():void{
+			var inputValueOption:MenuOption = new MenuOption("input value");
+			
 		}
 		
 		/* Returns a MenuOption that leads to a MenuList offering the ability to create "hot keys"
