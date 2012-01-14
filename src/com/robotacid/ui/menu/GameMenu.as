@@ -280,11 +280,6 @@
 			
 		}
 		
-		public function activate():void{
-			update();
-			holder.addChild(this);
-		}
-		
 		public function onChange(e:Event = null):void{
 			
 			var option:MenuOption = currentMenuList.options[selection];

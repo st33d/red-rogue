@@ -61,6 +61,7 @@
 		public static const THRESHOLD:uint = 0xF1000000;
 		public static const WALL_COL:uint = 0xFFFFFFFF;
 		public static const MINIMAP_EMPTY_COL:uint = 0x99FFFFFF;
+		public static const MINIMAP_REVEAL_COL:uint = 0x99AAAAAA;
 		public static const MINIMAP_WALL_COL:uint = 0xDD000000;
 		
 		public static const UP:int = 1;
@@ -72,7 +73,6 @@
 		
 		public static const SCALE:Number = Game.SCALE;
 		public static const INV_SCALE:Number = Game.INV_SCALE;
-		
 		
 		public function LightMap(blockMap:Vector.<Vector.<int>>) {
 			this.blockMap = blockMap;
@@ -90,6 +90,7 @@
 			renderer.lightBitmap.bitmapData = darkImage;
 		}
 		
+		/* A new collision map from the physics engine is used start the basis for the next level's lighting engine */
 		public function newMap(blockMap:Vector.<Vector.<int>>):void{
 			entities = new Vector.<Entity>();
 			this.blockMap = blockMap;

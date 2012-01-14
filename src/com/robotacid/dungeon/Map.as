@@ -665,21 +665,21 @@
 				
 				// may god forgive me for this if statement:
 				if(
-					!layers[Map.ENTITIES][r][c] &&
-					layers[Map.BLOCKS][r][c] != 1 &&
+					!layers[ENTITIES][r][c] &&
+					layers[BLOCKS][r][c] != 1 &&
 					(
 						(
 							critterId == MapTileConverter.RAT &&
 							(
 								bitmap.bitmapData.getPixel32(c, r + 1) == DungeonBitmap.LEDGE ||
 								bitmap.bitmapData.getPixel32(c, r + 1) == DungeonBitmap.LADDER_LEDGE ||
-								layers[Map.BLOCKS][r + 1][c] == MapTileConverter.WALL
+								layers[BLOCKS][r + 1][c] == MapTileConverter.WALL
 							)
 						) ||
 						(
 							(critterId == MapTileConverter.SPIDER || critterId == MapTileConverter.BAT) &&
 							(
-								layers[Map.BLOCKS][r - 1][c] == MapTileConverter.WALL &&
+								layers[BLOCKS][r - 1][c] == MapTileConverter.WALL &&
 								bitmap.bitmapData.getPixel32(c, r - 1) != DungeonBitmap.PIT
 							)
 						) ||
@@ -687,17 +687,17 @@
 							critterId == MapTileConverter.COG &&
 							(
 								(
-									layers[Map.BLOCKS][r - 1][c] == MapTileConverter.WALL &&
+									layers[BLOCKS][r - 1][c] == MapTileConverter.WALL &&
 									bitmap.bitmapData.getPixel32(c, r - 1) != DungeonBitmap.PIT
 								) ||
-								layers[Map.BLOCKS][r + 1][c] == MapTileConverter.WALL ||
-								layers[Map.BLOCKS][r][c - 1] == MapTileConverter.WALL ||
-								layers[Map.BLOCKS][r][c + 1] == MapTileConverter.WALL
+								layers[BLOCKS][r + 1][c] == MapTileConverter.WALL ||
+								layers[BLOCKS][r][c - 1] == MapTileConverter.WALL ||
+								layers[BLOCKS][r][c + 1] == MapTileConverter.WALL
 							)
 						)
 					)
 				){
-					layers[Map.ENTITIES][r][c] = critterId;
+					layers[ENTITIES][r][c] = critterId;
 					critterNum--;
 				}
 				if((breaker++) > 1000) break;

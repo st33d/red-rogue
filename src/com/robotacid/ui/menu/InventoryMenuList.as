@@ -291,6 +291,15 @@
 			}
 			menu.update();
 		}
+		
+		/* Iterates through the runes in the inventory and identifies them */
+		public function identifyRunes():void{
+			var i:int, rune:Item;
+			for(i = 0; i < runesList.options.length; i++){
+				rune = runesList.options[i].userData as Item;
+				Item.revealName(rune.name, runesList);
+			}
+		}
 	}
 
 }

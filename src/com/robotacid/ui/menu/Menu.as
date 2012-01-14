@@ -99,6 +99,8 @@
 		private var currentAlphaStep:Number;
 		private var nextAlphaStep:Number;
 		private var captureAlphaStep:Number;
+		private var helpVy:Number;
+		private var alphaStep:Number;
 		private var keysDown:int;
 		private var hotKeyDown:Vector.<Boolean>;
 		private var keysLocked:int;
@@ -613,6 +615,17 @@
 		 * endlessly firing the same selection */
 		public function main(e:Event = null):void{
 			var i:int, j:int, newKey:int, inputList:MenuInputList;
+			
+			// handle menu opening animation
+			if(help.y < 0){
+				help.y += helpVy;
+				if(help.y >= 0) help.y = 0;
+			}
+			if(alpha < 1){
+				alpha += alphaStep;
+				if(alpha >= 1) alpha = 1;
+			}
+			
 			// if we are listening for input:
 			if(currentMenuList is MenuInputList){
 				inputList = currentMenuList as MenuInputList;
@@ -882,6 +895,16 @@
 			select(currentMenuList.selection);
 		}
 		
+		/* Called when opening the menu */
+		public function activate():void{
+			update();
+			help.y = -help.height;
+			helpVy = help.height / (moveDelay * 2);
+			alpha = 0;
+			alphaStep = 1.0 / moveDelay;
+			holder.addChild(this);
+		}
+		
 		/* Inits a MenuOption that leads to a MenuList offering the ability to redefine keys. */
 		public function initChangeKeysMenuOption():void{
 			var keyChangerOption:MenuOption = new MenuOption("no key data");
@@ -903,11 +926,6 @@
 			}
 			changeKeysOption = new MenuOption("change keys", changeKeysMenuList);
 			changeKeysOption.recordable = false;
-		}
-		
-		public function initInputMenuOption():void{
-			var inputValueOption:MenuOption = new MenuOption("input value");
-			
 		}
 		
 		/* Returns a MenuOption that leads to a MenuList offering the ability to create "hot keys"

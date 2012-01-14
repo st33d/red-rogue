@@ -3,16 +3,16 @@ undead unequip bug - unreproducible?
 
 chaos wall bug - set up test bed to column drop monster on to chaos walls
 
+UI
+	roll down console text
+		separate console from TextBox
+		create internal TextBox for console
+		animate bitmapData lines that scroll in
+
 prep for identify rune
-	menu image / text panel
 	Lore menu
-	Seed modifier
-		Brute force test persistent levels
-		Stop Map and Content access corrupting seed values
-		Lock portals to map postions
-		
-	Reveal minimap
-	Identify all runes
+	*Reveal minimap - MiniMap.reveal()
+	*Identify all runes - InventoryMenuList.identifyRunes()
 	Quests
 
 Add some how add a random offset to AI search values - they're in ints (fuck knows, coin flipping?)
