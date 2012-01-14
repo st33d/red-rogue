@@ -162,6 +162,25 @@
 			setStairsUp(15, height - 2);
 			setStairsDown(10, height - 2);
 			
+			createSecretWall(7, height - 2);
+			
+			//setValue(5, height - 2, BLOCKS, MapTileConverter.WALL);
+			//setValue(5, height - 3, BLOCKS, MapTileConverter.WALL);
+			//setValue(5, height - 4, BLOCKS, MapTileConverter.WALL);
+			//setValue(5, height - 5, BLOCKS, MapTileConverter.WALL);
+			//setValue(5, height - 6, BLOCKS, MapTileConverter.WALL);
+			//setValue(3, height - 2, BLOCKS, MapTileConverter.WALL);
+			//setValue(3, height - 3, BLOCKS, MapTileConverter.WALL);
+			//setValue(3, height - 4, BLOCKS, MapTileConverter.WALL);
+			//setValue(3, height - 5, BLOCKS, MapTileConverter.WALL);
+			//setValue(3, height - 6, BLOCKS, MapTileConverter.WALL);
+			//setValue(6, height - 2, BLOCKS, MapTileConverter.LADDER);
+			//setValue(6, height - 3, BLOCKS, MapTileConverter.LADDER);
+			//setValue(6, height - 4, BLOCKS, MapTileConverter.LADDER);
+			//setValue(6, height - 5, BLOCKS, MapTileConverter.LADDER);
+			//setValue(6, height - 6, BLOCKS, MapTileConverter.LADDER);
+			//setValue(6, height - 7, BLOCKS, MapTileConverter.LADDER);
+			
 			//setValue(9, height - 2, BLOCKS, MapTileConverter.WALL);
 			//setValue(5, height - 2, ENTITIES, MapTileConverter.COG);
 			
@@ -188,9 +207,18 @@
 			//setValue(5, height - 2, ENTITIES, 62);
 			
 			
-			createChaosWalls(bitmap.bitmapData.getVector(bitmap.bitmapData.rect));
-			layers[ENTITIES][height - 2][1] = new ChaosWall(1, height - 2);
-			layers[BLOCKS][height - 2][1] = MapTileConverter.WALL;
+			//createChaosWalls(bitmap.bitmapData.getVector(bitmap.bitmapData.rect));
+			//layers[ENTITIES][height - 2][4] = new ChaosWall(4, height - 2);
+			//layers[BLOCKS][height - 2][4] = MapTileConverter.WALL;
+			//layers[ENTITIES][height - 3][4] = new ChaosWall(4, height - 3);
+			//layers[BLOCKS][height - 3][4] = MapTileConverter.WALL;
+			//layers[ENTITIES][height - 4][4] = new ChaosWall(4, height - 4);
+			//layers[BLOCKS][height - 4][4] = MapTileConverter.WALL;
+			//layers[ENTITIES][height - 5][4] = new ChaosWall(4, height - 5);
+			//layers[BLOCKS][height - 5][4] = MapTileConverter.WALL;
+			
+			//var xml:XML = Content.createCharacterXML(1, Character.MONSTER);
+			//layers[ENTITIES][height - 6][4] = Content.convertXMLToEntity(4, height - 6, xml);
 			
 			//createSecretWall(15, height - 2);
 			

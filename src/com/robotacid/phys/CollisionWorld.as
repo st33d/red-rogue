@@ -96,7 +96,7 @@ package com.robotacid.phys{
 			var i:int, collider:Collider;
 			for(i = 0; i < colliders.length; i++){
 				collider = colliders[i];
-				if(collider.mapCollider && collider.parent == collider.mapCollider && collider.x == mapX * scale && collider.y == mapY * scale){
+				if(collider.mapCollider && collider.parent == collider.mapCollider && collider.mapCollider.x == mapX * scale && collider.mapCollider.y == mapY * scale){
 					collider.divorce();
 				}
 			}

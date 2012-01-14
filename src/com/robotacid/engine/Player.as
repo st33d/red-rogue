@@ -282,6 +282,7 @@
 			searchRadius = 0;
 			searchCount = SEARCH_DELAY;
 			searchRevealCount = 0;
+			game.miniMap.triggerFlashPrompt();
 		}
 		
 		/* Searches the border of a square described by the search radius */
@@ -491,10 +492,16 @@
 			var state_string:String = "";
 			if(state == WALKING){
 				state_string = "WALKING";
-			} else if(state == DEAD){
-				state_string = "DEAD";
 			} else if(state == LUNGING){
 				state_string = "LUNGING";
+			} else if(state == QUICKENING){
+				state_string = "QUICKENING";
+			} else if(state == EXITING){
+				state_string = "EXITING";
+			} else if(state == ENTERING){
+				state_string = "ENTERING";
+			} else if(state == STUNNED){
+				state_string = "STUNNED";
 			}
 			return "("+collider+","+state_string+")";
 		}

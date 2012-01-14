@@ -125,6 +125,7 @@
 		
 		/* The secret wall is the only stone that can be destroyed, so only its death is dealt with here */
 		override public function death(cause:String = "crushed", decapitation:Boolean = false, aggressor:Character = null):void {
+			if(!active) return;
 			active = false;
 			renderer.createDebrisRect(collider, 0, 100, debrisType);
 			game.console.print("secret revealed");

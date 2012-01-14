@@ -24,6 +24,7 @@
 		
 		public var view:Rectangle;
 		public var window:Bitmap;
+		public var flashPrompt:Shape;
 		public var bitmapData:BitmapData;
 		public var fx:Vector.<MinimapFX>;
 		
@@ -33,6 +34,7 @@
 		public static const WIDTH:int = 55;
 		public static const HEIGHT:int = 41;
 		public static const SEARCH_COL:uint = 0xFFFFFFFF;
+		public static const FLASH_PROMPT_STEP:Number = 0.15;
 		
 		private static const CX:int = WIDTH * 0.5;
 		private static const CY:int = HEIGHT * 0.5;
@@ -48,6 +50,13 @@
 			bitmapData = new BitmapData(blockMap[0].length, blockMap.length, true, 0x00000000);
 			window = new Bitmap(new BitmapData(WIDTH, HEIGHT, true, 0x00000000));
 			addChild(window);
+			
+			flashPrompt = new Shape();
+			flashPrompt.graphics.beginFill(0xFFFFFF);
+			flashPrompt.graphics.drawRect(0, 0, WIDTH, HEIGHT);
+			flashPrompt.graphics.endFill();
+			flashPrompt.visible = false;
+			addChild(flashPrompt);
 			
 			playerBitmapData = new BitmapData(3, 3, true, 0xFFFFFFFF);
 			playerBitmapData.setPixel32(1, 1, 0x00000000);
@@ -120,11 +129,24 @@
 				drawSearchRadius(game.player.searchRadius);
 			}
 			
+			if(flashPrompt.visible){
+				flashPrompt.alpha -= FLASH_PROMPT_STEP;
+				if(flashPrompt.alpha <= 0){
+					flashPrompt.visible = false;
+				}
+			}
+			
 			for(i = fx.length - 1; i > -1; i--) {
 				fxItem = fx[i];
 				if(fxItem.active) fxItem.main();
 				else fx.splice(i, 1);
 			}
+		}
+		
+		/* Set the flash prompt visible to draw the player's eye to the minimap */
+		public function triggerFlashPrompt():void{
+			flashPrompt.visible = true;
+			flashPrompt.alpha = 1;
 		}
 		
 		/* Renders the minimap to a given image */

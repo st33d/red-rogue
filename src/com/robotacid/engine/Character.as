@@ -113,11 +113,10 @@
 		// states
 		public static const WALKING:int = 1;
 		public static const LUNGING:int = 2;
-		public static const DEAD:int = 3;
-		public static const QUICKENING:int = 4;
-		public static const EXITING:int = 5;
-		public static const ENTERING:int = 6;
-		public static const STUNNED:int = 7;
+		public static const QUICKENING:int = 3;
+		public static const EXITING:int = 4;
+		public static const ENTERING:int = 5;
+		public static const STUNNED:int = 6;
 		
 		public static const MOVE_DELAY:int = 3;
 		
@@ -570,7 +569,7 @@
 		}
 		
 		private function stompCallback(stomper:Collider):void{
-			if(state == QUICKENING || state == DEAD) return;
+			if(state == QUICKENING || !active) return;
 			applyStun(0.5);
 			var center:Number = collider.x + collider.width * 0.5;
 			var stomperCenter:Number = stomper.x + stomper.width * 0.5;
@@ -837,6 +836,7 @@
 		}
 		
 		public function enemy(target:Character):Boolean{
+			if(!target.active || target.state == QUICKENING || target.state == ENTERING || target.state == EXITING) return false;
 			if(type & (PLAYER | MINION)) return Boolean(target.type & (MONSTER | STONE));
 			else if(type & MONSTER) return Boolean(target.type & (PLAYER | MINION));
 			return false;

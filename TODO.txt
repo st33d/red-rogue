@@ -1,11 +1,6 @@
 Bug hunt
-	shooting a secret wall causing multiple "secret revealed" messages - unreproducable
 	undead unequip bug - unreproducible?
-	apparent bug with attacking a quickening character
 	throwing a rune at a wall issue - runes should bounce off walls i think
-
-	chaos wall bug - set up test bed to column drop monster on to chaos walls
-
 
 prep for identify rune
 	Lore menu

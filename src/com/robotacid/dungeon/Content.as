@@ -516,10 +516,10 @@
 		/* Create a random character appropriate for the dungeon level
 		 * 
 		 * Currently set up for just Monsters */
-		public static function createCharacterXML(dungeonLevel:int, type:int):XML{
+		public static function createCharacterXML(dungeonLevel:int, characterType:int):XML{
 			var name:int;
 			var level:int = -1 + Map.random.range(dungeonLevel);
-			if(type == Character.MONSTER){
+			if(characterType == Character.MONSTER){
 				var range:int = dungeonLevel + 2;
 				if(dungeonLevel > Game.MAX_LEVEL) range = Game.MAX_LEVEL + 2;
 				while(name < 1 || name > dungeonLevel || name >= Game.MAX_LEVEL){
@@ -528,7 +528,7 @@
 					if(name >= Game.MAX_LEVEL) continue;
 				}
 			}
-			return <character name={name} type={type} level={level} />;
+			return <character name={name} type={characterType} level={level} />;
 		}
 		
 		/* Create a random item appropriate for the dungeon level */
