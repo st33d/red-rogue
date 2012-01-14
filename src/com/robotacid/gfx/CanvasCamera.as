@@ -1,5 +1,6 @@
 ﻿package com.robotacid.gfx {
 	import com.robotacid.sound.SoundManager;
+	import com.robotacid.ui.Console;
 	import com.robotacid.ui.Key;
 	import flash.display.MovieClip;
 	import flash.display.Sprite;
@@ -47,7 +48,7 @@
 			vx = vy = 0;
 			interpolation = DEFAULT_INTERPOLATION;
 			viewWidth = Game.WIDTH;
-			viewHeight = Game.HEIGHT - Game.CONSOLE_HEIGHT;
+			viewHeight = Game.HEIGHT - Console.HEIGHT;
 		}
 		
 		/* This sets where the screen will focus on - the coords are a point on the canvas you want centered on the map */

@@ -654,6 +654,15 @@
 			infoTextBox.drawBorder();
 			infoTextBox.backgroundCol = col;
 			game.miniMap.renderTo(infoTextBox.bitmapData);
+			// redraw border - overlap looks ugly
+			var horiz:Rectangle = new Rectangle(0, 0, infoTextBox.width, 1);
+			infoTextBox.bitmapData.fillRect(horiz, infoTextBox.borderCol);
+			horiz.y = infoTextBox.height - 1;
+			infoTextBox.bitmapData.fillRect(horiz, infoTextBox.borderCol);
+			var vert:Rectangle = new Rectangle(0, 0, 1, infoTextBox.height);
+			infoTextBox.bitmapData.fillRect(vert, infoTextBox.borderCol);
+			vert.y = infoTextBox.width - 1;
+			infoTextBox.bitmapData.fillRect(vert, infoTextBox.borderCol);
 		}
 		
 		/* Callback for seed input */

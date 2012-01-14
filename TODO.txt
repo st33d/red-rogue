@@ -1,13 +1,11 @@
-shooting a secret wall causing multiple "secret revealed" messages - unreproducable
-undead unequip bug - unreproducible?
+Bug hunt
+	shooting a secret wall causing multiple "secret revealed" messages - unreproducable
+	undead unequip bug - unreproducible?
+	apparent bug with attacking a quickening character
+	throwing a rune at a wall issue - runes should bounce off walls i think
 
-chaos wall bug - set up test bed to column drop monster on to chaos walls
+	chaos wall bug - set up test bed to column drop monster on to chaos walls
 
-UI
-	roll down console text
-		separate console from TextBox
-		create internal TextBox for console
-		animate bitmapData lines that scroll in
 
 prep for identify rune
 	Lore menu
@@ -22,14 +20,17 @@ AI issues:
 	monster AI jitter on ladder observed - investigate
 	possible dithering when a monster may get caught between meta-heuristic paths of equal value
 	bravery - monster makes so many attacks before retreating for a while
+	chasing monster getting stuck on patrolling monster
+	explore - monsters should check out ladders when alone
 
 help on menu has not been fully written out
 
 level generator overhaul:
 	distribution tactics -
 		distribution bubbles
-	give Map, Content and DungeonMap their own XorRandom object to create seedable dungeons
 
 
 rally - a monster could see the character and could call other monsters to aid, there should be a rallying pose and a shockwave type graphic, implying he's just told everyone on screen to mob the player
+
+smite - blessed weapons could deliver a blow to characters that send them flying
 

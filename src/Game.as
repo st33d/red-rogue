@@ -76,7 +76,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 287;
+		public static const BUILD_NUM:int = 288;
 		
 		public static var game:Game;
 		public static var renderer:Renderer;
@@ -156,7 +156,7 @@
 		
 		public static const WIDTH:Number = 320;
 		public static const HEIGHT:Number = 240;
-		public static const CONSOLE_HEIGHT:Number = 35
+		
 		// game key properties
 		public static const UP_KEY:int = 0;
 		public static const DOWN_KEY:int = 1;
@@ -256,10 +256,11 @@
 			
 			// UI INIT
 			
-			console = new Console(WIDTH, CONSOLE_HEIGHT, 3);
-			console.y = HEIGHT - CONSOLE_HEIGHT;
+			if(!console){
+				console = new Console();
+				console.y = HEIGHT - Console.HEIGHT;
+			}
 			addChild(console);
-			//Effect.hideNames();
 			
 			miniMapHolder = new Sprite();
 			addChild(miniMapHolder);
