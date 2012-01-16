@@ -4,13 +4,27 @@ Bug hunt
 
 prep for identify rune
 	Lore menu
+		races
+		items
 	*Reveal minimap - MiniMap.reveal()
 	*Identify all runes - InventoryMenuList.identifyRunes()
 	Quests
 
-Add some how add a random offset to AI search values - they're in ints (fuck knows, coin flipping?)
+create Editor in debug menu
+	create launch test bed option
+	set current dungeon level (affects dungeon level)
+	create option
+		map features
+			walls
+			ladders
+			ledges
+			traps
+			chaos walls
+		races
+		items
 
 AI issues:
+	Add some how add a random offset to AI search values - they're in ints (fuck knows, coin flipping?)
 	walks into wall constantly when too close
 	monster AI jitter on ladder observed - investigate
 	possible dithering when a monster may get caught between meta-heuristic paths of equal value

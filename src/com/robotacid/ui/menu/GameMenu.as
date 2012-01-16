@@ -40,11 +40,10 @@
 		public var creditsList:MenuList;
 		
 		public var giveItemList:GiveItemMenuList;
-		public var raceList:MenuList;
+		public var changeRaceList:MenuList;
 		public var sureList:MenuList;
 		public var soundList:MenuList;
 		public var menuMoveList:MenuList;
-		public var mapInfo:MenuInfo;
 		public var seedInputList:MenuInputList;
 		
 		public var inventoryOption:MenuOption;
@@ -93,13 +92,18 @@
 			
 			inventoryList = new InventoryMenuList(this, game);
 			actionsList = new MenuList();
-			loreList = new MenuList();
+			loreList = new LoreMenuList(infoTextBox, this, game);
 			optionsList = new MenuList();
 			debugList = new MenuList();
 			creditsList = new MenuList();
 			
+			onOffList = new MenuList();
+			sureList = new MenuList();
+			seedInputList = new MenuInputList("" + Map.random.seed,/[0-9]/, String(uint.MAX_VALUE).length, seedInputCallback);
+			seedInputList.promptName = "enter number";
+			
 			giveItemList = new GiveItemMenuList(this, game);
-			raceList = new MenuList();
+			changeRaceList = new MenuList();
 			soundList = new MenuList();
 			menuMoveList = new MenuList(Vector.<MenuOption>([
 				new MenuOption("1", null, false),
@@ -109,13 +113,6 @@
 				new MenuOption("5", null, false)
 			]));
 			menuMoveList.selection = DEFAULT_MOVE_DELAY - 1;
-			
-			onOffList = new MenuList();
-			sureList = new MenuList();
-			seedInputList = new MenuInputList("" + Map.random.seed,/[0-9]/, String(uint.MAX_VALUE).length, seedInputCallback);
-			seedInputList.promptName = "enter number";
-			
-			mapInfo = new MenuInfo(renderMap, true);
 			
 			// MENU OPTIONS
 			
@@ -147,9 +144,6 @@
 			missileOption = new ToggleMenuOption(["shoot", "throw"], null, false);
 			missileOption.help = "shoot/throw a missile using one's equipped weapon";
 			missileOption.context = "missile";
-			
-			var mapOption:MenuOption = new MenuOption("map", mapInfo);
-			mapOption.recordable = false;
 			
 			initChangeKeysMenuOption();
 			changeKeysOption.help = "change the movement keys, menu key and hot keys"
@@ -184,10 +178,10 @@
 			onOffOption.bounce = true;
 			sureOption = new MenuOption("sure?");
 			
-			changeRogueRaceOption = new MenuOption("change rogue race", raceList);
+			changeRogueRaceOption = new MenuOption("change rogue race", changeRaceList);
 			changeRogueRaceOption.help = "change the current race of the rogue";
 			changeRogueRaceOption.recordable = false;
-			changeMinionRaceOption = new MenuOption("change minion race", raceList);
+			changeMinionRaceOption = new MenuOption("change minion race", changeRaceList);
 			changeMinionRaceOption.help = "change the current race of the minion";
 			changeMinionRaceOption.recordable = false;
 			
@@ -206,8 +200,6 @@
 			actionsList.options.push(exitLevelOption);
 			actionsList.options.push(missileOption);
 			
-			loreList.options.push(mapOption);
-			
 			optionsList.options.push(soundOption);
 			optionsList.options.push(fullScreenOption);
 			optionsList.options.push(screenshotOption);
@@ -224,7 +216,7 @@
 			debugList.options.push(changeMinionRaceOption);
 			
 			for(i = 0; i < Character.stats["names"].length; i++){
-				raceList.options.push(new MenuOption(Character.stats["names"][i]));
+				changeRaceList.options.push(new MenuOption(Character.stats["names"][i]));
 			}
 			
 			creditsList.options.push(steedOption);
@@ -577,7 +569,7 @@
 				navigateToURL(new URLRequest("http://icefishingep.tk"), "_blank");
 				
 			// changing race
-			} else if(currentMenuList == raceList){
+			} else if(currentMenuList == changeRaceList){
 				if(previousMenuList.options[previousMenuList.selection] == changeRogueRaceOption){
 					if(game.player.armour && game.player.armour.name == Item.FACE){
 						(game.player.armour as Face).previousName = currentMenuList.selection;
@@ -645,24 +637,6 @@
 			Game.renderer.createDebrisRect(user.collider, 0, 10, Renderer.STONE);
 			inventoryList.removeItem(item);
 			return null;
-		}
-		
-		/* Callback for mapInfo rendering */
-		private function renderMap():void{
-			var col:uint = infoTextBox.backgroundCol;
-			infoTextBox.backgroundCol = 0x99666666;
-			infoTextBox.drawBorder();
-			infoTextBox.backgroundCol = col;
-			game.miniMap.renderTo(infoTextBox.bitmapData);
-			// redraw border - overlap looks ugly
-			var horiz:Rectangle = new Rectangle(0, 0, infoTextBox.width, 1);
-			infoTextBox.bitmapData.fillRect(horiz, infoTextBox.borderCol);
-			horiz.y = infoTextBox.height - 1;
-			infoTextBox.bitmapData.fillRect(horiz, infoTextBox.borderCol);
-			var vert:Rectangle = new Rectangle(0, 0, 1, infoTextBox.height);
-			infoTextBox.bitmapData.fillRect(vert, infoTextBox.borderCol);
-			vert.y = infoTextBox.width - 1;
-			infoTextBox.bitmapData.fillRect(vert, infoTextBox.borderCol);
 		}
 		
 		/* Callback for seed input */

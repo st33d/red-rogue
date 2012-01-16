@@ -200,6 +200,8 @@
 			nextTextBox.wordWrap = false;
 			nextTextBox.marquee = true;
 			infoTextBox = new TextBox(110, 169, 0x66111111, 0xFF999999, 0xFFDDDDDD);
+			infoTextBox.wordWrap = false;
+			infoTextBox.marquee = true;
 			infoTextBox.visible = false;
 			capture = new CaptureBitmap();
 			capture.visible = false;
@@ -746,8 +748,12 @@
 						nextTextBox.updateMarquee();
 						setLineCols(nextMenuList, nextTextBox);
 					}
-					if(infoTextBox.visible && (nextMenuList as MenuInfo).update){
-						(nextMenuList as MenuInfo).renderCallback();
+					if(infoTextBox.visible){
+						if((nextMenuList as MenuInfo).update){
+							(nextMenuList as MenuInfo).renderCallback();
+						} else {
+							infoTextBox.updateMarquee();
+						}
 					}
 					// update the visited glow frame
 					notVistitedColFrame++;

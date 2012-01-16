@@ -33,7 +33,7 @@ package com.robotacid.ui {
 						dir = 1;
 					}
 				} else if(dir > 0){
-					offset += SPEED;
+					offset += SPEED * 2;
 					if(offset >= 0){
 						offset = 0;
 						count = ROCK_DELAY;
