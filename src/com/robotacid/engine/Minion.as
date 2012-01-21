@@ -37,6 +37,7 @@
 			inventory = game.menu.inventoryList;
 			
 			missileIgnore |= Collider.PLAYER | Collider.MINION;
+			uniqueNameStr = "the minion";
 			
 			brain = new Brain(this, Brain.PLAYER, game.player);
 			Brain.playerCharacters.push(this);

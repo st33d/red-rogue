@@ -19,11 +19,14 @@ package com.robotacid.ui.menu {
 		public var itemsList:MenuList;
 		public var weaponsList:MenuList;
 		public var armourList:MenuList;
+		public var questsList:MenuList;
 		
 		public var mapInfo:MenuInfo;
 		public var raceInfo:MenuInfo;
 		public var weaponInfo:MenuInfo;
 		public var armourInfo:MenuInfo;
+		
+		public var questsOption:MenuOption;
 		
 		public function LoreMenuList(infoTextBox:TextBox, menu:Menu, game:Game) {
 			super();
@@ -35,11 +38,12 @@ package com.robotacid.ui.menu {
 			itemsList = new MenuList();
 			weaponsList = new MenuList();
 			armourList = new MenuList();
+			questsList = new MenuList();
 			
 			mapInfo = new MenuInfo(renderMap, true);
-			raceInfo = new MenuInfo(renderRaceInfo);
-			weaponInfo = new MenuInfo(renderWeaponInfo);
-			armourInfo = new MenuInfo(renderArmourInfo);
+			raceInfo = new MenuInfo(renderRace);
+			weaponInfo = new MenuInfo(renderWeapon);
+			armourInfo = new MenuInfo(renderArmour);
 			
 			var option:MenuOption, i:int;
 			for(i = 0; i < Character.stats["names"].length; i++){
@@ -64,10 +68,12 @@ package com.robotacid.ui.menu {
 			var itemsOption:MenuOption = new MenuOption("items", itemsList);
 			var weaponsOption:MenuOption = new MenuOption("weapons", weaponsList);
 			var armourOption:MenuOption = new MenuOption("armour", armourList);
+			questsOption = new MenuOption("quests", questsList, false);
 			
 			options.push(mapOption);
 			options.push(racesOption);
 			options.push(itemsOption);
+			options.push(questsOption);
 			
 			itemsList.options.push(weaponsOption);
 			itemsList.options.push(armourOption);
@@ -93,7 +99,8 @@ package com.robotacid.ui.menu {
 			infoTextBox.bitmapData.fillRect(vert, infoTextBox.borderCol);
 		}
 		
-		private function renderRaceInfo():void{
+		/* Callback for raceInfo rendering */
+		private function renderRace():void{
 			var n:int = racesList.selection;
 			var str:String = "";
 			str += Character.stats["names"][n] + "\n\n";
@@ -107,18 +114,48 @@ package com.robotacid.ui.menu {
 			str += "move speed: " + Character.stats["speeds"][n] + " + " + Character.stats["speed levels"][n] + " x lvl\n";
 			str += "knockback: " + Character.stats["knockbacks"][n] + "\n";
 			str += "stun: " + Character.stats["stuns"][n] + "\n";
-			str += "endurance: " + Character.stats["endurances"][n] + "\n";
+			str += "endurance: " + Character.stats["endurances"][n];
 			infoTextBox.wordWrap = false;
 			infoTextBox.marquee = true;
 			infoTextBox.text = str;
 		}
 		
-		private function renderWeaponInfo():void{
-			
+		/* Callback for weaponInfo rendering */
+		private function renderWeapon():void{
+			var n:int = weaponsList.selection;
+			var str:String = "";
+			str += Item.stats["weapon names"][n] + "\n\n";
+			str += Item.stats["weapon descriptions"][n] + "\n\n";
+			str += "special: " + Item.stats["weapon specials"][n] + "\n";
+			str += "range: ";
+			var range:int = Item.stats["weapon ranges"][n];
+			var rangeStr:Array = [];
+			if(range & Item.MELEE) rangeStr.push("melee");
+			if(range & Item.MISSILE) rangeStr.push("missile");
+			if(range & Item.THROWN) rangeStr.push("thrown");
+			str += rangeStr.join(",");
+			str += "damage: " + Item.stats["weapon damages"][n] + " + " + Item.stats["weapon damage levels"][n] + " x lvl\n";
+			str += "attack: " + Item.stats["weapon attacks"][n] + " + " + Item.stats["weapon attack levels"][n] + " x lvl\n";
+			str += "knockback: " + Item.stats["weapon knockbacks"][n] + "\n";
+			str += "stun: " + Item.stats["weapon stuns"][n] + "\n";
+			str += "hearts: +" + ((Item.stats["weapon butchers"][n] * 100) >> 0) + "%";
+			infoTextBox.wordWrap = false;
+			infoTextBox.marquee = true;
+			infoTextBox.text = str;
 		}
 		
-		private function renderArmourInfo():void{
-			
+		/* Callback for armourInfo rendering */
+		private function renderArmour():void{
+			var n:int = weaponsList.selection;
+			var str:String = "";
+			str += Item.stats["armour names"][n] + "\n\n";
+			str += Item.stats["armour descriptions"][n] + "\n\n";
+			str += "special: " + Item.stats["armour specials"][n] + "\n";
+			str += "defence: " + Item.stats["armour defences"][n] + " + " + Item.stats["armour defence levels"][n] + " x lvl\n";
+			str += "endurance: " + Item.stats["armour endurances"][n] + " + " + Item.stats["armour endurance levels"][n] + " x lvl";
+			infoTextBox.wordWrap = false;
+			infoTextBox.marquee = true;
+			infoTextBox.text = str;
 		}
 		
 	}

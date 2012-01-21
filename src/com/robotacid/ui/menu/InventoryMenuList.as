@@ -74,9 +74,9 @@
 			enchantOption = new MenuOption("enchant", equipmentList, false);
 			
 			equipOption = new ToggleMenuOption(["equip", "unequip"]);
-			equipOption.bounce = true;
+			equipOption.selectionStep = 2;
 			equipMinionOption = new ToggleMenuOption(["equip minion", "unequip minion"]);
-			equipMinionOption.bounce = true;
+			equipMinionOption.selectionStep = 2;
 			dropOption = new MenuOption("drop");
 			eatOption = new MenuOption("eat");
 			feedMinionOption = new MenuOption("feed minion");

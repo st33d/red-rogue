@@ -91,6 +91,7 @@
 			callMain = false;
 			stepNoise = true;
 			searchRadius = -1;
+			uniqueNameStr = "rogue";
 			
 			cameraDisplacement = new Point();
 			

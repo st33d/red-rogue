@@ -88,7 +88,7 @@
 		/* All unique items exist in Content as well as outside */
 		private function createUniqueItems():void{
 			deathsScythe = new Item(new ScytheMC, Item.SCYTHE, Item.WEAPON, Game.MAX_LEVEL);
-			deathsScythe.uniqueName = "death's scythe";
+			deathsScythe.uniqueNameStr = "death's scythe";
 			var effect:Effect = new Effect(Effect.UNDEAD, Game.MAX_LEVEL);
 			effect.enchant(deathsScythe);
 		}
@@ -506,7 +506,7 @@
 				
 			} else if(entity is Stone){
 				if((entity as Stone).name == Stone.DEATH){
-					if((entity as Stone).weapon && (entity as Stone).weapon.uniqueName == "death's scythe"){
+					if((entity as Stone).weapon && (entity as Stone).weapon.uniqueNameStr == "death's scythe"){
 						
 					}
 				}
@@ -645,6 +645,7 @@
 				
 				// is this item cursed?
 				obj.curseState = int(xml.@curseState);
+				if(xml.@uniqueNameStr && xml.@uniqueNameStr != "null") obj.uniqueNameStr = xml.@uniqueNameStr;
 				
 			} else if(objectType == "character"){
 				name = xml.@name;
@@ -659,6 +660,7 @@
 				if(type == Character.MONSTER){
 					mc = game.library.getCharacterGfx(name);
 					obj = new Monster(mc, (x + 0.5) * Game.SCALE, (y + 1) * Game.SCALE, name, level, items);
+					if(xml.@uniqueNameStr && xml.@uniqueNameStr != "null") obj.uniqueNameStr = xml.@uniqueNameStr;
 				}
 				
 			} else if(objectType == "portal"){

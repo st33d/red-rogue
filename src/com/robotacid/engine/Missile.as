@@ -155,7 +155,7 @@
 				// damage
 				var hitDamage:Number = item.damage + (thrownWeapon ? sender.damage : 0);
 				if(hitResult & Character.CRITICAL) hitDamage *= 2;
-				character.applyDamage(hitDamage, sender.trueNameToString(), hitKnockback, Boolean(hitResult & Character.CRITICAL));
+				character.applyDamage(hitDamage, sender.nameToString(), hitKnockback, Boolean(hitResult & Character.CRITICAL));
 				// leech
 				if(sender.leech){
 					var leechValue:Number = sender.leech > 1 ? 1 : sender.leech;

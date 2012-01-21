@@ -39,6 +39,8 @@
 		public var level:int;
 		public var type:int
 		public var state:int;
+		public var nameStr:String;
+		public var uniqueNameStr:String;
 		public var dir:int;
 		public var looking:int;
 		public var actions:int;
@@ -100,7 +102,7 @@
 		public static const WEREWOLF:int = 10;
 		public static const MIMIC:int = 11;
 		public static const NAGA:int = 12;
-		public static const MEDUSA:int = 13;
+		public static const GORGON:int = 13;
 		public static const UMBER_HULK:int = 14;
 		public static const GOLEM:int = 15;
 		public static const BANSHEE:int = 16;
@@ -179,6 +181,7 @@
 			callMain = true;
 			inTheDark = false;
 			missileIgnore = Collider.LADDER | Collider.LEDGE | Collider.CORPSE | Collider.ITEM | Collider.HEAD;
+			uniqueNameStr = null;
 			
 			setStats();
 			
@@ -193,6 +196,7 @@
 			if(weapon) weaponTemp = unequip(weapon);
 			if(armour) armourTemp = unequip(armour);
 			
+			nameStr = stats["names"][name];
 			health = stats["healths"][name] + stats["health levels"][name] * level;
 			totalHealth = health;
 			attack = stats["attacks"][name] + stats["attack levels"][name] * level;
@@ -250,7 +254,7 @@
 				name == WEREWOLF ||
 				name == MIMIC ||
 				name == NAGA ||
-				name == MEDUSA ||
+				name == GORGON ||
 				name == UMBER_HULK ||
 				name == BANSHEE ||
 				name == MIND_FLAYER ||
@@ -395,7 +399,7 @@
 										hitDamage *= 2;
 										renderer.createDebrisRect(target.collider, (looking & (LEFT | RIGHT)) == RIGHT ? 8 : -8, 30, target.debrisType);
 									}
-									target.applyDamage(hitDamage, trueNameToString(), hitKnockback, Boolean(hitResult & CRITICAL), this);
+									target.applyDamage(hitDamage, nameToString(), hitKnockback, Boolean(hitResult & CRITICAL), this);
 									// leech
 									if(leech){
 										var leechValue:Number = leech > 1 ? 1 : leech;
@@ -908,7 +912,7 @@
 				effect = new Effect(Effect.POISON, level, Effect.THROWN, target);
 				
 			// stun attack
-			} else if(name == MEDUSA){
+			} else if(name == GORGON){
 				effect = new Effect(Effect.STUPEFY, level, Effect.THROWN, target);
 				
 			// confuse attack
@@ -980,13 +984,7 @@
 		}
 		
 		override public function nameToString():String {
-			return stats["names"][name];
-		}
-		
-		public function trueNameToString():String {
-			if(this is Player) return "rogue";
-			else if(this is Minion) return "minion";
-			return stats["names"][name];
+			return uniqueNameStr ? nameStr : uniqueNameStr;
 		}
 		
 		override public function remove():void {

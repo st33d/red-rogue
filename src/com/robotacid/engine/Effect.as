@@ -46,6 +46,7 @@
 		public static const PORTAL:int = Item.PORTAL;
 		public static const STUPEFY:int = Item.STUPEFY;
 		public static const NULL:int = Item.NULL;
+		public static const IDENTIFY:int = Item.IDENTIFY;
 		public static const CHAOS:int = Item.CHAOS;
 		
 		public static var BANNED_RANDOM_ENCHANTMENTS:Array = [];
@@ -236,9 +237,14 @@
 					// strip all enchantments
 					item.effects = null;
 					item.curseState = Item.NO_CURSE;
+					item.uniqueNameStr = null;
 					item.setStats();
 					if(inventoryList) inventoryList.updateItem(item);
 				}
+				return item;
+				
+			} else if(name == IDENTIFY){
+				randomEnchant(item, game.deepestLevelReached);
 				return item;
 				
 			}
@@ -471,6 +477,11 @@
 						effect.dismiss();
 					}
 				}
+				if(target != game.player && target != game.minion) target.uniqueNameStr = null;
+				return;
+				
+			} else if(name == IDENTIFY){
+				
 				return;
 				
 			}

@@ -64,6 +64,7 @@
 		public var saveOption:MenuOption;
 		public var newGameOption:MenuOption;
 		public var seedOption:MenuOption;
+		public var dogmaticOption:MenuOption;
 		public var sureOption:MenuOption;
 		
 		public var steedOption:MenuOption;
@@ -160,6 +161,8 @@
 			screenshotOption.help = "take a screen shot of the game (making the menu temporarily invisible) and open a filebrowser to save the screenshot to the desktop.";
 			seedOption = new MenuOption("set rng seed", seedInputList);
 			seedOption.help = "set the current random seed value used to generate levels and content.\nenter no value for a random seed value.";
+			dogmaticOption = new MenuOption("dogmatic mode", onOffList);
+			dogmaticOption.help = "in dogmatic mode time will only pass when the player is performing an action.";
 			var menuMoveOption:MenuOption = new MenuOption("menu move speed", menuMoveList);
 			menuMoveOption.help = "change the speed that the menu moves. lower values move the menu faster. simply move the selection to change the speed.";
 			loadOption = new MenuOption("load", sureList, false);
@@ -175,8 +178,9 @@
 			nateOption.help = "opens a window to nathan gallardo's site (where this game's OST is available) - icefishingep.tk";
 			
 			onOffOption = new ToggleMenuOption(["off", "on"]);
-			onOffOption.bounce = true;
+			onOffOption.selectionStep = 1;
 			sureOption = new MenuOption("sure?");
+			sureOption.selectionStep = MenuOption.EXIT_MENU;
 			
 			changeRogueRaceOption = new MenuOption("change rogue race", changeRaceList);
 			changeRogueRaceOption.help = "change the current race of the rogue";
@@ -207,6 +211,7 @@
 			optionsList.options.push(changeKeysOption);
 			optionsList.options.push(hotKeyOption);
 			optionsList.options.push(seedOption);
+			optionsList.options.push(dogmaticOption);
 			optionsList.options.push(loadOption);
 			optionsList.options.push(saveOption);
 			optionsList.options.push(newGameOption);
@@ -348,6 +353,11 @@
 				onOffOption.state = fullscreenOn ? 0 : 1;
 				renderMenu();
 				
+			} else if(option == dogmaticOption){
+				//onOffOption.state = game.stage.displayState == "normal" ? 1 : 0;
+				onOffOption.state = game.dogmaticMode ? 0 : 1;
+				renderMenu();
+				
 			} else if(option == inventoryList.enchantOption){
 				var runeName:int = inventoryList.runesList.options[inventoryList.runesList.selection].userData.name;
 				for(var i:int = 0; i < inventoryList.equipmentList.options.length; i++){
@@ -469,8 +479,12 @@
 			
 			} else if(option == onOffOption){
 				
+				// toggle dogmatic mode
+				if(previousMenuList.options[previousMenuList.selection] == dogmaticOption){
+					game.dogmaticMode = onOffOption.state == 1;
+				
 				// turning off sfx
-				if(previousMenuList.options[previousMenuList.selection].name == "sfx"){
+				} else if(previousMenuList.options[previousMenuList.selection].name == "sfx"){
 					SoundManager.sfx = onOffOption.state == 1;
 				
 				// turning off music

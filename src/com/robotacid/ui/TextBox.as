@@ -69,9 +69,9 @@ package com.robotacid.ui {
 		
 		public static var characters:Array;
 		
-		public var lines:Array;							// a 2D array of all the bitmapDatas used, in lines
-		public var lineWidths:Array;					// the width of each line of text (used for alignment)
-		public var textLines:Array;// a 2D array of the characters used (used for fetching offset and kerning data)
+		public var lines:Array;						// a 2D array of all the bitmapDatas used, in lines
+		public var lineWidths:Array;				// the width of each line of text (used for alignment)
+		public var textLines:Array;					// a 2D array of the characters used (used for fetching offset and kerning data)
 		public var tracking:int;					// tracking: the spacing between letters
 		public var align:String;					// align: whether the text is centered, left or right aligned
 		public var alignVert:String;				// align_vert: vertical alignment of the text
@@ -84,10 +84,10 @@ package com.robotacid.ui {
 		public var backgroundAlpha:Number;
 		public var leading:int;
 		
-		protected var _colorInt:uint;					// the actual uint of the color being applied
-		protected var _color:ColorTransform;			// a color transform object that is applied to the whole TextBox
+		protected var _colorInt:uint;				// the actual uint of the color being applied
+		protected var _color:ColorTransform;		// a color transform object that is applied to the whole TextBox
 		
-		protected var whitespaceLength:int;				// the distance a whitespace takes up
+		protected var whitespaceLength:int;			// the distance a whitespace takes up
 		
 		protected var _width:int;
 		protected var _height:int;
@@ -166,7 +166,8 @@ package com.robotacid.ui {
 				_color = new ColorTransform(
 					((c >> 16) % 256) / 255,
 					((c >> 8) % 256) / 255,
-					(c % 256) / 255);
+					(c % 256) / 255
+				);
 			}
 			if(_color) transform.colorTransform = _color;
 		}

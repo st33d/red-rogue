@@ -76,7 +76,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 289;
+		public static const BUILD_NUM:int = 290;
 		
 		public static var game:Game;
 		public static var renderer:Renderer;
@@ -138,6 +138,7 @@
 		public var colossalCaveCode:Boolean = false;
 		public var forceFocus:Boolean = true;
 		public var portalHash:Object;
+		public var dogmaticMode:Boolean;
 		
 		// temp variables
 		private var i:int;
@@ -188,6 +189,8 @@
 			
 			Effect.BANNED_RANDOM_ENCHANTMENTS[Effect.PORTAL] = true;
 			Effect.BANNED_RANDOM_ENCHANTMENTS[Effect.NULL] = true;
+			Effect.BANNED_RANDOM_ENCHANTMENTS[Effect.CHAOS] = true;
+			Effect.BANNED_RANDOM_ENCHANTMENTS[Effect.IDENTIFY] = true;
 			
 			TextBox.init();
 			MapTileConverter.init();
@@ -229,6 +232,7 @@
 			SoundManager.addSound(new ChaosMusicSound, "chaosMusic", 1.0);
 			soundQueue = new SoundQueue();
 			
+			dogmaticMode = false;
 			
 			if (stage) init();
 			else addEventListener(Event.ADDED_TO_STAGE, init);
@@ -627,8 +631,13 @@
 			
 			if(state == GAME) {
 				
+				var advance:Boolean = true;
+				if(dogmaticMode){
+					if(player.searchRadius == -1 && player.state == Character.WALKING && Key.keysPressed == 0) advance = false;
+				}
+				
 				if(transition.active) transition.main();
-				else {
+				else if(advance){
 					var collider:Collider;
 					var entity:Entity;
 					var character:Character;
@@ -742,7 +751,7 @@
 				menu.activate();
 			} else if(state == MENU){
 				state = GAME;
-				if(menu.parent) menu.parent.removeChild(menu);
+				menu.deactivate();
 			}
 		}
 		

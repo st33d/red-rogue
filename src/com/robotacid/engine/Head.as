@@ -18,6 +18,7 @@
 		public var damage:Number;
 		
 		private var bloodCount:int;
+		private var uniqueNameStr:String;
 		
 		public static const GRAVITY:Number = 0.8;
 		public static const DAMPING_Y:Number = 0.99;
@@ -36,6 +37,11 @@
 			gfx = game.library.getCharacterHeadGfx(victim.name);
 			super(gfx, true);
 			name = victim.name;
+			if(victim.uniqueNameStr){
+				uniqueNameStr = victim.uniqueNameStr + (
+					(victim.uniqueNameStr.charAt(victim.uniqueNameStr.length - 1) == "s") ? "' " : "'s "
+				) + " face";
+			}
 			createCollider(victim.gfx.x, victim.collider.y + gfx.height, Collider.HEAD | Collider.SOLID, Collider.CORPSE);
 			game.world.restoreCollider(collider);
 			collider.resolveMapInsertion();
@@ -98,6 +104,7 @@
 			if(game.random.value() <= FACE_DROP_CHANCE){
 				// create face armour and drop to the map
 				var face:Face = new Face(game.library.getCharacterHeadGfx(name), name);
+				face.uniqueNameStr = uniqueNameStr
 				face.dropToMap(mapX, mapY);
 				game.console.print("a " + Character.stats["names"][name] + " face is created");
 			}

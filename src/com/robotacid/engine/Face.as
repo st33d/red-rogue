@@ -60,7 +60,7 @@ package com.robotacid.engine {
 		}
 		
 		override public function getHelpText():String {
-			var str:String = "this armour is a";
+			var str:String = "this armour is" + (uniqueNameStr ? " " + uniqueNameStr : "") + " a";
 			var name:String = Character.stats["names"][level] + " face";
 			
 			if(curseState == CURSE_REVEALED) name = "cursed " + name;

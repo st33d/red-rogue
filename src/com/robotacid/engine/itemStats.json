@@ -11,6 +11,18 @@
 		"blood", "goggles", "chaos helm", "wizard hat", "helmet",
 		"", "knives", "indifference", "face", "yendor"
 	],
+	"unique weapon names":[
+		[], [], [] , [], [],
+		[], [], [] , [], [],
+		[], [], [] , [], [],
+		[], [], [] , [], []
+	],
+	"unique armour names":[
+		[], [], [] , [], [],
+		[], [], [] , [], [],
+		[], [], [] , [], [],
+		[], ["reaver"], ["asdf", "qwer", "hjkl"] , ["shocker", "thunder"], ["licker"]
+	],
 	"rune names":[
 		"light", "heal", "poison", "teleport", "undead",
 		"polymorph", "xp", "leech", "thorns", "portal",
@@ -92,5 +104,35 @@
 		0, 0, 0.1, 0.1, 0.15,
 		0, 0, 0.15, 0.05, 0.4,
 		0, 0.85, 0, 0, 0.3
+	],
+	"weapon specials":[
+		"none", "none", "none", "none", "none",
+		"none", "none", "none", "none", "bounces off walls",
+		"none", "explodes", "none", "none", "none",
+		"none", "none", "shoots chaos runes", "emits quickening", "life steal"
+	],
+	"armour specials":[
+		"none", "none", "none", "none", "light enchanted",
+		"none", "reflects damage", "none", "undead enchanted", "none",
+		"life steal", "infravision", "inflicts chaos spells on wearer", "x2 to new enchantments applied", "none",
+		"invisible", "reflects damage", "ignored by the game", "polymorph into face type", "jump"
+	],
+	"weapon descriptions":[
+		"short blade", "metal glove", "medium blade", "spiked stick", "fires arrows",
+		"tapered leather cord", "long blade", "large crossbow, fires bolts", "pointed stick", "sharp ring",
+		"long stick", "explosive grenade", "rifle, fires bullets", "punctuated stick", "fires large arrows",
+		"long blade, fires bullets", "gardening tool", "magic stick", "electric stick", "blood demon"
+	],
+	"armour names":[
+		"flies", "tiara", "fedora", "top hat", "fire flies",
+		"halo", "bees", "viking helm", "skull", "crown",
+		"blood", "goggles", "chaos helm", "wizard hat", "helmet",
+		"", "knives", "indifference", "face", "yendor"
+	],
+	"armour descriptions":[
+		"distracting insects", "pretty adornment", "sweet hat", "gentleman's hat", "glowing insects",
+		"floating ring", "defensive insects", "horned hat", "former balrog head", "regal hat",
+		"liquidised blood demon", "magic spectacles", "mad king's hat", "magic hat", "strong hat",
+		"", "flying magic blades", "out of phase with the universe", "magic skin mask", "levitation amulet"
 	]
 }

@@ -37,7 +37,7 @@
 		public var range:int;
 		public var position:int;
 		public var user:Character;
-		public var uniqueName:String;
+		public var uniqueNameStr:String;
 		
 		// stats
 		public var damage:Number;
@@ -144,6 +144,7 @@
 		public static const PORTAL:int = 9;
 		public static const STUPEFY:int = 10;
 		public static const NULL:int = 11;
+		public static const IDENTIFY:int = 12;
 		public static const CHAOS:int = 20;
 		
 		// curse states
@@ -175,7 +176,7 @@
 			stacked = false;
 			callMain = true;
 			user = null;
-			uniqueName = "";
+			uniqueNameStr = null;
 			twinkleCount = TWINKLE_DELAY + game.random.range(TWINKLE_DELAY);
 		}
 		
@@ -241,6 +242,7 @@
 				
 			} else if(type == RUNE){
 				nameStr = stats["rune names"][name];
+				
 			}
 		}
 		
@@ -362,7 +364,7 @@
 			if(user && (user == game.player || user == game.minion)){
 				var str:String = nameToString();
 				str = str.substr(str.indexOf(":") + 1);
-				game.console.print("the " + str + " is cursed!");
+				game.console.print("the " + nameToString() + " is cursed!");
 				if(user.undead) game.console.print("but the dead are unaffected...");
 			}
 			curseState = CURSE_REVEALED;
@@ -441,7 +443,7 @@
 			if(curseState == CURSE_REVEALED) str += "- ";
 			else if(effects) str += "+ ";
 			
-			if(uniqueName != "") return str + uniqueName;
+			if(uniqueNameStr) return str + uniqueNameStr;
 			else if(type == RUNE) return str + "rune of " + runeNames[name];
 			else if(type == ARMOUR) return str + stats["armour names"][name];
 			else if(type == WEAPON) return str + stats["weapon names"][name];
@@ -489,13 +491,13 @@
 				}
 				str += "\nrunes can be cast on items, monsters and yourself"
 			} else if(type == ARMOUR){
-				str += "this armour is a \nlevel " + level + " ";
+				str += "this armour is" + (uniqueNameStr ? " " + uniqueNameStr : "") + " a \nlevel " + level + " ";
 				if(curseState == CURSE_REVEALED) str += "cursed ";
 				else if(curseState == BLESSED) str += "blessed ";
 				else if(effects) str += "enchanted ";
 				str += stats["armour names"][name];
 			} else if(type == WEAPON){
-				str += "this weapon is a \nlevel " + level + " ";
+				str += "this weapon is" + (uniqueNameStr ? " " + uniqueNameStr : "") + " a \nlevel " + level + " ";
 				if(curseState == CURSE_REVEALED) str += "cursed ";
 				else if(curseState == BLESSED) str += "blessed ";
 				else if(effects) str += "enchanted ";
@@ -507,7 +509,7 @@
 		}
 		
 		override public function toXML():XML{
-			var xml:XML = <item name={name} type={type} level={level} location={location} curseState={curseState} user={user ? user.trueNameToString() : ""} uniqueName={uniqueName} />;
+			var xml:XML = <item name={name} type={type} level={level} location={location} curseState={curseState} user={user ? user.nameToString() : ""} uniqueNameStr={uniqueNameStr} />;
 			if(effects && effects.length){
 				for(var i:int = 0; i < effects.length; i++){
 					xml.appendChild(effects[i].toXML());

@@ -1,10 +1,17 @@
 {
 	"names":[
-		"rogue", "kobold", "goblin", "orc", "troll",
+		"human thief", "kobold", "goblin", "orc", "troll",
 		"gnoll", "drow", "cactuar", "nymph", "vampire",
-		"werewolf", "mimic", "naga", "medusa", "umber hulk",
+		"werewolf", "mimic", "naga", "gorgon", "umber hulk",
 		"golem", "banshee", "wraith", "mind flayer", "rakshasa",
 		"balrog", "skeleton"
+	],
+	"unique names":[
+		[], ["skree", "krilitz"], ["yubnub", "noobub", "gilbub"] , ["grom", "hrash", "thogar"], ["goom", "hoor", "boor"],
+		["rofl", "lol", "flol"], [], [] , [], ["bram", "dracula"],
+		[], [], [] , ["medusa"], [],
+		[], [], [] , [], [],
+		["diablo"], []
 	],
 	"attacks":[
 		0.3, 0.1, 0.15, 0.35, 0.2,

@@ -363,11 +363,19 @@
 						hideChangeEvent = false;
 					} else {
 						dispatchEvent(new Event(Event.SELECT));
-						if(!currentMenuList.options[currentMenuList.selection].bounce) setTrunk(branch[0]);
+						var selectionStep:int = currentMenuList.options[currentMenuList.selection].selectionStep;
+						if(selectionStep == MenuOption.TRUNK) setTrunk(branch[0]);
 						else {
-							// walk back and forth to shake out change events that will update the menu labels
-							stepLeft();
-							stepRight();
+							if(selectionStep == MenuOption.EXIT_MENU){
+								setTrunk(branch[0]);
+								if(Game.game.state == Game.MENU){
+									Game.game.pauseGame();
+								}
+							} else {
+								// the step back and forth shakes out select events and updates the labels
+								while(selectionStep--) stepLeft();
+								stepRight();
+							}
 						}
 					}
 				}
@@ -769,9 +777,9 @@
 						movementMovieClips[DOWN_MOVE].visible = currentMenuList.selection < currentMenuList.options.length - 1;
 						movementMovieClips[RIGHT_MOVE].visible = currentMenuList.options[selection].active && !(nextMenuList && !nextMenuList.accessible);
 						movementMovieClips[LEFT_MOVE].visible = Boolean(previousMenuList);
-						if(currentMenuList.options[selection].active && !nextMenuList && selectText.alpha < 1){
-							selectText.alpha += 0.1;
-						}
+					}
+					if(currentMenuList.options[selection].active && !nextMenuList && selectText.alpha < 1){
+						selectText.alpha += 0.1;
 					}
 				} else {
 					movementGuideCount = MOVEMENT_GUIDE_DELAY;
@@ -909,6 +917,11 @@
 			alpha = 0;
 			alphaStep = 1.0 / moveDelay;
 			holder.addChild(this);
+		}
+		
+		/* Called when closing the menu */
+		public function deactivate():void{
+			if(parent) parent.removeChild(this);
 		}
 		
 		/* Inits a MenuOption that leads to a MenuList offering the ability to redefine keys. */
