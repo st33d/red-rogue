@@ -1,5 +1,6 @@
 ﻿package com.robotacid.engine {
 	import com.robotacid.ai.Brain;
+	import com.robotacid.ai.PlayerBrain;
 	import com.robotacid.dungeon.Map;
 	import com.robotacid.geom.Pixel;
 	import com.robotacid.gfx.ItemMovieClip;
@@ -177,7 +178,7 @@
 		 */
 		public function enchant(item:Item, inventoryList:InventoryMenuList = null, user:Character = null):Item{
 			
-			var dest:Pixel;
+			var dest:Pixel, str:String;
 			source = item.type;
 			
 			if(name == POLYMORPH){
@@ -245,6 +246,17 @@
 				
 			} else if(name == IDENTIFY){
 				randomEnchant(item, game.deepestLevelReached);
+				if(!item.uniqueNameStr){
+					if(item.type == Item.WEAPON){
+						str = Item.stats["weapon names"][item.name];
+					} else if(item.type == Item.ARMOUR){
+						str = Item.stats["armour names"][item.name];
+					}
+					item.createUniqueNameStr();
+					game.console.print("the " + str + (str.charAt(str.length - 1) == "s" ? "'" : "'s") + " true name is " + item.uniqueNameStr);
+				}
+				game.menu.loreList.unlockLore(item);
+				if(inventoryList) inventoryList.updateItem(item);
 				return item;
 				
 			}
@@ -477,11 +489,29 @@
 						effect.dismiss();
 					}
 				}
-				if(target != game.player && target != game.minion) target.uniqueNameStr = null;
+				if(!(target is Player) && !(target is Minion)) target.uniqueNameStr = null;
 				return;
 				
 			} else if(name == IDENTIFY){
-				
+				if(target is Player){
+					game.menu.inventoryList.identifyRunes();
+					game.miniMap.reveal();
+					
+				} else if(target is Minion){
+					if(target.uniqueNameStr == Minion.DEFAULT_UNIQUE_NAME_STR){
+						target.createUniqueNameStr();
+						game.console.print("the minion's true name is @");
+					}
+					game.menu.loreList.unlockLore(target);
+					game.menu.loreList.questsList.createQuest();
+					
+				} else if(target is Monster){
+					if(!target.uniqueNameStr){
+						target.createUniqueNameStr();
+						game.console.print("the " + target.nameStr + (target.nameStr.charAt(target.nameStr.length - 1) == "s" ? "'" : "'s") + " true name is " + target.uniqueNameStr);
+					}
+					game.menu.loreList.unlockLore(target);
+				}
 				return;
 				
 			}

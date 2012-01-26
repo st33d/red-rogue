@@ -2,6 +2,7 @@
 	import com.robotacid.ai.Brain;
 	import com.robotacid.phys.Collider;
 	import flash.display.DisplayObject;
+	import flash.display.MovieClip;
 	import flash.display.Sprite;
 	
 	/**

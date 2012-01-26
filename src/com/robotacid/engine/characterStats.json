@@ -7,11 +7,11 @@
 		"balrog", "skeleton"
 	],
 	"unique names":[
-		[], ["skree", "krilitz"], ["yubnub", "noobub", "gilbub"] , ["grom", "hrash", "thogar"], ["goom", "hoor", "boor"],
-		["rofl", "lol", "flol"], [], [] , [], ["bram", "dracula"],
-		[], [], [] , ["medusa"], [],
-		[], [], [] , [], [],
-		["diablo"], []
+		["rogue"], ["skree", "krilitz"], ["yubnub", "noobub", "gilbub"] , ["grom", "hrash", "thogar"], ["goom", "hoor", "boor"],
+		["rofl", "lol", "flol"], ["drizzt", "traxex"], ["spike", "ge-ka", "saboten"] , ["calypso", "creusa", "echo", "harmonia", "arethusa"], ["bram", "dracula", "vlad", "edward", "alucard", "demitri"],
+		["talbot", "talbain"], ["bridget", "xana"], ["hissa", "sri", "astika", "vasuki"], ["medusa", "stheno", "euryale"], ["xit't't'k", "k'tch'k", "xt'chk't"],
+		["emet", "met"], ["sadako", "eevul", "maeveen"], ["gul", "khamul", "ulaire"], ["rlyeh", "ph'nglui", "wgah'nagl", "fhtagri"], ["alamvusha", "bakasura", "kirmira", "virakshi"],
+		["diablo", "azazel", "beelzebub", "mestopheles"], ["@"]
 	],
 	"attacks":[
 		0.3, 0.1, 0.15, 0.35, 0.2,

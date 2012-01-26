@@ -34,7 +34,7 @@
 		
 		public var inventoryList:InventoryMenuList;
 		public var actionsList:MenuList;
-		public var loreList:MenuList;
+		public var loreList:LoreMenuList;
 		public var optionsList:MenuList;
 		public var debugList:MenuList;
 		public var creditsList:MenuList;
@@ -354,7 +354,6 @@
 				renderMenu();
 				
 			} else if(option == dogmaticOption){
-				//onOffOption.state = game.stage.displayState == "normal" ? 1 : 0;
 				onOffOption.state = game.dogmaticMode ? 0 : 1;
 				renderMenu();
 				
@@ -473,6 +472,7 @@
 					QuickSave.save(game);
 				} else if(previousMenuList.options[previousMenuList.selection] == newGameOption){
 					inventoryList.reset();
+					loreList.questsList.reset();
 					actionsOption.active = false;
 					game.reset();
 				}
@@ -499,8 +499,8 @@
 						if(!Game.dialog){
 							Game.dialog = new Dialog(
 								"activate fullscreen",
-								"flash's security restrictions require you to click okay to continue\n\nThese restrictions also limit keyboard input to cursor keys and space. Press Esc to exit fullscreen.",
-								200, 120, fullscreen
+								"flash's security restrictions require you to press the menu key to continue\n\nThese restrictions also limit keyboard input to cursor keys and space. Press Esc to exit fullscreen.",
+								fullscreen
 							);
 						}
 					} else {
@@ -515,8 +515,8 @@
 				if(!Game.dialog){
 					Game.dialog = new Dialog(
 						"screenshot",
-						"flash's security restrictions require you to click okay to continue\n",
-						200, 120, screenshot
+						"flash's security restrictions require you to press the menu key to continue\n",
+						screenshot
 					);
 				}
 			

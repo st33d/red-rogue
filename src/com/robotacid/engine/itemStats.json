@@ -12,21 +12,21 @@
 		"", "knives", "indifference", "face", "yendor"
 	],
 	"unique weapon names":[
-		[], [], [] , [], [],
-		[], [], [] , [], [],
-		[], [], [] , [], [],
-		[], [], [] , [], []
+		["athame"], ["godhand", "grip"], ["sting", "carnwennan", "werewindle"] , ["plus one"], ["cupid's bow", "pinaka"],
+		["vampire killer", "spelunker's friend"], ["excalibur", "kladenets", "grayswandir", "skofnung", "tyrfing"], ["penetrator", "piercer"] , ["gungnir", "gae bulg", "lugh", "rhongomiant"], ["xena's friend"],
+		["jo", "ruyi jingu bang", "grid's rod"], ["boom ball", "surprise"], ["sarah-jane", "boom-stick"] , ["mjolnir"], ["bullseye", "brahmastra", "saranga", "gandiva"],
+		["dyrnwyn", "bayonetta"], ["reaver"], ["blackthorn", "stallion", "swirl"] , ["shocker", "thunder", "nova spark", "zeus", "vajra"], ["licker", "kiss", "sucky", "fang"]
 	],
 	"unique armour names":[
-		[], [], [] , [], [],
-		[], [], [] , [], [],
-		[], [], [] , [], [],
-		[], ["reaver"], ["asdf", "qwer", "hjkl"] , ["shocker", "thunder"], ["licker"]
+		["swarm", "buzz"], ["brisingamen"], ["indy", "spelunker's hat", "archaeologist's hat"] , ["gentleman's pride"], ["apollo"],
+		["draupnir", "seal of solomon"], ["vengeance"], ["eric's helm"] , ["baphomet's skull"], ["jewels"],
+		["ythr", "rthyr"], ["spectacles", "far-seer"], ["madness"] , ["harry's hat"], ["aegis", "ancile"],
+		["yautja skin", "tarnhelm", "hades helm"], ["snicker snack"], ["anonymous"] , [], ["yendor"]
 	],
 	"rune names":[
-		"light", "heal", "poison", "teleport", "undead",
-		"polymorph", "xp", "leech", "thorns", "portal",
-		"stupefy", "null"
+		"light", "heal", "poison", "identify", "undead",
+		"teleport", "thorns", "null", "portal", "stupefy",
+		"polymorph", "leech", "xp"
 	],
 	"rune descriptions":[
 		"glows brightly", "makes you feel better", "is painful to hold", "appears and disappears in your hand", "is connected to the realm of the dead",

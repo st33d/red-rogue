@@ -64,8 +64,10 @@ package com.robotacid.ui {
 		[Embed(source = "../../../assets/font/SEMICOLON.png")] public static var SEMICOLON:Class;
 		[Embed(source = "../../../assets/font/STOP.png")] public static var STOP:Class;
 		[Embed(source = "../../../assets/font/AT.png")] public static var AT:Class;
+		[Embed(source = "../../../assets/font/UNDERSCORE.png")] public static var UNDERSCORE:Class;
+		[Embed(source = "../../../assets/font/PERCENT.png")] public static var PERCENT:Class;
 		
-		public static const CHARACTER_CLASSES:Array = [A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z, NUMBER_0, NUMBER_1, NUMBER_2, NUMBER_3, NUMBER_4, NUMBER_5, NUMBER_6, NUMBER_7, NUMBER_8, NUMBER_9, APOSTROPHE, BACKSLASH, COLON, COMMA, EQUALS, EXCLAMATION, FORWARDSLASH, HYPHEN, LEFT_BRACKET, PLUS, QUESTION, RIGHT_BRACKET, SEMICOLON, STOP, AT];
+		public static const CHARACTER_CLASSES:Array = [A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z, NUMBER_0, NUMBER_1, NUMBER_2, NUMBER_3, NUMBER_4, NUMBER_5, NUMBER_6, NUMBER_7, NUMBER_8, NUMBER_9, APOSTROPHE, BACKSLASH, COLON, COMMA, EQUALS, EXCLAMATION, FORWARDSLASH, HYPHEN, LEFT_BRACKET, PLUS, QUESTION, RIGHT_BRACKET, SEMICOLON, STOP, AT, UNDERSCORE, PERCENT];
 		
 		public static var characters:Array;
 		
@@ -239,6 +241,8 @@ package com.robotacid.ui {
 				else if(c == "{") c = "LEFT_BRACE";
 				else if(c == "}") c = "RIGHT_BRACE";
 				else if(c == "@") c = "AT";
+				else if(c == "_") c = "UNDERSCORE";
+				else if(c == "%") c = "PERCENT";
 				
 				// new line characters
 				if(c == "\n" || c == "\r" || c == "|"){

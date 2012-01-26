@@ -80,6 +80,8 @@
 				return new HeartMC;
 			} else if(type == Item.RUNE){
 				return new RuneMC;
+			} else if(type == Item.QUEST_GEM){
+				return new QuestGemMC;
 			}
 			if(c == ItemMovieClip){
 				return new c(name, type);

@@ -76,6 +76,8 @@
 		public static const CAMERA_DISPLACE_SPEED:Number = 1;
 		public static const CAMERA_DISPLACEMENT:Number = 70;
 		
+		public static const DEFAULT_UNIQUE_NAME_STR:String = "rogue";
+		
 		public static var point:Point = new Point();
 		
 		public function Player(mc:DisplayObject, x:Number, y:Number) {
@@ -91,7 +93,7 @@
 			callMain = false;
 			stepNoise = true;
 			searchRadius = -1;
-			uniqueNameStr = "rogue";
+			uniqueNameStr = DEFAULT_UNIQUE_NAME_STR;
 			
 			cameraDisplacement = new Point();
 			

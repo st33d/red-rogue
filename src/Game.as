@@ -27,6 +27,8 @@
 	import com.robotacid.ui.Console;
 	import com.robotacid.ui.Dialog;
 	import com.robotacid.ui.menu.GameMenu;
+	import com.robotacid.ui.menu.QuestMenuList;
+	import com.robotacid.ui.menu.QuestMenuOption;
 	import com.robotacid.ui.ProgressBar;
 	import com.robotacid.ui.QuickSave;
 	import com.robotacid.ui.TextBox;
@@ -76,7 +78,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 290;
+		public static const BUILD_NUM:int = 293;
 		
 		public static var game:Game;
 		public static var renderer:Renderer;
@@ -152,8 +154,9 @@
 		
 		public static const GAME:int = 0;
 		public static const MENU:int = 1;
-		public static const TITLE:int = 2;
-		public static const UNFOCUSED:int = 3;
+		public static const DIALOG:int = 2;
+		public static const TITLE:int = 3;
+		public static const UNFOCUSED:int = 4;
 		
 		public static const WIDTH:Number = 320;
 		public static const HEIGHT:Number = 240;
@@ -186,6 +189,9 @@
 			Lightning.game = this;
 			ItemMovieClip.game = this;
 			SceneManager.game = this;
+			QuestMenuList.game = this;
+			QuestMenuOption.game = this;
+			Dialog.game = this;
 			
 			Effect.BANNED_RANDOM_ENCHANTMENTS[Effect.PORTAL] = true;
 			Effect.BANNED_RANDOM_ENCHANTMENTS[Effect.NULL] = true;
@@ -363,6 +369,8 @@
 			for(i = 0; i < Item.stats["rune names"].length; i++){
 				Item.runeNames.push("?");
 			}
+			// the identify rune's name is already known (obviously)
+			Item.runeNames[Item.IDENTIFY] = Item.stats["rune names"][Item.IDENTIFY];
 			
 			// LEVEL SPECIFIC INIT
 			// This stuff that follows requires the bones of a level to initialise
@@ -803,7 +811,7 @@
 		
 		private function keyPressed(e:KeyboardEvent):void{
 			if(Key.lockOut) return;
-			if(Key.customDown(MENU_KEY)){
+			if(Key.customDown(MENU_KEY) && !Game.dialog){
 				pauseGame();
 			}
 			/*if(Key.isDown(Key.R)){

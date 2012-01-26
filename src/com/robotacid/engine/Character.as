@@ -5,6 +5,7 @@
 	import com.robotacid.gfx.Renderer;
 	import com.robotacid.phys.Collider;
 	import com.robotacid.sound.SoundManager;
+	import com.robotacid.ui.menu.QuestMenuOption;
 	import com.robotacid.util.clips.localToLocal;
 	import com.robotacid.util.HiddenInt;
 	import com.robotacid.util.HiddenNumber;
@@ -12,6 +13,7 @@
 	import flash.display.DisplayObjectContainer;
 	import flash.display.MovieClip;
 	import flash.display.Sprite;
+	import flash.filters.GlowFilter;
 	import flash.geom.ColorTransform;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
@@ -34,6 +36,7 @@
 		public var armour:Item;
 		public var brain:Brain;
 		public var racialEffect:Effect;
+		public var questVictim:Boolean;
 		
 		// states
 		public var level:int;
@@ -60,6 +63,7 @@
 		public var debrisType:int;
 		public var missileIgnore:int;
 		public var infravisionRenderState:int;
+		public var characterNum:int;
 		
 		// stats
 		public var speed:Number;
@@ -156,8 +160,12 @@
 		
 		public static const DEFAULT_COL:ColorTransform = new ColorTransform();
 		public static const INFRAVISION_COLS:Vector.<ColorTransform> = Vector.<ColorTransform>([DEFAULT_COL, new ColorTransform(1, 0, 0, 1, 255), new ColorTransform(1, 0.7, 0.7, 1, 50)]);
+		public static const QUEST_VICTIM_FILTER:GlowFilter = new GlowFilter(0xAA0000, 0.5, 2, 2, 1000);
 		
 		public static var p:Point = new Point();
+		
+		/* Characters require a unique id to identify them in circumstances such as quests */
+		public static var characterNumCount:int = 0;
 		
 		[Embed(source = "characterStats.json", mimeType = "application/octet-stream")] public static var statsData:Class;
 		public static var stats:Object;
@@ -597,7 +605,8 @@
 				var head:Head = new Head(this, totalHealth * 0.5);
 				var corpse:Corpse = new Corpse(this);
 			}
-			game.console.print(stats["names"][name] + " " + method + " by " + cause);
+			game.console.print(nameToString() + " " + method + " by " + cause);
+			if(questVictim) game.menu.loreList.questsList.questCheck(QuestMenuOption.KILL, this);
 			renderer.shake(0, 3);
 			game.soundQueue.add("kill");
 			if(type == MONSTER) game.player.addXP(xpReward);
@@ -969,10 +978,31 @@
 			health = 0;
 			applyHealth(originalHealthRatio * totalHealth);
 			
+			// if this character is a quest victim, they need to update their name in the quest
+			// and move the marker to the new graphic
+			if(questVictim){
+				questTarget();
+				game.menu.loreList.questsList.updateName(this);
+			}
+		}
+		
+		/* Makes this character the victim of a quest */
+		public function questTarget():void{
+			questVictim = true;
+			gfx.filters = [QUEST_VICTIM_FILTER];
+		}
+		
+		override public function nameToString():String {
+			return uniqueNameStr ? uniqueNameStr : nameStr;
+		}
+		
+		/* Creates a unique name for the Character */
+		public function createUniqueNameStr():void{
+			uniqueNameStr = stats["unique names"][name][game.random.rangeInt(stats["unique names"][name].length)];
 		}
 		
 		override public function toXML():XML {
-			var xml:XML = <character name={name} type={type} level={level} />;
+			var xml:XML = <character characterNum={characterNum} name={name} type={type} level={level} questVictim={questVictim} />;
  			if(effects && effects.length){
 				for(var i:int = 0; i < effects.length; i++){
 					if(effects[i].source != Effect.ARMOUR){
@@ -981,10 +1011,6 @@
 				}
 			}
 			return xml;
-		}
-		
-		override public function nameToString():String {
-			return uniqueNameStr ? nameStr : uniqueNameStr;
 		}
 		
 		override public function remove():void {

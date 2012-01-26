@@ -1,5 +1,6 @@
 package com.robotacid.ui.menu {
 	import com.robotacid.engine.Character;
+	import com.robotacid.engine.Entity;
 	import com.robotacid.engine.Item;
 	import com.robotacid.ui.TextBox;
 	import flash.geom.Rectangle;
@@ -19,12 +20,17 @@ package com.robotacid.ui.menu {
 		public var itemsList:MenuList;
 		public var weaponsList:MenuList;
 		public var armourList:MenuList;
-		public var questsList:MenuList;
+		public var questsList:QuestMenuList;
 		
 		public var mapInfo:MenuInfo;
 		public var raceInfo:MenuInfo;
 		public var weaponInfo:MenuInfo;
 		public var armourInfo:MenuInfo;
+		
+		public var racesOption:MenuOption;
+		public var itemsOption:MenuOption;
+		public var armourOption:MenuOption;
+		public var weaponsOption:MenuOption;
 		
 		public var questsOption:MenuOption;
 		
@@ -38,7 +44,7 @@ package com.robotacid.ui.menu {
 			itemsList = new MenuList();
 			weaponsList = new MenuList();
 			armourList = new MenuList();
-			questsList = new MenuList();
+			questsList = new QuestMenuList(menu);
 			
 			mapInfo = new MenuInfo(renderMap, true);
 			raceInfo = new MenuInfo(renderRace);
@@ -64,11 +70,11 @@ package com.robotacid.ui.menu {
 			
 			var mapOption:MenuOption = new MenuOption("map", mapInfo);
 			mapOption.recordable = false;
-			var racesOption:MenuOption = new MenuOption("races", racesList);
-			var itemsOption:MenuOption = new MenuOption("items", itemsList);
-			var weaponsOption:MenuOption = new MenuOption("weapons", weaponsList);
-			var armourOption:MenuOption = new MenuOption("armour", armourList);
-			questsOption = new MenuOption("quests", questsList, false);
+			racesOption = new MenuOption("races", racesList);
+			itemsOption = new MenuOption("items", itemsList);
+			weaponsOption = new MenuOption("weapons", weaponsList);
+			armourOption = new MenuOption("armour", armourList);
+			questsOption = new MenuOption("quests", questsList);
 			
 			options.push(mapOption);
 			options.push(racesOption);
@@ -78,6 +84,42 @@ package com.robotacid.ui.menu {
 			itemsList.options.push(weaponsOption);
 			itemsList.options.push(armourOption);
 			
+		}
+		
+		/* Checks for lore corresponding to the enitity submitted and unlocks the entry if currently locked */
+		public function unlockLore(entity:Entity):void{
+			var option:MenuOption;
+			var newLore:Boolean = false;
+			if(entity is Character){
+				option = racesList.options[entity.name];
+				if(!option.active){
+					newLore = true;
+					racesOption.visited = false;
+				}
+			} else if(entity is Item){
+				var item:Item = entity as Item;
+				if(item.type == Item.WEAPON){
+					option = weaponsList.options[item.name];
+					if(!option.active){
+						newLore = true;
+						weaponsOption.visited = false;
+						itemsOption.visited = false;
+					}
+				} else if(item.type == Item.ARMOUR){
+					option = armourList.options[item.name];
+					if(!option.active){
+						newLore = true;
+						armourOption.visited = false;
+						itemsOption.visited = false;
+					}
+				}
+			}
+			if(newLore){
+				option.active = true;
+				option.visited = false;
+				menu.update();
+				game.console.print("new lore unlocked");
+			}
 		}
 		
 		/* Callback for mapInfo rendering */
@@ -133,7 +175,7 @@ package com.robotacid.ui.menu {
 			if(range & Item.MELEE) rangeStr.push("melee");
 			if(range & Item.MISSILE) rangeStr.push("missile");
 			if(range & Item.THROWN) rangeStr.push("thrown");
-			str += rangeStr.join(",");
+			str += rangeStr.join(",") + "\n";
 			str += "damage: " + Item.stats["weapon damages"][n] + " + " + Item.stats["weapon damage levels"][n] + " x lvl\n";
 			str += "attack: " + Item.stats["weapon attacks"][n] + " + " + Item.stats["weapon attack levels"][n] + " x lvl\n";
 			str += "knockback: " + Item.stats["weapon knockbacks"][n] + "\n";

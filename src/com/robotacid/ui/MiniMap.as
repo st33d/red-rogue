@@ -3,6 +3,7 @@
 	import com.robotacid.gfx.FX;
 	import com.robotacid.gfx.LightMap;
 	import com.robotacid.gfx.Renderer;
+	import com.robotacid.phys.Collider;
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
 	import flash.display.Shape;
@@ -102,7 +103,7 @@
 			for(r = 1; r < bitmapData.height - 1; r++){
 				for(c = 1; c < bitmapData.width - 1; c++){
 					col = bitmapData.getPixel32(c, r);
-					if(col == 0x00000000 && blockMap[r][c] == 0){
+					if(col == 0x00000000 && (blockMap[r][c] & Collider.SOLID) != Collider.SOLID){
 						bitmapData.setPixel32(c, r, LightMap.MINIMAP_REVEAL_COL);
 						// as well as marking empty squares, the surrounding squares must be checked for walls to mark
 						if(blockMap[r - 1][c - 1] & LightMap.WALL) bitmapData.setPixel32(c - 1, r - 1, LightMap.MINIMAP_WALL_COL);
@@ -116,6 +117,7 @@
 					}
 				}
 			}
+			render();
 		}
 		
 		public function render():void {

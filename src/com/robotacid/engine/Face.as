@@ -56,6 +56,7 @@ package com.robotacid.engine {
 			var str:String = "";
 			if(user && user == game.player) str += "w: ";
 			else if(user && user == game.minion) str += "m: ";
+			if(uniqueNameStr) return uniqueNameStr;
 			return str + Character.stats["names"][level] + " face";
 		}
 		

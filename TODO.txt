@@ -1,3 +1,9 @@
+Change log for upload
+	dogmatic mode
+	menu selection variable bounce and kick-out (new game)
+	identify spell
+	dialogs can now be confirmed with the menu key (as well as clicking)
+
 Bug hunt
 	undead unequip bug - unreproducible?
 	throwing a rune at a wall issue - runes should bounce off walls i think
@@ -6,24 +12,14 @@ insertion point in TextBox for console and input
 
 reversable console input direction
 
-percent and underscore textbox characters
-
 inventory sorting menu option
 
-prep for identify rune
-	*Lore menu
-		*races
-		*items
-	*Reveal minimap - MiniMap.reveal()
-	*Identify all runes - InventoryMenuList.identifyRunes()
-	Quests
-		*quest lore option
-		quest items
-		quest assassination marker
-		
-	
-	Unique names for characters - (eg: Rogue, minion) - identified monsters and items should be branded with a unique name
+interstitial transitions - fade to some text, then fade to the scene
 
+reduce gem size
+
+install new sounds
+				
 create Editor in debug menu
 	create launch test bed option
 	set current dungeon level (affects dungeon level)

@@ -37,6 +37,7 @@
 		public var portalsByLevel:Vector.<Vector.<XML>>;
 		public var trapsByLevel:Vector.<int>;
 		public var secretsByLevel:Vector.<int>;
+		public var questGemsByLevel:Vector.<int>
 		public var seedsByLevel:Vector.<uint>;
 		
 		public var itemDungeonContent:Object;
@@ -52,12 +53,15 @@
 		public function Content() {
 			var obj:Object;
 			var level:int;
+			Character.characterNumCount = 1;
 			chestsByLevel = new Vector.<Vector.<XML>>(TOTAL_LEVELS + 1);
 			monstersByLevel = new Vector.<Vector.<XML>>(TOTAL_LEVELS + 1);
 			portalsByLevel = new Vector.<Vector.<XML>>(TOTAL_LEVELS + 1);
 			trapsByLevel = new Vector.<int>();
 			secretsByLevel = new Vector.<int>();
+			questGemsByLevel = new Vector.<int>();
 			seedsByLevel = new Vector.<uint>();
+			
 			for(level = 0; level <= TOTAL_LEVELS; level++){
 				obj = getLevelContent(level);
 				monstersByLevel[level] = obj.monsters;
@@ -65,6 +69,7 @@
 				portalsByLevel[level] = new Vector.<XML>();
 				trapsByLevel[level] = level * 2;
 				secretsByLevel[level] = 2;
+				questGemsByLevel[level] = 0;
 				Map.random.value();
 				seedsByLevel[level] = Map.random.r;
 			}
@@ -236,14 +241,18 @@
 			var i:int;
 			var monsters:Vector.<XML>;
 			var chests:Vector.<XML>;
+			var questGems:int = 0;
 			if(mapType == Map.MAIN_DUNGEON){
-				if(level <= TOTAL_LEVELS){
+				if(level < monstersByLevel.length){
 					monsters = monstersByLevel[level];
 					chests = chestsByLevel[level];
+					questGems = questGemsByLevel[level];
+					questGemsByLevel[level] = 0;
 				} else {
 					var obj:Object = getLevelContent(level);
-					monsters = obj.monsters;
-					chests = obj.chests;
+					monsters = monstersByLevel[level] = obj.monsters;
+					chests = chestsByLevel[level] = obj.chests;
+					questGemsByLevel[level] = 0;
 				}
 			} else if(mapType == Map.ITEM_DUNGEON){
 				monsters = itemDungeonContent.monsters;
@@ -258,7 +267,7 @@
 				while(monsters.length){
 					r = 1 + Map.random.range(bitmap.height - 1);
 					c = 1 + Map.random.range(bitmap.width - 1);
-					if(!layers[Map.ENTITIES][r][c] && layers[Map.BLOCKS][r][c] != 1 && (bitmap.bitmapData.getPixel32(c, r + 1) == DungeonBitmap.LEDGE || layers[Map.BLOCKS][r + 1][c] == 1)){
+					if(!layers[Map.ENTITIES][r][c] && layers[Map.BLOCKS][r][c] != MapTileConverter.WALL && (bitmap.bitmapData.getPixel32(c, r + 1) == DungeonBitmap.LEDGE || layers[Map.BLOCKS][r + 1][c] == MapTileConverter.WALL)){
 						//trace(monstersByLevel[level][0].toXMLString());
 						layers[Map.ENTITIES][r][c] = convertXMLToEntity(c, r, monsters.shift());
 					}
@@ -266,11 +275,13 @@
 				while(chests.length){
 					r = 1 + Map.random.range(bitmap.height - 2);
 					c = 1 + Map.random.range(bitmap.width - 2);
-					if(!layers[Map.ENTITIES][r][c] && layers[Map.BLOCKS][r][c] != 1 && (bitmap.bitmapData.getPixel32(c, r + 1) == DungeonBitmap.LEDGE || layers[Map.BLOCKS][r + 1][c] == 1)){
+					if(!layers[Map.ENTITIES][r][c] && layers[Map.BLOCKS][r][c] != MapTileConverter.WALL && (bitmap.bitmapData.getPixel32(c, r + 1) == DungeonBitmap.LEDGE || layers[Map.BLOCKS][r + 1][c] == MapTileConverter.WALL)){
 						//trace(chestsByLevel[level][0].toXMLString());
 						layers[Map.ENTITIES][r][c] = convertXMLToEntity(c, r, chests.shift());
 					}
 				}
+				if(questGems) dropQuestGems(questGems, layers, bitmap);
+				
 			} else {
 				// on areas we just scatter objects left up there
 				var chest:Chest;
@@ -302,6 +313,27 @@
 							layers[Map.ENTITIES][r][c] = item;
 						}
 					}
+				}
+			}
+		}
+		
+		/* Distributes quest gems to the map */
+		public function dropQuestGems(total:int, layers:Array, bitmap:DungeonBitmap, dropToMap:Boolean = false):void{
+			
+			var breaker:int = 1000;
+			var r:int, c:int, item:Item;
+			while(total){
+				r = 1 + game.random.range(bitmap.height - 2);
+				c = 1 + game.random.range(bitmap.width - 2);
+				if(!layers[Map.ENTITIES][r][c] && layers[Map.BLOCKS][r][c] != MapTileConverter.WALL && layers[Map.BLOCKS][r + 1][c] == MapTileConverter.WALL){
+					item = new Item(new QuestGemMC, 0, Item.QUEST_GEM, 0);
+					item.dropToMap(c, r, dropToMap);
+					if(dropToMap) renderer.createTeleportSparkRect(item.collider, 30);
+					else layers[Map.ENTITIES][r][c] = item;
+					total--;
+				}
+				if(breaker-- <= 0){
+					trace("broken gem drop");
 				}
 			}
 		}
@@ -480,6 +512,14 @@
 					item.location = Item.UNASSIGNED;
 					return;
 				}
+				if(item.type == Item.QUEST_GEM){
+					if(mapType == Map.ITEM_DUNGEON){
+						itemDungeonContent.questGems++;
+					} else if(mapType == Map.MAIN_DUNGEON){
+						questGemsByLevel[level]++;
+					}
+				}
+				
 				if(chests.length > 0){
 					chest = chests[chests.length - 1];
 					if(chest.item.length < 1 + Map.random.range(3)){
@@ -528,7 +568,7 @@
 					if(name >= Game.MAX_LEVEL) continue;
 				}
 			}
-			return <character name={name} type={characterType} level={level} />;
+			return <character characterNum={(Character.characterNumCount++)} name={name} type={characterType} level={level} />;
 		}
 		
 		/* Create a random item appropriate for the dungeon level */
@@ -660,7 +700,9 @@
 				if(type == Character.MONSTER){
 					mc = game.library.getCharacterGfx(name);
 					obj = new Monster(mc, (x + 0.5) * Game.SCALE, (y + 1) * Game.SCALE, name, level, items);
+					obj.characterNum = xml.@characterNum;
 					if(xml.@uniqueNameStr && xml.@uniqueNameStr != "null") obj.uniqueNameStr = xml.@uniqueNameStr;
+					if(xml.@questVictim == "true") obj.questTarget();
 				}
 				
 			} else if(objectType == "portal"){

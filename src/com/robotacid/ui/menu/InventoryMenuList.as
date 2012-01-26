@@ -286,7 +286,7 @@
 			itemToOption[item].name = item.toString();
 			itemToOption[item].help = item.getHelpText();
 			if(item.type == Item.ARMOUR || item.type == Item.WEAPON){
-				equipmentToOption[item].name = item.toString();
+				equipmentToOption[item].name = item.nameToString();
 				equipmentToOption[item].help = item.getHelpText() + "\nstep right to enchant this item";
 			}
 			menu.update();
@@ -298,6 +298,7 @@
 			for(i = 0; i < runesList.options.length; i++){
 				rune = runesList.options[i].userData as Item;
 				Item.revealName(rune.name, runesList);
+				updateItem(rune);
 			}
 		}
 	}

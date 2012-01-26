@@ -29,6 +29,7 @@
 		private var minimapFX:MinimapFX;
 		
 		public static const ENTER_DELAY:int = 30;
+		public static const DEFAULT_UNIQUE_NAME_STR:String = "the minion";
 		
 		public function Minion(gfx:DisplayObject, x:Number, y:Number, name:int) {
 			
@@ -37,7 +38,7 @@
 			inventory = game.menu.inventoryList;
 			
 			missileIgnore |= Collider.PLAYER | Collider.MINION;
-			uniqueNameStr = "the minion";
+			uniqueNameStr = DEFAULT_UNIQUE_NAME_STR;
 			
 			brain = new Brain(this, Brain.PLAYER, game.player);
 			Brain.playerCharacters.push(this);

@@ -8,6 +8,7 @@
 	import com.robotacid.ui.menu.InventoryMenuList;
 	import com.robotacid.ui.menu.MenuList;
 	import com.robotacid.ui.menu.MenuOptionStack;
+	import com.robotacid.ui.menu.QuestMenuOption;
 	import com.robotacid.util.HiddenInt;
 	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
@@ -67,6 +68,7 @@
 		public static const ARMOUR:int = 1;
 		public static const RUNE:int = 2;
 		public static const HEART:int = 3;
+		public static const QUEST_GEM:int = 4;
 		
 		// location
 		public static const UNASSIGNED:int = 0;
@@ -135,16 +137,22 @@
 		public static const LIGHT:int = 0;
 		public static const HEAL:int = 1;
 		public static const POISON:int = 2;
-		public static const TELEPORT:int = 3;
+		public static const IDENTIFY:int = 3;
 		public static const UNDEAD:int = 4;
-		public static const POLYMORPH:int = 5;
-		public static const XP:int = 6;
-		public static const LEECH_RUNE:int = 7;
-		public static const THORNS:int = 8;
-		public static const PORTAL:int = 9;
-		public static const STUPEFY:int = 10;
-		public static const NULL:int = 11;
-		public static const IDENTIFY:int = 12;
+		public static const TELEPORT:int = 5;
+		public static const THORNS:int = 6;
+		public static const NULL:int = 7;
+		public static const PORTAL:int = 8;
+		//public static const SLOW:int = ;
+		//public static const HASTE:int = ;
+		//public static const HOLY:int = ;
+		//public static const PROTECTION:int = ;
+		public static const STUPEFY:int = 9;
+		public static const POLYMORPH:int = 10;
+		//public static const FEAR:int = ;
+		//public static const CONFUSION:int = ;
+		public static const LEECH_RUNE:int = 11;
+		public static const XP:int = 12;
 		public static const CHAOS:int = 20;
 		
 		// curse states
@@ -243,6 +251,8 @@
 			} else if(type == RUNE){
 				nameStr = stats["rune names"][name];
 				
+			} else if(type == QUEST_GEM){
+				nameStr = "quest gem";
 			}
 		}
 		
@@ -296,6 +306,10 @@
 			if(location == DROPPED){
 				collider.world.removeCollider(collider);
 				active = false;
+			}
+			if(type == QUEST_GEM){
+				game.menu.loreList.questsList.questCheck(QuestMenuOption.COLLECT);
+				return;
 			}
 			location = INVENTORY;
 			if(character is Player){
@@ -425,6 +439,20 @@
 					} else if(character.type == Character.MONSTER){
 						character.collider.ignoreProperties &= ~(Collider.PLAYER | Collider.HEAD);
 					}
+				}
+			}
+		}
+		
+		/* Creates a unique name for the Item */
+		public function createUniqueNameStr():void{
+			if(type == WEAPON){
+				uniqueNameStr = stats["unique weapon names"][name][game.random.rangeInt(stats["unique weapon names"][name].length)];
+			} else if(type == ARMOUR){
+				if(name == FACE){
+					var str:String = Character.stats["unique names"][level][game.random.rangeInt(Character.stats["unique names"][level].length)];
+					uniqueNameStr = str + (str.charAt(str.length - 1) == "s" ? "'" : "'s") + " face";
+				} else {
+					uniqueNameStr = stats["unique armour names"][name][game.random.rangeInt(stats["unique armour names"][name].length)];
 				}
 			}
 		}
