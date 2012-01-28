@@ -4,23 +4,19 @@ Change log for upload
 	identify spell
 	dialogs can now be confirmed with the menu key (as well as clicking)
 	fixed issue with camera moving when menu updates renderer
+	new sounds
+		new tracks for overworld and underworld
+		new sound engineer
+	console scroll direction is reversed - can be changed back - has cursor
+	equipment sort option
 
 Bug hunt
 	undead unequip bug - unreproducible?
 	throwing a rune at a wall issue - runes should bounce off walls i think
 
-insertion point in TextBox for console and input
-
-reversable console input direction
-
-inventory sorting menu option
 
 interstitial transitions - fade to some text, then fade to the scene
 
-reduce gem size
-
-install new sounds
-				
 create Editor in debug menu
 	create launch test bed option
 	set current dungeon level (affects dungeon level)

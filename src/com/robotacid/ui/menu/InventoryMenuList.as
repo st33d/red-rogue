@@ -1,4 +1,5 @@
 ﻿package com.robotacid.ui.menu {
+	import com.robotacid.engine.Character;
 	import flash.utils.Dictionary;
 	import com.robotacid.engine.Item;
 	
@@ -28,6 +29,7 @@
 		public var armourOption:MenuOption;
 		public var runesOption:MenuOption;
 		public var heartsOption:MenuOption;
+		public var sortOption:MenuOption;
 		
 		public var equipOption:ToggleMenuOption;
 		public var equipMinionOption:ToggleMenuOption;
@@ -70,6 +72,8 @@
 			runesOption.help = "The list of runes that can be used on yourself, your minion, monsters and your equipment.";
 			heartsOption = new MenuOption("hearts", heartsList, false);
 			heartsOption.help = "The list of hearts you can eat to regain health.";
+			sortOption = new MenuOption("sort equipment");
+			sortOption.help = "sorts weapons and armour according to the highest stats. does not consider special abilities or enchantments.";
 			
 			enchantOption = new MenuOption("enchant", equipmentList, false);
 			
@@ -92,6 +96,7 @@
 			options.push(armourOption);
 			options.push(runesOption);
 			options.push(heartsOption);
+			options.push(sortOption);
 			
 			itemActionList.options.push(equipOption);
 			itemActionList.options.push(dropOption);
@@ -300,6 +305,45 @@
 				Item.revealName(rune.name, runesList);
 				updateItem(rune);
 			}
+		}
+		
+		/* Does a basic ordering of items based on stats */
+		public function sortEquipment():void{
+			weaponsList.selection = 0;
+			armourList.selection = 0;
+			weaponsList.options.sort(weaponSortCallback);
+			armourList.options.sort(armourSortCallback);
+			//var i:int;
+			//trace("");
+			//for(i = 0; i < weaponsList.options.length; i++){
+				//trace(weaponsList.options[i].name, getWeaponValue(weaponsList.options[i].userData as Item));
+			//}
+			menu.update();
+			game.console.print("equipment is now in order of purpose");
+		}
+		
+		private function weaponSortCallback(a:MenuOption, b:MenuOption):Number{
+			var aValue:Number = getWeaponValue(a.userData as Item);
+			var bValue:Number = getWeaponValue(b.userData as Item);
+			if(aValue > bValue) return -1;
+			else if(aValue < bValue) return 1;
+			return 0;
+		}
+		
+		private function getWeaponValue(item:Item):Number{
+			return item.damage + item.attack * 10 + item.knockback / Character.KNOCKBACK_DIST + item.stun + item.butcher + item.leech;
+		}
+		
+		private function armourSortCallback(a:MenuOption, b:MenuOption):Number{
+			var aValue:Number = getArmourValue(a.userData as Item);
+			var bValue:Number = getArmourValue(b.userData as Item);
+			if(aValue > bValue) return -1;
+			else if(aValue < bValue) return 1;
+			return 0;
+		}
+		
+		private function getArmourValue(item:Item):Number{
+			return item.defence * 10 + item.endurance + item.thorns + item.leech;
 		}
 	}
 

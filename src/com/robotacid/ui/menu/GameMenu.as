@@ -45,6 +45,8 @@
 		public var soundList:MenuList;
 		public var menuMoveList:MenuList;
 		public var seedInputList:MenuInputList;
+		public var upDownList:MenuList;
+		public var onOffList:MenuList;
 		
 		public var inventoryOption:MenuOption;
 		public var actionsOption:MenuOption;
@@ -66,12 +68,13 @@
 		public var seedOption:MenuOption;
 		public var dogmaticOption:MenuOption;
 		public var sureOption:MenuOption;
+		public var consoleDirOption:MenuOption;
 		
 		public var steedOption:MenuOption;
 		public var nateOption:MenuOption;
 		
-		public var onOffList:MenuList;
 		public var onOffOption:ToggleMenuOption;
+		public var upDownOption:ToggleMenuOption;
 		
 		private var fullscreenOn:Boolean;
 		
@@ -100,6 +103,7 @@
 			
 			onOffList = new MenuList();
 			sureList = new MenuList();
+			upDownList = new MenuList();
 			seedInputList = new MenuInputList("" + Map.random.seed,/[0-9]/, String(uint.MAX_VALUE).length, seedInputCallback);
 			seedInputList.promptName = "enter number";
 			
@@ -165,6 +169,8 @@
 			dogmaticOption.help = "in dogmatic mode time will only pass when the player is performing an action.";
 			var menuMoveOption:MenuOption = new MenuOption("menu move speed", menuMoveList);
 			menuMoveOption.help = "change the speed that the menu moves. lower values move the menu faster. simply move the selection to change the speed.";
+			consoleDirOption = new MenuOption("console scroll direction", upDownList);
+			consoleDirOption.help = "change the direction the console at the bottom of the screen scrolls";
 			loadOption = new MenuOption("load", sureList, false);
 			loadOption.help = "disabled whilst I work out how to continue a game from save and quit (permadeath)";
 			saveOption = new MenuOption("save", sureList, false);
@@ -181,6 +187,8 @@
 			onOffOption.selectionStep = 1;
 			sureOption = new MenuOption("sure?");
 			sureOption.selectionStep = MenuOption.EXIT_MENU;
+			upDownOption = new ToggleMenuOption(["up", "down"]);
+			upDownOption.selectionStep = 1;
 			
 			changeRogueRaceOption = new MenuOption("change rogue race", changeRaceList);
 			changeRogueRaceOption.help = "change the current race of the rogue";
@@ -208,6 +216,7 @@
 			optionsList.options.push(fullScreenOption);
 			optionsList.options.push(screenshotOption);
 			optionsList.options.push(menuMoveOption);
+			optionsList.options.push(consoleDirOption);
 			optionsList.options.push(changeKeysOption);
 			optionsList.options.push(hotKeyOption);
 			optionsList.options.push(seedOption);
@@ -233,6 +242,8 @@
 			sureList.options.push(sureOption);
 			
 			onOffList.options.push(onOffOption);
+			
+			upDownList.options.push(upDownOption);
 			
 			setTrunk(trunk);
 			
@@ -355,6 +366,10 @@
 				
 			} else if(option == dogmaticOption){
 				onOffOption.state = game.dogmaticMode ? 0 : 1;
+				renderMenu();
+				
+			} else if(option == consoleDirOption){
+				upDownOption.state = game.console.targetScrollDir == 1 ? 0 : 1;
 				renderMenu();
 				
 			} else if(option == inventoryList.enchantOption){
@@ -527,6 +542,12 @@
 					);
 				}
 			
+			// changing the scrolling behaviour of the console
+			} else if(option == upDownOption){
+				if(previousMenuList.options[previousMenuList.selection] == consoleDirOption){
+					game.console.toggleScrollDir();
+				}
+			
 			// throwing runes
 			} else if(option == inventoryList.throwOption){
 				item = previousMenuList.options[previousMenuList.selection].userData;
@@ -612,6 +633,10 @@
 						}
 					}
 				}
+				
+			// sorting equipment
+			} else if(option == inventoryList.sortOption){
+				inventoryList.sortEquipment();
 			}
 			
 			// if the menu is open, force a renderer update so the player can see the changes
