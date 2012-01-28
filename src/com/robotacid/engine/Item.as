@@ -491,6 +491,7 @@
 				item = optionStack.userData as Item;
 				if(item.name == n){
 					optionStack.singleName = item.nameToString();
+					optionStack.updateName();
 					break;
 				}
 			}

@@ -26,6 +26,10 @@
 			name = (_total > 1 ? _total + " x " : "") + singleName;
 		}
 		
+		/* Updates the stacked name */
+		public function updateName():void{
+			total = _total;
+		}
 	}
 
 }
