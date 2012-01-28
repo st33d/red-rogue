@@ -17,6 +17,8 @@
 	 */
 	public class Console extends Bitmap{
 		
+		public var scrollDir:int;
+		
 		private var lineBuffer:Vector.<BitmapData>;
 		private var border:BitmapData;
 		private var textBox:TextBox;
@@ -42,6 +44,7 @@
 			border.fillRect(new Rectangle(1, 1, bitmapData.width - 2, bitmapData.height - 2), 0x00000000);
 			textBox = new TextBox(Game.WIDTH, LINE_SPACING + 1, BACKGROUND_COL, BACKGROUND_COL, FONT_COL);
 			textBox.wordWrap = false;
+			scrollDir = -1;
 			
 			addEventListener(Event.ENTER_FRAME, main, false, 0, true);
 		}

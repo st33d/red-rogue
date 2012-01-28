@@ -109,7 +109,7 @@
 				game.console.print("pit trap triggered");
 				renderer.createDebrisRect(rect, 0, 100, Renderer.STONE);
 				renderer.shake(0, 3);
-				game.soundQueue.add("kill");
+				game.soundQueue.addRandom("pitTrap", Stone.STONE_DEATH_SOUNDS);
 				game.world.removeMapPosition(mapX, mapY);
 				game.mapTileManager.removeTile(this, mapX, mapY, mapZ);
 				renderer.blockBitmapData.fillRect(new Rectangle(mapX * SCALE, mapY * SCALE, SCALE, SCALE), 0x00000000);

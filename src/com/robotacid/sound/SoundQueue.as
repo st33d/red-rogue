@@ -15,7 +15,7 @@ package com.robotacid.sound {
 		public var delays:Object;
 		
 		// The volume needs to be cut off before it starts to distort
-		public static const MAX_VOLUME:Number = 2;
+		public static const MAX_VOLUME:Number = 1.5;
 		
 		public function SoundQueue(){
 			sounds = {};

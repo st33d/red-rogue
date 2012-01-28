@@ -58,6 +58,7 @@
 		public var tileCenter:Number;
 		public var victim:Character;
 		public var stepNoise:Boolean;
+		public var stepSound:int;
 		public var undead:Boolean;
 		public var inTheDark:Boolean;
 		public var debrisType:int;
@@ -125,6 +126,22 @@
 		public static const STUNNED:int = 6;
 		
 		public static const MOVE_DELAY:int = 3;
+		
+		// based on debris type order
+		public static const HIT_SOUNDS:Array = [
+			["bloodHit1", "bloodHit2", "bloodHit3", "bloodHit4"],
+			["boneHit1", "boneHit2", "boneHit3", "boneHit4"],
+			["stoneHit1", "stoneHit2", "stoneHit3", "stoneHit4"]
+		];
+		public static const QUICKENING_SOUNDS:Array = ["quickening1", "quickening2", "quickening3"];
+		
+		public static const STEP_SOUNDS:Array = [
+			["floorStep1", "floorStep2"],
+			["ladderStep1", "ladderStep2"]
+		];
+		
+		public static const FLOOR_STEP_SOUND:int = 0;
+		public static const LADDER_STEP_SOUND:int = 1;
 		
 		// physics constants
 		public static const GRAVITY:Number = 0.8;
@@ -426,7 +443,6 @@
 									} else if(dir & LEFT){
 										renderer.createDebrisSpurt(p.x >= target.collider.x + target.collider.width ? p.x : target.collider.x + target.collider.width, p.y, 2, 8, target.debrisType);
 									}
-									game.soundQueue.add("hit");
 									
 								} else {
 									game.soundQueue.add("miss");
@@ -654,6 +670,7 @@
 			dir = RIGHT;
 			collider.divorce();
 			quickeningCount = QUICKENING_DELAY;
+			game.soundQueue.addRandom("quickening", QUICKENING_SOUNDS);
 		}
 		
 		/* Used to auto-center when climbing */
@@ -821,10 +838,11 @@
 		}
 		
 		/* Adds damage to the Character */
-		public function applyDamage(n:Number, source:String, knockback:Number = 0, critical:Boolean = false, aggressor:Character = null):void{
+		public function applyDamage(n:Number, source:String, knockback:Number = 0, critical:Boolean = false, aggressor:Character = null, defaultSound:Boolean = true):void{
 			// killing a character on a set of stairs could crash the game
 			if(state == ENTERING || state == EXITING || state == QUICKENING) return;
 			health-= n;
+			if(defaultSound) game.soundQueue.addRandom("hit" + debrisType, HIT_SOUNDS[debrisType]);
 			if(critical) renderer.shake(0, 5);
 			if(health <= 0){
 				death(source, critical, aggressor);
@@ -1036,7 +1054,8 @@
 				if(!moving) moveCount = 0;
 				else {
 					if(stepNoise && moving && moveCount == 0 && moveFrame == 0){
-						game.soundQueue.add("step");
+						stepSound &= 1;
+						game.soundQueue.add(STEP_SOUNDS[collider.state == Collider.STACK ? 0 : 1][stepSound]);
 					}
 					moveCount = (moveCount + 1) % MOVE_DELAY;
 					// flip between climb frames as we move

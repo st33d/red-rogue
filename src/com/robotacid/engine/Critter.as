@@ -41,6 +41,11 @@ package com.robotacid.engine {
 		
 		public static const DAMPING_X:Number = Character.DAMPING_X;
 		
+		public static const SPIDER_DEATH_SOUNDS:Array = ["spiderDeath1", "spiderDeath2", "spiderDeath3", "spiderDeath4"];
+		public static const RAT_DEATH_SOUNDS:Array = ["ratDeath1", "ratDeath2", "ratDeath3", "ratDeath4"];
+		public static const BAT_DEATH_SOUNDS:Array = ["batDeath1", "batDeath2", "batDeath3", "batDeath4"];
+		public static const COG_DEATH_SOUNDS:Array = ["cogDeath1", "cogDeath2", "cogDeath3", "cogDeath4"];
+		
 		public function Critter(gfx:DisplayObject, x:Number, y:Number, name:int){
 			super(gfx);
 			this.name = name;
@@ -186,6 +191,18 @@ package com.robotacid.engine {
 				} else {
 					kill();
 				}
+				// play a sound when the player kills a critter
+				if(!active && contact == game.player.collider){
+					if(name == SPIDER){
+						game.soundQueue.addRandom("spiderDeath", SPIDER_DEATH_SOUNDS);
+					} else if(name == RAT){
+						game.soundQueue.addRandom("ratDeath", RAT_DEATH_SOUNDS);
+					} else if(name == BAT){
+						game.soundQueue.addRandom("batDeath", BAT_DEATH_SOUNDS);
+					} else if(name == COG){
+						game.soundQueue.addRandom("cogDeath", COG_DEATH_SOUNDS);
+					}
+				}
 			}
 			 
 		}
@@ -194,6 +211,7 @@ package com.robotacid.engine {
 			active = false;
 			collider.world.removeCollider(collider);
 			renderer.createDebrisRect(collider, 0, 10, debrisType);
+			
 			if(name == COG){
 				renderer.createDebrisRect(new Rectangle(collider.x - 4, collider.y - 4, 12, 12), 0, 20, debrisType);
 			}

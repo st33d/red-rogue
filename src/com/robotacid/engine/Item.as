@@ -299,6 +299,7 @@
 			// check for collection by player
 			if((game.player.actions & Collider.UP) && collider.intersects(game.player.collider) && !game.player.indifferent){
 				collect(game.player);
+				game.soundQueue.add("pickUp");
 			}
 		}
 		

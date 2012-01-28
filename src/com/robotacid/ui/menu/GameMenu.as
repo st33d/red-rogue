@@ -174,7 +174,7 @@
 			
 			steedOption = new MenuOption("aaron steed - code/art/design");
 			steedOption.help = "opens a window to aaron steed's site - robotacid.com";
-			nateOption = new MenuOption("nathan gallardo - music");
+			nateOption = new MenuOption("nathan gallardo - sound");
 			nateOption.help = "opens a window to nathan gallardo's site (where this game's OST is available) - icefishingep.tk";
 			
 			onOffOption = new ToggleMenuOption(["off", "on"]);
@@ -489,8 +489,15 @@
 				
 				// turning off music
 				} else if(previousMenuList.options[previousMenuList.selection].name == "music"){
-					if(SoundManager.music) SoundManager.turnOffMusic();
-					else SoundManager.turnOnMusic();
+					if(SoundManager.music){
+						SoundManager.turnOffMusic();
+						if(SoundManager.soundLoops["underworldMusic2"]) SoundManager.stopSound("underworldMusic2");
+					} else {
+						SoundManager.turnOnMusic();
+						if(game.dungeon.type == Map.AREA && game.dungeon.level == Map.UNDERWORLD){
+							SoundManager.fadeLoopSound("underworldMusic2");
+						}
+					}
 					
 				// toggle fullscreen
 				} else if(previousMenuList.options[previousMenuList.selection].name == "fullscreen"){

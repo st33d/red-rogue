@@ -163,7 +163,6 @@
 				}
 				// blood
 				renderer.createDebrisSpurt(collider.x + collider.width * 0.5, collider.y + collider.height * 0.5, dx > 0 ? 5 : -5, 5, character.debrisType);
-				game.soundQueue.add("hit");
 				
 			} else if(type == RUNE){
 				if(character.type & Character.STONE){

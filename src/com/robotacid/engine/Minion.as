@@ -101,7 +101,7 @@
 			return item;
 		}
 		
-		override public function applyDamage(n:Number, source:String, knockback:Number = 0, critical:Boolean = false, aggressor:Character = null):void {
+		override public function applyDamage(n:Number, source:String, knockback:Number = 0, critical:Boolean = false, aggressor:Character = null, defaultSound:Boolean = true):void {
 			super.applyDamage(n, source, knockback, critical, aggressor);
 			game.minionHealthBar.setValue(health, totalHealth);
 		}

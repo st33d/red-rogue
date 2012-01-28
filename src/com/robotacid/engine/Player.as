@@ -444,7 +444,7 @@
 			game.world.removeCollider(collider);
 		}
 		
-		override public function applyDamage(n:Number, source:String, knockback:Number = 0, critical:Boolean = false, aggressor:Character = null):void {
+		override public function applyDamage(n:Number, source:String, knockback:Number = 0, critical:Boolean = false, aggressor:Character = null, defaultSound:Boolean = true):void {
 			super.applyDamage(n, source, knockback, critical);
 			game.playerHealthBar.setValue(health, totalHealth);
 		}
@@ -483,12 +483,14 @@
 				game.menu.update();
 			}
 		}
+		
 		/* Disarms any traps on the disarmableTraps list - effectively destroying them */
 		public function disarmTraps():void{
 			for(var i:int = 0; i < disarmableTraps.length; i++){
 				disarmableTraps[i].disarm();
 			}
 			disarmableTraps.length = 0;
+			game.soundQueue.add("click");
 		}
 		
 		public function toString():String{

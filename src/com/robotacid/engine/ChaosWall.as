@@ -118,7 +118,7 @@ package com.robotacid.engine {
 					count = RETIRE_DELAY;
 					renderer.shake(collider.vx, collider.vy);
 					collider.vx = collider.vy = 0;
-					game.soundQueue.add("thud", 3);
+					game.soundQueue.add("chaosWallStop");
 				}
 			} else if(state == RETIRE){
 				if(count){
@@ -143,6 +143,7 @@ package com.robotacid.engine {
 			game.miniMap.bitmapData.setPixel32(mapX, mapY, LightMap.MINIMAP_EMPTY_COL);
 			gfx.visible = true;
 			free = true;
+			game.soundQueue.add("chaosWallReady");
 		}
 		
 		/* Begin moving the ChaosWall, activate all neighbouring ChaosWalls to create a resting place and
@@ -166,6 +167,7 @@ package com.robotacid.engine {
 			else if(target.y > mapY) collider.vy = SPEED;
 			else if(target.x < mapX) collider.vx = -SPEED;
 			state = MOVING;
+			game.soundQueue.add("chaosWallMoving");
 		}
 		
 		/* Destructor */

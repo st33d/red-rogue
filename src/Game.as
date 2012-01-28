@@ -56,6 +56,7 @@
 	import flash.geom.ColorTransform;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
+	import flash.media.Sound;
 	import flash.text.AntiAliasType;
 	import flash.text.GridFitType;
 	import flash.text.TextField;
@@ -78,7 +79,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 293;
+		public static const BUILD_NUM:int = 294;
 		
 		public static var game:Game;
 		public static var renderer:Renderer;
@@ -220,22 +221,76 @@
 			// SOUND INIT
 			SoundManager.init();
 			SoundManager.addSound(new JumpSound, "jump", 0.6);
-			SoundManager.addSound(new StepsSound, "step", 0.4);
+			SoundManager.addSound(new StepsSound, "step", 0.6);
+			SoundManager.addSound(new ClickSound, "click", 0.7);
 			SoundManager.addSound(new RogueDeathSound, "rogueDeath", 1.0);
-			SoundManager.addSound(new MissSound, "miss", 0.8);
+			SoundManager.addSound(new MissSound, "miss", 0.6);
 			SoundManager.addSound(new KillSound, "kill", 0.8);
 			SoundManager.addSound(new ThudSound, "thud", 0.5);
 			SoundManager.addSound(new BowShootSound, "bowShoot", 0.8);
 			SoundManager.addSound(new ThrowSound, "throw", 0.8);
-			SoundManager.addSound(new ChestOpenSound, "chestOpen", 0.6);
+			SoundManager.addSound(new ChestOpenSound, "chestOpen", 0.4);
 			SoundManager.addSound(new RuneHitSound, "runeHit", 0.8);
 			SoundManager.addSound(new TeleportSound, "teleport", 0.8);
 			SoundManager.addSound(new HitSound, "hit", 0.6);
+			SoundManager.addSound(new BatDeathSound1, "batDeath1", 0.3);
+			SoundManager.addSound(new BatDeathSound2, "batDeath2", 0.3);
+			SoundManager.addSound(new BatDeathSound3, "batDeath3", 0.3);
+			SoundManager.addSound(new BatDeathSound4, "batDeath4", 0.3);
+			SoundManager.addSound(new BloodHitSound1, "bloodHit1", 0.8);
+			SoundManager.addSound(new BloodHitSound2, "bloodHit2", 0.8);
+			SoundManager.addSound(new BloodHitSound3, "bloodHit3", 0.8);
+			SoundManager.addSound(new BloodHitSound4, "bloodHit4", 0.8);
+			SoundManager.addSound(new BoneHitSound1, "boneHit1", 0.8);
+			SoundManager.addSound(new BoneHitSound2, "boneHit2", 0.8);
+			SoundManager.addSound(new BoneHitSound3, "boneHit3", 0.8);
+			SoundManager.addSound(new BoneHitSound4, "boneHit4", 0.8);
+			SoundManager.addSound(new ChaosWallMovingSound, "chaosWallMoving", 0.6);
+			SoundManager.addSound(new ChaosWallReadySound, "chaosWallReady", 0.6);
+			SoundManager.addSound(new ChaosWallStopSound, "chaosWallStop", 0.6);
+			SoundManager.addSound(new CogDeathSound1, "cogDeath1", 0.3);
+			SoundManager.addSound(new CogDeathSound2, "cogDeath2", 0.3);
+			SoundManager.addSound(new CogDeathSound3, "cogDeath3", 0.3);
+			SoundManager.addSound(new CogDeathSound4, "cogDeath4", 0.3);
+			SoundManager.addSound(new FloorStepSound1, "floorStep1", 0.15);
+			SoundManager.addSound(new FloorStepSound2, "floorStep2", 0.15);
+			SoundManager.addSound(new LadderStepSound1, "ladderStep1", 0.15);
+			SoundManager.addSound(new LadderStepSound2, "ladderStep2", 0.15);
+			SoundManager.addSound(new HealStoneHitSound1, "healStoneHit1", 0.8);
+			SoundManager.addSound(new HealStoneHitSound2, "healStoneHit2", 0.8);
+			SoundManager.addSound(new HealStoneHitSound3, "healStoneHit3", 0.8);
+			SoundManager.addSound(new HealStoneHitSound4, "healStoneHit4", 0.8);
+			SoundManager.addSound(new PickUpSound, "pickUp", 0.3);
+			SoundManager.addSound(new PortalCloseSound, "portalClose", 0.8);
+			SoundManager.addSound(new PortalOpenSound, "portalOpen", 0.8);
+			SoundManager.addSound(new QuickeningSound1, "quickening1", 0.8);
+			SoundManager.addSound(new QuickeningSound2, "quickening2", 0.8);
+			SoundManager.addSound(new QuickeningSound3, "quickening3", 0.8);
+			SoundManager.addSound(new RatDeathSound1, "ratDeath1", 0.3);
+			SoundManager.addSound(new RatDeathSound2, "ratDeath2", 0.3);
+			SoundManager.addSound(new RatDeathSound3, "ratDeath3", 0.3);
+			SoundManager.addSound(new RatDeathSound4, "ratDeath4", 0.3);
+			SoundManager.addSound(new SpiderDeathSound1, "spiderDeath1", 0.3);
+			SoundManager.addSound(new SpiderDeathSound2, "spiderDeath2", 0.3);
+			SoundManager.addSound(new SpiderDeathSound3, "spiderDeath3", 0.3);
+			SoundManager.addSound(new SpiderDeathSound4, "spiderDeath4", 0.3);
+			SoundManager.addSound(new StoneDeathSound1, "stoneDeath1", 0.8);
+			SoundManager.addSound(new StoneDeathSound2, "stoneDeath2", 0.8);
+			SoundManager.addSound(new StoneDeathSound3, "stoneDeath3", 0.8);
+			SoundManager.addSound(new StoneDeathSound4, "stoneDeath4", 0.8);
+			SoundManager.addSound(new StoneHitSound1, "stoneHit1", 0.8);
+			SoundManager.addSound(new StoneHitSound2, "stoneHit2", 0.8);
+			SoundManager.addSound(new StoneHitSound3, "stoneHit3", 0.8);
+			SoundManager.addSound(new StoneHitSound4, "stoneHit4", 0.8);
+			
 			SoundManager.addSound(new IntroMusicSound, "introMusic", 1.0);
 			SoundManager.addSound(new DungeonsMusicSound, "dungeonsMusic", 1.0);
 			SoundManager.addSound(new SewersMusicSound, "sewersMusic", 1.0);
 			SoundManager.addSound(new CavesMusicSound, "cavesMusic", 1.0);
 			SoundManager.addSound(new ChaosMusicSound, "chaosMusic", 1.0);
+			SoundManager.addSound(new OverworldMusicSound, "overworldMusic", 1.0);
+			SoundManager.addSound(new UnderworldMusicSound1, "underworldMusic1", 1.0);
+			SoundManager.addSound(new UnderworldMusicSound2, "underworldMusic2", 1.0);
 			soundQueue = new SoundQueue();
 			
 			dogmaticMode = false;
@@ -783,13 +838,24 @@
 		public function changeMusic():void{
 			var start:int;
 			var name:String;
+			if(SoundManager.soundLoops["underworldMusic2"]) SoundManager.fadeLoopSound("underworldMusic2", -SoundManager.DEFAULT_FADE_STEP)
 			if(state == UNFOCUSED){
 				if(!SoundManager.currentMusic || SoundManager.currentMusic != "introMusic"){
 					SoundManager.fadeMusic("introMusic");
 				}
 			} else {
 				if(dungeon.type == Map.AREA){
-					if(SoundManager.currentMusic) SoundManager.fadeMusic(SoundManager.currentMusic, -SoundManager.DEFAULT_FADE_STEP);
+					if(dungeon.level == Map.OVERWORLD) name = "overworldMusic";
+					else if(dungeon.level == Map.UNDERWORLD) name = "underworldMusic1";
+					if(!SoundManager.currentMusic || SoundManager.currentMusic != name){
+						if(dungeon.level == Map.OVERWORLD){
+							start = int(SoundManager.musicTimes[name]);
+						} else if(dungeon.level == Map.UNDERWORLD){
+							start = (SoundManager.sounds["underworldMusic1"] as Sound).length * 0.5;
+							if(SoundManager.music && !SoundManager.soundLoops["underworldMusic2"]) SoundManager.fadeLoopSound("underworldMusic2");
+						}
+						SoundManager.fadeMusic(name, SoundManager.DEFAULT_FADE_STEP, start);
+					}
 				} else {
 					name = Map.ZONE_NAMES[dungeon.zone] + "Music";
 					if(!SoundManager.currentMusic || SoundManager.currentMusic != name){

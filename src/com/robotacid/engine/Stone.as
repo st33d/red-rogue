@@ -35,6 +35,9 @@
 		public static const GRIND_XP_REWARD:Number = 0.1;
 		public static const DEATH_HITS:int = 3;
 		
+		public static const HEAL_STONE_HIT_SOUNDS:Array = ["healStoneHit1", "healStoneHit2", "healStoneHit3", "healStoneHit4"];
+		public static const STONE_DEATH_SOUNDS:Array = ["stoneDeath1", "stoneDeath2", "stoneDeath3", "stoneDeath4"];
+		
 		public static const STONE_NAME_HEALTHS:Array = [
 			5,
 			0,
@@ -93,7 +96,7 @@
 			collider.pushDamping = 0;
 		}
 		
-		override public function applyDamage(n:Number, source:String, knockback:Number = 0, critical:Boolean = false, aggressor:Character = null):void {
+		override public function applyDamage(n:Number, source:String, knockback:Number = 0, critical:Boolean = false, aggressor:Character = null, defaultSound:Boolean = true):void {
 			var mc:MovieClip = gfx as MovieClip;
 			if(name == SECRET_WALL){
 				if(!revealed) reveal();
@@ -107,13 +110,16 @@
 					game.player.applyHealth(n);
 				}
 				mc.gotoAndPlay("hit");
+				game.soundQueue.addRandom("healStone", HEAL_STONE_HIT_SOUNDS);
 				
 			} else if(name == GRIND){
 				game.player.addXP(GRIND_XP_REWARD);
 				var frame:int = 1 + (mc.currentFrame  % mc.totalFrames);
 				mc.gotoAndStop(frame);
+				game.soundQueue.addRandom("grindStone", HIT_SOUNDS[Renderer.STONE]);
 				
 			} else if(name == DEATH){
+				game.soundQueue.addRandom("grindStone", HIT_SOUNDS[Renderer.BONE]);
 				hits++;
 				if(hits > DEATH_HITS){
 					if(aggressor){
@@ -130,7 +136,7 @@
 			renderer.createDebrisRect(collider, 0, 100, debrisType);
 			game.console.print("secret revealed");
 			renderer.shake(0, 3);
-			game.soundQueue.add("kill");
+			game.soundQueue.addRandom("stoneDeath", STONE_DEATH_SOUNDS);
 			game.player.addXP(SECRET_XP_REWARD * game.dungeon.level);
 			game.world.removeMapPosition(mapX, mapY);
 			game.mapTileManager.removeTile(this, mapX, mapY, mapZ);

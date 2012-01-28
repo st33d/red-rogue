@@ -71,6 +71,7 @@
 			callMain = true;
 			seen = false;
 			if(state == OPENING){
+				game.soundQueue.add("portalOpen");
 				gfx.scaleX = gfx.scaleY = 0;
 				gfx.x += SCALE * 0.5;
 				gfx.y += SCALE * 0.5;
@@ -173,6 +174,7 @@
 			free = false;
 			state = CLOSING;
 			count = OPEN_CLOSE_DELAY;
+			game.soundQueue.add("portalClose");
 		}
 		
 		/* Covers the bottom edge of a portal to make it neater in outside areas */

@@ -546,6 +546,8 @@
 					nextAlphaStep = 1.0 / moveReset;
 					captureAlphaStep = -SIDE_ALPHAS / moveReset;
 					vx = -LIST_WIDTH / moveReset;
+			
+					SoundManager.playSound("miss", 0.2);
 				}
 				
 			// initialise and launch menu selection animation
@@ -580,9 +582,9 @@
 				
 				animatingSelection = true;
 				selectionWindowTaperNext.visible = false;
-			}
 			
-			SoundManager.playSound("step");
+				SoundManager.playSound("click");
+			}
 			
 			dir |= RIGHT;
 			dir &= ~LEFT;
@@ -615,7 +617,7 @@
 			captureAlphaStep = -SIDE_ALPHAS / moveReset;
 			vx = LIST_WIDTH / moveReset;
 			
-			SoundManager.playSound("step");
+			SoundManager.playSound("miss", 0.2);
 			
 			dir |= LEFT;
 			dir &= ~RIGHT;

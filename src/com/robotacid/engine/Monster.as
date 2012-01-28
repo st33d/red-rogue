@@ -71,7 +71,7 @@
 			super.main();
 		}
 		
-		override public function applyDamage(n:Number, source:String, knockback:Number = 0, critical:Boolean = false, aggressor:Character = null):void {
+		override public function applyDamage(n:Number, source:String, knockback:Number = 0, critical:Boolean = false, aggressor:Character = null, defaultSound:Boolean = true):void {
 			super.applyDamage(n, source, knockback, critical, aggressor);
 			// poison effects on multiple characters could cause the bar to flicker between victims,
 			// so we focus on the last person who was attacked physically

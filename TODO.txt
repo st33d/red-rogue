@@ -3,6 +3,7 @@ Change log for upload
 	menu selection variable bounce and kick-out (new game)
 	identify spell
 	dialogs can now be confirmed with the menu key (as well as clicking)
+	fixed issue with camera moving when menu updates renderer
 
 Bug hunt
 	undead unequip bug - unreproducible?
