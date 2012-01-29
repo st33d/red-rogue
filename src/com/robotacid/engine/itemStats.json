@@ -29,9 +29,9 @@
 		"polymorph", "leech", "xp"
 	],
 	"rune descriptions":[
-		"glows brightly", "makes you feel better", "is painful to hold", "appears and disappears in your hand", "is connected to the realm of the dead",
-		"seems to constantly change shape", "imbues wisdom and skill", "draws lifeforce into it", "is covered in spikes", "has a hole in it",
-		"err, what does it do again?", "destroys magic"
+		"glows brightly", "makes you feel better", "is painful to hold", "grants knowledge undiscovered", "is connected to the underworld",
+		"appears and disappears in your hand", "is covered in spikes", "destroys magic", "has a hole in it", "err, what does it do again?",
+		"seems to constantly change shape", "is the magic of blood demons", "imbues wisdom and quality"
 	],
 	"weapon ranges":[
 		5, 1, 5, 1, 2,
