@@ -4,6 +4,7 @@ Bug hunt
 	minion got stuck on stairs
 	collection lock out on chests after playing for a while - bugged chest or item?
 	teleport sound bug - all of a sudden, many sound effects - why?
+	Error with input box and select prompt - select is visible on input
 
 
 interstitial transitions - fade to some text, then fade to the scene

@@ -39,6 +39,7 @@
 		public var debugList:MenuList;
 		public var creditsList:MenuList;
 		
+		public var editorList:EditorMenuList;
 		public var giveItemList:GiveItemMenuList;
 		public var changeRaceList:MenuList;
 		public var sureList:MenuList;

@@ -34,6 +34,7 @@ package com.robotacid.gfx {
 		public static const UNDERWORLD_NOVA_HEIGHT:int = 9;
 		public static const UNDERWORLD_WAVE_HEIGHT:int = 12;
 		public static const WAVE_SPEED:Number = 0.5;
+		public static const STAR_SOUNDS:Array = ["star1", "star2", "star3", "star4"];
 		
 		public function SceneManager(mapLevel:int, mapType:int) {
 			this.mapLevel = mapLevel;
@@ -57,7 +58,10 @@ package com.robotacid.gfx {
 				for(i = fx.length - 1; i > -1; i--){
 					item = fx[i];
 					if(!item.active) fx[i] = new FX(game.random.range(game.dungeon.width * Game.SCALE), game.random.range(UNDERWORLD_NOVA_HEIGHT * Game.SCALE), renderer.novaBlit, renderer.bitmapData, renderer.bitmap);
-					else item.main();
+					else{
+						item.main();
+						if(item.frame == item.blit.totalFrames) game.soundQueue.addRandom("star", STAR_SOUNDS);
+					}
 				}
 				
 			}

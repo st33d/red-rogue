@@ -26,6 +26,7 @@
 	import com.robotacid.sound.SoundQueue;
 	import com.robotacid.ui.Console;
 	import com.robotacid.ui.Dialog;
+	import com.robotacid.ui.Editor;
 	import com.robotacid.ui.menu.GameMenu;
 	import com.robotacid.ui.menu.QuestMenuList;
 	import com.robotacid.ui.menu.QuestMenuOption;
@@ -79,7 +80,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 296;
+		public static const BUILD_NUM:int = 298;
 		
 		public static var game:Game;
 		public static var renderer:Renderer;
@@ -98,6 +99,7 @@
 		public var random:XorRandom;
 		public var soundQueue:SoundQueue;
 		public var transition:Transition;
+		public var editor:Editor;
 		
 		// graphics
 		public var mapTileManager:MapTileManager;
@@ -131,7 +133,7 @@
 		public var state:int;
 		public var previousState:int;
 		public var frameCount:int;
-		public var mouseCount:int;
+		public var mousePressedCount:int;
 		public var mousePressed:Boolean;
 		public var paused:Boolean;
 		public var shakeDirX:int;
@@ -208,6 +210,8 @@
 			
 			lightning = new Lightning();
 			
+			editor = new Editor(this, renderer);
+			
 			var statsByteArray:ByteArray;
 			
 			statsByteArray = new Character.statsData();
@@ -225,7 +229,7 @@
 			SoundManager.addSound(new ClickSound, "click", 0.7);
 			SoundManager.addSound(new RogueDeathSound, "rogueDeath", 1.0);
 			SoundManager.addSound(new MissSound, "miss", 0.6);
-			SoundManager.addSound(new KillSound, "kill", 0.8);
+			SoundManager.addSound(new KillSound, "kill", 0.6);
 			SoundManager.addSound(new ThudSound, "thud", 0.5);
 			SoundManager.addSound(new BowShootSound, "bowShoot", 0.8);
 			SoundManager.addSound(new ThrowSound, "throw", 0.8);
@@ -233,21 +237,21 @@
 			SoundManager.addSound(new RuneHitSound, "runeHit", 0.8);
 			SoundManager.addSound(new TeleportSound, "teleport", 0.8);
 			SoundManager.addSound(new HitSound, "hit", 0.6);
-			SoundManager.addSound(new BatDeathSound1, "batDeath1", 0.3);
-			SoundManager.addSound(new BatDeathSound2, "batDeath2", 0.3);
-			SoundManager.addSound(new BatDeathSound3, "batDeath3", 0.3);
-			SoundManager.addSound(new BatDeathSound4, "batDeath4", 0.3);
-			SoundManager.addSound(new BloodHitSound1, "bloodHit1", 0.8);
-			SoundManager.addSound(new BloodHitSound2, "bloodHit2", 0.8);
-			SoundManager.addSound(new BloodHitSound3, "bloodHit3", 0.8);
-			SoundManager.addSound(new BloodHitSound4, "bloodHit4", 0.8);
+			SoundManager.addSound(new BatDeathSound1, "batDeath1", 0.2);
+			SoundManager.addSound(new BatDeathSound2, "batDeath2", 0.2);
+			SoundManager.addSound(new BatDeathSound3, "batDeath3", 0.2);
+			SoundManager.addSound(new BatDeathSound4, "batDeath4", 0.2);
+			SoundManager.addSound(new BloodHitSound1, "bloodHit1", 0.7);
+			SoundManager.addSound(new BloodHitSound2, "bloodHit2", 0.7);
+			SoundManager.addSound(new BloodHitSound3, "bloodHit3", 0.7);
+			SoundManager.addSound(new BloodHitSound4, "bloodHit4", 0.7);
 			SoundManager.addSound(new BoneHitSound1, "boneHit1", 0.8);
 			SoundManager.addSound(new BoneHitSound2, "boneHit2", 0.8);
 			SoundManager.addSound(new BoneHitSound3, "boneHit3", 0.8);
 			SoundManager.addSound(new BoneHitSound4, "boneHit4", 0.8);
-			SoundManager.addSound(new ChaosWallMovingSound, "chaosWallMoving", 0.6);
-			SoundManager.addSound(new ChaosWallReadySound, "chaosWallReady", 0.6);
-			SoundManager.addSound(new ChaosWallStopSound, "chaosWallStop", 0.6);
+			SoundManager.addSound(new ChaosWallMovingSound, "chaosWallMoving", 0.5);
+			SoundManager.addSound(new ChaosWallReadySound, "chaosWallReady", 0.5);
+			SoundManager.addSound(new ChaosWallStopSound, "chaosWallStop", 0.5);
 			SoundManager.addSound(new CogDeathSound1, "cogDeath1", 0.3);
 			SoundManager.addSound(new CogDeathSound2, "cogDeath2", 0.3);
 			SoundManager.addSound(new CogDeathSound3, "cogDeath3", 0.3);
@@ -265,30 +269,34 @@
 			SoundManager.addSound(new PortalOpenSound, "portalOpen", 0.8);
 			SoundManager.addSound(new QuickeningSound1, "quickening1", 0.8);
 			SoundManager.addSound(new QuickeningSound2, "quickening2", 0.8);
-			SoundManager.addSound(new QuickeningSound3, "quickening3", 0.8);
-			SoundManager.addSound(new RatDeathSound1, "ratDeath1", 0.3);
-			SoundManager.addSound(new RatDeathSound2, "ratDeath2", 0.3);
-			SoundManager.addSound(new RatDeathSound3, "ratDeath3", 0.3);
-			SoundManager.addSound(new RatDeathSound4, "ratDeath4", 0.3);
-			SoundManager.addSound(new SpiderDeathSound1, "spiderDeath1", 0.3);
-			SoundManager.addSound(new SpiderDeathSound2, "spiderDeath2", 0.3);
-			SoundManager.addSound(new SpiderDeathSound3, "spiderDeath3", 0.3);
-			SoundManager.addSound(new SpiderDeathSound4, "spiderDeath4", 0.3);
-			SoundManager.addSound(new StoneDeathSound1, "stoneDeath1", 0.8);
-			SoundManager.addSound(new StoneDeathSound2, "stoneDeath2", 0.8);
-			SoundManager.addSound(new StoneDeathSound3, "stoneDeath3", 0.8);
-			SoundManager.addSound(new StoneDeathSound4, "stoneDeath4", 0.8);
-			SoundManager.addSound(new StoneHitSound1, "stoneHit1", 0.8);
-			SoundManager.addSound(new StoneHitSound2, "stoneHit2", 0.8);
-			SoundManager.addSound(new StoneHitSound3, "stoneHit3", 0.8);
-			SoundManager.addSound(new StoneHitSound4, "stoneHit4", 0.8);
+			SoundManager.addSound(new QuickeningSound3, "quickening3", 0.6);
+			SoundManager.addSound(new RatDeathSound1, "ratDeath1", 0.2);
+			SoundManager.addSound(new RatDeathSound2, "ratDeath2", 0.2);
+			SoundManager.addSound(new RatDeathSound3, "ratDeath3", 0.2);
+			SoundManager.addSound(new RatDeathSound4, "ratDeath4", 0.2);
+			SoundManager.addSound(new SpiderDeathSound1, "spiderDeath1", 0.2);
+			SoundManager.addSound(new SpiderDeathSound2, "spiderDeath2", 0.2);
+			SoundManager.addSound(new SpiderDeathSound3, "spiderDeath3", 0.2);
+			SoundManager.addSound(new SpiderDeathSound4, "spiderDeath4", 0.2);
+			SoundManager.addSound(new StoneDeathSound1, "stoneDeath1", 0.7);
+			SoundManager.addSound(new StoneDeathSound2, "stoneDeath2", 0.7);
+			SoundManager.addSound(new StoneDeathSound3, "stoneDeath3", 0.7);
+			SoundManager.addSound(new StoneDeathSound4, "stoneDeath4", 0.7);
+			SoundManager.addSound(new StoneHitSound1, "stoneHit1", 0.7);
+			SoundManager.addSound(new StoneHitSound2, "stoneHit2", 0.7);
+			SoundManager.addSound(new StoneHitSound3, "stoneHit3", 0.7);
+			SoundManager.addSound(new StoneHitSound4, "stoneHit4", 0.7);
+			SoundManager.addSound(new StarSound1, "star1", 0.05);
+			SoundManager.addSound(new StarSound2, "star2", 0.05);
+			SoundManager.addSound(new StarSound3, "star3", 0.05);
+			SoundManager.addSound(new StarSound4, "star4", 0.05);
 			
 			SoundManager.addSound(new IntroMusicSound, "introMusic", 1.0);
 			SoundManager.addSound(new DungeonsMusicSound, "dungeonsMusic", 1.0);
 			SoundManager.addSound(new SewersMusicSound, "sewersMusic", 1.0);
-			SoundManager.addSound(new CavesMusicSound, "cavesMusic", 1.0);
+			SoundManager.addSound(new CavesMusicSound, "cavesMusic", 0.7);
 			SoundManager.addSound(new ChaosMusicSound, "chaosMusic", 1.0);
-			SoundManager.addSound(new OverworldMusicSound, "overworldMusic", 1.0);
+			SoundManager.addSound(new OverworldMusicSound, "overworldMusic", 0.4);
 			SoundManager.addSound(new UnderworldMusicSound1, "underworldMusic1", 1.0);
 			SoundManager.addSound(new UnderworldMusicSound2, "underworldMusic2", 1.0);
 			soundQueue = new SoundQueue();
@@ -804,6 +812,8 @@
 					//}
 				
 				}
+				
+				if(editor.active) editor.main();
 			}
 		}
 		
@@ -868,7 +878,7 @@
 		
 		private function mouseDown(e:MouseEvent):void{
 			mousePressed = true;
-			mouseCount = frameCount;
+			mousePressedCount = frameCount;
 		}
 		
 		private function mouseUp(e:MouseEvent):void{
