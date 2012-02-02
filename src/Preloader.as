@@ -34,7 +34,7 @@
 			stage.align = StageAlign.TOP_LEFT;
 			// show loader
 			bar = new ProgressBar(0, 0, 100, 10);
-			bar.barCol = 0xAA0000;
+			bar.barCol = 0xFFAA0000;
 			bar.setValue(0, 1);
 			bar.scaleX = bar.scaleY = 2;
 			bar.x = 320 - bar.width * 0.5;

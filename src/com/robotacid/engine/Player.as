@@ -105,7 +105,7 @@
 			disarmableTraps = new Vector.<Trap>();
 			
 			xp = 0;
-			game.playerXpBar.value = 0;
+			game.playerXpBar.setValue(0, 1);
 			
 			game.console.print("welcome rogue");
 			
@@ -466,6 +466,7 @@
 		override public function levelUp():void {
 			super.levelUp();
 			if(game.minion) game.minion.levelUp();
+			game.levelNumGfx.gotoAndStop(level);
 		}
 		/* Adds a trap that the rogue could possibly disarm and updates the menu */
 		public function addDisarmableTrap(trap:Trap):void{

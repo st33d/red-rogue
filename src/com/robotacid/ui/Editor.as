@@ -1,5 +1,7 @@
 package com.robotacid.ui {
 	import com.robotacid.gfx.Renderer;
+	import com.robotacid.ui.menu.EditorMenuList;
+	import flash.display.Bitmap;
 	import flash.display.BitmapData;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
@@ -13,6 +15,9 @@ package com.robotacid.ui {
 		public var game:Game;
 		public var renderer:Renderer;
 		public var highlight:BitmapData;
+		public var menuList:EditorMenuList;
+		public var bitmap:Bitmap;
+		public var bitmapData:BitmapData;
 		
 		public var active:Boolean;
 		
@@ -23,13 +28,15 @@ package com.robotacid.ui {
 			this.renderer = renderer;
 			highlight = new BitmapData(Game.SCALE, Game.SCALE, true, 0xFFFFFFFF);
 			highlight.fillRect(new Rectangle(1, 1, Game.SCALE-2, Game.SCALE-2), 0x00000000);
+			bitmap = new Bitmap(new BitmapData(Game.WIDTH, Game.HEIGHT - Console.HEIGHT, true, 0x00000000));
+			bitmapData = bitmap.bitmapData;
 			
 			//active = true;
 		}
 		
 		public function main():void{
 			if(game.mousePressedCount == game.frameCount){
-				createTile(renderer.canvas.mouseX * Game.INV_SCALE, renderer.canvas.mouseY * Game.INV_SCALE);
+				editorAction(renderer.canvas.mouseX * Game.INV_SCALE, renderer.canvas.mouseY * Game.INV_SCALE);
 			}
 		}
 		
@@ -39,7 +46,8 @@ package com.robotacid.ui {
 			renderer.bitmapData.copyPixels(highlight, highlight.rect, point, null, null, true);
 		}
 		
-		public function createTile(mapX:int, mapY:int):void{
+		/* Performs an action at mapX, mapY based on the current configuration of the EditorMenuList */
+		public function editorAction(mapX:int, mapY:int):void{
 			
 		}
 		

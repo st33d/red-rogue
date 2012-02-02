@@ -80,7 +80,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 298;
+		public static const BUILD_NUM:int = 299;
 		
 		public static var game:Game;
 		public static var renderer:Renderer;
@@ -115,6 +115,7 @@
 		public var miniMap:MiniMap;
 		public var playerHealthBar:ProgressBar;
 		public var playerXpBar:ProgressBar;
+		public var levelNumGfx:MovieClip;
 		public var minionHealthBar:ProgressBar;
 		public var enemyHealthBar:ProgressBar;
 		public var fpsText:TextBox;
@@ -173,6 +174,8 @@
 		
 		public static const MAX_LEVEL:int = 20;
 		
+		public static const HEALTH_GLOW_RATIO:Number = 0.25;
+		
 		public function Game():void {
 			
 			library = new Library;
@@ -203,6 +206,7 @@
 			
 			TextBox.init();
 			MapTileConverter.init();
+			ProgressBar.initGlowTable();
 			
 			random = new XorRandom();
 			
@@ -338,20 +342,36 @@
 			miniMapHolder = new Sprite();
 			addChild(miniMapHolder);
 			
-			playerHealthBar = new ProgressBar(5, console.y - 13, MiniMap.WIDTH, 8);
-			playerHealthBar.barCol = 0xCCCCCC;
+			playerHealthBar = new ProgressBar(5, console.y - 13, MiniMap.WIDTH, 8, HEALTH_GLOW_RATIO, 0xAA0000);
+			playerHealthBar.barCol = 0xFFCCCCCC;
 			addChild(playerHealthBar);
-			playerXpBar = new ProgressBar(5, playerHealthBar.y - 4, MiniMap.WIDTH, 3);
-			playerXpBar.barCol = 0xCCCCCC;
+			var hpBitmap:Bitmap = new library.HPB;
+			hpBitmap.x = playerHealthBar.width + 1;
+			hpBitmap.y = 1;
+			playerHealthBar.addChild(hpBitmap);
+			playerHealthBar.update();
+			
+			playerXpBar = new ProgressBar(5, playerHealthBar.y - 7, MiniMap.WIDTH, 6);
+			playerXpBar.barCol = 0xFFCCCCCC;
 			addChild(playerXpBar);
+			levelNumGfx = new LevelNumMC();
+			levelNumGfx.stop();
+			levelNumGfx.x = playerXpBar.width + 1;
+			playerXpBar.addChild(levelNumGfx);
+			playerXpBar.update();
 			
-			minionHealthBar = new ProgressBar(5, playerXpBar.y - 5, playerHealthBar.width * 0.5, 4);
-			minionHealthBar.barCol = 0xCCCCCC;
+			minionHealthBar = new ProgressBar(5, playerXpBar.y - 7, MiniMap.WIDTH, 6, HEALTH_GLOW_RATIO, 0xAA0000);
+			minionHealthBar.barCol = 0xFFCCCCCC;
 			addChild(minionHealthBar);
+			var mhpBitmap:Bitmap = new library.MHPB;
+			mhpBitmap.x = minionHealthBar.width + 1;
+			mhpBitmap.y = 1;
+			minionHealthBar.addChild(mhpBitmap);
 			minionHealthBar.visible = false;
+			minionHealthBar.update();
 			
-			enemyHealthBar = new ProgressBar(WIDTH - 59, console.y - 13, 54, 8);
-			enemyHealthBar.barCol = 0xCCCCCC;
+			enemyHealthBar = new ProgressBar(WIDTH - 59, console.y - 13, 54, 8, HEALTH_GLOW_RATIO, 0xAA0000);
+			enemyHealthBar.barCol = 0xFFCCCCCC;
 			addChild(enemyHealthBar);
 			enemyHealthBar.active = false;
 			enemyHealthBar.alpha = 0;
@@ -792,6 +812,7 @@
 					renderer.main();
 					
 					frameCount++;
+					ProgressBar.glowCount = frameCount % ProgressBar.glowTable.length;
 					
 					// examine the key buffer for cheat codes
 					if(!konamiCode && Key.matchLog(Key.KONAMI_CODE)){

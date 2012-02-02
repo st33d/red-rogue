@@ -61,6 +61,9 @@
 		
 		[Embed(source = 'assets/trap_revealed.png')] public var TrapRevealedB:Class;
 		
+		[Embed(source = 'assets/mhp-small.png')] public var MHPB:Class;
+		[Embed(source = 'assets/hp.png')] public var HPB:Class;
+		
 		[Embed(source = 'assets/wave.png')] public var WaveB:Class;
 		
 		public const WEAPON_GFX_CLASSES:Array = [KnifeMC, ItemMovieClip, DaggerMC, MaceMC, ItemMovieClip, ItemMovieClip, SwordMC, ArbalestMC, SpearMC, ItemMovieClip, StaffMC, BombMC, ArquebusMC, HammerMC, ItemMovieClip, GunBladeMC, ScytheMC, ChaosWandMC, LightningMC, ItemMovieClip];

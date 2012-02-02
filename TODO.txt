@@ -5,8 +5,19 @@ Bug hunt
 	collection lock out on chests after playing for a while - bugged chest or item?
 	teleport sound bug - all of a sudden, many sound effects - why?
 	Error with input box and select prompt - select is visible on input
+	polymorph consumable on surface
+	unequipping indifference bug
+	cursed weapon unequip bug
+	menu advancing frame on screenshot
+	identified invisible not showing unique name
+	dogmatic mode - reversed?
+	identify armour broken
 
+add throw command to throwable items
+	context for throwable items?
 
+remove event model from menu and update from main loop
+	
 interstitial transitions - fade to some text, then fade to the scene
 
 create Editor in debug menu
