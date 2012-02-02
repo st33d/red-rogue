@@ -28,15 +28,15 @@
 	 * To use: Define MenuLists and MenuOptions. MenuOptions can be pointers to MenuLists
 	 * or when they are not, an attempt to traverse right from them will fire an event.
 	 *
-	 * There are two events:
+	 * There are two methods to override:
 	 *
-	 * SELECT: The user has traversed right until they have reached a MenuOption that does
-	 * not point to a MenuList. Steping right from that option fires the SELECT event.
+	 * executeSelection: The user has traversed right until they have reached a MenuOption that does
+	 * not point to a MenuList. Steping right from that option fires the execute method.
 	 * Listening to this event gives the programmer the opportunity to examine the "branch"
 	 * property of the Menu and see what the user selected. An appropriate method can then
 	 * be called.
 	 *
-	 * CHANGE: Every time the menu is moved, change is called. The programmer may want to
+	 * changeSelection: Every time the menu is moved, change is called. The programmer may want to
 	 * emit a noise for this, or deactivate/reactivate options based on where the user has
 	 * walked to. Bear in mind that MenuOptions are already capable of deactivating other
 	 * options when stepped forward through (this is to prevent infinite menu walks, whilst
@@ -60,7 +60,7 @@
 		public var infoTextBox:TextBox;
 		public var capture:CaptureBitmap;
 		public var selectionCopyBitmap:Bitmap;
-		public var hideChangeEvent:Boolean;
+		public var hideChangeSelection:Boolean;
 		
 		public var branch:Vector.<MenuList>;
 		public var branchStringCurrentOption:String;
@@ -156,7 +156,7 @@
 			moveReset = moveDelay;
 			keysHeldCount = KEYS_HELD_DELAY;
 			movementGuideCount = MOVEMENT_GUIDE_DELAY;
-			hideChangeEvent = false;
+			hideChangeSelection = false;
 			animatingSelection = false;
 			
 			// initialise NOT_VISITED_COLS
@@ -269,8 +269,15 @@
 			addChild(help);
 			
 			if(trunk) setTrunk(trunk);
+		}
+		
+		/* Overridden to perform actions the menu selects */
+		public function executeSelection():void{
 			
-			addEventListener(Event.ENTER_FRAME, main, false, 0, true);
+		}
+		
+		/* Overridden to change states of options as selections change */
+		public function changeSelection():void{
 			
 		}
 		
@@ -297,8 +304,8 @@
 			return branchStringHistory + (branchStringHistory.length > 0 ? branchStringSeparator : "") + branchStringCurrentOption;
 		}
 		
-		/* Sets the current MenuList selection, re-renders the menu and fires
-		 * the CHANGE event
+		/* Sets the current MenuList selection, re-renders the menu and calls
+		 * changeSelection()
 		 */
 		public function select(n:int):void{
 			selection = n;
@@ -310,11 +317,11 @@
 				nextMenuList = null;
 			}
 			renderMenu();
-			if(!hideChangeEvent) dispatchEvent(new Event(Event.CHANGE));
+			if(!hideChangeSelection) changeSelection();
 		}
 		
 		/* Either walks forward to the MenuList pointed to by the current option
-		 * or when there is no MenuList pointed to, fires the SELECT event and
+		 * or when there is no MenuList pointed to, fires the executeSelection method and
 		 * jumps the menu back to the trunk.
 		 */
 		public function stepRight():void{
@@ -347,7 +354,7 @@
 					if(currentMenuList is MenuInputList) (currentMenuList as MenuInputList).begin();
 					update();
 					
-				// nothing to walk forward to - call the SELECT event
+				// nothing to walk forward to - call the executeSelection
 				} else {
 					dirStack.length = 0;
 					// if the Menu is recording a path for a hot key, then we store that
@@ -358,11 +365,12 @@
 						hotKeyMapRecord = null;
 						// because recording a hot key involves deactivating recursive MenuOptions
 						// we have to return to the trunk by foot.
-						hideChangeEvent = true;
+						hideChangeSelection = true;
 						while(branch.length > 1) stepLeft();
-						hideChangeEvent = false;
+						hideChangeSelection = false;
 					} else {
-						dispatchEvent(new Event(Event.SELECT));
+						executeSelection();
+						
 						var selectionStep:int = currentMenuList.options[currentMenuList.selection].selectionStep;
 						if(selectionStep == MenuOption.TRUNK) setTrunk(branch[0]);
 						else {
@@ -373,7 +381,15 @@
 								}
 							} else {
 								// the step back and forth shakes out select events and updates the labels
-								while(selectionStep--) stepLeft();
+								while(selectionStep--){
+									// the step left may back up into a menu list with no options,
+									// in which case, just drop out to the trunk
+									if(previousMenuList.options.length == 0){
+										setTrunk(branch[0]);
+										return;
+									}
+									stepLeft();
+								}
 								stepRight();
 							}
 						}
@@ -780,7 +796,12 @@
 						movementMovieClips[RIGHT_MOVE].visible = currentMenuList.options[selection].active && !(nextMenuList && !nextMenuList.accessible);
 						movementMovieClips[LEFT_MOVE].visible = Boolean(previousMenuList);
 					}
-					if(currentMenuList.options[selection].active && !nextMenuList && selectText.alpha < 1){
+					if(
+						currentMenuList.options[selection].active &&
+						!nextMenuList &&
+						!(currentMenuList is MenuInputList) &&
+						selectText.alpha < 1
+					){
 						selectText.alpha += 0.1;
 					}
 				} else {
@@ -951,8 +972,8 @@
 		
 		/* Returns a MenuOption that leads to a MenuList offering the ability to create "hot keys"
 		 *
-		 * Recording a hot key involves walking from the trunk out and firing a SELECT
-		 * event. This will not fire the event, but store the selections made and bind
+		 * Recording a hot key involves walking from the trunk out and firing a executeSelection
+		 * method. This will not fire the method, but store the selections made and bind
 		 * them to that hot key. Pressing the hot key will then walk the menu back to the trunk
 		 * and out to the selected option for that hot key.
 		 *

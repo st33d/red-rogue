@@ -194,7 +194,7 @@ package com.robotacid.ui.menu {
 			str += Item.stats["armour descriptions"][n] + "\n\n";
 			str += "special: " + Item.stats["armour specials"][n] + "\n";
 			str += "defence: " + Item.stats["armour defences"][n] + " + " + Item.stats["armour defence levels"][n] + " x lvl\n";
-			str += "endurance: " + Item.stats["armour endurances"][n] + " + " + Item.stats["armour endurance levels"][n] + " x lvl";
+			str += "endurance: " + Item.stats["armour endurances"][n];
 			infoTextBox.wordWrap = false;
 			infoTextBox.marquee = true;
 			infoTextBox.text = str;

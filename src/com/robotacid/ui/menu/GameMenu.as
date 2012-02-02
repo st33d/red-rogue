@@ -184,7 +184,7 @@
 			nateOption = new MenuOption("nathan gallardo - sound");
 			nateOption.help = "opens a window to nathan gallardo's site (where this game's OST is available) - icefishingep.tk";
 			
-			onOffOption = new ToggleMenuOption(["off", "on"]);
+			onOffOption = new ToggleMenuOption(["turn off", "turn on"]);
 			onOffOption.selectionStep = 1;
 			sureOption = new MenuOption("sure?");
 			sureOption.selectionStep = MenuOption.EXIT_MENU;
@@ -248,9 +248,6 @@
 			
 			setTrunk(trunk);
 			
-			addEventListener(Event.CHANGE, onChange);
-			addEventListener(Event.SELECT, onSelect);
-			
 			var option:MenuOption = currentMenuList.options[selection];
 			help.text = option.help;
 			
@@ -289,7 +286,7 @@
 			
 		}
 		
-		public function onChange(e:Event = null):void{
+		override public function changeSelection():void{
 			
 			var option:MenuOption = currentMenuList.options[selection];
 			
@@ -314,12 +311,25 @@
 					inventoryList.equipMinionOption.active = Boolean(game.minion);
 					inventoryList.enchantmentList.update(item);
 					
-					// cursed items disable equipping items of that type, they cannot be dropped either (except by the dead)
-					if(item.curseState == Item.CURSE_REVEALED && item.user && !item.user.undead){
-						inventoryList.equipOption.active = false;
-						inventoryList.equipMinionOption.active = false;
-					} else {
-						inventoryList.equipOption.active = true;
+					// cursed items disable equipping items of that type, they cannot be dropped either (but undead are immune to curses)
+					if(item.type == Item.WEAPON){
+						inventoryList.equipOption.active = (
+							!(item.user && item.curseState == Item.CURSE_REVEALED && !item.user.undead) &&
+							!(game.player.weapon && game.player.weapon.curseState == Item.CURSE_REVEALED && !game.player.undead)
+						);
+						inventoryList.equipMinionOption.active = (
+							!(item.user && item.curseState == Item.CURSE_REVEALED && !item.user.undead) &&
+							!(game.minion.weapon && game.minion.weapon.curseState == Item.CURSE_REVEALED && !game.minion.undead)
+						);
+					} else if(item.type == Item.ARMOUR){
+						inventoryList.equipOption.active = (
+							!(item.user && item.curseState == Item.CURSE_REVEALED && !item.user.undead) &&
+							!(game.player.armour && game.player.armour.curseState == Item.CURSE_REVEALED && !game.player.undead)
+						);
+						inventoryList.equipMinionOption.active = (
+							!(item.user && item.curseState == Item.CURSE_REVEALED && !item.user.undead) &&
+							!(game.minion.armour && game.minion.armour.curseState == Item.CURSE_REVEALED && !game.minion.undead)
+						);
 					}
 					
 					// no equipping face armour on the overworld
@@ -346,6 +356,9 @@
 						inventoryList.eatOption.active = game.player.level < Game.MAX_LEVEL;
 					} else if(item.name == Effect.PORTAL){
 						inventoryList.eatOption.active = game.dungeon.type == Map.MAIN_DUNGEON;
+						if(game.minion) inventoryList.feedMinionOption.active = inventoryList.eatOption.active;
+					} else if(item.name == Effect.POLYMORPH){
+						inventoryList.eatOption.active = game.dungeon.type != Map.OVERWORLD;
 						if(game.minion) inventoryList.feedMinionOption.active = inventoryList.eatOption.active;
 					}
 				}
@@ -388,7 +401,7 @@
 			}
 		}
 		
-		public function onSelect(e:Event = null):void{
+		override public function executeSelection():void {
 			var option:MenuOption = currentMenuList.options[selection];
 			var item:Item, n:int, i:int, effect:Effect, prevItem:Item;
 			
@@ -640,8 +653,9 @@
 				inventoryList.sortEquipment();
 			}
 			
-			// if the menu is open, force a renderer update so the player can see the changes
-			if(parent) Game.renderer.main();
+			// if the menu is open, force a renderer update so the player can see the changes,
+			// unless the dialog is open - they may be taking a screenshot
+			if(parent && !Game.dialog) Game.renderer.main();
 			
 		}
 		/* In the event of player death, we need to change the menu to deactivate the inventory,

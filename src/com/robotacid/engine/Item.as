@@ -224,7 +224,7 @@
 			} else if(type == ARMOUR){
 				nameStr = stats["armour names"][name];
 				defence = stats["armour defences"][name] + stats["armour defence levels"][name] * level;
-				endurance = stats["armour endurance"][name];
+				endurance = stats["armour endurances"][name];
 				position = stats["armour positions"][name];
 				
 				// special effects
@@ -378,8 +378,8 @@
 		public function revealCurse():void{
 			if(user && (user == game.player || user == game.minion)){
 				var str:String = nameToString();
-				str = str.substr(str.indexOf(":") + 1);
-				game.console.print("the " + nameToString() + " is cursed!");
+				if(str.indexOf(":") != -1) str = str.substr(str.indexOf(":") + 2);
+				game.console.print("the " + str + " is cursed!");
 				if(user.undead) game.console.print("but the dead are unaffected...");
 			}
 			curseState = CURSE_REVEALED;

@@ -9,7 +9,7 @@
 		"flies", "tiara", "fedora", "top hat", "fire flies",
 		"halo", "bees", "viking helm", "skull", "crown",
 		"blood", "goggles", "chaos helm", "wizard hat", "helmet",
-		"", "knives", "indifference", "face", "yendor"
+		"_", "knives", "indifference", "face", "yendor"
 	],
 	"unique weapon names":[
 		["athame"], ["godhand", "grip"], ["sting", "carnwennan", "werewindle"] , ["plus one"], ["cupid's bow", "pinaka"],
@@ -99,7 +99,7 @@
 		0, 0, 0, 0, 0,
 		0.05, 0.05, 0, 0, 0.15
 	],
-	"armour endurance":[
+	"armour endurances":[
 		0, 0, 0, 0, 0,
 		0, 0, 0.1, 0.1, 0.15,
 		0, 0, 0.15, 0.05, 0.4,
@@ -122,12 +122,6 @@
 		"tapered leather cord", "long blade", "large crossbow, fires bolts", "pointed stick", "sharp ring",
 		"long stick", "explosive grenade", "rifle, fires bullets", "punctuated stick", "fires large arrows",
 		"long blade, fires bullets", "gardening tool", "magic stick", "electric stick", "blood demon"
-	],
-	"armour names":[
-		"flies", "tiara", "fedora", "top hat", "fire flies",
-		"halo", "bees", "viking helm", "skull", "crown",
-		"blood", "goggles", "chaos helm", "wizard hat", "helmet",
-		"", "knives", "indifference", "face", "yendor"
 	],
 	"armour descriptions":[
 		"distracting insects", "pretty adornment", "sweet hat", "gentleman's hat", "glowing insects",

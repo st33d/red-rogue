@@ -80,7 +80,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 299;
+		public static const BUILD_NUM:int = 300;
 		
 		public static var game:Game;
 		public static var renderer:Renderer;
@@ -836,6 +836,8 @@
 				
 				if(editor.active) editor.main();
 			}
+			
+			menu.main();
 		}
 		
 		/* Pause the game and make the inventory screen visible */
