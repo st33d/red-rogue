@@ -168,10 +168,10 @@
 		"superior", "poison immune, undead"
 	],
 	"descriptions":[
-		"widow to the theif adventurer named @", "reptile goblinoid", "true goblin", "greater goblin", "goblin protector",
+		"widow to the thief adventurer named @", "reptile goblinoid", "true goblin", "greater goblin", "goblin protector",
 		"hyena goblin", "cave elf", "cactus monster", "mischevious faerie", "undead blood drinker",
 		"transformation curse", "shapeshifter", "snake monster", "snake queen", "insectiod horror",
 		"animated stone", "wailing ghost", "creature from the river styx", "cthuloid horror", "tiger wizard",
-		"demon", "the undead theif adventurer named @"
+		"demon", "the undead thief adventurer named @"
 	]
 }
