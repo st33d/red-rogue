@@ -176,6 +176,8 @@
 		public static const STUN_DECAY:Number = 1.0 / 90; // The denominator is maximum duration of stun in frames
 		public static const KNOCKBACK_DIST:Number = 16;
 		public static const SPECIAL_ATTACK_PER_LEVEL:Number = 1.0 / 40;
+		public static const MAX_SPEED_MODIFIER:Number = 2;
+		public static const MIN_SPEED_MODIFIER:Number = 0.5;
 		
 		public static const DEFAULT_COL:ColorTransform = new ColorTransform();
 		public static const INFRAVISION_COLS:Vector.<ColorTransform> = Vector.<ColorTransform>([DEFAULT_COL, new ColorTransform(1, 0, 0, 1, 255), new ColorTransform(1, 0.7, 0.7, 1, 50)]);
@@ -362,15 +364,18 @@
 			tileCenter = (mapX + 0.5) * SCALE;
 			var mc:MovieClip = gfx as MovieClip;
 			
+			var moveSpeedTemp:Number = speedModifier;
+			if(moveSpeedTemp < MIN_SPEED_MODIFIER) moveSpeedTemp = MIN_SPEED_MODIFIER;
+			if(moveSpeedTemp > MAX_SPEED_MODIFIER) moveSpeedTemp = MAX_SPEED_MODIFIER;
+			
 			// react to direction state
 			if(state == WALKING){
 				if(collider.state == Collider.STACK || collider.state == Collider.FALL) moving = Boolean(dir & (LEFT | RIGHT));
 				else if(collider.state == Collider.HOVER) moving = Boolean(dir & (UP | DOWN));
-			}
-			// moving left or right
-			if(state == WALKING){
-				if(dir & RIGHT) collider.vx += speed * speedModifier;
-				else if(dir & LEFT) collider.vx -= speed * speedModifier;
+				
+				// moving left or right
+				if(dir & RIGHT) collider.vx += speed * moveSpeedTemp;
+				else if(dir & LEFT) collider.vx -= speed * moveSpeedTemp;
 				// climbing
 				if(dir & UP){
 					if(canClimb() && !(collider.parent && (collider.parent.properties & Collider.LEDGE) && !(mapProperties & Collider.LADDER))){
@@ -467,10 +472,10 @@
 					if(canClimb()){
 						// a character always tries to center itself on a ladder
 						if((dir & UP)){
-							collider.vy = -speed * speedModifier;
+							collider.vy = -speed * moveSpeedTemp;
 							centerOnTile();
 						} else if(dir & DOWN){
-							collider.vy = speed * speedModifier;
+							collider.vy = speed * moveSpeedTemp;
 							centerOnTile();
 						} else if(dir & (RIGHT | LEFT)){
 							state = WALKING;
@@ -602,7 +607,10 @@
 			//trace(mapX);
 			
 			if(attackCount < 1){
-				attackCount += attackSpeed * attackSpeedModifier;
+				var attackSpeedTemp:Number = attackSpeedModifier;
+				if(attackSpeedTemp < MIN_SPEED_MODIFIER) attackSpeedTemp = MIN_SPEED_MODIFIER;
+				if(attackSpeedTemp > MAX_SPEED_MODIFIER) attackSpeedTemp = MAX_SPEED_MODIFIER;
+				attackCount += attackSpeed * attackSpeedTemp;
 			}
 			if(dir) collider.awake = Collider.AWAKE_DELAY;
 		}

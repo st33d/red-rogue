@@ -412,6 +412,7 @@
 				
 			} else if(name == SLOW){
 				target.speedModifier -= level * SLOW_PER_LEVEL;
+				target.attackSpeedModifier -= level * SLOW_PER_LEVEL;
 				if(source == EATEN || source == THROWN || source == WEAPON){
 					this.count = count > 0 ? count : DECAY_DELAY_PER_LEVEL;
 					callMain = true;
@@ -419,6 +420,7 @@
 				
 			} else if(name == HASTE){
 				target.speedModifier += level * HASTE_PER_LEVEL;
+				target.attackSpeedModifier += level * HASTE_PER_LEVEL;
 				if(source == EATEN || source == THROWN || source == WEAPON){
 					this.count = count > 0 ? count : DECAY_DELAY_PER_LEVEL;
 					callMain = true;
@@ -630,11 +632,11 @@
 			} else if(name == SLOW || name == HASTE){
 				if(source == ARMOUR){
 					if(name == SLOW){
-						target.speedModifier -= SLOW_PER_LEVEL;
-						target.attackSpeedModifier -= SLOW_PER_LEVEL;
+						target.speedModifier += SLOW_PER_LEVEL * level;
+						target.attackSpeedModifier += SLOW_PER_LEVEL * level;
 					} else if(name == HASTE){
-						target.speedModifier += HASTE_PER_LEVEL;
-						target.attackSpeedModifier += HASTE_PER_LEVEL;
+						target.speedModifier -= HASTE_PER_LEVEL * level;
+						target.attackSpeedModifier -= HASTE_PER_LEVEL * level;
 					}
 				}
 				// remove floating point errors
