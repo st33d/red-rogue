@@ -1,6 +1,9 @@
 package com.robotacid.ui {
 	import com.robotacid.gfx.Renderer;
 	import com.robotacid.ui.menu.EditorMenuList;
+	import com.robotacid.ui.menu.GameMenu;
+	import com.robotacid.ui.menu.MenuList;
+	import com.robotacid.ui.menu.MenuOption;
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
 	import flash.geom.Point;
@@ -20,6 +23,8 @@ package com.robotacid.ui {
 		public var bitmapData:BitmapData;
 		
 		public var active:Boolean;
+		public var mapX:int;
+		public var mapY:int;
 		
 		public static var point:Point = new Point();
 		
@@ -35,20 +40,22 @@ package com.robotacid.ui {
 		}
 		
 		public function main():void{
+			mapX = renderer.canvas.mouseX * Game.INV_SCALE;
+			mapY = renderer.canvas.mouseY * Game.INV_SCALE;
+			if(mapX < 1) mapX = 1;
+			if(mapY < 1) mapY = 1;
+			if(mapX > game.dungeon.width - 2) mapX = game.dungeon.width - 2;
+			if(mapY > game.dungeon.height - 2) mapY = game.dungeon.height - 2;
 			if(game.mousePressedCount == game.frameCount){
-				editorAction(renderer.canvas.mouseX * Game.INV_SCALE, renderer.canvas.mouseY * Game.INV_SCALE);
+				menuList.applySelection(mapX, mapY);
 			}
 		}
 		
 		public function render():void{
-			point.x = -renderer.bitmap.x + ((renderer.canvas.mouseX * Game.INV_SCALE) >> 0) * Game.SCALE;
-			point.y = -renderer.bitmap.y + ((renderer.canvas.mouseY * Game.INV_SCALE) >> 0) * Game.SCALE;
-			renderer.bitmapData.copyPixels(highlight, highlight.rect, point, null, null, true);
-		}
-		
-		/* Performs an action at mapX, mapY based on the current configuration of the EditorMenuList */
-		public function editorAction(mapX:int, mapY:int):void{
-			
+			bitmapData.fillRect(bitmapData.rect, 0x00000000);
+			point.x = -renderer.bitmap.x + mapX * Game.SCALE;
+			point.y = -renderer.bitmap.y + mapY * Game.SCALE;
+			bitmapData.copyPixels(highlight, highlight.rect, point, null, null, true);
 		}
 		
 	}

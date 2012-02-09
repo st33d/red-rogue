@@ -11,6 +11,7 @@
 	import com.robotacid.gfx.Renderer;
 	import com.robotacid.sound.SoundManager;
 	import com.robotacid.ui.Dialog;
+	import com.robotacid.ui.Editor;
 	import com.robotacid.ui.FileManager;
 	import com.robotacid.ui.QuickSave;
 	import flash.display.BitmapData;
@@ -60,6 +61,7 @@
 		public var missileOption:ToggleMenuOption;
 		
 		public var screenshotOption:MenuOption;
+		public var editorOption:MenuOption;
 		public var giveItemOption:MenuOption;
 		public var changeRogueRaceOption:MenuOption;
 		public var changeMinionRaceOption:MenuOption;
@@ -82,13 +84,7 @@
 		public function GameMenu(width:Number, height:Number, game:Game) {
 			this.game = game;
 			super(width, height);
-			init();
-		}
-		
-		/* This is where all of the pre-amble goes, the aim is to make this as readable
-		 * as possible, so it will end up being quite long.
-		 */
-		public function init():void{
+			
 			var i:int;
 			
 			// MENU LISTS
@@ -108,6 +104,7 @@
 			seedInputList = new MenuInputList("" + Map.random.seed,/[0-9]/, String(uint.MAX_VALUE).length, seedInputCallback);
 			seedInputList.promptName = "enter number";
 			
+			editorList = new EditorMenuList(this, game.editor);
 			giveItemList = new GiveItemMenuList(this, game);
 			changeRaceList = new MenuList();
 			soundList = new MenuList();
@@ -138,6 +135,16 @@
 			giveItemOption = new MenuOption("give item", giveItemList);
 			giveItemOption.help = "put a custom item in the player's inventory";
 			giveItemOption.recordable = false;
+			
+			changeRogueRaceOption = new MenuOption("change rogue race", changeRaceList);
+			changeRogueRaceOption.help = "change the current race of the rogue";
+			changeRogueRaceOption.recordable = false;
+			changeMinionRaceOption = new MenuOption("change minion race", changeRaceList);
+			changeMinionRaceOption.help = "change the current race of the minion";
+			changeMinionRaceOption.recordable = false;
+			editorOption = new MenuOption("editor", editorList);
+			editorOption.help = "activate the mouse based level editor by walking into this menu. the selection the editor is at will be palette item for the mouse.";
+			editorOption.recordable = false;
 			
 			exitLevelOption = new MenuOption("exit level", null, false);
 			exitLevelOption.help = "exit this level when standing next to a stairway";
@@ -191,13 +198,6 @@
 			upDownOption = new ToggleMenuOption(["up", "down"]);
 			upDownOption.selectionStep = 1;
 			
-			changeRogueRaceOption = new MenuOption("change rogue race", changeRaceList);
-			changeRogueRaceOption.help = "change the current race of the rogue";
-			changeRogueRaceOption.recordable = false;
-			changeMinionRaceOption = new MenuOption("change minion race", changeRaceList);
-			changeMinionRaceOption.help = "change the current race of the minion";
-			changeMinionRaceOption.recordable = false;
-			
 			// OPTION ARRAYS
 			
 			trunk.options.push(inventoryOption);
@@ -226,6 +226,7 @@
 			optionsList.options.push(saveOption);
 			optionsList.options.push(newGameOption);
 			
+			debugList.options.push(editorOption);
 			debugList.options.push(giveItemOption);
 			debugList.options.push(changeRogueRaceOption);
 			debugList.options.push(changeMinionRaceOption);
@@ -358,7 +359,7 @@
 						inventoryList.eatOption.active = game.dungeon.type == Map.MAIN_DUNGEON;
 						if(game.minion) inventoryList.feedMinionOption.active = inventoryList.eatOption.active;
 					} else if(item.name == Effect.POLYMORPH){
-						inventoryList.eatOption.active = game.dungeon.type != Map.OVERWORLD;
+						inventoryList.eatOption.active = !(game.dungeon.type == Map.AREA && game.dungeon.level == Map.OVERWORLD);
 						if(game.minion) inventoryList.feedMinionOption.active = inventoryList.eatOption.active;
 					}
 				}
@@ -395,9 +396,13 @@
 			} else if(option == giveItemOption){
 				
 			} else if(option == actionsOption){
-				if(game.player.weapon) missileOption.active = game.player.attackCount >= 1 && !game.player.indifferent && Boolean(game.player.weapon.range & (Item.MISSILE | Item.THROWN));
+				if(game.player.weapon) missileOption.active = game.player.attackCount >= 1 && !game.player.indifferent && Boolean(game.player.weapon.range & (Item.MISSILE | Item.THROWN)) && !game.player.weapon.curseState == Item.CURSE_REVEALED;
 			} else if(currentMenuList == menuMoveList){
 				moveDelay = currentMenuList.selection + 1;
+			} else if(currentMenuList == editorList){
+				game.editor.active = true;
+			} else if(option == editorOption){
+				game.editor.active = false;
 			}
 		}
 		

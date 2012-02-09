@@ -27,6 +27,7 @@
 	import com.robotacid.ui.Console;
 	import com.robotacid.ui.Dialog;
 	import com.robotacid.ui.Editor;
+	import com.robotacid.ui.menu.EditorMenuList;
 	import com.robotacid.ui.menu.GameMenu;
 	import com.robotacid.ui.menu.QuestMenuList;
 	import com.robotacid.ui.menu.QuestMenuOption;
@@ -80,7 +81,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 300;
+		public static const BUILD_NUM:int = 302;
 		
 		public static var game:Game;
 		public static var renderer:Renderer;
@@ -198,6 +199,7 @@
 			QuestMenuList.game = this;
 			QuestMenuOption.game = this;
 			Dialog.game = this;
+			EditorMenuList.game = this;
 			
 			Effect.BANNED_RANDOM_ENCHANTMENTS[Effect.PORTAL] = true;
 			Effect.BANNED_RANDOM_ENCHANTMENTS[Effect.NULL] = true;
@@ -330,6 +332,8 @@
 			stage.quality = StageQuality.LOW;
 			
 			renderer.createRenderLayers(this);
+			
+			addChild(editor.bitmap);
 			
 			// UI INIT
 			
@@ -811,6 +815,8 @@
 					
 					renderer.main();
 					
+					if(editor.active) editor.main();
+					
 					frameCount++;
 					ProgressBar.glowCount = frameCount % ProgressBar.glowTable.length;
 					
@@ -834,7 +840,6 @@
 				
 				}
 				
-				if(editor.active) editor.main();
 			}
 			
 			menu.main();

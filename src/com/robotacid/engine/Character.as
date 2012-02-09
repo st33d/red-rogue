@@ -48,7 +48,6 @@
 		public var looking:int;
 		public var actions:int;
 		public var moving:Boolean;
-		public var attackSpeed:Number;
 		public var attackCount:Number;
 		public var stunCount:Number;
 		public var mapProperties:int;
@@ -59,7 +58,6 @@
 		public var victim:Character;
 		public var stepNoise:Boolean;
 		public var stepSound:int;
-		public var undead:Boolean;
 		public var inTheDark:Boolean;
 		public var debrisType:int;
 		public var missileIgnore:int;
@@ -68,6 +66,9 @@
 		
 		// stats
 		public var speed:Number;
+		public var speedModifier:Number;
+		public var attackSpeed:Number;
+		public var attackSpeedModifier:Number;
 		public var health:Number;
 		public var totalHealth:Number;
 		public var damage:Number;
@@ -83,6 +84,7 @@
 		public var indifferent:Boolean;
 		public var losBorder:Number;
 		public var specialAttack:Boolean;
+		public var undead:Boolean;
 		
 		private var hitResult:int;
 		
@@ -236,6 +238,8 @@
 			undead = stats["undeads"][name] == 1;
 			debrisType = Renderer.BLOOD;
 			losBorder = Brain.DEFAULT_LOS_BORDER;
+			speedModifier = 1;
+			attackSpeedModifier = 1;
 			
 			
 			if(name == SKELETON){
@@ -265,6 +269,13 @@
 				for(i = 0; i < effects.length; i++){
 					effect = effects[i];
 					if(effect.name == Effect.THORNS) thorns += Effect.THORNS_PER_LEVEL * effect.level;
+					else if(effect.name == Effect.SLOW){
+						speedModifier -= Effect.SLOW_PER_LEVEL * effect.level;
+						attackSpeedModifier -= Effect.SLOW_PER_LEVEL * effect.level;
+					} else if(effect.name == Effect.HASTE){
+						speedModifier += Effect.HASTE_PER_LEVEL * effect.level;
+						attackSpeedModifier += Effect.HASTE_PER_LEVEL * effect.level;
+					}
 				}
 			}
 			
@@ -358,8 +369,8 @@
 			}
 			// moving left or right
 			if(state == WALKING){
-				if(dir & RIGHT) collider.vx += speed;
-				else if(dir & LEFT) collider.vx -= speed;
+				if(dir & RIGHT) collider.vx += speed * speedModifier;
+				else if(dir & LEFT) collider.vx -= speed * speedModifier;
 				// climbing
 				if(dir & UP){
 					if(canClimb() && !(collider.parent && (collider.parent.properties & Collider.LEDGE) && !(mapProperties & Collider.LADDER))){
@@ -379,11 +390,9 @@
 				} else if(collider.ignoreProperties & Collider.LEDGE){
 					collider.ignoreProperties &= ~Collider.LEDGE;
 				}
-			}
-
-			// COMBAT =====================================================================================
-			
-			if(state == WALKING){
+				
+				// COMBAT =====================================================================================
+				
 				if(collider.state == Collider.STACK || collider.state == Collider.FALL){
 					if(collider.leftContact || collider.rightContact){
 						var target:Character = null;
@@ -452,14 +461,16 @@
 							victim = target;
 						}
 					}
+					
+				// character is using a ladder
 				} else if(collider.state == Collider.HOVER){
 					if(canClimb()){
 						// a character always tries to center itself on a ladder
 						if((dir & UP)){
-							collider.vy = -speed;
+							collider.vy = -speed * speedModifier;
 							centerOnTile();
 						} else if(dir & DOWN){
-							collider.vy = speed;
+							collider.vy = speed * speedModifier;
 							centerOnTile();
 						} else if(dir & (RIGHT | LEFT)){
 							state = WALKING;
@@ -591,7 +602,7 @@
 			//trace(mapX);
 			
 			if(attackCount < 1){
-				attackCount += attackSpeed;
+				attackCount += attackSpeed * attackSpeedModifier;
 			}
 			if(dir) collider.awake = Collider.AWAKE_DELAY;
 		}

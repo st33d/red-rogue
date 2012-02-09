@@ -25,13 +25,12 @@
 	],
 	"rune names":[
 		"light", "heal", "poison", "identify", "undead",
-		"teleport", "thorns", "null", "portal", "stupefy",
-		"polymorph", "leech", "xp"
+		"teleport", "thorns", "null", "portal", "slow",
+		"haste", "stupefy", "polymorph", "leech", "xp"
 	],
 	"rune descriptions":[
-		"glows brightly", "makes you feel better", "is painful to hold", "grants knowledge undiscovered", "is connected to the underworld",
-		"appears and disappears in your hand", "is covered in spikes", "destroys magic", "has a hole in it", "err, what does it do again?",
-		"seems to constantly change shape", "is the magic of blood demons", "imbues wisdom and quality"
+		"glows brightly", "makes you feel better", "makes you feel sick", "grants knowledge undiscovered", "is connected to the underworld",
+		"appears and disappears in your hand", "is covered in spikes", "destroys magic", "has a hole in it", "m a k e s  t h i n g s  s l o w e r", "mks thngs fstr", "err, what does it do again?", "constantly changes shape", "is the magic of blood demons", "imbues wisdom and quality"
 	],
 	"weapon ranges":[
 		5, 1, 5, 1, 2,

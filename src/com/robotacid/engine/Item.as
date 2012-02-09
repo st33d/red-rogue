@@ -143,16 +143,16 @@
 		public static const THORNS:int = 6;
 		public static const NULL:int = 7;
 		public static const PORTAL:int = 8;
-		//public static const SLOW:int = ;
-		//public static const HASTE:int = ;
+		public static const SLOW:int = 9;
+		public static const HASTE:int = 10;
 		//public static const HOLY:int = ;
 		//public static const PROTECTION:int = ;
-		public static const STUPEFY:int = 9;
-		public static const POLYMORPH:int = 10;
+		public static const STUPEFY:int = 11;
+		public static const POLYMORPH:int = 12;
 		//public static const FEAR:int = ;
 		//public static const CONFUSION:int = ;
-		public static const LEECH_RUNE:int = 11;
-		public static const XP:int = 12;
+		public static const LEECH_RUNE:int = 13;
+		public static const XP:int = 14;
 		public static const CHAOS:int = 20;
 		
 		// curse states

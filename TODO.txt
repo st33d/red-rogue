@@ -1,11 +1,24 @@
+Change log
+	Fixed polymorph bug again
+	Fixed throwing cursed items
+	reduced the number of rooms from level 2 onwards
+	added haste and slow
+
 Bug hunt
 	throwing a rune at a wall issue - runes should bounce off walls i think
 	minion got stuck on stairs
 	collection lock out on chests after playing for a while - bugged chest or item?
 	teleport sound bug - all of a sudden, many sound effects - why?
+	unknown key combo locks out menu
 
 add throw command to throwable items?
-	becomes a way to trick cursed items into revealing themselves
+	offhandthrowing weapons
+
+remove editor render layer when not in use
+
+stop walk animation/moving when pushing wall
+
+deprecate count from Effect.apply()?
 	
 interstitial transitions - fade to some text, then fade to the scene
 

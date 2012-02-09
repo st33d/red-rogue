@@ -45,6 +45,8 @@
 		public static const LEECH:int = Item.LEECH_RUNE;
 		public static const THORNS:int = Item.THORNS;
 		public static const PORTAL:int = Item.PORTAL;
+		public static const SLOW:int = Item.SLOW;
+		public static const HASTE:int = Item.HASTE;
 		public static const STUPEFY:int = Item.STUPEFY;
 		public static const NULL:int = Item.NULL;
 		public static const IDENTIFY:int = Item.IDENTIFY;
@@ -66,6 +68,10 @@
 		public static const LEECH_PER_LEVEL:Number = 0.0125;
 		/* Max stupefy enchant should add just 0.5 to an item's stun stat */
 		public static const STUPEFY_PER_LEVEL:Number = 1.0 / 40;
+		/* Min speed is half normal speed */
+		public static const SLOW_PER_LEVEL:Number = 1.0 / 40;
+		/* Max speed is double normal speed */
+		public static const HASTE_PER_LEVEL:Number = 1.0 / 20;
 		
 		public static const MIN_TELEPORT_DIST:int = 10;
 		public static const ARMOUR_COUNTDOWN_STEP:int = 600 / 20;
@@ -146,6 +152,38 @@
 				if(count-- <= 0){
 					if(level > 0){
 						target.thorns -= THORNS_PER_LEVEL;
+						level--;
+						if(level == 0){
+							if(target is Player) game.console.print("the " + nameToString() + " wears off");
+							dismiss();
+						} else {
+							count = DECAY_DELAY_PER_LEVEL;
+						}
+					}
+				}
+			} else if(name == SLOW){
+				// we have it as a given being in main() that this effect came from
+				// weapon, eaten or thrown
+				if(count-- <= 0){
+					if(level > 0){
+						target.speedModifier += SLOW_PER_LEVEL;
+						target.attackSpeedModifier += SLOW_PER_LEVEL;
+						level--;
+						if(level == 0){
+							if(target is Player) game.console.print("the " + nameToString() + " wears off");
+							dismiss();
+						} else {
+							count = DECAY_DELAY_PER_LEVEL;
+						}
+					}
+				}
+			} else if(name == HASTE){
+				// we have it as a given being in main() that this effect came from
+				// weapon, eaten or thrown
+				if(count-- <= 0){
+					if(level > 0){
+						target.speedModifier -= HASTE_PER_LEVEL;
+						target.attackSpeedModifier -= HASTE_PER_LEVEL;
 						level--;
 						if(level == 0){
 							if(target is Player) game.console.print("the " + nameToString() + " wears off");
@@ -295,6 +333,7 @@
 			if(name == LEECH){
 				applicable = false;
 				item.setStats();
+				
 			} else if(name == THORNS){
 				if(item.type == Item.ARMOUR){
 					applicable = false;
@@ -370,6 +409,20 @@
 					healthStep = targetTotalHealth / (2 * DECAY_DELAY_PER_LEVEL * (1 + Game.MAX_LEVEL - level));
 				}
 				callMain = true;
+				
+			} else if(name == SLOW){
+				target.speedModifier -= level * SLOW_PER_LEVEL;
+				if(source == EATEN || source == THROWN || source == WEAPON){
+					this.count = count > 0 ? count : DECAY_DELAY_PER_LEVEL;
+					callMain = true;
+				}
+				
+			} else if(name == HASTE){
+				target.speedModifier += level * HASTE_PER_LEVEL;
+				if(source == EATEN || source == THROWN || source == WEAPON){
+					this.count = count > 0 ? count : DECAY_DELAY_PER_LEVEL;
+					callMain = true;
+				}
 				
 			} else if(name == UNDEAD){
 				// if the target is undead, the effect acts like an instant heal rune
@@ -573,6 +626,20 @@
 			} else if(name == THORNS){
 				// remove floating point errors
 				if(Math.abs(target.thorns) < 0.00001) target.thorns = 0;
+				
+			} else if(name == SLOW || name == HASTE){
+				if(source == ARMOUR){
+					if(name == SLOW){
+						target.speedModifier -= SLOW_PER_LEVEL;
+						target.attackSpeedModifier -= SLOW_PER_LEVEL;
+					} else if(name == HASTE){
+						target.speedModifier += HASTE_PER_LEVEL;
+						target.attackSpeedModifier += HASTE_PER_LEVEL;
+					}
+				}
+				// remove floating point errors
+				if(Math.abs(target.speedModifier - 1) < 0.00001) target.speedModifier = 1;
+				if(Math.abs(target.attackSpeedModifier - 1) < 0.00001) target.attackSpeedModifier = 1;
 			}
 			active = false;
 			

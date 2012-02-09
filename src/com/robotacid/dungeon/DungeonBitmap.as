@@ -95,7 +95,7 @@
 		public static const UNDERWORLD_HEIGHT:int = 13;
 		
 		public static const ZONE_ROOMINESS:Array = [
-			5, 4, 5, 4
+			4, 3, 4, 3
 		];
 		public static const ZONE_HORIZ_PACE:Array = [
 			3, 4, 3, 3
@@ -139,7 +139,7 @@
 				// create pacing standard for this level
 				horizPace = Math.ceil(size * 0.5) * ZONE_HORIZ_PACE[zone];
 				vertPace = Math.ceil(size * 0.5) * ZONE_VERT_PACE[zone];
-				roominess = ZONE_ROOMINESS[zone];
+				roominess = ZONE_ROOMINESS[zone] + (level == 1 ? 1 : 0);
 				bitmapData = createRoomsAndTunnels();
 				
 				//var temp:Bitmap = new Bitmap(bitmapData.clone());
