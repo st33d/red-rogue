@@ -391,13 +391,20 @@
 		/* Select an item as a weapon or armour */
 		override public function equip(item:Item):Item{
 			super.equip(item);
+			if(item.curseState == Item.CURSE_HIDDEN) item.revealCurse();
 			// set the active state and name of the missile option in the menu
 			if(item.type == Item.WEAPON){
-				game.menu.missileOption.active = !indifferent && Boolean(item.range & (Item.MISSILE | Item.THROWN));
+				game.menu.missileOption.active = (
+					!indifferent &&
+					Boolean(item.range & (Item.MISSILE | Item.THROWN)) &&
+					!(
+						item.curseState == Item.CURSE_REVEALED &&
+						(item.range & Item.THROWN)
+					)
+				);
 				if(item.range & Item.MISSILE) game.menu.missileOption.state = 0;
 				else if(item.range & Item.THROWN) game.menu.missileOption.state = 1;
 			}
-			if(item.curseState == Item.CURSE_HIDDEN) item.revealCurse();
 			inventory.updateItem(item);
 			return item;
 		}

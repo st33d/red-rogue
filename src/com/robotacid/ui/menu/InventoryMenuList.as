@@ -73,6 +73,7 @@
 			heartsOption = new MenuOption("hearts", heartsList, false);
 			heartsOption.help = "The list of hearts you can eat to regain health.";
 			sortOption = new MenuOption("sort equipment");
+			sortOption.selectionStep = 1;
 			sortOption.help = "sorts weapons and armour according to the highest stats. does not consider special abilities or enchantments.";
 			
 			enchantOption = new MenuOption("enchant", equipmentList, false);

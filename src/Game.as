@@ -81,7 +81,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 302;
+		public static const BUILD_NUM:int = 303;
 		
 		public static var game:Game;
 		public static var renderer:Renderer;
@@ -918,11 +918,11 @@
 			if(Key.customDown(MENU_KEY) && !Game.dialog){
 				pauseGame();
 			}
-			/*if(Key.isDown(Key.R)){
-				reset();
+			/*if(Key.isDown(Key.T)){
+				throw new Error("");
 			}
-			if(Key.isDown(Key.T)){
-				console.print("test\n"+(testCounter++));
+			if(Key.isDown(Key.R)){
+				reset();
 			}
 			if(Key.isDown(Key.P)){
 				//minion.death("key");

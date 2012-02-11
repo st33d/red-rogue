@@ -169,7 +169,7 @@
 					kill();
 					return;
 				}
-				Item.revealName(effect.name, game.menu.inventoryList);
+				Item.revealName(effect.name, game.menu.inventoryList.runesList);
 				game.console.print(effect.nameToString() + " cast upon " + character.nameToString());
 				effect.apply(character);
 				game.soundQueue.add("runeHit");

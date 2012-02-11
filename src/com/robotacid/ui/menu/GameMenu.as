@@ -309,7 +309,6 @@
 				if(item.type == Item.WEAPON || item.type == Item.ARMOUR){
 					inventoryList.equipOption.state = (item.user && item.user == game.player) ? 1 : 0;
 					inventoryList.equipMinionOption.state = (item.user && item.user == game.minion) ? 1 : 0;
-					inventoryList.equipMinionOption.active = Boolean(game.minion);
 					inventoryList.enchantmentList.update(item);
 					
 					// cursed items disable equipping items of that type, they cannot be dropped either (but undead are immune to curses)
@@ -319,6 +318,7 @@
 							!(game.player.weapon && game.player.weapon.curseState == Item.CURSE_REVEALED && !game.player.undead)
 						);
 						inventoryList.equipMinionOption.active = (
+							game.minion &&
 							!(item.user && item.curseState == Item.CURSE_REVEALED && !item.user.undead) &&
 							!(game.minion.weapon && game.minion.weapon.curseState == Item.CURSE_REVEALED && !game.minion.undead)
 						);
@@ -328,6 +328,7 @@
 							!(game.player.armour && game.player.armour.curseState == Item.CURSE_REVEALED && !game.player.undead)
 						);
 						inventoryList.equipMinionOption.active = (
+							game.minion &&
 							!(item.user && item.curseState == Item.CURSE_REVEALED && !item.user.undead) &&
 							!(game.minion.armour && game.minion.armour.curseState == Item.CURSE_REVEALED && !game.minion.undead)
 						);
@@ -395,12 +396,12 @@
 				
 			} else if(option == giveItemOption){
 				
-			} else if(option == actionsOption){
-				if(game.player.weapon) missileOption.active = game.player.attackCount >= 1 && !game.player.indifferent && Boolean(game.player.weapon.range & (Item.MISSILE | Item.THROWN)) && !game.player.weapon.curseState == Item.CURSE_REVEALED;
 			} else if(currentMenuList == menuMoveList){
 				moveDelay = currentMenuList.selection + 1;
+				
 			} else if(currentMenuList == editorList){
 				game.editor.active = true;
+				
 			} else if(option == editorOption){
 				game.editor.active = false;
 			}

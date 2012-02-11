@@ -1,18 +1,17 @@
-Change log
-	Fixed polymorph bug again
-	Fixed throwing cursed items
-	reduced the number of rooms from level 2 onwards
-	added haste and slow
+Change log: Fixed throw to id rune, fixed throwing weapons, sort equipment option no longer returns to main menu when selected, fixed issue with setting minion equip status that would crash the menu if the minion was dead.
 
 Bug hunt
 	throwing a rune at a wall issue - runes should bounce off walls i think
 	minion got stuck on stairs
 	collection lock out on chests after playing for a while - bugged chest or item?
 	teleport sound bug - all of a sudden, many sound effects - why?
-	unknown key combo locks out menu
-
+	
+	
 add throw command to throwable items?
 	offhandthrowing weapons
+		same for runes? - how does one throw runes with a missile weapon? not at all?
+	
+wrong frame facing forward on helmet
 
 remove editor render layer when not in use
 
