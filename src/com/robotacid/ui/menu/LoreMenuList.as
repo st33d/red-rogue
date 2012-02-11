@@ -188,7 +188,7 @@ package com.robotacid.ui.menu {
 		
 		/* Callback for armourInfo rendering */
 		private function renderArmour():void{
-			var n:int = weaponsList.selection;
+			var n:int = armourList.selection;
 			var str:String = "";
 			str += Item.stats["armour names"][n] + "\n\n";
 			str += Item.stats["armour descriptions"][n] + "\n\n";

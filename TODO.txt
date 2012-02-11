@@ -1,4 +1,4 @@
-Change log: Fixed throw to id rune, fixed throwing weapons, sort equipment option no longer returns to main menu when selected, fixed issue with setting minion equip status that would crash the menu if the minion was dead.
+Change log: Fixed throw to id rune, fixed throwing weapons, sort equipment option no longer returns to main menu when selected, fixed issue with setting minion equip status that would crash the menu if the minion was dead, fixed armour info
 
 Bug hunt
 	throwing a rune at a wall issue - runes should bounce off walls i think
