@@ -478,26 +478,28 @@
 			// eating items
 			} else if(option == inventoryList.eatOption){
 				item = previousMenuList.options[previousMenuList.selection].userData;
+				if(item.type == Item.RUNE) Item.revealName(item.name, inventoryList.runesList);
+				game.console.print("rogue eats " + item.nameToString());
+				
 				if(item.type == Item.HEART){
 					game.player.applyHealth((Character.stats["healths"][item.name] + Character.stats["health levels"][item.name] * game.player.level) * Item.HEALTH_PER_HEART);
 				} else if(item.type == Item.RUNE){
-					Item.revealName(item.name, inventoryList.runesList);
 					effect = new Effect(item.name, 20, Effect.EATEN, game.player);
 				}
 				inventoryList.removeItem(item);
-				game.console.print("rogue eats " + item.nameToString());
 			
 			// feeding the minion
 			} else if(option == inventoryList.feedMinionOption){
 				item = previousMenuList.options[previousMenuList.selection].userData;
+				if(item.type == Item.RUNE) Item.revealName(item.name, inventoryList.runesList);
+				game.console.print("minion eats " + item.nameToString());
+				
 				if(item.type == Item.HEART){
 					game.minion.applyHealth((Character.stats["healths"][item.name] + Character.stats["health levels"][item.name] * game.minion.level) * Item.HEALTH_PER_HEART);
 				} else if(item.type == Item.RUNE){
-					Item.revealName(item.name, inventoryList.runesList);
 					effect = new Effect(item.name, 20, Effect.EATEN, game.minion);
 				}
 				inventoryList.removeItem(item);
-				game.console.print("minion eats " + item.nameToString());
 			
 			// loading / saving / new game
 			} else if(option == sureOption){
@@ -572,7 +574,7 @@
 			} else if(option == inventoryList.throwOption){
 				item = previousMenuList.options[previousMenuList.selection].userData;
 				item = inventoryList.removeItem(item);
-				game.player.shoot(Missile.RUNE, new Effect(item.name, 20, Effect.THROWN));
+				game.player.shoot(Missile.RUNE, new Effect(item.name, 20, Effect.THROWN), item);
 			
 			// enchanting items
 			} else if(previousMenuList.options[previousMenuList.selection] == inventoryList.enchantOption){

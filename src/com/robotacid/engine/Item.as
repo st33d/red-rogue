@@ -146,13 +146,13 @@
 		public static const SLOW:int = 9;
 		public static const HASTE:int = 10;
 		//public static const HOLY:int = ;
-		//public static const PROTECTION:int = ;
-		public static const STUPEFY:int = 11;
-		public static const POLYMORPH:int = 12;
+		public static const PROTECTION:int = 11;
+		public static const STUPEFY:int = 12;
+		public static const POLYMORPH:int = 13;
 		//public static const FEAR:int = ;
 		//public static const CONFUSION:int = ;
-		public static const LEECH_RUNE:int = 13;
-		public static const XP:int = 14;
+		public static const LEECH_RUNE:int = 14;
+		public static const XP:int = 15;
 		public static const CHAOS:int = 20;
 		
 		// curse states
@@ -250,6 +250,7 @@
 				
 			} else if(type == RUNE){
 				nameStr = stats["rune names"][name];
+				range = THROWN;
 				
 			} else if(type == QUEST_GEM){
 				nameStr = "quest gem";

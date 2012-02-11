@@ -47,6 +47,7 @@
 		public static const PORTAL:int = Item.PORTAL;
 		public static const SLOW:int = Item.SLOW;
 		public static const HASTE:int = Item.HASTE;
+		public static const PROTECTION:int = Item.PROTECTION;
 		public static const STUPEFY:int = Item.STUPEFY;
 		public static const NULL:int = Item.NULL;
 		public static const IDENTIFY:int = Item.IDENTIFY;
@@ -72,6 +73,8 @@
 		public static const SLOW_PER_LEVEL:Number = 1.0 / 40;
 		/* Max speed is double normal speed */
 		public static const HASTE_PER_LEVEL:Number = 1.0 / 20;
+		/* Protection should only add a maximum of 0.5 or halve damage */
+		public static const PROTECTION_PER_LEVEL:Number = 1.0 / 40;
 		
 		public static const MIN_TELEPORT_DIST:int = 10;
 		public static const ARMOUR_COUNTDOWN_STEP:int = 600 / 20;
@@ -141,6 +144,7 @@
 					if(!target.undead) target.applyDamage(healthStep, nameToString());
 				} else {
 					if(source == ARMOUR){
+						if(target is Player) game.console.print("the " + nameToString() + " wears off");
 						active = false;
 					} else {
 						dismiss();
@@ -193,9 +197,25 @@
 						}
 					}
 				}
+			} else if(name == PROTECTION){
+				// we have it as a given being in main() that this effect came from
+				// weapon, eaten or thrown
+				if(count-- <= 0){
+					if(level > 0){
+						target.protectionModifier += PROTECTION_PER_LEVEL;
+						target.endurance -= PROTECTION_PER_LEVEL;
+						level--;
+						if(level == 0){
+							if(target is Player) game.console.print("the " + nameToString() + " wears off");
+							dismiss();
+						} else {
+							count = DECAY_DELAY_PER_LEVEL;
+						}
+					}
+				}
 			} else if(name == TELEPORT){
 				// this here is the constant chaos caused by wearing teleport armour
-				// more so if the armour is cursed and ironically will require a teleport rune to remove it
+				// more so if the armour is cursed and ironically may require a teleport rune to remove it
 				if(count-- <= 0){
 					teleportCharacter(target);
 					count = (21 - level) * ARMOUR_COUNTDOWN_STEP;
@@ -426,6 +446,14 @@
 					callMain = true;
 				}
 				
+			} else if(name == PROTECTION){
+				target.endurance += level * PROTECTION_PER_LEVEL;
+				target.protectionModifier -= level * PROTECTION_PER_LEVEL;
+				if(source == EATEN || source == THROWN || source == WEAPON){
+					this.count = count > 0 ? count : DECAY_DELAY_PER_LEVEL;
+					callMain = true;
+				}
+				
 			} else if(name == UNDEAD){
 				// if the target is undead, the effect acts like an instant heal rune
 				if(target.undead){
@@ -438,16 +466,9 @@
 						healthStep = targetTotalHealth / (2 * DECAY_DELAY_PER_LEVEL * (1 + Game.MAX_LEVEL - level));
 					}
 					callMain = true;
+				} else {
+					if(target == game.player || target == game.minion) game.console.print(target.nameToString() + " may survive death");
 				}
-				if(source == WEAPON || source == EATEN || source == THROWN){
-					healthStep = (target.totalHealth * 2) / (1 + Game.MAX_LEVEL - level);
-					healthStep /= (DECAY_DELAY_PER_LEVEL * 2);
-					this.count = count > 0 ? count : DECAY_DELAY_PER_LEVEL * 2;
-				} else if(source == ARMOUR){
-					targetTotalHealth = target.totalHealth;
-					healthStep = targetTotalHealth / (2 * DECAY_DELAY_PER_LEVEL * (1 + Game.MAX_LEVEL - level));
-				}
-				callMain = true;
 				
 			} else if(name == TELEPORT){
 				// teleport enchanted armour will randomly hop the wearer around the map, the stronger
@@ -642,6 +663,14 @@
 				// remove floating point errors
 				if(Math.abs(target.speedModifier - 1) < 0.00001) target.speedModifier = 1;
 				if(Math.abs(target.attackSpeedModifier - 1) < 0.00001) target.attackSpeedModifier = 1;
+				
+			} else if(name == PROTECTION){
+				if(source == ARMOUR){
+					target.protectionModifier -= PROTECTION_PER_LEVEL * level;
+					target.endurance += PROTECTION_PER_LEVEL * level;
+				}
+				// remove floating point errors
+				if(Math.abs(target.protectionModifier - 1) < 0.00001) target.protectionModifier = 1;
 			}
 			active = false;
 			

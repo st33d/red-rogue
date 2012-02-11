@@ -1,4 +1,4 @@
-Change log: Fixed throw to id rune, fixed throwing weapons, sort equipment option no longer returns to main menu when selected, fixed issue with setting minion equip status that would crash the menu if the minion was dead, fixed armour info
+Change log: Added protection spell, moved log for eating before effects are told, added console description to undead rune consumption by the living, added missile reflection and collect when missile hits thrower, thrown runes reflect and drop to the floor, added chakram reflection
 
 Bug hunt
 	throwing a rune at a wall issue - runes should bounce off walls i think
@@ -6,6 +6,8 @@ Bug hunt
 	collection lock out on chests after playing for a while - bugged chest or item?
 	teleport sound bug - all of a sudden, many sound effects - why?
 	
+	
+Is undead acting as a heal? - is the code there a bug?
 	
 add throw command to throwable items?
 	offhandthrowing weapons

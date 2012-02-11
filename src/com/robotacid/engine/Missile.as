@@ -23,9 +23,11 @@
 		public var sender:Character;
 		public var item:Item;
 		public var clipRect:Rectangle;
+		public var reflections:int;
 		
 		private var offsetX:Number;
 		private var offsetY:Number;
+		private var catchable:Boolean;
 		
 		protected static var target:Character;
 		
@@ -34,7 +36,7 @@
 		public static const RUNE:int = 2;
 		public static const DART:int = 3;
 		
-		public function Missile(mc:DisplayObject, x:Number, y:Number, type:int, sender:Character, dx:Number, dy:Number, speed:Number, ignore:int = 0, effect:Effect = null, item:Item = null, clipRect:Rectangle = null) {
+		public function Missile(mc:DisplayObject, x:Number, y:Number, type:int, sender:Character, dx:Number, dy:Number, speed:Number, ignore:int = 0, effect:Effect = null, item:Item = null, clipRect:Rectangle = null, reflections:int = 0) {
 			super(mc, true);
 			this.type = type;
 			this.sender = sender;
@@ -44,6 +46,7 @@
 			this.effect = effect;
 			this.item = item;
 			this.clipRect = clipRect;
+			this.reflections = reflections;
 			callMain = true;
 			offsetX = 0;
 			offsetY = 0;
@@ -96,22 +99,40 @@
 					if(target){
 						if(target != sender){
 							if(type == ITEM){
-								var hitResult:int = sender.hit(target, Item.MISSILE | Item.THROWN);
-								if(hitResult){
-									hitCharacter(target, hitResult);
+								// is the target protected?
+								trace(target.protectionModifier);
+								if(
+									target.protectionModifier < 1 &&
+									game.random.value() > (target.protectionModifier < Character.MIN_PROTECTION_MODIFIER ? Character.MIN_PROTECTION_MODIFIER : target.protectionModifier)
+								){
+									reflect(); 
 								} else {
-									// pass through next simulation frame
-									collider.ignoreProperties |= Collider.SOLID;
+									var hitResult:int = sender.hit(target, Item.MISSILE | Item.THROWN);
+									if(hitResult){
+										hitCharacter(target, hitResult);
+									} else {
+										// pass through next simulation frame
+										collider.ignoreProperties |= Collider.SOLID;
+									}
 								}
 							} else {
-								hitCharacter(target);
+								// is the target protected?
+								if(
+									target.protectionModifier < 1 &&
+									game.random.value() > (target.protectionModifier < Character.MIN_PROTECTION_MODIFIER ? Character.MIN_PROTECTION_MODIFIER : target.protectionModifier)
+								){
+									reflect(); 
+								}
+								else hitCharacter(target);
 							}
 						}
 					} else {
-						kill();
+						if(reflections) reflect();
+						else kill();
 					}
 				} else {
-					kill();
+					if(reflections) reflect();
+					else kill();
 				}
 			} else {
 				// check runes for proximity to the mouse for conversion to MouseMissile
@@ -127,6 +148,17 @@
 				}
 				// repair contact filter from failed hits
 				collider.ignoreProperties &= ~(Collider.SOLID);
+				
+				// check for collision with sender if reflective, allowing them to catch the item
+				if(catchable && sender && sender.active){
+					if(sender.collider.intersects(collider)){
+						kill();
+						if(item){
+							item.collect(sender);
+							if(type == ITEM && !sender.weapon && (item.range & Item.THROWN)) sender.equip(item);
+						}
+					}
+				}
 			}
 		}
 		
@@ -154,6 +186,9 @@
 				}
 				// damage
 				var hitDamage:Number = item.damage + (thrownWeapon ? sender.damage : 0);
+				if(character.protectionModifier < 1){
+					hitDamage *= character.protectionModifier < Character.MIN_PROTECTION_MODIFIER ? Character.MIN_PROTECTION_MODIFIER : character.protectionModifier;
+				}
 				if(hitResult & Character.CRITICAL) hitDamage *= 2;
 				character.applyDamage(hitDamage, sender.nameToString(), hitKnockback, Boolean(hitResult & Character.CRITICAL));
 				// leech
@@ -173,6 +208,7 @@
 				game.console.print(effect.nameToString() + " cast upon " + character.nameToString());
 				effect.apply(character);
 				game.soundQueue.add("runeHit");
+				item = null;
 				
 			} else if(type == DART){
 				if(character.type & Character.STONE){
@@ -184,6 +220,25 @@
 				game.soundQueue.add("runeHit");
 			}
 			kill();
+		}
+		
+		/* Bounces the missile and sends it in the opposite direction */
+		public function reflect():void{
+			if(reflections) reflections--;
+			if(type == RUNE || type == DART){
+				renderer.createSparks(collider.x + collider.width * 0.5, collider.y + collider.height * 0.5, -dx, -dy, 10);
+			}
+			if(dx){
+				dx = -dx;
+				gfx.scaleX = -gfx.scaleX;
+			}
+			if(dy){
+				dy = -dy;
+				gfx.scaleY = -gfx.scaleY;
+			}
+			game.soundQueue.add("thud");
+			collider.vx = collider.vy = 0;
+			catchable = true;
 		}
 		
 		public function kill(side:int = 0):void{

@@ -85,6 +85,7 @@
 		public var losBorder:Number;
 		public var specialAttack:Boolean;
 		public var undead:Boolean;
+		public var protectionModifier:Number;
 		
 		private var hitResult:int;
 		
@@ -178,6 +179,9 @@
 		public static const SPECIAL_ATTACK_PER_LEVEL:Number = 1.0 / 40;
 		public static const MAX_SPEED_MODIFIER:Number = 2;
 		public static const MIN_SPEED_MODIFIER:Number = 0.5;
+		public static const MIN_PROTECTION_MODIFIER:Number = 0.5;
+		public static const CHAKRAM_REFLECTIONS:int = 10;
+		public static const RUNE_REFLECTIONS:int = 5;
 		
 		public static const DEFAULT_COL:ColorTransform = new ColorTransform();
 		public static const INFRAVISION_COLS:Vector.<ColorTransform> = Vector.<ColorTransform>([DEFAULT_COL, new ColorTransform(1, 0, 0, 1, 255), new ColorTransform(1, 0.7, 0.7, 1, 50)]);
@@ -242,6 +246,7 @@
 			losBorder = Brain.DEFAULT_LOS_BORDER;
 			speedModifier = 1;
 			attackSpeedModifier = 1;
+			protectionModifier = 1;
 			
 			
 			if(name == SKELETON){
@@ -270,13 +275,20 @@
 			if(effects){
 				for(i = 0; i < effects.length; i++){
 					effect = effects[i];
-					if(effect.name == Effect.THORNS) thorns += Effect.THORNS_PER_LEVEL * effect.level;
-					else if(effect.name == Effect.SLOW){
+					if(effect.name == Effect.THORNS){
+						thorns += Effect.THORNS_PER_LEVEL * effect.level;
+						
+					} else if(effect.name == Effect.SLOW){
 						speedModifier -= Effect.SLOW_PER_LEVEL * effect.level;
 						attackSpeedModifier -= Effect.SLOW_PER_LEVEL * effect.level;
+						
 					} else if(effect.name == Effect.HASTE){
 						speedModifier += Effect.HASTE_PER_LEVEL * effect.level;
 						attackSpeedModifier += Effect.HASTE_PER_LEVEL * effect.level;
+						
+					} else if(effect.name == Effect.PROTECTION){
+						endurance += Effect.PROTECTION * effect.level;
+						protectionModifier -= Effect.PROTECTION * effect.level;
 					}
 				}
 			}
@@ -432,6 +444,9 @@
 									}
 									// damage
 									var hitDamage:Number = damage + (meleeWeapon ? weapon.damage : 0);
+									if(target.protectionModifier < 1){
+										hitDamage *= target.protectionModifier < MIN_PROTECTION_MODIFIER ? MIN_PROTECTION_MODIFIER : target.protectionModifier;
+									}
 									if(hitResult & CRITICAL) hitDamage *= 2;
 									// rogue's backstab multiplier
 									if(name == ROGUE && (looking & (LEFT | RIGHT)) == (target.looking & (LEFT | RIGHT))){
@@ -810,6 +825,7 @@
 			else if(attack + attackRoll + (weapon && (weapon.range & range) ? weapon.attack : 0) > character.defence + (character.armour ? character.armour.defence : 0)){
 				// stun roll
 				var enduranceDamping:Number = 1.0 - (character.endurance + (character.armour ? character.armour.endurance : 0));
+				if(enduranceDamping < 0) enduranceDamping = 0;
 				var stunCheck:Number = (stun + (weapon && (weapon.range & range) ? weapon.stun : 0)) * enduranceDamping;
 				if(stunCheck && game.random.value() <= stunCheck) return HIT | STUN;
 				return HIT;
@@ -828,12 +844,13 @@
 		}
 		
 		/* Loose a missile, could be an arrow or a rune */
-		public function shoot(type:int, effect:Effect = null):void{
+		public function shoot(type:int, effect:Effect = null, rune:Item = null):void{
 			if(attackCount < 1) return;
 			state = LUNGING;
 			attackCount = 0;
 			var missileMc:DisplayObject;
 			var item:Item;
+			var reflections:int = 0;
 			if(type == Missile.ITEM){
 				if(weapon.range & Item.MISSILE){
 					missileMc = new weapon.missileGfxClass();
@@ -843,17 +860,20 @@
 					item = game.menu.inventoryList.removeItem(item);
 					item.location = Item.FLIGHT;
 					missileMc = item.gfx;
+					if(item.name == Item.CHAKRAM) reflections = CHAKRAM_REFLECTIONS;
 				}
 			} else if(type == Missile.RUNE){
 				missileMc = new ThrownRuneMC();
+				item = rune;
 			}
 			if(type == Missile.ITEM) {
 				game.soundQueue.add("bowShoot");
 			} else if (type == Missile.RUNE){
 				game.soundQueue.add("throw");
+				reflections = RUNE_REFLECTIONS;
 			}
 			missileMc.scaleX = (looking & RIGHT) ? 1 : -1;
-			var missile:Missile = new Missile(missileMc, collider.x + collider.width * 0.5, collider.y + collider.height * 0.5, type, this, (looking & RIGHT) ? 1 : -1, 0, 5, missileIgnore, effect, item);
+			var missile:Missile = new Missile(missileMc, collider.x + collider.width * 0.5, collider.y + collider.height * 0.5, type, this, (looking & RIGHT) ? 1 : -1, 0, 5, missileIgnore, effect, item, null, reflections);
 		}
 		
 		/* Adds damage to the Character */
