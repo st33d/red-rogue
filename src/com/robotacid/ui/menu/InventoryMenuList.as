@@ -20,7 +20,8 @@
 		public var heartsList:MenuList;
 		public var equipmentList:MenuList;
 		
-		public var itemActionList:MenuList;
+		public var weaponActionList:MenuList;
+		public var armourActionList:MenuList;
 		public var runeActionList:MenuList;
 		public var heartActionList:MenuList;
 		public var enchantmentList:EnchantmentList;
@@ -33,15 +34,22 @@
 		
 		public var equipOption:ToggleMenuOption;
 		public var equipMinionOption:ToggleMenuOption;
+		public var equipMainOption:ToggleMenuOption;
+		public var equipMinionMainOption:ToggleMenuOption;
+		public var equipThrowOption:ToggleMenuOption;
+		public var equipMinionThrowOption:ToggleMenuOption;
 		public var dropOption:MenuOption;
 		public var eatOption:MenuOption;
 		public var feedMinionOption:MenuOption;
 		public var enchantOption:MenuOption
-		public var throwOption:MenuOption;
+		public var throwRuneOption:MenuOption;
 		public var enchantmentsOption:MenuOption;
 		
 		public var itemToOption:Dictionary;
 		public var equipmentToOption:Dictionary;
+		
+		public static const EQUIP:int = 0;
+		public static const UNEQUIP:int = 1;
 		
 		public function InventoryMenuList(menu:Menu, game:Game) {
 			super();
@@ -57,7 +65,8 @@
 			
 			equipmentList = new MenuList();
 			
-			itemActionList = new MenuList();
+			weaponActionList = new MenuList();
+			armourActionList = new MenuList();
 			runeActionList = new MenuList();
 			heartActionList = new MenuList();
 			enchantmentList = new EnchantmentList();
@@ -78,6 +87,14 @@
 			
 			enchantOption = new MenuOption("enchant", equipmentList, false);
 			
+			equipMainOption = new ToggleMenuOption(["equip main", "unequip main"]);
+			equipMainOption.selectionStep = 2;
+			equipThrowOption = new ToggleMenuOption(["equip throw", "unequip throw"]);
+			equipThrowOption.selectionStep = 2;
+			equipMinionMainOption = new ToggleMenuOption(["equip minion main", "unequip minion main"]);
+			equipMinionMainOption.selectionStep = 2;
+			equipMinionThrowOption = new ToggleMenuOption(["equip minion throw", "unequip minion throw"]);
+			equipMinionThrowOption.selectionStep = 2;
 			equipOption = new ToggleMenuOption(["equip", "unequip"]);
 			equipOption.selectionStep = 2;
 			equipMinionOption = new ToggleMenuOption(["equip minion", "unequip minion"]);
@@ -85,7 +102,7 @@
 			dropOption = new MenuOption("drop");
 			eatOption = new MenuOption("eat");
 			feedMinionOption = new MenuOption("feed minion");
-			throwOption = new MenuOption("throw");
+			throwRuneOption = new MenuOption("throw");
 			enchantmentsOption = new MenuOption("enchantments", enchantmentList);
 			
 			enchantmentList.pointers = new Vector.<MenuOption>();
@@ -99,14 +116,21 @@
 			options.push(heartsOption);
 			options.push(sortOption);
 			
-			itemActionList.options.push(equipOption);
-			itemActionList.options.push(dropOption);
-			itemActionList.options.push(equipMinionOption);
-			itemActionList.options.push(enchantmentsOption);
+			weaponActionList.options.push(equipMainOption);
+			weaponActionList.options.push(equipThrowOption);
+			weaponActionList.options.push(equipMinionMainOption);
+			weaponActionList.options.push(equipMinionThrowOption);
+			weaponActionList.options.push(dropOption);
+			weaponActionList.options.push(enchantmentsOption);
+			
+			armourActionList.options.push(equipOption);
+			armourActionList.options.push(equipMinionOption);
+			armourActionList.options.push(dropOption);
+			armourActionList.options.push(enchantmentsOption);
 			
 			runeActionList.options.push(enchantOption);
 			runeActionList.options.push(eatOption);
-			runeActionList.options.push(throwOption);
+			runeActionList.options.push(throwRuneOption);
 			runeActionList.options.push(feedMinionOption);
 			runeActionList.options.push(dropOption);
 			
@@ -185,8 +209,11 @@
 			}
 			
 			// set up what can be done with this item
-			if(item.type == Item.ARMOUR || item.type == Item.WEAPON){
-				usageOptions = itemActionList;
+			if(item.type == Item.WEAPON){
+				usageOptions = weaponActionList;
+				
+			} else if(item.type == Item.ARMOUR){
+				usageOptions = armourActionList;
 				
 			} else if(item.type == Item.HEART){
 				// health items should be targetable under the same context

@@ -307,27 +307,40 @@
 			if(option.userData is Item){
 				var item:Item = option.userData;
 				if(item.type == Item.WEAPON || item.type == Item.ARMOUR){
-					inventoryList.equipOption.state = (item.user && item.user == game.player) ? 1 : 0;
-					inventoryList.equipMinionOption.state = (item.user && item.user == game.minion) ? 1 : 0;
+					inventoryList.equipMainOption.state = (item.user && item.user == game.player && item == game.player.weapon) ? 1 : 0;
+					inventoryList.equipMinionMainOption.state = (item.user && item.user == game.minion && item == game.minion.weapon) ? 1 : 0;
+					inventoryList.equipThrowOption.state = (item.user && item.user == game.player && item == game.player.throwable) ? 1 : 0;
+					inventoryList.equipMinionThrowOption.state = (item.user && item.user == game.minion && item == game.minion.throwable) ? 1 : 0;
 					inventoryList.enchantmentList.update(item);
 					
 					// cursed items disable equipping items of that type, they cannot be dropped either (but undead are immune to curses)
 					if(item.type == Item.WEAPON){
-						inventoryList.equipOption.active = (
+						inventoryList.equipMainOption.active = (
 							!(item.user && item.curseState == Item.CURSE_REVEALED && !item.user.undead) &&
 							!(game.player.weapon && game.player.weapon.curseState == Item.CURSE_REVEALED && !game.player.undead)
 						);
-						inventoryList.equipMinionOption.active = (
+						inventoryList.equipThrowOption.active = (
+							(item.range & Item.THROWN) &&
+							!(item.user && item.curseState == Item.CURSE_REVEALED && !item.user.undead) &&
+							!(game.player.throwable && game.player.throwable.curseState == Item.CURSE_REVEALED && !game.player.undead)
+						);
+						inventoryList.equipMinionMainOption.active = (
 							game.minion &&
 							!(item.user && item.curseState == Item.CURSE_REVEALED && !item.user.undead) &&
 							!(game.minion.weapon && game.minion.weapon.curseState == Item.CURSE_REVEALED && !game.minion.undead)
 						);
+						inventoryList.equipMinionThrowOption.active = (
+							game.minion &&
+							(item.range & Item.THROWN) &&
+							!(item.user && item.curseState == Item.CURSE_REVEALED && !item.user.undead) &&
+							!(game.minion.throwable && game.minion.throwable.curseState == Item.CURSE_REVEALED && !game.minion.undead)
+						);
 					} else if(item.type == Item.ARMOUR){
-						inventoryList.equipOption.active = (
+						inventoryList.equipMainOption.active = (
 							!(item.user && item.curseState == Item.CURSE_REVEALED && !item.user.undead) &&
 							!(game.player.armour && game.player.armour.curseState == Item.CURSE_REVEALED && !game.player.undead)
 						);
-						inventoryList.equipMinionOption.active = (
+						inventoryList.equipMinionMainOption.active = (
 							game.minion &&
 							!(item.user && item.curseState == Item.CURSE_REVEALED && !item.user.undead) &&
 							!(game.minion.armour && game.minion.armour.curseState == Item.CURSE_REVEALED && !game.minion.undead)
@@ -337,8 +350,8 @@
 					// no equipping face armour on the overworld
 					if(item.type == Item.ARMOUR && item.name == Item.FACE){
 						if(game.dungeon.level == 0){
-							inventoryList.equipOption.active = false;
-							inventoryList.equipMinionOption.active = false;
+							inventoryList.equipMainOption.active = false;
+							inventoryList.equipMinionMainOption.active = false;
 						}
 					}
 					inventoryList.dropOption.active = game.player.undead || item.curseState != Item.CURSE_REVEALED;
@@ -350,7 +363,7 @@
 					else inventoryList.feedMinionOption.active = true;
 					
 				} else if(item.type == Item.RUNE){
-					inventoryList.throwOption.active = game.player.attackCount >= 1;
+					inventoryList.throwRuneOption.active = game.player.attackCount >= 1;
 					inventoryList.eatOption.active = true;
 					inventoryList.feedMinionOption.active = Boolean(game.minion);
 					if(item.name == Effect.XP){
@@ -409,65 +422,65 @@
 		
 		override public function executeSelection():void {
 			var option:MenuOption = currentMenuList.options[selection];
-			var item:Item, n:int, i:int, effect:Effect, prevItem:Item;
+			var item:Item, n:int, i:int, effect:Effect, prevItem:Item, character:Character;
 			
 			// equipping items on the player - toggle logic follows
-			if(option == inventoryList.equipOption){
+			if(
+				option == inventoryList.equipMainOption ||
+				option == inventoryList.equipThrowOption ||
+				option == inventoryList.equipMinionMainOption ||
+				option == inventoryList.equipMinionThrowOption ||
+				option == inventoryList.equipOption ||
+				option == inventoryList.equipMinionOption
+			){
 				item = previousMenuList.options[previousMenuList.selection].userData;
-				if(item.location == Item.EQUIPPED && item.user == game.player){
-					item = game.player.unequip(item);
+				
+				character = (
+					option == inventoryList.equipMainOption ||
+					option == inventoryList.equipThrowOption ||
+					option == inventoryList.equipOption
+				) ? game.player : game.minion;
+				
+				var throwing:Boolean = (
+					option == inventoryList.equipThrowOption ||
+					option == inventoryList.equipMinionThrowOption
+				);
+				
+				// is unequip?
+				if((option as ToggleMenuOption).state == InventoryMenuList.UNEQUIP){
+					item = character.unequip(item);
+					
 					// indifference armour is one-shot
-					if(item.name == Item.INDIFFERENCE) item = indifferenceCrumbles(item, game.player);
+					if(item.type == Item.ARMOUR && item.name == Item.INDIFFERENCE) item = indifferenceCrumbles(item, character);
+					
 				} else {
-					if(item.type == Item.WEAPON){
-						if(game.player.weapon) game.player.unequip(game.player.weapon);
-						if(game.minion && game.minion.weapon && game.minion.weapon == item) game.minion.unequip(game.minion.weapon);
-					}
+					// unequip incompatible items
 					if(item.type == Item.ARMOUR){
-						if(game.player.armour){
-							prevItem = game.player.armour;
-							game.player.unequip(game.player.armour);
+						if(character.armour){
+							prevItem = character.armour;
+							character.unequip(character.armour);
 							// indifference armour is one-shot
-							if(prevItem.name == Item.INDIFFERENCE) prevItem = indifferenceCrumbles(prevItem, game.player);
-						}
-						if(game.minion && game.minion.armour && game.minion.armour == item) game.minion.unequip(game.minion.armour);
-						// indifference armour is one-shot
-						if(item.name == Item.INDIFFERENCE){
-							game.console.print("indifference is fragile");
+							if(prevItem.name == Item.INDIFFERENCE) prevItem = indifferenceCrumbles(prevItem, character);
 						}
 					}
-					item = game.player.equip(item);
+					if(item.type == Item.WEAPON){
+						if(throwing){
+							if(character.throwable) character.unequip(character.throwable);
+							if(character.weapon && (character.weapon.range & Item.MISSILE)) character.unequip(character.weapon);
+						} else {
+							if(character.weapon) character.unequip(character.weapon);
+							if((item.range & Item.MISSILE) && character.throwable) character.unequip(character.throwable);
+						}
+					}
+					if(item.user) item.user.unequip(item);
+					item = game.player.equip(item, throwing);
+					
+					// indifference armour is one-shot
+					if(item.type == Item.ARMOUR && item.name == Item.INDIFFERENCE){
+						game.console.print("indifference is fragile");
+					}
 				}
 			
-			// equipping items on minions - toggle logic follows
-			} else if(option == inventoryList.equipMinionOption){
-				item = previousMenuList.options[previousMenuList.selection].userData;
-				if(item.location == Item.EQUIPPED && item.user == game.minion){
-					item = game.minion.unequip(item);
-					// indifference armour is one-shot
-					if(item.name == Item.INDIFFERENCE) item = indifferenceCrumbles(item, game.minion);
-				} else {
-					if(item.type == Item.WEAPON){
-						if(game.minion.weapon) game.minion.unequip(game.minion.weapon);
-						if(game.player.weapon && game.player.weapon == item) game.player.unequip(game.player.weapon);
-					}
-					if(item.type == Item.ARMOUR){
-						if(game.minion.armour){
-							prevItem = game.minion.armour;
-							game.minion.unequip(game.minion.armour);
-							// indifference armour is one-shot
-							if(prevItem.name == Item.INDIFFERENCE) prevItem = indifferenceCrumbles(prevItem, game.minion);
-						}
-						if(game.player.armour && game.player.armour == item) game.player.unequip(game.player.armour);
-						// indifference armour is one-shot
-						if(item.name == Item.INDIFFERENCE){
-							game.console.print("indifference is fragile");
-							game.minion.brain.clear();
-						}
-					}
-					item = game.minion.equip(item);
-				}
-				
 			// dropping items
 			} else if(option == inventoryList.dropOption){
 				item = previousMenuList.options[previousMenuList.selection].userData;
@@ -571,7 +584,7 @@
 				}
 			
 			// throwing runes
-			} else if(option == inventoryList.throwOption){
+			} else if(option == inventoryList.throwRuneOption){
 				item = previousMenuList.options[previousMenuList.selection].userData;
 				item = inventoryList.removeItem(item);
 				game.player.shoot(Missile.RUNE, new Effect(item.name, 20, Effect.THROWN), item);

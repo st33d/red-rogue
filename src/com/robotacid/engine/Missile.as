@@ -155,7 +155,6 @@
 						kill();
 						if(item){
 							item.collect(sender);
-							if(type == ITEM && !sender.weapon && (item.range & Item.THROWN)) sender.equip(item);
 						}
 					}
 				}

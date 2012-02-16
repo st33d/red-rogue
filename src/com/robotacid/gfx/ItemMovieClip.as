@@ -141,16 +141,20 @@ package com.robotacid.gfx {
 					if(mc.currentLabel != "idle") mc.gotoAndStop("idle");
 					
 				} else if(_name == Item.CHAKRAM){
-					mc.stop();
+					mc.gotoAndStop(1);
 				}
 			}
 		}
 		
-		/* Called before equipping the item to the floor */
+		/* Called before equipping the item */
 		public function setEquipRender():void{
 			if(_type == Item.ARMOUR){
 				if(_name == Item.INVISIBILITY){
 					bufferLoaded = false;
+				}
+			} else if(_type == Item.WEAPON){
+				if(_name == Item.CHAKRAM){
+					(gfx as MovieClip).gotoAndStop(1);
 				}
 			}
 		}

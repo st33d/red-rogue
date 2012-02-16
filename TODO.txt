@@ -1,18 +1,23 @@
-Change log: Added protection spell, moved log for eating before effects are told, added console description to undead rune consumption by the living, added missile reflection and collect when missile hits thrower, thrown runes reflect and drop to the floor, added chakram reflection
+Change log: chakram spins now, thrown weapons are visible when thrown from ladders, fixed helmet and indifference forward facing graphics
 
 Bug hunt
 	throwing a rune at a wall issue - runes should bounce off walls i think
 	minion got stuck on stairs
 	collection lock out on chests after playing for a while - bugged chest or item?
-	teleport sound bug - all of a sudden, many sound effects - why?
+	all of a sudden, many sound effects - why?
 	
+	missile riding
+		remove top and bottom surfaces?
 	
-Is undead acting as a heal? - is the code there a bug?
-	
-add throw command to throwable items?
-	offhandthrowing weapons
-		same for runes? - how does one throw runes with a missile weapon? not at all?
-	
+
+redo leech mechanic?
+	blood armour prevents leech - cannot be leech enchanted
+	leech spell:
+		eat: leech weapon
+		enchant weapon: leech bonus
+		enchant armour: reduce max health, cursed
+		throw: leech weapon
+
 wrong frame facing forward on helmet
 
 remove editor render layer when not in use
@@ -20,8 +25,19 @@ remove editor render layer when not in use
 stop walk animation/moving when pushing wall
 
 deprecate count from Effect.apply()?
+
+deprecate return type from equip? (from weapon stacking days?)
 	
 interstitial transitions - fade to some text, then fade to the scene
+
+
+Issues with offhand:
+	leech stat stacking
+	buff stacking?
+	new menu option format for weapons and armour
+
+
+
 
 create Editor in debug menu
 	create launch test bed option

@@ -33,6 +33,7 @@
 		public var effectsBuffer:Vector.<Effect>;
 		public var portal:Portal;
 		public var weapon:Item;
+		public var throwable:Item;
 		public var armour:Item;
 		public var brain:Brain;
 		public var racialEffect:Effect;
@@ -528,8 +529,8 @@
 				var node:Character;
 				var tx:Number, ty:Number;
 				// lightning from the right hand
-				if(mc.weapon && mc.leftHand) {
-					p.x = mc.x + (mc.scaleX == 1 ? mc.weapon.x : -mc.leftHand.x);
+				if(mc.weapon && mc.throwable) {
+					p.x = mc.x + (mc.scaleX == 1 ? mc.weapon.x : -mc.throwable.x);
 					p.y = mc.y + mc.weapon.y;
 					node = null;
 					if(type == MINION || type == PLAYER){
@@ -554,8 +555,8 @@
 						renderer.createDebrisSpurt(tx, ty, 5, 5, node.debrisType);
 					}
 					// lightning from the left hand
-					p.x = mc.x + (mc.scaleX == 1 ? mc.leftHand.x : -mc.weapon.x);
-					p.y = mc.y + mc.leftHand.y;
+					p.x = mc.x + (mc.scaleX == 1 ? mc.throwable.x : -mc.weapon.x);
+					p.y = mc.y + mc.throwable.y;
 					node = null;
 					if(type == MINION || type == PLAYER){
 						if(Brain.monsterCharacters.length){
@@ -751,15 +752,14 @@
 		}
 		
 		/* Select an item as a weapon or armour */
-		public function equip(item:Item):Item{
+		public function equip(item:Item, throwing:Boolean = false):Item{
 			item.location = Item.EQUIPPED;
 			item.user = this;
 			if(item.type == Item.WEAPON){
-				if(weapon) return null;
-				weapon = item;
+				if(throwing) throwable = item;
+				else weapon = item;
 			}
 			if(item.type == Item.ARMOUR){
-				if(armour) return null;
 				armour = item;
 				if(item.effects){
 					var effect:Effect;
@@ -773,14 +773,15 @@
 			
 			item.addBuff(this);
 			
-			(gfx as Sprite).addChild(item.gfx);
+			if(throwing) (gfx as Sprite).addChildAt(item.gfx, 0);
+			else (gfx as Sprite).addChild(item.gfx);
 			if(item.gfx is ItemMovieClip) (item.gfx as ItemMovieClip).setEquipRender();
 			return item;
 		}
 		
 		/* Unselect item as equipped */
 		public function unequip(item:Item):Item{
-			if(item != armour && item != weapon) return null;
+			if(item != armour && item != weapon && item != throwable) return null;
 			item.location = Item.INVENTORY;
 			item.user = null;
 			var i:int;
@@ -801,6 +802,7 @@
 				armour = null;
 			}
 			if(item == weapon) weapon = null;
+			if(item == throwable) throwable = null;
 			
 			item.removeBuff(this);
 			
@@ -852,15 +854,21 @@
 			var item:Item;
 			var reflections:int = 0;
 			if(type == Missile.ITEM){
-				if(weapon.range & Item.MISSILE){
-					missileMc = new weapon.missileGfxClass();
-					item = weapon;
-				} else if(weapon.range & Item.THROWN){
-					item = unequip(weapon);
+				if(throwable){
+					item = unequip(throwable);
 					item = game.menu.inventoryList.removeItem(item);
 					item.location = Item.FLIGHT;
 					missileMc = item.gfx;
-					if(item.name == Item.CHAKRAM) reflections = CHAKRAM_REFLECTIONS;
+					item.gfx.visible = true;
+					item.autoEquip = true;
+					if(item.name == Item.CHAKRAM){
+						reflections = CHAKRAM_REFLECTIONS;
+						((item.gfx as ItemMovieClip).gfx as MovieClip).gotoAndPlay(1);
+					}
+				// we can only get here if the main weapon is a missile weapon
+				} else {
+					missileMc = new weapon.missileGfxClass();
+					item = weapon;
 				}
 			} else if(type == Missile.RUNE){
 				missileMc = new ThrownRuneMC();
@@ -1006,6 +1014,7 @@
 			}
 		}
 		
+		/* Change the race of the character - involves resetting physics for the character as well as stats */
 		public function changeName(name:int, gfx:MovieClip = null):void{
 			if(this.name == name && !gfx) return;
 			
@@ -1153,6 +1162,17 @@
 				}
 				if(weapon.gfx is ItemMovieClip){
 					(weapon.gfx as ItemMovieClip).render(this, mc);
+				}
+			}
+			if(throwable){
+				if((gfx as MovieClip).throwable){
+					throwable.gfx.x = mc.throwable.x;
+					throwable.gfx.y = mc.throwable.y;
+					if(collider.state == Collider.HOVER) throwable.gfx.visible = false;
+					else throwable.gfx.visible = true;
+				}
+				if(throwable.gfx is ItemMovieClip){
+					(throwable.gfx as ItemMovieClip).render(this, mc);
 				}
 			}
 			if(armour){

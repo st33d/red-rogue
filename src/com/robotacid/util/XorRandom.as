@@ -19,7 +19,7 @@ package com.robotacid.util {
 			if(seed){
 				r = seed;
 			} else {
-				r = Math.random() * uint.MAX_VALUE;
+				r = (new Date().time % uint.MAX_VALUE) as uint;
 			}
 			this.seed = r;
 		}

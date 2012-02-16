@@ -39,6 +39,7 @@
 		public var position:int;
 		public var user:Character;
 		public var uniqueNameStr:String;
+		public var autoEquip:Boolean;
 		
 		// stats
 		public var damage:Number;
@@ -183,6 +184,7 @@
 			location = UNASSIGNED;
 			stacked = false;
 			callMain = true;
+			autoEquip = false;
 			user = null;
 			uniqueNameStr = null;
 			twinkleCount = TWINKLE_DELAY + game.random.range(TWINKLE_DELAY);
@@ -320,6 +322,7 @@
 			} else character.loot.push(this);
 			gfx.filters = [];
 			gfx.visible = true;
+			if(type == WEAPON && autoEquip && !character.throwable) character.equip(this, true);
 		}
 		
 		/* Puts this item on the map */
@@ -383,6 +386,7 @@
 				game.console.print("the " + str + " is cursed!");
 				if(user.undead) game.console.print("but the dead are unaffected...");
 			}
+			autoEquip = false;
 			curseState = CURSE_REVEALED;
 		}
 		

@@ -389,21 +389,21 @@
 		}
 		
 		/* Select an item as a weapon or armour */
-		override public function equip(item:Item):Item{
-			super.equip(item);
+		override public function equip(item:Item, throwing:Boolean = false):Item{
+			super.equip(item, throwing);
 			if(item.curseState == Item.CURSE_HIDDEN) item.revealCurse();
 			// set the active state and name of the missile option in the menu
 			if(item.type == Item.WEAPON){
 				game.menu.missileOption.active = (
 					!indifferent &&
-					Boolean(item.range & (Item.MISSILE | Item.THROWN)) &&
-					!(
-						item.curseState == Item.CURSE_REVEALED &&
-						(item.range & Item.THROWN)
+					(
+						(weapon && weapon.range & Item.MISSILE) ||
+						(throwable && throwable.curseState != Item.CURSE_REVEALED)
 					)
 				);
-				if(item.range & Item.MISSILE) game.menu.missileOption.state = 0;
-				else if(item.range & Item.THROWN) game.menu.missileOption.state = 1;
+				if(game.menu.missileOption.active){
+					game.menu.missileOption.state = throwable ? 1 : 0;
+				}
 			}
 			inventory.updateItem(item);
 			return item;
@@ -411,8 +411,8 @@
 		
 		/* Unselect item as equipped */
 		override public function unequip(item:Item):Item{
+			if(item == throwable || (item.type == Item.WEAPON && item.range & Item.MISSILE)) game.menu.missileOption.active = false;
 			super.unequip(item);
-			if(item.type == Item.WEAPON) game.menu.missileOption.active = false;
 			inventory.updateItem(item);
 			return item;
 		}
