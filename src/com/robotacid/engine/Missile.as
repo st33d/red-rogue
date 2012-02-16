@@ -36,7 +36,7 @@
 		public static const RUNE:int = 2;
 		public static const DART:int = 3;
 		
-		public function Missile(mc:DisplayObject, x:Number, y:Number, type:int, sender:Character, dx:Number, dy:Number, speed:Number, ignore:int = 0, effect:Effect = null, item:Item = null, clipRect:Rectangle = null, reflections:int = 0) {
+		public function Missile(mc:DisplayObject, x:Number, y:Number, type:int, sender:Character, dx:Number, dy:Number, speed:Number, ignore:int = 0, effect:Effect = null, item:Item = null, clipRect:Rectangle = null, reflections:int = 0, firingTeam:int = 0) {
 			super(mc, true);
 			this.type = type;
 			this.sender = sender;
@@ -51,7 +51,7 @@
 			offsetX = 0;
 			offsetY = 0;
 			
-			createCollider(x, y, Collider.SOLID | Collider.MISSILE, ignore, Collider.HOVER, false);
+			createCollider(x, y, Collider.LEFT | Collider.RIGHT | Collider.MISSILE | firingTeam, ignore, Collider.HOVER, false);
 			if(sender){
 				// adjust the collider to make it fly nicely out of the sender
 				// - it won't matter to the physics engine as we have to do a ghosting check anyway

@@ -473,7 +473,7 @@
 						}
 					}
 					if(item.user) item.user.unequip(item);
-					item = game.player.equip(item, throwing);
+					character.equip(item, throwing);
 					
 					// indifference armour is one-shot
 					if(item.type == Item.ARMOUR && item.name == Item.INDIFFERENCE){

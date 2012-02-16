@@ -117,6 +117,7 @@
 					}
 				}
 			}
+			triggerFlashPrompt();
 			render();
 		}
 		

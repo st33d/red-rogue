@@ -118,6 +118,10 @@ package com.robotacid.phys {
 		public static const STONE:int = 1 << 19;
 		/* This Collider is a wall that moves randomly */
 		public static const CHAOS:int = 1 << 20;
+		/* This Collider is a missile of the player team */
+		public static const PLAYER_MISSILE:int = 1 << 21;
+		/* This Collider is a missile of the monster team */
+		public static const MONSTER_MISSILE:int = 1 << 22;
 		
 		public function Collider(x:Number = 0, y:Number = 0, width:Number = 0, height:Number = 0, scale:Number = 0, properties:int = SOLID, ignoreProperties:int = 0, state:int = 0){
 			super(x, y, width, height);

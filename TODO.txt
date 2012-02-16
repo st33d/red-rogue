@@ -1,13 +1,10 @@
-Change log: chakram spins now, thrown weapons are visible when thrown from ladders, fixed helmet and indifference forward facing graphics
+Change log: removed missile top and bottom surfaces, created player and monster missile traffic filters to remove false missile collisions, Date.time now initialises XorRandom
 
 Bug hunt
 	throwing a rune at a wall issue - runes should bounce off walls i think
 	minion got stuck on stairs
 	collection lock out on chests after playing for a while - bugged chest or item?
 	all of a sudden, many sound effects - why?
-	
-	missile riding
-		remove top and bottom surfaces?
 	
 
 redo leech mechanic?
@@ -18,15 +15,13 @@ redo leech mechanic?
 		enchant armour: reduce max health, cursed
 		throw: leech weapon
 
-wrong frame facing forward on helmet
-
 remove editor render layer when not in use
 
 stop walk animation/moving when pushing wall
 
 deprecate count from Effect.apply()?
 
-deprecate return type from equip? (from weapon stacking days?)
+flash fade minimap after eating identify spell
 	
 interstitial transitions - fade to some text, then fade to the scene
 

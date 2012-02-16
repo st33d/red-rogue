@@ -98,7 +98,7 @@
 			cameraDisplacement = new Point();
 			
 			// init properties
-			missileIgnore |= Collider.PLAYER | Collider.MINION;
+			missileIgnore |= Collider.PLAYER | Collider.MINION | Collider.PLAYER_MISSILE;
 			
 			game.lightMap.setLight(this, DEFAULT_LIGHT_RADIUS);
 			
@@ -118,7 +118,7 @@
 		override public function createCollider(x:Number, y:Number, properties:int, ignoreProperties:int, state:int = 0, positionByBase:Boolean = true):void {
 			super.createCollider(x, y, properties, ignoreProperties, state, positionByBase);
 			collider.properties |= Collider.PLAYER;
-			collider.ignoreProperties |= Collider.PLAYER | Collider.MINION;
+			collider.ignoreProperties |= Collider.PLAYER | Collider.MINION | Collider.PLAYER_MISSILE;
 			collider.stompProperties = Collider.MONSTER;
 			collider.stackCallback = hitFloor;
 		}

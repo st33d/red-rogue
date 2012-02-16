@@ -50,6 +50,7 @@
 		public var allyIndex:int;
 		public var allegiance:int;
 		public var searchSteps:int;
+		public var firingTeam:int;
 		
 		public static var playerCharacters:Vector.<Character>;
 		public static var monsterCharacters:Vector.<Character>;
@@ -109,6 +110,8 @@
 		public function Brain(char:Character, allegiance:int, leader:Character = null) {
 			this.char = char;
 			this.allegiance = allegiance;
+			if(allegiance == PLAYER) firingTeam = Collider.PLAYER_MISSILE;
+			else if(allegiance == MONSTER) firingTeam = Collider.MONSTER_MISSILE;
 			this.leader = leader;
 			patrolAreaSet = false;
 			state = PATROL;

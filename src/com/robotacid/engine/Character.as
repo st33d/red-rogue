@@ -64,6 +64,7 @@
 		public var missileIgnore:int;
 		public var infravisionRenderState:int;
 		public var characterNum:int;
+		public var missileFilter:int;
 		
 		// stats
 		public var speed:Number;
@@ -881,7 +882,7 @@
 				reflections = RUNE_REFLECTIONS;
 			}
 			missileMc.scaleX = (looking & RIGHT) ? 1 : -1;
-			var missile:Missile = new Missile(missileMc, collider.x + collider.width * 0.5, collider.y + collider.height * 0.5, type, this, (looking & RIGHT) ? 1 : -1, 0, 5, missileIgnore, effect, item, null, reflections);
+			var missile:Missile = new Missile(missileMc, collider.x + collider.width * 0.5, collider.y + collider.height * 0.5, type, this, (looking & RIGHT) ? 1 : -1, 0, 5, missileIgnore, effect, item, null, reflections, brain.firingTeam);
 		}
 		
 		/* Adds damage to the Character */

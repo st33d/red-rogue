@@ -29,7 +29,7 @@
 			// we do want monsters on the Entities list, but not just yet
 			addToEntities = true;
 			
-			missileIgnore |= Collider.MONSTER;
+			missileIgnore |= Collider.MONSTER | Collider.MONSTER_MISSILE;
 			
 			brain = new Brain(this, Brain.MONSTER);
 			Brain.monsterCharacters.push(this);
@@ -58,6 +58,7 @@
 		override public function createCollider(x:Number, y:Number, properties:int, ignoreProperties:int, state:int = 0, positionByBase:Boolean = true):void {
 			super.createCollider(x, y, properties, ignoreProperties, state, positionByBase);
 			collider.properties |= Collider.MONSTER;
+			collider.ignoreProperties |= Collider.MONSTER_MISSILE;
 			collider.stompProperties = Collider.PLAYER | Collider.MINION;
 		}
 		
