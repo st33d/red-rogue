@@ -609,11 +609,13 @@
 				
 				// items need to be unequipped and then equipped again to apply their new settings to a Character
 				var user:Character = item.user;
+				var originalType:int = item.type;
 				if(user) item = user.unequip(item);
 				
 				item = effect.enchant(item, inventoryList, user ? user : game.player);
 				
-				if(user && item.location == Item.INVENTORY) item = user.equip(item);
+				// don't re-equip items that have changed function
+				if(user && item.location == Item.INVENTORY && item.type == originalType) item = user.equip(item);
 				
 				rune = inventoryList.removeItem(rune);
 			
