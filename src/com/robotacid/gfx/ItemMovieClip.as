@@ -159,6 +159,16 @@ package com.robotacid.gfx {
 			}
 		}
 		
+		/* Called before throwing the item */
+		public function setThrowRender():void{
+			// it is assumed: _type = Item.WEAPON
+			if(_name == Item.CHAKRAM){
+				(gfx as MovieClip).gotoAndPlay(1);
+			} else if(_name == Item.LEECH_WEAPON){
+				(gfx as MovieClip).gotoAndStop("lunge");
+			}
+		}
+		
 		/* Called by the wielding Character.render() to apply the special animations the item requires */
 		public function render(character:Character, characterMc:MovieClip):void{
 			var mc:MovieClip = gfx as MovieClip;

@@ -138,8 +138,8 @@
 				return;
 			}
 			textBox.text = str;
-			lineBuffer.push(textBox.bitmapData.clone());
-			lineWidthBuffer.push(textBox.lineWidths[0] + textBox.tracking + 2);
+			lineBuffer.unshift(textBox.bitmapData.clone());
+			lineWidthBuffer.unshift(textBox.lineWidths[0] + textBox.tracking + 2);
 			if(scrollDir == 1){
 				if(scrollPoint.y == 0) scrollPoint.y = -LINE_SPACING * scrollDir;
 			} else if(scrollDir == -1){

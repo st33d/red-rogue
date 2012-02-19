@@ -779,9 +779,9 @@
 			// better than resorting to magic numbers I suppose
 			var ZONE_TRAPS:Array = [
 				[Trap.TELEPORT_DART],
-				[Trap.STUPEFY_DART, Trap.TELEPORT_DART],
-				[Trap.STUPEFY_DART, Trap.POISON_DART, Trap.TELEPORT_DART],
-				[Trap.MONSTER_PORTAL, Trap.STUPEFY_DART, Trap.POISON_DART, Trap.TELEPORT_DART]
+				[Trap.STUN_DART, Trap.TELEPORT_DART],
+				[Trap.STUN_DART, Trap.POISON_DART, Trap.TELEPORT_DART],
+				[Trap.MONSTER_PORTAL, Trap.STUN_DART, Trap.POISON_DART, Trap.TELEPORT_DART]
 			];
 			
 			var totalTraps:int = game.content.getTraps(level, type) - bitmap.pitTraps;

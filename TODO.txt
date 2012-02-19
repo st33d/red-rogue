@@ -1,37 +1,26 @@
-Change log: removed missile top and bottom surfaces, created player and monster missile traffic filters to remove false missile collisions, Date.time now initialises XorRandom
+Change log: fixed poison sound bug, new leech spell, new leech logic, blood armour now cancels leech, null rune creates blood armour from leech, leech weapon throwable, updated assets library, console print order fixed, fixed armour menu equip options, fixed change name not unlocking throw option when undead, fixed xp enchant limit, removed new item menu-glow when picking up thrown weapons, fixed polymorphing with only one item in the equipment list crashing the menu, fixed minion getting stuck on stairs by entering quickening state (set up quickening queues)
 
 Bug hunt
-	throwing a rune at a wall issue - runes should bounce off walls i think
-	minion got stuck on stairs
 	collection lock out on chests after playing for a while - bugged chest or item?
-	all of a sudden, many sound effects - why?
 	
+vocalisations
+	in Brain class
+		create voice
+	create vocal manager? or Brain wide static cool down?
 
-redo leech mechanic?
-	blood armour prevents leech - cannot be leech enchanted
-	leech spell:
-		eat: leech weapon
-		enchant weapon: leech bonus
-		enchant armour: reduce max health, cursed
-		throw: leech weapon
+make console print outs for effects optional (due to dismiss-apply chains when changing race)
+
+konami code for lives
+
+heal stone and grindstone created by heal and xp runes
 
 remove editor render layer when not in use
 
 stop walk animation/moving when pushing wall
 
 deprecate count from Effect.apply()?
-
-flash fade minimap after eating identify spell
 	
 interstitial transitions - fade to some text, then fade to the scene
-
-
-Issues with offhand:
-	leech stat stacking
-	buff stacking?
-	new menu option format for weapons and armour
-
-
 
 
 create Editor in debug menu

@@ -39,7 +39,7 @@
 		public static const PIT:int = 0;
 		public static const POISON_DART:int = 1;
 		public static const TELEPORT_DART:int = 2;
-		public static const STUPEFY_DART:int = 3;
+		public static const STUN_DART:int = 3;
 		public static const MONSTER_PORTAL:int = 4;
 		
 		public static const PIT_COVER_DELAY:int = 7;
@@ -148,10 +148,10 @@
 				game.console.print("poison trap triggered");
 				game.soundQueue.add("throw");
 				shootDart(new Effect(Effect.POISON, game.dungeon.level < Game.MAX_LEVEL ? game.dungeon.level : Game.MAX_LEVEL, Effect.THROWN));
-			} else if(type == STUPEFY_DART){
-				game.console.print("stupefy trap triggered");
+			} else if(type == STUN_DART){
+				game.console.print("stun trap triggered");
 				game.soundQueue.add("throw");
-				shootDart(new Effect(Effect.STUPEFY, game.dungeon.level < Game.MAX_LEVEL ? game.dungeon.level : Game.MAX_LEVEL, Effect.THROWN));
+				shootDart(new Effect(Effect.STUN, game.dungeon.level < Game.MAX_LEVEL ? game.dungeon.level : Game.MAX_LEVEL, Effect.THROWN));
 			} else if(type == TELEPORT_DART){
 				game.console.print("teleport trap triggered");
 				game.soundQueue.add("throw");

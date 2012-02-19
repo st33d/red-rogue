@@ -100,7 +100,7 @@
 			var mc:MovieClip = gfx as MovieClip;
 			if(name == SECRET_WALL){
 				if(!revealed) reveal();
-				super.applyDamage(n, source, 0, critical, aggressor);
+				super.applyDamage(n, source, 0, critical, aggressor, defaultSound);
 				
 			} else if(name == HEAL){
 				if(game.minion){

@@ -148,7 +148,7 @@
 		public static const HASTE:int = 10;
 		//public static const HOLY:int = ;
 		public static const PROTECTION:int = 11;
-		public static const STUPEFY:int = 12;
+		public static const STUN:int = 12;
 		public static const POLYMORPH:int = 13;
 		//public static const FEAR:int = ;
 		//public static const CONFUSION:int = ;
@@ -219,7 +219,7 @@
 					for(i = 0; i < effects.length; i++){
 						effect = effects[i];
 						if(effect.name == Effect.LEECH) leech += Effect.LEECH_PER_LEVEL * effect.level;
-						else if(effect.name == Effect.STUPEFY) stun += Effect.STUPEFY_PER_LEVEL * effect.level;
+						else if(effect.name == Effect.STUN) stun += Effect.STUN_PER_LEVEL * effect.level;
 					}
 				}
 				
@@ -230,11 +230,6 @@
 				position = stats["armour positions"][name];
 				
 				// special effects
-				if(name == BLOOD){
-					leech = Effect.LEECH_PER_LEVEL * level;
-				} else {
-					leech = 0;
-				}
 				if(name == BEES){
 					thorns = Effect.THORNS_PER_LEVEL * level;
 				} else if(name == KNIVES){
@@ -245,7 +240,6 @@
 				if(effects){
 					for(i = 0; i < effects.length; i++){
 						effect = effects[i];
-						if(effect.name == Effect.LEECH) leech += Effect.LEECH_PER_LEVEL * effect.level;
 						if(effect.name == Effect.THORNS) thorns += Effect.THORNS_PER_LEVEL * effect.level;
 					}
 				}
@@ -316,8 +310,8 @@
 				return;
 			}
 			location = INVENTORY;
-			if(character is Player){
-				game.menu.inventoryList.addItem(this);
+			if(character is Player || character is Minion){
+				game.menu.inventoryList.addItem(this, autoEquip);
 				if(print) game.console.print("picked up " + nameToString());
 			} else character.loot.push(this);
 			gfx.filters = [];
@@ -343,7 +337,7 @@
 		/* Increases current level of item and sets attributes accordingly */
 		public function levelUp(n:int = 1):void{
 			if(!(type == WEAPON || type == ARMOUR)) return;
-			if(level + n < Game.MAX_LEVEL){
+			if(level + n <= Game.MAX_LEVEL){
 				level += 1;
 			}
 			setStats();
@@ -358,7 +352,16 @@
 		
 		/* Can this item be enchanted? */
 		public function enchantable(runeName:int):Boolean{
-			if(runeName == XP && level == Game.MAX_LEVEL) return false;
+			if(level == Game.MAX_LEVEL && (
+				runeName == XP ||
+				(
+					runeName == LEECH_RUNE &&
+					(
+						(type == WEAPON && name == LEECH_WEAPON) ||
+						(type == ARMOUR && name == BLOOD)
+					)
+				)
+			)) return false;
 			else if(runeName == PORTAL && (game.dungeon.level == 0 || game.dungeon.type == Map.ITEM_DUNGEON)) return false;
 			if(!effects) return true;
 			for(var i:int = 0; i < effects.length; i++){
@@ -393,7 +396,6 @@
 		/* Adds special abilities to a Character when equipped */
 		public function addBuff(character:Character):void{
 			var i:int, brain:Brain;
-			if(leech) character.leech += leech;
 			if(thorns) character.thorns += thorns;
 			if(type == ARMOUR){
 				if(name == GOGGLES){
@@ -425,7 +427,6 @@
 		
 		/* Removes previously added abilities from a Character */
 		public function removeBuff(character:Character):void{
-			if(leech) character.leech -= leech;
 			if(thorns){
 				character.thorns -= thorns;
 			}

@@ -81,7 +81,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 306;
+		public static const BUILD_NUM:int = 308;
 		
 		public static var game:Game;
 		public static var renderer:Renderer;
@@ -297,6 +297,68 @@
 			SoundManager.addSound(new StarSound3, "star3", 0.05);
 			SoundManager.addSound(new StarSound4, "star4", 0.05);
 			
+			// voices
+			SoundManager.addSound(new BansheeSound01, "Balrog1", 0.5);
+			SoundManager.addSound(new BansheeSound02, "Balrog2", 0.5);
+			SoundManager.addSound(new BansheeSound03, "Balrog3", 0.5);
+			SoundManager.addSound(new BansheeSound01, "Banshee1", 0.5);
+			SoundManager.addSound(new BansheeSound02, "Banshee2", 0.5);
+			SoundManager.addSound(new BansheeSound03, "Banshee3", 0.5);
+			SoundManager.addSound(new CactuarSound01, "Cactuar1", 0.5);
+			SoundManager.addSound(new CactuarSound02, "Cactuar2", 0.5);
+			SoundManager.addSound(new CactuarSound03, "Cactuar3", 0.5);
+			SoundManager.addSound(new DrowSound01, "Drow1", 0.5);
+			SoundManager.addSound(new DrowSound02, "Drow2", 0.5);
+			SoundManager.addSound(new DrowSound03, "Drow3", 0.5);
+			SoundManager.addSound(new DrowSound04, "Drow4", 0.5);
+			SoundManager.addSound(new GnollSound01, "Gnoll1", 0.5);
+			SoundManager.addSound(new GnollSound02, "Gnoll2", 0.5);
+			SoundManager.addSound(new GnollSound03, "Gnoll3", 0.5);
+			SoundManager.addSound(new GoblinSound01, "Goblin1", 0.5);
+			SoundManager.addSound(new GoblinSound02, "Goblin2", 0.5);
+			SoundManager.addSound(new GoblinSound03, "Goblin3", 0.5);
+			SoundManager.addSound(new GolemSound01, "Golem1", 0.5);
+			SoundManager.addSound(new GolemSound02, "Golem2", 0.5);
+			SoundManager.addSound(new GolemSound03, "Golem3", 0.5);
+			SoundManager.addSound(new KoboldSound01, "Kobold1", 0.5);
+			SoundManager.addSound(new KoboldSound02, "Kobold2", 0.5);
+			SoundManager.addSound(new KoboldSound03, "Kobold3", 0.5);
+			SoundManager.addSound(new GorgonSound01, "Gorgon1", 0.5);
+			SoundManager.addSound(new GorgonSound02, "Gorgon2", 0.5);
+			SoundManager.addSound(new GorgonSound03, "Gorgon3", 0.5);
+			SoundManager.addSound(new MindflayerSound01, "Mindflayer1", 0.5);
+			SoundManager.addSound(new MindflayerSound02, "Mindflayer2", 0.5);
+			SoundManager.addSound(new MindflayerSound03, "Mindflayer3", 0.5);
+			SoundManager.addSound(new NagaSound01, "Naga1", 0.5);
+			SoundManager.addSound(new NagaSound02, "Naga2", 0.5);
+			SoundManager.addSound(new NagaSound03, "Naga3", 0.5);
+			SoundManager.addSound(new NymphSound01, "Nymph1", 0.5);
+			SoundManager.addSound(new NymphSound02, "Nymph2", 0.5);
+			SoundManager.addSound(new NymphSound03, "Nymph3", 0.5);
+			SoundManager.addSound(new OrcSound01, "Orc1", 0.5);
+			SoundManager.addSound(new OrcSound02, "Orc2", 0.5);
+			SoundManager.addSound(new OrcSound03, "Orc3", 0.5);
+			SoundManager.addSound(new RakshasaSound01, "Rakshasa1", 0.5);
+			SoundManager.addSound(new RakshasaSound02, "Rakshasa2", 0.5);
+			SoundManager.addSound(new RakshasaSound03, "Rakshasa3", 0.5);
+			SoundManager.addSound(new TrollSound01, "Troll1", 0.5);
+			SoundManager.addSound(new TrollSound02, "Troll2", 0.5);
+			SoundManager.addSound(new TrollSound03, "Troll3", 0.5);
+			SoundManager.addSound(new UmberHulkSound01, "UmberHulk1", 0.5);
+			SoundManager.addSound(new UmberHulkSound02, "UmberHulk2", 0.5);
+			SoundManager.addSound(new UmberHulkSound03, "UmberHulk3", 0.5);
+			SoundManager.addSound(new UmberHulkSound04, "UmberHulk4", 0.5);
+			SoundManager.addSound(new VampireSound01, "Vampire1", 0.5);
+			SoundManager.addSound(new VampireSound02, "Vampire2", 0.5);
+			SoundManager.addSound(new VampireSound03, "Vampire3", 0.5);
+			SoundManager.addSound(new WerewolfSound01, "Werewolf1", 0.5);
+			SoundManager.addSound(new WerewolfSound02, "Werewolf2", 0.5);
+			SoundManager.addSound(new WerewolfSound03, "Werewolf3", 0.5);
+			SoundManager.addSound(new WraithSound01, "Wraith1", 0.5);
+			SoundManager.addSound(new WraithSound02, "Wraith2", 0.5);
+			SoundManager.addSound(new WraithSound03, "Wraith3", 0.5);
+			
+			// music
 			SoundManager.addSound(new IntroMusicSound, "introMusic", 1.0);
 			SoundManager.addSound(new DungeonsMusicSound, "dungeonsMusic", 1.0);
 			SoundManager.addSound(new SewersMusicSound, "sewersMusic", 1.0);

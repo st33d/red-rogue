@@ -65,6 +65,8 @@
 		public var infravisionRenderState:int;
 		public var characterNum:int;
 		public var missileFilter:int;
+		public var quickenQueued:Boolean;
+		public var voice:Array;
 		
 		// stats
 		public var speed:Number;
@@ -215,6 +217,7 @@
 			mapProperties = 0;
 			callMain = true;
 			inTheDark = false;
+			quickenQueued = false;
 			missileIgnore = Collider.LADDER | Collider.LEDGE | Collider.CORPSE | Collider.ITEM | Collider.HEAD;
 			uniqueNameStr = null;
 			
@@ -244,6 +247,7 @@
 			knockback = stats["knockbacks"][name] * KNOCKBACK_DIST;
 			endurance = stats["endurances"][name];
 			undead = stats["undeads"][name] == 1;
+			voice = stats["voices"][name];
 			debrisType = Renderer.BLOOD;
 			losBorder = Brain.DEFAULT_LOS_BORDER;
 			speedModifier = 1;
@@ -382,6 +386,11 @@
 			if(moveSpeedTemp < MIN_SPEED_MODIFIER) moveSpeedTemp = MIN_SPEED_MODIFIER;
 			if(moveSpeedTemp > MAX_SPEED_MODIFIER) moveSpeedTemp = MAX_SPEED_MODIFIER;
 			
+			// is the character queued to quicken?
+			if(quickenQueued && (state == WALKING || state == LUNGING || state == STUNNED)){
+				quicken();
+			}
+			
 			// react to direction state
 			if(state == WALKING){
 				if(collider.state == Collider.STACK || collider.state == Collider.FALL) moving = Boolean(dir & (LEFT | RIGHT));
@@ -449,18 +458,23 @@
 									if(target.protectionModifier < 1){
 										hitDamage *= target.protectionModifier < MIN_PROTECTION_MODIFIER ? MIN_PROTECTION_MODIFIER : target.protectionModifier;
 									}
+									// crit multiplier
 									if(hitResult & CRITICAL) hitDamage *= 2;
 									// rogue's backstab multiplier
 									if(name == ROGUE && (looking & (LEFT | RIGHT)) == (target.looking & (LEFT | RIGHT))){
 										hitDamage *= 2;
 										renderer.createDebrisRect(target.collider, (looking & (LEFT | RIGHT)) == RIGHT ? 8 : -8, 30, target.debrisType);
 									}
-									target.applyDamage(hitDamage, nameToString(), hitKnockback, Boolean(hitResult & CRITICAL), this);
 									// leech
-									if(leech){
-										var leechValue:Number = leech > 1 ? 1 : leech;
-										applyHealth(leechValue * hitDamage);
+									if((leech || (weapon && weapon.leech)) && !(target.armour && target.armour.name == Item.BLOOD) && !(target.type & STONE)){
+										var leechValue:Number = leech + (weapon ? weapon.leech : 0);
+										if(leechValue > 1) leechValue = 1;
+										leechValue *= hitDamage;
+										if(leechValue > target.health) leechValue = target.health;
+										applyHealth(leechValue);
 									}
+									// damage applied
+									target.applyDamage(hitDamage, nameToString(), hitKnockback, Boolean(hitResult & CRITICAL), this);
 									// thorns
 									if(target.thorns){
 										renderer.createDebrisRect(collider, 0, 10, debrisType);
@@ -696,16 +710,20 @@
 			level++;
 			setStats();
 			applyHealth(totalHealth);
-			quicken();
+			// quickening whilst using a portal crashes the character, it must be queued till the character is free
+			quickenQueued = true;
 		}
 		
 		/* This method kicks off a character's quickening state. Whilst a character quickens, they
 		 * send out lightning bolts from their hands and float up to the ceiling */
 		public function quicken():void{
+			quickenQueued = false;
 			state = QUICKENING;
 			dir = RIGHT;
 			collider.divorce();
 			quickeningCount = QUICKENING_DELAY;
+			stunCount = 0;
+			attackCount = 1;
 			game.soundQueue.addRandom("quickening", QUICKENING_SOUNDS);
 		}
 		
@@ -862,9 +880,9 @@
 					missileMc = item.gfx;
 					item.gfx.visible = true;
 					item.autoEquip = true;
+					if(item.gfx is ItemMovieClip) (item.gfx as ItemMovieClip).setThrowRender();
 					if(item.name == Item.CHAKRAM){
 						reflections = CHAKRAM_REFLECTIONS;
-						((item.gfx as ItemMovieClip).gfx as MovieClip).gotoAndPlay(1);
 					}
 				// we can only get here if the main weapon is a missile weapon
 				} else {
@@ -988,7 +1006,7 @@
 				
 			// stun attack
 			} else if(name == GORGON){
-				effect = new Effect(Effect.STUPEFY, level, Effect.THROWN, target);
+				effect = new Effect(Effect.STUN, level, Effect.THROWN, target);
 				
 			// confuse attack
 			} else if(name == UMBER_HULK){

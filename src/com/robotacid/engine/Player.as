@@ -11,6 +11,7 @@
 	import com.robotacid.engine.Character;
 	import com.robotacid.phys.Collider;
 	import com.robotacid.sound.SoundManager;
+	import com.robotacid.ui.menu.GameMenu;
 	import com.robotacid.ui.menu.InventoryMenuList;
 	import com.robotacid.util.HiddenInt;
 	import com.robotacid.util.HiddenNumber;
@@ -398,11 +399,11 @@
 					!indifferent &&
 					(
 						(weapon && weapon.range & Item.MISSILE) ||
-						(throwable && throwable.curseState != Item.CURSE_REVEALED)
+						(throwable && !(throwable.curseState == Item.CURSE_REVEALED && !undead))
 					)
 				);
 				if(game.menu.missileOption.active){
-					game.menu.missileOption.state = throwable ? 1 : 0;
+					game.menu.missileOption.state = throwable ? GameMenu.THROW : GameMenu.SHOOT;
 				}
 			}
 			inventory.updateItem(item);
@@ -452,7 +453,7 @@
 		}
 		
 		override public function applyDamage(n:Number, source:String, knockback:Number = 0, critical:Boolean = false, aggressor:Character = null, defaultSound:Boolean = true):void {
-			super.applyDamage(n, source, knockback, critical);
+			super.applyDamage(n, source, knockback, critical, aggressor, defaultSound);
 			game.playerHealthBar.setValue(health, totalHealth);
 		}
 		
@@ -475,6 +476,18 @@
 			if(game.minion) game.minion.levelUp();
 			game.levelNumGfx.gotoAndStop(level);
 		}
+		
+		override public function changeName(name:int, gfx:MovieClip = null):void {
+			super.changeName(name, gfx);
+			// a change to the undead stat affects throwables
+			if(throwable){
+				game.menu.missileOption.active = (
+					!indifferent && !(throwable.curseState == Item.CURSE_REVEALED && !undead)
+				);
+				game.menu.missileOption.state = GameMenu.THROW;
+			}
+		}
+		
 		/* Adds a trap that the rogue could possibly disarm and updates the menu */
 		public function addDisarmableTrap(trap:Trap):void{
 			disarmableTraps.push(trap);

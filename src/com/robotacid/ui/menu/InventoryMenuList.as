@@ -168,7 +168,7 @@
 		}
 		
 		/* Adds a new menu item and selects that item on the MenuList */
-		public function addItem(item:Item):Item{
+		public function addItem(item:Item, visited:Boolean = false):Item{
 			var equipmentOption:MenuOptionStack, itemOption:MenuOptionStack, usageOptions:MenuList, i:int, context:String;
 			
 			var targetList:MenuList;
@@ -186,7 +186,7 @@
 				targetList = heartsList;
 				targetOption = heartsOption;
 			}
-			targetOption.visited = false;
+			if(!visited) targetOption.visited = false;
 			
 			if(item.type == Item.RUNE || item.type == Item.HEART){
 				// first see if this item can go into an existing stack
@@ -308,6 +308,10 @@
 			} else if(targetList.selection >= targetList.options.length){
 				targetList.selection = targetList.options.length - 1;
 			}
+			
+			// if this is being called from Effect.enchant and there is only one item in the enchantables list
+			// menu.update() will crash the game - walking back to the trunk is necessary
+			if(menu.currentMenuList == equipmentList) while(menu.previousMenuList) menu.stepLeft();
 			
 			menu.update();
 			

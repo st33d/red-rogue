@@ -15,7 +15,7 @@
 		["athame"], ["godhand", "grip"], ["sting", "carnwennan", "werewindle"] , ["plus one"], ["cupid's bow", "pinaka"],
 		["vampire killer", "spelunker's friend"], ["excalibur", "kladenets", "grayswandir", "skofnung", "tyrfing"], ["penetrator", "piercer"] , ["gungnir", "gae bulg", "lugh", "rhongomiant"], ["xena's friend"],
 		["jo", "ruyi jingu bang", "grid's rod"], ["boom ball", "surprise"], ["sarah-jane", "boom-stick"] , ["mjolnir"], ["bullseye", "brahmastra", "saranga", "gandiva"],
-		["dyrnwyn", "bayonetta"], ["reaver"], ["blackthorn", "stallion", "swirl"] , ["shocker", "thunder", "nova spark", "zeus", "vajra"], ["licker", "kiss", "sucky", "fang"]
+		["dyrnwyn", "bayonetta"], ["reaver"], ["blackthorn", "stallion", "swirl"] , ["shocker", "thunder", "nova spark", "zeus", "vajra"], ["licker", "kiss", "sarlak", "fang"]
 	],
 	"unique armour names":[
 		["swarm", "buzz"], ["brisingamen"], ["indy", "spelunker's hat", "archaeologist's hat"] , ["gentleman's pride"], ["apollo"],
@@ -26,7 +26,7 @@
 	"rune names":[
 		"light", "heal", "poison", "identify", "undead",
 		"teleport", "thorns", "null", "portal", "slow",
-		"haste", "protection", "stupefy", "polymorph", "leech",
+		"haste", "protection", "stun", "polymorph", "leech",
 		"xp"
 	],
 	"rune descriptions":[
@@ -38,7 +38,7 @@
 		5, 1, 5, 1, 2,
 		1, 1, 2, 5, 5,
 		1, 4, 2, 1, 2,
-		3, 1, 2, 5, 1
+		3, 1, 2, 5, 5
 	],
 	"weapon damages":[
 		0.15, 0.2, 0.25, 0.4, 0.5,

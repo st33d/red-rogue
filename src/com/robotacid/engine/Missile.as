@@ -188,13 +188,18 @@
 				if(character.protectionModifier < 1){
 					hitDamage *= character.protectionModifier < Character.MIN_PROTECTION_MODIFIER ? Character.MIN_PROTECTION_MODIFIER : character.protectionModifier;
 				}
+				// crit multiplier
 				if(hitResult & Character.CRITICAL) hitDamage *= 2;
-				character.applyDamage(hitDamage, sender.nameToString(), hitKnockback, Boolean(hitResult & Character.CRITICAL));
 				// leech
-				if(sender.leech){
-					var leechValue:Number = sender.leech > 1 ? 1 : sender.leech;
-					sender.applyHealth(leechValue * hitDamage);
+				if((sender.leech || (item.leech)) && !(character.armour && character.armour.name == Item.BLOOD) && !(character.type & Character.STONE)){
+					var leechValue:Number = sender.leech + item.leech;
+					if(leechValue > 1) leechValue = 1;
+					leechValue *= hitDamage;
+					if(leechValue > character.health) leechValue = character.health;
+					sender.applyHealth(leechValue);
 				}
+				// apply damage
+				character.applyDamage(hitDamage, sender.nameToString(), hitKnockback, Boolean(hitResult & Character.CRITICAL));
 				// blood
 				renderer.createDebrisSpurt(collider.x + collider.width * 0.5, collider.y + collider.height * 0.5, dx > 0 ? 5 : -5, 5, character.debrisType);
 				

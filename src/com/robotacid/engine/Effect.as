@@ -48,7 +48,7 @@
 		public static const SLOW:int = Item.SLOW;
 		public static const HASTE:int = Item.HASTE;
 		public static const PROTECTION:int = Item.PROTECTION;
-		public static const STUPEFY:int = Item.STUPEFY;
+		public static const STUN:int = Item.STUN;
 		public static const NULL:int = Item.NULL;
 		public static const IDENTIFY:int = Item.IDENTIFY;
 		public static const CHAOS:int = Item.CHAOS;
@@ -64,11 +64,12 @@
 		/* There are 3 damage reflection opportunities: being a cactuar, the thorns spell, bees and knives armour - knives
 		 * reflect twice as much as bees - so we divide 1.0 by 20 * 4 */
 		public static const THORNS_PER_LEVEL:Number = 0.0125;
-		/* There are 5 health stealing opportunities: being a vampire, the leech weapon, blood armour and leech enchantment
-		 * counts as two - but we're going to treat it as four and divide 1.0 by 20 * 4 */
-		public static const LEECH_PER_LEVEL:Number = 0.0125;
-		/* Max stupefy enchant should add just 0.5 to an item's stun stat */
-		public static const STUPEFY_PER_LEVEL:Number = 1.0 / 40;
+		/* Sources of leech are only from weapons and being a vampire */
+		public static const LEECH_PER_LEVEL:Number = 0.5 / 20;
+		/* Leech enchanted armour reduces maximum health by up to half */
+		public static const LEECH_ARMOUR_PENALTY_PER_LEVEL:Number = 0.5 / 20;
+		/* Max stun enchant should add just 0.5 to an item's stun stat */
+		public static const STUN_PER_LEVEL:Number = 1.0 / 40;
 		/* Min speed is half normal speed */
 		public static const SLOW_PER_LEVEL:Number = 1.0 / 40;
 		/* Max speed is double normal speed */
@@ -141,7 +142,7 @@
 			} else if(name == POISON){
 				if(count){
 					count--;
-					if(!target.undead) target.applyDamage(healthStep, nameToString());
+					if(!target.undead) target.applyDamage(healthStep, nameToString(), 0, false, null, false);
 				} else {
 					if(source == ARMOUR){
 						if(target is Player) game.console.print("the " + nameToString() + " wears off");
@@ -220,10 +221,10 @@
 					teleportCharacter(target);
 					count = (21 - level) * ARMOUR_COUNTDOWN_STEP;
 				}
-			} else if(name == STUPEFY){
-				// stupefy armour is similar to teleport armour in that it stuns you periodically
+			} else if(name == STUN){
+				// stun armour is similar to teleport armour in that it stuns you periodically
 				if(count-- <= 0){
-					target.applyStun(level * STUPEFY_PER_LEVEL);
+					target.applyStun(level * STUN_PER_LEVEL);
 					count = (21 - level) * ARMOUR_COUNTDOWN_STEP;
 				}
 			}
@@ -241,7 +242,7 @@
 			
 			if(name == POLYMORPH){
 				// here we randomise the item
-				// first we pull it out of the menu - randomising its skin is a messy business
+				// first we pull it out of the menu - changing its skin is a messy business
 				if(inventoryList) item = inventoryList.removeItem(item);
 				
 				var newName:int = item.name;
@@ -258,8 +259,7 @@
 				} else {
 					while(newName == item.name) newName = game.random.range(nameRange);
 				}
-				var newGfx:DisplayObject = game.library.getItemGfx(newName, item.type);
-				item.gfx = newGfx;
+				item.gfx = game.library.getItemGfx(newName, item.type);
 				item.name = newName;
 				item.setStats();
 				
@@ -272,6 +272,18 @@
 				while(level--) item.levelUp();
 				if(inventoryList) inventoryList.updateItem(item);
 				return item;
+				
+			} else if(name == LEECH){
+				// leech levels up leeches and curses other items
+				if(item.curseState != Item.BLESSED) item.applyCurse();
+				if(
+					(item.type == Item.WEAPON && item.name == Item.LEECH_WEAPON) ||
+					(item.type == Item.ARMOUR && item.name == Item.BLOOD)
+				){
+					while(level--) item.levelUp();
+					if(inventoryList) inventoryList.updateItem(item);
+					return item;
+				}
 				
 			} else if(name == PORTAL){
 				// create an item portal and send the item into the level it leads to
@@ -286,12 +298,20 @@
 				return item;
 				
 			} else if(name == NULL){
-				// kill leeches - they are magical
+				// leech weapons become blood armour
 				if(item.name == Item.LEECH_WEAPON){
+					// first we pull it out of the menu - changing its skin is a messy business
 					if(inventoryList) item = inventoryList.removeItem(item);
-					item.location = Item.UNASSIGNED;
+					item.type = Item.ARMOUR;
+					item.name = Item.BLOOD;
+					item.gfx = game.library.getItemGfx(Item.BLOOD, Item.ARMOUR);
+					if(item.curseState == Item.CURSE_REVEALED || item.curseState == Item.CURSE_HIDDEN) item.curseState = Item.NO_CURSE;
+					item.setStats();
+					// now we try putting it back in
+					if(inventoryList) inventoryList.addItem(item);
+					game.console.print("blood armour created");
 					if(user) renderer.createDebrisRect(user.collider, 0, 10, Renderer.BLOOD);
-					game.console.print("leech was destroyed by anti-magic");
+					
 				} else {
 					// strip all enchantments
 					item.effects = null;
@@ -351,15 +371,16 @@
 			
 			// non-applicable enchantments merely alter a stat on an item, they don't transmit effect objects to the target
 			if(name == LEECH){
-				applicable = false;
-				item.setStats();
-				
+				if(item.type == Item.WEAPON){
+					applicable = false;
+					item.setStats();
+				}
 			} else if(name == THORNS){
 				if(item.type == Item.ARMOUR){
 					applicable = false;
 					item.setStats();
 				}
-			} else if(name == STUPEFY){
+			} else if(name == STUN){
 				if(item.type == Item.WEAPON){
 					applicable = false;
 					item.setStats();
@@ -484,15 +505,15 @@
 					return;
 				}
 				
-			} else if(name == STUPEFY){
-				// stupefy enchanted armour will periodically stun the wearer - the stronger the effect
+			} else if(name == STUN){
+				// stun enchanted armour will periodically stun the wearer - the stronger the effect
 				// the more frequently it occurs
 				if(source == ARMOUR){
 					count = (21 - level) * ARMOUR_COUNTDOWN_STEP;
 					callMain = true;
 				} else {
 					// stun the target for an extra long duration
-					target.applyStun(STUPEFY_PER_LEVEL * level * 2);
+					target.applyStun(STUN_PER_LEVEL * level * 2);
 					return;
 				}
 				
@@ -531,8 +552,15 @@
 					item.collect(target, false);
 					if(target.weapon) target.unequip(target.weapon);
 					target.equip(item);
+					return;
+					
+				} else if(source == ARMOUR){
+					target.totalHealth = (Character.stats["healths"][target.name] + Character.stats["health levels"][target.name] * target.level) * (1.0 - LEECH_ARMOUR_PENALTY_PER_LEVEL * level);
+					if(target.health > target.totalHealth) target.health = target.totalHealth;
+					if(target == game.player) game.playerHealthBar.setValue(target.health, target.totalHealth);
+					else if(target == game.minion) game.minionHealthBar.setValue(target.health, target.totalHealth);
+					if(target == game.player || target == game.minion) game.console.print(target.nameToString() + " max health reduced");
 				}
-				return;
 				
 			} else if(name == THORNS){
 				if(source == EATEN || source == THROWN || source == WEAPON){
@@ -612,6 +640,7 @@
 			if(name == LIGHT){
 				var radius:int = Math.ceil(level * 0.5);
 				game.lightMap.setLight(target, target.light - radius, target is Player ? 255 : 150);
+				
 			} else if(name == UNDEAD){
 				// this rune's effect comes in to play when the target is killed and is not undead
 				// face armour complicates this a little
@@ -671,6 +700,15 @@
 				}
 				// remove floating point errors
 				if(Math.abs(target.protectionModifier - 1) < 0.00001) target.protectionModifier = 1;
+				
+			} else if(name == LEECH){
+				if(source == ARMOUR){
+					target.totalHealth = Character.stats["healths"][target.name] + Character.stats["health levels"][target.name] * target.level;
+					if(target == game.player) game.playerHealthBar.setValue(target.health, target.totalHealth);
+					else if(target == game.minion) game.minionHealthBar.setValue(target.health, target.totalHealth);
+					if(target == game.player || target == game.minion) game.console.print(target.nameToString() + " max health restored");
+				}
+				
 			}
 			active = false;
 			
