@@ -363,6 +363,12 @@
 							inventoryList.equipMinionOption.active = false;
 						}
 					}
+					// no re-equipping indifference
+					if(item.name == Item.INDIFFERENCE && item.user){
+						if(item.user == game.player) inventoryList.equipMinionOption.active = false;
+						else if(item.user == game.minion) inventoryList.equipOption.active = false;
+					}
+					
 					inventoryList.dropOption.active = game.player.undead || item.curseState != Item.CURSE_REVEALED;
 					
 				} else if(item.type == Item.HEART){

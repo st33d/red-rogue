@@ -724,7 +724,10 @@
 			quickeningCount = QUICKENING_DELAY;
 			stunCount = 0;
 			attackCount = 1;
-			game.soundQueue.addRandom("quickening", QUICKENING_SOUNDS);
+			// since the minion and player quicken together, we try to avoid phased sound effects
+			if(!(this == game.minion && game.player.state == QUICKENING)){
+				game.soundQueue.addRandom("quickening", QUICKENING_SOUNDS);
+			}
 		}
 		
 		/* Used to auto-center when climbing */

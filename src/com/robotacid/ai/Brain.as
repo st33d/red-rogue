@@ -55,12 +55,14 @@
 		public static var playerCharacters:Vector.<Character>;
 		public static var monsterCharacters:Vector.<Character>;
 		public static var dungeonGraph:DungeonGraph;
+		public static var voiceCount:int;
 		
 		private static var start:Node;
 		private static var node:Node;
 		private static var path:Vector.<Node>;
 		private static var charPos:Point = new Point();
 		private static var scheduleTargetPos:Point = new Point();
+		private static var voiceDist:int;
 		
 		// alliegances
 		public static const PLAYER:int = 0;
@@ -82,6 +84,10 @@
 		// scale constants
 		public static const SCALE:Number = Game.SCALE;
 		public static const INV_SCALE:Number = Game.INV_SCALE;
+		
+		public static const VOICE_DELAY:int = 30;
+		public static const VOICE_DIST_MAX:int = 12;
+		public static const INV_VOICE_DIST_MAX:Number = 1.0 / VOICE_DIST_MAX;
 		
 		public static const MONSTER_SEARCH_STEPS:int = 14;
 		public static const MINION_SEARCH_STEPS:int = 20;
@@ -172,6 +178,11 @@
 							count = delay + game.random.range(delay);
 							state = PAUSE;
 							char.actions = char.dir = 0;
+							// monsters will vocalise when they have finished pausing
+							if(voiceCount == 0){
+								voiceDist = Math.abs(game.player.mapX - char.mapX) + Math.abs(game.player.mapY - char.mapY);
+								if(voiceDist < VOICE_DIST_MAX) speak(char.voice, voiceDist);
+							}
 						}
 					} else if(allegiance == PLAYER){
 						if(game.player.state != Character.QUICKENING) follow(leader);
@@ -213,6 +224,11 @@
 									state = ATTACK;
 									target = scheduleTarget;
 									count = 0;
+									// characters will vocalise when they see a target
+									if(voiceCount == 0){
+										voiceDist = Math.abs(game.player.mapX - char.mapX) + Math.abs(game.player.mapY - char.mapY);
+										if(voiceDist < VOICE_DIST_MAX) speak(char.voice, voiceDist);
+									}
 								}
 							}
 						}
@@ -566,6 +582,12 @@
 				}
 				
 			}
+		}
+		
+		/* Triggers a sample representing the character grunting something */
+		public function speak(voice:Array, dist:int):void{
+			game.soundQueue.addRandom("voice", voice, (VOICE_DIST_MAX - dist) * INV_VOICE_DIST_MAX);
+			voiceCount = VOICE_DELAY + game.random.range(VOICE_DELAY);
 		}
 		
 		/* Scan the floor about the character to establish an area to tread

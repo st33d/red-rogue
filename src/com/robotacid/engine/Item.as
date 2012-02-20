@@ -373,6 +373,8 @@
 		/* Turns this item into a cursed item - it cannot be unequipped by the player other than through Effects */
 		public function applyCurse():void{
 			if(curseState == CURSE_REVEALED || curseState == BLESSED) return;
+			// no cursed indifference - that would be silly
+			if(type == ARMOUR && name == INDIFFERENCE) return;
 			
 			curseState = CURSE_HIDDEN;
 			

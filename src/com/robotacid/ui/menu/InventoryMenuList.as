@@ -374,7 +374,7 @@
 		}
 		
 		private function getArmourValue(item:Item):Number{
-			return item.defence * 10 + item.endurance + item.thorns + item.leech;
+			return item.defence * 10 + item.endurance + item.thorns;
 		}
 	}
 
