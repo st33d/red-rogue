@@ -81,7 +81,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 309;
+		public static const BUILD_NUM:int = 310;
 		
 		public static var game:Game;
 		public static var renderer:Renderer;
@@ -275,7 +275,7 @@
 			SoundManager.addSound(new PortalOpenSound, "portalOpen", 0.8);
 			SoundManager.addSound(new QuickeningSound1, "quickening1", 0.8);
 			SoundManager.addSound(new QuickeningSound2, "quickening2", 0.8);
-			SoundManager.addSound(new QuickeningSound3, "quickening3", 0.5);
+			SoundManager.addSound(new QuickeningSound3, "quickening3", 0.6);
 			SoundManager.addSound(new RatDeathSound1, "ratDeath1", 0.2);
 			SoundManager.addSound(new RatDeathSound2, "ratDeath2", 0.2);
 			SoundManager.addSound(new RatDeathSound3, "ratDeath3", 0.2);
@@ -304,9 +304,9 @@
 			SoundManager.addSound(new BansheeSound01, "Banshee1", 0.4);
 			SoundManager.addSound(new BansheeSound02, "Banshee2", 0.4);
 			SoundManager.addSound(new BansheeSound03, "Banshee3", 0.4);
-			SoundManager.addSound(new CactuarSound01, "Cactuar1", 0.4);
-			SoundManager.addSound(new CactuarSound02, "Cactuar2", 0.4);
-			SoundManager.addSound(new CactuarSound03, "Cactuar3", 0.4);
+			SoundManager.addSound(new CactuarSound01, "Cactuar1", 1.5);
+			SoundManager.addSound(new CactuarSound02, "Cactuar2", 1.5);
+			SoundManager.addSound(new CactuarSound03, "Cactuar3", 1.5);
 			SoundManager.addSound(new DrowSound01, "Drow1", 0.4);
 			SoundManager.addSound(new DrowSound02, "Drow2", 0.4);
 			SoundManager.addSound(new DrowSound03, "Drow3", 0.4);
@@ -332,9 +332,9 @@
 			SoundManager.addSound(new NagaSound01, "Naga1", 0.4);
 			SoundManager.addSound(new NagaSound02, "Naga2", 0.4);
 			SoundManager.addSound(new NagaSound03, "Naga3", 0.4);
-			SoundManager.addSound(new NymphSound01, "Nymph1", 0.4);
-			SoundManager.addSound(new NymphSound02, "Nymph2", 0.4);
-			SoundManager.addSound(new NymphSound03, "Nymph3", 0.4);
+			SoundManager.addSound(new NymphSound01, "Nymph1", 0.2);
+			SoundManager.addSound(new NymphSound02, "Nymph2", 0.2);
+			SoundManager.addSound(new NymphSound03, "Nymph3", 0.2);
 			SoundManager.addSound(new OrcSound01, "Orc1", 0.4);
 			SoundManager.addSound(new OrcSound02, "Orc2", 0.4);
 			SoundManager.addSound(new OrcSound03, "Orc3", 0.4);

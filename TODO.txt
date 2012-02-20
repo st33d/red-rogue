@@ -1,20 +1,12 @@
-Change log: fixed armour sorting bug caused by removal of leech on armour, added vocalisations to monsters at end of pause and on sighting an enemy, cursed indifference prevented, bricked re-equipping indifference to another character whilst worn
+Change log: decreased nymph voice volume, increased cactuar voice volume, fixed bug where chaos wall placement would delete level content, removed mouse-missile-runes, healstone and grindstone alchemy
 
 Bug hunt
 	collection lock out on chests after playing for a while - bugged chest or item?
-	
-vocalisations
-	in Brain class
-		create voice
-	create vocal manager? or Brain wide static cool down?
+	missile filter probable ineffective - test
 
 make console print outs for effects optional (due to dismiss-apply chains when changing race)
 
-brick indifference equip on minion when worn and vice versa
-
 konami code for lives
-
-heal stone and grindstone created by heal and xp runes
 
 remove editor render layer when not in use
 

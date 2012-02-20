@@ -875,6 +875,7 @@
 			var missileMc:DisplayObject;
 			var item:Item;
 			var reflections:int = 0;
+			var alchemical:Boolean = false;
 			if(type == Missile.ITEM){
 				if(throwable){
 					item = unequip(throwable);
@@ -895,6 +896,10 @@
 			} else if(type == Missile.RUNE){
 				missileMc = new ThrownRuneMC();
 				item = rune;
+				alchemical = (
+					item.name == Item.HEAL ||
+					item.name == Item.XP
+				);
 			}
 			if(type == Missile.ITEM) {
 				game.soundQueue.add("bowShoot");
@@ -903,7 +908,7 @@
 				reflections = RUNE_REFLECTIONS;
 			}
 			missileMc.scaleX = (looking & RIGHT) ? 1 : -1;
-			var missile:Missile = new Missile(missileMc, collider.x + collider.width * 0.5, collider.y + collider.height * 0.5, type, this, (looking & RIGHT) ? 1 : -1, 0, 5, missileIgnore, effect, item, null, reflections, brain.firingTeam);
+			var missile:Missile = new Missile(missileMc, collider.x + collider.width * 0.5, collider.y + collider.height * 0.5, type, this, (looking & RIGHT) ? 1 : -1, 0, 5, missileIgnore, effect, item, null, reflections, brain.firingTeam, alchemical);
 		}
 		
 		/* Adds damage to the Character */

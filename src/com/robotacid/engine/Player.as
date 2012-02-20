@@ -229,6 +229,7 @@
 						game.menu.inventoryOption.active = Boolean(game.menu.inventoryList.options.length);
 						game.menu.update();
 					}
+					
 				} else {
 					// check for portals
 					var portal:Portal;

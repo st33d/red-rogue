@@ -1,6 +1,9 @@
 ﻿package com.robotacid.engine {
 	import com.robotacid.ai.Brain;
+	import com.robotacid.gfx.BlitRect;
 	import com.robotacid.gfx.BlitSprite;
+	import com.robotacid.gfx.FadingBlitRect;
+	import com.robotacid.gfx.Renderer;
 	import com.robotacid.phys.Cast;
 	import com.robotacid.phys.Collider;
 	import com.robotacid.sound.SoundManager;
@@ -24,6 +27,7 @@
 		public var item:Item;
 		public var clipRect:Rectangle;
 		public var reflections:int;
+		public var alchemical:Boolean;
 		
 		private var offsetX:Number;
 		private var offsetY:Number;
@@ -36,7 +40,11 @@
 		public static const RUNE:int = 2;
 		public static const DART:int = 3;
 		
-		public function Missile(mc:DisplayObject, x:Number, y:Number, type:int, sender:Character, dx:Number, dy:Number, speed:Number, ignore:int = 0, effect:Effect = null, item:Item = null, clipRect:Rectangle = null, reflections:int = 0, firingTeam:int = 0) {
+		public function Missile(
+			mc:DisplayObject, x:Number, y:Number, type:int, sender:Character, dx:Number, dy:Number, speed:Number,
+			ignore:int = 0, effect:Effect = null, item:Item = null, clipRect:Rectangle = null, reflections:int = 0,
+			firingTeam:int = 0, alchemical:Boolean = false
+		){
 			super(mc, true);
 			this.type = type;
 			this.sender = sender;
@@ -47,6 +55,7 @@
 			this.item = item;
 			this.clipRect = clipRect;
 			this.reflections = reflections;
+			this.alchemical = alchemical;
 			callMain = true;
 			offsetX = 0;
 			offsetY = 0;
@@ -131,21 +140,11 @@
 						else kill();
 					}
 				} else {
-					if(reflections) reflect();
+					if(alchemical && transmutable(mapX + (dx > 0 ? 1 : -1), mapY)) alchemy(mapX + (dx > 0 ? 1 : -1), mapY)
+					else if(reflections) reflect();
 					else kill();
 				}
 			} else {
-				// check runes for proximity to the mouse for conversion to MouseMissile
-				if(type == RUNE){
-					var mouseVx:Number = renderer.canvas.mouseX - collider.x;
-					var mouseVy:Number = renderer.canvas.mouseY - collider.y;
-					if(mouseVx * mouseVx + mouseVy * mouseVy <= speed){
-						var mouseMissile:MouseMissile = new MouseMissile(gfx, collider.x, collider.y, type, collider.ignoreProperties, effect);
-						collider.world.removeCollider(collider);
-						active = false;
-						return;
-					}
-				}
 				// repair contact filter from failed hits
 				collider.ignoreProperties &= ~(Collider.SOLID);
 				
@@ -159,6 +158,67 @@
 					}
 				}
 			}
+		}
+		
+		/* Can the map location be converted to a Stone? */
+		public function transmutable(mapX:int, mapY:int):Boolean{
+			var trap:Trap;
+			var rect:Rectangle = new Rectangle(mapX * SCALE, mapY * SCALE, SCALE, SCALE);
+			for(var i:int = 0; i < game.entities.length; i++){
+				trap = game.entities[i] as Trap;
+				if(trap){
+					if(trap.type == Trap.PIT && trap.rect.intersects(rect)) return false;
+				}
+			}
+			return (
+				!(game.world.map[mapY][mapX] & (Collider.CHAOS | Collider.STONE)) &&
+				game.world.getCollidersIn(rect, collider).length == 0 &&
+				!game.mapTileManager.mapLayers[MapTileManager.ENTITY_LAYER][mapY][mapX]
+			)
+		}
+		
+		/* Converts a wall */
+		public function alchemy(mapX:int, mapY:int):void{
+			if(effect){
+				var entity:ColliderEntity;
+				var blit:BlitRect;
+				var print:FadingBlitRect;
+				var debrisType:int;
+				
+				if(effect.name == Effect.HEAL){
+					entity = new Stone(mapX * SCALE, mapY * SCALE, Stone.HEAL);
+					game.console.print("healstone created");
+					debrisType = Renderer.BLOOD;
+					
+				} else if(effect.name == Effect.XP){
+					entity = new Stone(mapX * SCALE, mapY * SCALE, Stone.GRIND);
+					game.console.print("grindstone created");
+					debrisType = Renderer.STONE;
+				}
+				entity.mapX = mapX;
+				entity.mapY = mapY;
+				entity.mapZ = MapTileManager.ENTITY_LAYER;
+				game.mapTileManager.addTile(entity, mapX, mapY, MapTileManager.ENTITY_LAYER);
+				game.world.restoreCollider(entity.collider);
+				
+				renderer.createDebrisRect(entity.collider, 0, 30, debrisType);
+				for(var i:int = 0; i < 30; i++){
+					if(game.random.value() < 0.5){
+						blit = renderer.smallDebrisBlits[debrisType];
+						print = renderer.smallFadeBlits[debrisType];
+					} else {
+						blit = renderer.bigDebrisBlits[debrisType];
+						print = renderer.bigFadeBlits[debrisType];
+					}
+					renderer.addDebris(entity.collider.x + game.random.range(entity.collider.width), entity.collider.y + entity.collider.height, blit, 0, game.random.range(3), print, true);
+					renderer.addDebris(entity.collider.x + entity.collider.width, entity.collider.y + game.random.range(entity.collider.height), blit, -game.random.range(3), 0, print, true);
+					renderer.addDebris(entity.collider.x + game.random.range(entity.collider.width), entity.collider.y - 1, blit, 0, -game.random.range(5), print, true);
+					renderer.addDebris(entity.collider.x - 1, entity.collider.y + game.random.range(entity.collider.height), blit, game.random.range(3), 0, print, true);
+				}
+				game.soundQueue.addRandom("alchemy", Stone.STONE_DEATH_SOUNDS);
+				item = null;
+			}
+			kill();
 		}
 		
 		public function hitCharacter(character:Character, hitResult:int = 0):void{
@@ -245,7 +305,7 @@
 			catchable = true;
 		}
 		
-		public function kill(side:int = 0):void{
+		public function kill():void{
 			if(!active) return;
 			if(type == RUNE || type == DART){
 				renderer.createSparks(collider.x + collider.width * 0.5, collider.y + collider.height * 0.5, -dx, -dy, 10);
