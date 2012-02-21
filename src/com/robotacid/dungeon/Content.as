@@ -344,6 +344,8 @@
 			if(mapType == Map.MAIN_DUNGEON){
 				if(level < portalsByLevel.length){
 					while(portalsByLevel[level].length) list.push(portalsByLevel[level].pop());
+				} else {
+					portalsByLevel[level] = new Vector.<XML>()
 				}
 				
 			} else if(mapType == Map.ITEM_DUNGEON){

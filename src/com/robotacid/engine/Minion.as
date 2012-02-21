@@ -25,6 +25,7 @@
 		public var inventory:InventoryMenuList;
 		
 		public var enterCount:int;
+		public var queueSummons:Boolean;
 		
 		private var minimapFX:MinimapFX;
 		
@@ -46,6 +47,7 @@
 			game.minionHealthBar.visible = true;
 			game.minionHealthBar.setValue(health, totalHealth);
 			game.menu.summonOption.active = true;
+			queueSummons = false;
 			game.menu.update();
 			
 			addMinimapFeature();
@@ -71,8 +73,8 @@
 					return;
 				}
 			}
-			// offscreen check
-			if(!game.mapTileManager.intersects(collider, Game.SCALE * 2)){
+			// summons check
+			if(state == WALKING && (queueSummons || !game.mapTileManager.intersects(collider, Game.SCALE * 2))){
 				teleportToPlayer();
 			}
 			if(state == WALKING) brain.main();
@@ -113,6 +115,7 @@
 		
 		/* This pulls the minion to the vicinity of the player */
 		public function teleportToPlayer():void{
+			queueSummons = false;
 			renderer.createTeleportSparkRect(collider, 20);
 			collider.divorce();
 			collider.x = -collider.width * 0.5 + game.player.collider.x + game.player.collider.width * 0.5;

@@ -4,9 +4,12 @@
 	import com.robotacid.engine.Effect;
 	import com.robotacid.engine.Face;
 	import com.robotacid.engine.Item;
+	import com.robotacid.engine.MapTileConverter;
+	import com.robotacid.engine.MapTileManager;
 	import com.robotacid.engine.Missile;
 	import com.robotacid.engine.Player;
 	import com.robotacid.engine.Portal;
+	import com.robotacid.geom.Pixel;
 	import com.robotacid.gfx.PNGEncoder;
 	import com.robotacid.gfx.Renderer;
 	import com.robotacid.sound.SoundManager;
@@ -43,6 +46,7 @@
 		public var editorList:EditorMenuList;
 		public var giveItemList:GiveItemMenuList;
 		public var changeRaceList:MenuList;
+		public var portalTeleportList:MenuList;
 		public var sureList:MenuList;
 		public var soundList:MenuList;
 		public var menuMoveList:MenuList;
@@ -65,6 +69,7 @@
 		public var giveItemOption:MenuOption;
 		public var changeRogueRaceOption:MenuOption;
 		public var changeMinionRaceOption:MenuOption;
+		public var portalTeleportOption:MenuOption;
 		public var loadOption:MenuOption;
 		public var saveOption:MenuOption;
 		public var newGameOption:MenuOption;
@@ -72,6 +77,11 @@
 		public var dogmaticOption:MenuOption;
 		public var sureOption:MenuOption;
 		public var consoleDirOption:MenuOption;
+		
+		public var stairsUpPortalOption:MenuOption;
+		public var stairsDownPortalOption:MenuOption;
+		public var overworldPortalOption:MenuOption;
+		public var underworldPortalOption:MenuOption;
 		
 		public var steedOption:MenuOption;
 		public var nateOption:MenuOption;
@@ -110,6 +120,7 @@
 			editorList = new EditorMenuList(this, game.editor);
 			giveItemList = new GiveItemMenuList(this, game);
 			changeRaceList = new MenuList();
+			portalTeleportList = new MenuList();
 			soundList = new MenuList();
 			menuMoveList = new MenuList(Vector.<MenuOption>([
 				new MenuOption("1", null, false),
@@ -139,15 +150,23 @@
 			giveItemOption.help = "put a custom item in the player's inventory";
 			giveItemOption.recordable = false;
 			
+			editorOption = new MenuOption("editor", editorList);
+			editorOption.help = "activate the mouse based level editor by walking into this menu. the selection the editor is at will be palette item for the mouse.";
+			editorOption.recordable = false;
 			changeRogueRaceOption = new MenuOption("change rogue race", changeRaceList);
 			changeRogueRaceOption.help = "change the current race of the rogue";
 			changeRogueRaceOption.recordable = false;
 			changeMinionRaceOption = new MenuOption("change minion race", changeRaceList);
 			changeMinionRaceOption.help = "change the current race of the minion";
 			changeMinionRaceOption.recordable = false;
-			editorOption = new MenuOption("editor", editorList);
-			editorOption.help = "activate the mouse based level editor by walking into this menu. the selection the editor is at will be palette item for the mouse.";
-			editorOption.recordable = false;
+			portalTeleportOption = new MenuOption("teleport", portalTeleportList);
+			portalTeleportOption.help = "teleport to a portal - invalid locations will not effect a teleport, this is a debugging feature.";
+			portalTeleportOption.recordable = false;
+			
+			stairsUpPortalOption = new MenuOption("stairs up");
+			stairsDownPortalOption = new MenuOption("stairs down");
+			overworldPortalOption = new MenuOption("overworld");
+			underworldPortalOption = new MenuOption("underworld");
 			
 			exitLevelOption = new MenuOption("exit level", null, false);
 			exitLevelOption.help = "exit this level when standing next to a stairway";
@@ -233,10 +252,16 @@
 			debugList.options.push(giveItemOption);
 			debugList.options.push(changeRogueRaceOption);
 			debugList.options.push(changeMinionRaceOption);
+			debugList.options.push(portalTeleportOption);
 			
 			for(i = 0; i < Character.stats["names"].length; i++){
 				changeRaceList.options.push(new MenuOption(Character.stats["names"][i]));
 			}
+			
+			portalTeleportList.options.push(stairsDownPortalOption);
+			portalTeleportList.options.push(stairsUpPortalOption);
+			portalTeleportList.options.push(overworldPortalOption);
+			portalTeleportList.options.push(underworldPortalOption);
 			
 			creditsList.options.push(steedOption);
 			creditsList.options.push(nateOption);
@@ -639,7 +664,7 @@
 			
 			// summoning
 			} else if(option == summonOption){
-				if(game.minion) game.minion.teleportToPlayer();
+				if(game.minion) game.minion.queueSummons = true;
 			
 			// disarming
 			} else if(option == disarmTrapOption){
@@ -689,6 +714,13 @@
 			// sorting equipment
 			} else if(option == inventoryList.sortOption){
 				inventoryList.sortEquipment();
+				
+			// teleporting
+			} else if(currentMenuList == portalTeleportList){
+				if(option == stairsDownPortalOption) teleportToPortal(Portal.STAIRS, game.dungeon.level + 1);
+				else if(option == stairsUpPortalOption) teleportToPortal(Portal.STAIRS, game.dungeon.level - 1);
+				else if(option == overworldPortalOption) teleportToPortal(Portal.OVERWORLD);
+				else if(option == underworldPortalOption) teleportToPortal(Portal.UNDERWORLD);
 			}
 			
 			// if the menu is open, force a renderer update so the player can see the changes,
@@ -743,6 +775,55 @@
 			Map.seed = uint(inputList.input);
 			trace("new seed: " + Map.random.seed);
 			game.console.print("create a new game to use seed");
+		}
+		
+		/* Teleport the player to a given portal */
+		private function teleportToPortal(type:int, targetLevel:int = 0):void{
+			var i:int, portal:Portal;
+			for(i = 0; i < game.portals.length; i++){
+				portal = game.portals[i];
+				if(
+					portal.type == type &&
+					!(portal.type == Portal.STAIRS && portal.targetLevel != targetLevel)
+				){
+					Effect.teleportCharacter(game.player, new Pixel(portal.mapX, portal.mapY));
+					return;
+				}
+			}
+			// if we are here, then the portal may be out of range or not exist on this level
+			if(type == Portal.STAIRS){
+				// scan the entity layer
+				var r:int, c:int, entity:*;
+				for(r = 0; r < game.dungeon.height; r++){
+					for(c = 0; c < game.dungeon.width; c++){
+						entity = game.mapTileManager.mapLayers[MapTileManager.ENTITY_LAYER][r][c];
+						if(entity){
+							if(entity is Portal){
+								portal = entity as Portal;
+								if(portal.targetLevel == targetLevel){
+									Effect.teleportCharacter(game.player, new Pixel(c, r));
+									return;
+								}
+							} else if(
+								(entity == MapTileConverter.STAIRS_DOWN && targetLevel > game.dungeon.level) ||
+								(entity == MapTileConverter.STAIRS_UP && targetLevel < game.dungeon.level)
+							){
+								Effect.teleportCharacter(game.player, new Pixel(c, r));
+								return;
+							}
+						}
+					}
+				}
+			} else {
+				// the desired portal should be in the portalHash if it exists
+				for(var key:String in game.portalHash){
+					portal = game.portalHash[key];
+					if(portal.type == type){
+						Effect.teleportCharacter(game.player, new Pixel(portal.mapX, portal.mapY));
+						return;
+					}
+				}
+			}
 		}
 		
 	}

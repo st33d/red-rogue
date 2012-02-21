@@ -424,9 +424,17 @@
 			super.death(cause, decapitation);
 			game.soundQueue.add("rogueDeath");
 			if(!active){
-				Brain.playerCharacters.splice(Brain.playerCharacters.indexOf(this), 1);
-				game.menu.death();
-				tidyUp();
+				// is the lives cheat on?
+				if(game.lives){
+					active = true;
+					game.world.restoreCollider(collider);
+					applyHealth(totalHealth);
+					game.loseLife();
+				} else {
+					Brain.playerCharacters.splice(Brain.playerCharacters.indexOf(this), 1);
+					game.menu.death();
+					tidyUp();
+				}
 			}
 			renderer.shake(0, 5);
 		}

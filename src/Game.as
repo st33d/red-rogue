@@ -81,7 +81,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 310;
+		public static const BUILD_NUM:int = 311;
 		
 		public static var game:Game;
 		public static var renderer:Renderer;
@@ -119,6 +119,7 @@
 		public var levelNumGfx:MovieClip;
 		public var minionHealthBar:ProgressBar;
 		public var enemyHealthBar:ProgressBar;
+		public var livesPanel:LivesPanel;
 		public var fpsText:TextBox;
 		
 		// debug
@@ -141,11 +142,10 @@
 		public var shakeDirX:int;
 		public var shakeDirY:int;
 		public var deepestLevelReached:int;
-		public var konamiCode:Boolean = false;
-		public var colossalCaveCode:Boolean = false;
 		public var forceFocus:Boolean = true;
 		public var portalHash:Object;
 		public var dogmaticMode:Boolean;
+		public var lives:int;
 		
 		// temp variables
 		private var i:int;
@@ -417,6 +417,11 @@
 			playerHealthBar.addChild(hpBitmap);
 			playerHealthBar.update();
 			
+			livesPanel = new LivesPanel();
+			livesPanel.x = playerHealthBar.width + 2;
+			livesPanel.visible = false;
+			playerHealthBar.addChild(livesPanel);
+			
 			playerXpBar = new ProgressBar(5, playerHealthBar.y - 7, MiniMap.WIDTH, 6);
 			playerXpBar.barCol = 0xFFCCCCCC;
 			addChild(playerXpBar);
@@ -500,10 +505,9 @@
 			
 			// STATES
 			
-			konamiCode = false;
-			colossalCaveCode = false;
 			frameCount = 1;
 			deepestLevelReached = 1;
+			lives = 0;
 			
 			// LISTS
 			
@@ -886,13 +890,9 @@
 					ProgressBar.glowCount = frameCount % ProgressBar.glowTable.length;
 					
 					// examine the key buffer for cheat codes
-					if(!konamiCode && Key.matchLog(Key.KONAMI_CODE)){
-						konamiCode = true;
-						console.print("konami");
-					}
-					if(!colossalCaveCode && Key.matchLog(Key.COLOSSAL_CAVE_CODE)){
-						colossalCaveCode = true;
-						console.print("xyzzy");
+					if(Key.matchLog(Key.KONAMI_CODE)){
+						addLife();
+						Key.keyLogString = "";
 					}
 					
 					var mx:int = renderer.canvas.mouseX * INV_SCALE;
@@ -967,6 +967,27 @@
 					}
 				}
 			}
+		}
+		
+		/* A cheat for adding lives */
+		private function addLife():void{
+			if(lives >= 3){
+				console.print("3 is your limit cheater");
+				return;
+			}
+			lives++;
+			console.print("1up");
+			soundQueue.add("jump");
+			livesPanel.visible = true;
+			livesPanel["_" + lives].gotoAndPlay("fadeIn");
+		}
+		
+		/* Called only when lives are above 0 */
+		public function loseLife():void{
+			livesPanel["_" + lives].gotoAndStop("dead");
+			lives--;
+			if(lives == 0) livesPanel.visible = false;
+			console.print("this is not how the game is meant to be played");
 		}
 		
 		private function mouseDown(e:MouseEvent):void{

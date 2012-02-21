@@ -1,8 +1,9 @@
-Change log: decreased nymph voice volume, increased cactuar voice volume, fixed bug where chaos wall placement would delete level content, removed mouse-missile-runes, healstone and grindstone alchemy
+Change log: added summon minion queueing to limit summons to stable occasions, added teleport to exit debug options, fixed portal lists not being extended in infinite dungeon, added konami code lives cheat
 
 Bug hunt
 	collection lock out on chests after playing for a while - bugged chest or item?
-	missile filter probable ineffective - test
+	minion summon after death? - unreproducable
+	combo bug: minion, indifference, level 21, identify monster twice, minion portal
 
 make console print outs for effects optional (due to dismiss-apply chains when changing race)
 

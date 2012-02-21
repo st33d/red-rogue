@@ -81,7 +81,6 @@ package com.robotacid.ui {
 		public static var hotKeyTotal:int = 0;
 		
 		public static const KONAMI_CODE:String = [Keyboard.UP, Keyboard.UP, Keyboard.DOWN, Keyboard.DOWN, Keyboard.LEFT, Keyboard.RIGHT, Keyboard.LEFT, Keyboard.RIGHT, B, A].toString();
-		public static const COLOSSAL_CAVE_CODE:String = [X, Y, Z, Z, Y].toString();
 		
 		public function Key() {
 		}
