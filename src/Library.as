@@ -63,6 +63,7 @@
 		
 		[Embed(source = 'assets/mhp-small.png')] public var MHPB:Class;
 		[Embed(source = 'assets/hp.png')] public var HPB:Class;
+		[Embed(source = 'assets/act.png')] public var ACT:Class;
 		
 		[Embed(source = 'assets/wave.png')] public var WaveB:Class;
 		

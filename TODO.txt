@@ -1,13 +1,11 @@
-Change log: added summon minion queueing to limit summons to stable occasions, added teleport to exit debug options, fixed portal lists not being extended in infinite dungeon, added konami code lives cheat
+Change log: added conditions to effects to wait until a character is idle before applying state changes, added menu locking to player immobile states to prevent state breaking menu actions, changed rakshasa and umber hulk voices, changed rakshasa graphics and stats to suit gruff voice, added playerActionBar to illustrate player's current initiative state
 
 Bug hunt
 	collection lock out on chests after playing for a while - bugged chest or item?
 	minion summon after death? - unreproducable
-	combo bug: minion, indifference, level 21, identify monster twice, minion portal
+	combo bug: minion, indifference, level 21, identify monster twice, minion portal - unreproducable
 
 make console print outs for effects optional (due to dismiss-apply chains when changing race)
-
-konami code for lives
 
 remove editor render layer when not in use
 
@@ -17,6 +15,7 @@ deprecate count from Effect.apply()?
 	
 interstitial transitions - fade to some text, then fade to the scene
 
+create branchIn Boolean method on Menu? Would help detect being in a submenu
 
 create Editor in debug menu
 	create launch test bed option

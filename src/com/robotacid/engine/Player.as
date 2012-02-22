@@ -4,6 +4,7 @@
 	import com.robotacid.ai.PlayerBrain;
 	import com.robotacid.dungeon.Map;
 	import com.robotacid.engine.Effect;
+	import com.robotacid.engine.Item;
 	import com.robotacid.engine.Portal;
 	import com.robotacid.geom.Pixel;
 	import com.robotacid.gfx.CanvasCamera;
@@ -47,6 +48,7 @@
 		public var cameraDisplacement:Point;
 		public var camera:CanvasCamera;
 		
+		public var canMenuAction:Boolean;
 		public var searchRadius:int;
 		
 		private var searchMax:int;
@@ -94,6 +96,7 @@
 			callMain = false;
 			stepNoise = true;
 			searchRadius = -1;
+			canMenuAction = true;
 			uniqueNameStr = DEFAULT_UNIQUE_NAME_STR;
 			
 			cameraDisplacement = new Point();
@@ -279,6 +282,14 @@
 				else if(cameraDisplacement.y < 0) cameraDisplacement.y += CAMERA_DISPLACE_SPEED;
 			}
 			
+			// check for menu action locking
+			if(state == WALKING && attackCount >= 1){
+				if(!canMenuAction) unlockMenuActions();
+			} else {
+				if(canMenuAction) lockMenuActions();
+			}
+			game.playerActionBar.setValue(attackCount, 1);
+			
 		}
 		
 		/* Initiates a search for traps and secrets */
@@ -397,7 +408,7 @@
 			// set the active state and name of the missile option in the menu
 			if(item.type == Item.WEAPON){
 				game.menu.missileOption.active = (
-					!indifferent &&
+					!indifferent && canMenuAction &&
 					(
 						(weapon && weapon.range & Item.MISSILE) ||
 						(throwable && !(throwable.curseState == Item.CURSE_REVEALED && !undead))
@@ -484,6 +495,48 @@
 			super.levelUp();
 			if(game.minion) game.minion.levelUp();
 			game.levelNumGfx.gotoAndStop(level);
+		}
+		
+		/* Prevents the player from gaming the state machine with state changing menu actions */
+		public function lockMenuActions():void{
+			canMenuAction = false;
+			game.menu.inventoryList.throwRuneOption.active = false;
+			game.menu.missileOption.active = false;
+			game.playerActionBar.setValue(attackCount, 1);
+			game.menu.update();
+		}
+		
+		/* Releases the lockout on locked menu actions */
+		public function unlockMenuActions():void{
+			canMenuAction = true;
+			game.menu.missileOption.active = (
+				!indifferent &&
+				(
+					(weapon && weapon.range & Item.MISSILE) ||
+					(throwable && !(throwable.curseState == Item.CURSE_REVEALED && !undead))
+				)
+			);
+			game.menu.inventoryList.throwRuneOption.active = true;
+			game.menu.update();
+			game.playerActionBar.barCol = Game.DEFAULT_BAR_COL;
+			game.playerActionBar.update();
+		}
+		
+		override public function shoot(type:int, effect:Effect = null, rune:Item = null):void {
+			super.shoot(type, effect, rune);
+			if(canMenuAction) lockMenuActions();
+		}
+		
+		override public function applyStun(delay:Number):void {
+			super.applyStun(delay);
+			game.playerActionBar.barCol = Game.DISABLED_BAR_COL;
+			if(canMenuAction) lockMenuActions();
+		}
+		
+		override public function quicken():void {
+			super.quicken();
+			game.playerActionBar.barCol = Game.DISABLED_BAR_COL;
+			if(canMenuAction) lockMenuActions();
 		}
 		
 		override public function changeName(name:int, gfx:MovieClip = null):void {

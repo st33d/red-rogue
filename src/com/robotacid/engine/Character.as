@@ -596,9 +596,7 @@
 					}
 				}
 				if(quickeningCount-- <= 0){
-					state = WALKING;
-					gfx.transform.colorTransform = new ColorTransform();
-					if(this is Player) game.console.print("welcome to level " + level + " " + nameToString());
+					finishQuicken();
 				}
 			} else if(state == ENTERING){
 				moving = true;
@@ -728,6 +726,13 @@
 			if(!(this == game.minion && game.player.state == QUICKENING)){
 				game.soundQueue.addRandom("quickening", QUICKENING_SOUNDS);
 			}
+		}
+		
+		/* Called at the end of the quickening or if the quickening is interrupted by a spell like stun */
+		public function finishQuicken():void{
+			state = WALKING;
+			gfx.transform.colorTransform = new ColorTransform();
+			if(this is Player) game.console.print("welcome to level " + level + " " + nameToString());
 		}
 		
 		/* Used to auto-center when climbing */
@@ -860,6 +865,8 @@
 		
 		/* Effect stun state on this character */
 		public function applyStun(delay:Number):void{
+			// exit the quickening state if already in it
+			if(state == QUICKENING) finishQuicken();
 			stunCount = delay;
 			state = STUNNED;
 			if(collider.state == Collider.HOVER){

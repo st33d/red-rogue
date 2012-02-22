@@ -56,8 +56,10 @@
 		}
 		
 		public function setValue(n:Number, total:Number):void{
-			value = (1.0 / total) * n;
+			if(total != 1) value = (1.0 / total) * n;
+			else value = n;
 			if(value < 0) value = 0;
+			if(value > 1) value = 1;
 			if(glowShape) glowActive = glowRatio && value <= glowRatio;
 			update();
 		}

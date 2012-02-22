@@ -217,15 +217,21 @@
 			} else if(name == TELEPORT){
 				// this here is the constant chaos caused by wearing teleport armour
 				// more so if the armour is cursed and ironically may require a teleport rune to remove it
-				if(count-- <= 0){
-					teleportCharacter(target);
-					count = (21 - level) * ARMOUR_COUNTDOWN_STEP;
+				if(count) count--;
+				else {
+					if(target.state == Character.WALKING){
+						teleportCharacter(target);
+						count = (21 - level) * ARMOUR_COUNTDOWN_STEP;
+					}
 				}
 			} else if(name == STUN){
 				// stun armour is similar to teleport armour in that it stuns you periodically
-				if(count-- <= 0){
-					target.applyStun(level * STUN_PER_LEVEL);
-					count = (21 - level) * ARMOUR_COUNTDOWN_STEP;
+				if(count) count--;
+				else {
+					if(target.state == Character.WALKING){
+						target.applyStun(level * STUN_PER_LEVEL);
+						count = (21 - level) * ARMOUR_COUNTDOWN_STEP;
+					}
 				}
 			}
 		}

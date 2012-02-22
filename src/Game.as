@@ -81,7 +81,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 311;
+		public static const BUILD_NUM:int = 312;
 		
 		public static var game:Game;
 		public static var renderer:Renderer;
@@ -114,6 +114,7 @@
 		public var console:Console;
 		public var menu:GameMenu;
 		public var miniMap:MiniMap;
+		public var playerActionBar:ProgressBar;
 		public var playerHealthBar:ProgressBar;
 		public var playerXpBar:ProgressBar;
 		public var levelNumGfx:MovieClip;
@@ -176,6 +177,9 @@
 		public static const MAX_LEVEL:int = 20;
 		
 		public static const HEALTH_GLOW_RATIO:Number = 0.25;
+		public static const DEFAULT_BAR_COL:uint = 0xFFCCCCCC;
+		public static const DISABLED_BAR_COL:uint = 0xFFAA0000;
+		public static const GLOW_BAR_COL:uint = 0xAA0000;
 		
 		public function Game():void {
 			
@@ -347,7 +351,6 @@
 			SoundManager.addSound(new UmberHulkSound01, "UmberHulk1", 0.4);
 			SoundManager.addSound(new UmberHulkSound02, "UmberHulk2", 0.4);
 			SoundManager.addSound(new UmberHulkSound03, "UmberHulk3", 0.4);
-			SoundManager.addSound(new UmberHulkSound04, "UmberHulk4", 0.4);
 			SoundManager.addSound(new VampireSound01, "Vampire1", 0.4);
 			SoundManager.addSound(new VampireSound02, "Vampire2", 0.4);
 			SoundManager.addSound(new VampireSound03, "Vampire3", 0.4);
@@ -408,7 +411,15 @@
 			miniMapHolder = new Sprite();
 			addChild(miniMapHolder);
 			
-			playerHealthBar = new ProgressBar(5, console.y - 13, MiniMap.WIDTH, 8, HEALTH_GLOW_RATIO, 0xAA0000);
+			playerActionBar = new ProgressBar(5, console.y - 8, MiniMap.WIDTH, 3);
+			playerActionBar.barCol = 0xFFCCCCCC;
+			var actBitmap:Bitmap = new library.ACT;
+			actBitmap.x = playerActionBar.width + 1;
+			playerActionBar.addChild(actBitmap);
+			addChild(playerActionBar);
+			playerActionBar.update();
+			
+			playerHealthBar = new ProgressBar(5, playerActionBar.y - 9, MiniMap.WIDTH, 8, HEALTH_GLOW_RATIO, 0xAA0000);
 			playerHealthBar.barCol = 0xFFCCCCCC;
 			addChild(playerHealthBar);
 			var hpBitmap:Bitmap = new library.HPB;
@@ -436,7 +447,6 @@
 			addChild(minionHealthBar);
 			var mhpBitmap:Bitmap = new library.MHPB;
 			mhpBitmap.x = minionHealthBar.width + 1;
-			mhpBitmap.y = 1;
 			minionHealthBar.addChild(mhpBitmap);
 			minionHealthBar.visible = false;
 			minionHealthBar.update();

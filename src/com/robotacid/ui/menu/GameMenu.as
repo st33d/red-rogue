@@ -403,7 +403,7 @@
 					else inventoryList.feedMinionOption.active = true;
 					
 				} else if(item.type == Item.RUNE){
-					inventoryList.throwRuneOption.active = game.player.attackCount >= 1;
+					inventoryList.throwRuneOption.active = game.player.canMenuAction;
 					inventoryList.eatOption.active = true;
 					inventoryList.feedMinionOption.active = Boolean(game.minion);
 					if(item.name == Effect.XP){
@@ -457,6 +457,7 @@
 				
 			} else if(option == editorOption){
 				game.editor.active = false;
+				
 			}
 		}
 		
@@ -728,6 +729,7 @@
 			if(parent && !Game.dialog) Game.renderer.main();
 			
 		}
+		
 		/* In the event of player death, we need to change the menu to deactivate the inventory,
 		 * and maybe some other stuff in future
 		 */

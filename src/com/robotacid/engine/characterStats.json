@@ -31,35 +31,35 @@
 		0.21, 0.1, 0.15, 0.16, 0.1,
 		0.1, 0.15, 0.1, 0.2, 0.2,
 		0.2, 0.15, 0.15, 0.15, 0.2,
-		0.3, 0.15, 0.15, 0.15, 0.15,
+		0.3, 0.15, 0.15, 0.15, 0.18,
 		0.3, 0.15
 	],
 	"defence levels":[
 		0.05, 0.05, 0.04, 0.04, 0.04,
 		0.04, 0.04, 0.03, 0.05, 0.05,
 		0.04, 0.04, 0.04, 0.04, 0.06,
-		0.06, 0.04, 0.04, 0.04, 0.04,
+		0.06, 0.04, 0.04, 0.04, 0.05,
 		0.06, 0.04
 	],
 	"healths":[
 		3, 1, 1.5, 3.5, 4,
 		3, 2.8, 3.5, 2.5, 3,
 		3.5, 2.5, 2.8, 2.8, 4,
-		5, 2.5, 2.5, 2.8, 2.8,
+		5, 2.5, 2.5, 2.8, 3,
 		5, 2.5
 	],
 	"health levels":[
 		1, 0.9, 0.75, 1.1, 1.5,
 		1, 0.9, 1.1, 0.8, 1,
 		1.1, 0.5, 0.9, 0.9, 1.1,
-		1.5, 0.9, 0.9, 0.8, 0.8,
+		1.5, 0.9, 0.9, 0.8, 1,
 		1.5, 0.5
 	],
 	"damages":[
 		1, 0.3, 0.5, 1.1, 1,
 		1, 0.8, 0.8, 0.3, 1,
 		1.1, 0.8, 1, 1, 1,
-		1.1, 1, 1, 0.8, 0.8,
+		1.1, 1, 1, 0.8, 1,
 		1, 0.7
 	],
 	"damage levels":[
@@ -143,7 +143,7 @@
 		0, 0, 0, 0.1, 0.05,
 		0, 0, 0, 0, 0,
 		0.05, 0, 0, 0, 0.05,
-		0.5, 0, 0, 0, 0,
+		0.5, 0, 0, 0, 0.05,
 		0.4, 0
 	],
 	"undeads":[
@@ -157,7 +157,7 @@
 		6, 6, 6, 6, 8,
 		6, 6, 6, 6, 6,
 		8, 6, 6, 6, 8,
-		8, 6, 6, 6, 6,
+		8, 6, 6, 6, 8,
 		10, 6
 	],
 	"specials":[
@@ -184,7 +184,7 @@
 	"voices":[
 		[""], ["Kobold1", "Kobold2", "Kobold3"], ["Goblin1", "Goblin2", "Goblin3"], ["Orc1", "Orc2", "Orc3"], ["Troll1", "Troll2", "Troll3"],
 		["Gnoll1", "Gnoll2", "Gnoll3"], ["Drow1", "Drow2", "Drow3", "Drow4"], ["Cactuar1", "Cactuar2", "Cactuar3"], ["Nymph1", "Nymph2", "Nymph3"], ["Vampire1", "Vampire2", "Vampire3"],
-		["Werewolf1", "Werewolf2", "Werewolf3"], [""], ["Naga1", "Naga2", "Naga3"], ["Gorgon1", "Gorgon2", "Gorgon3"], ["UmberHulk1", "UmberHulk2", "UmberHulk3", "UmberHulk4"],
+		["Werewolf1", "Werewolf2", "Werewolf3"], [""], ["Naga1", "Naga2", "Naga3"], ["Gorgon1", "Gorgon2", "Gorgon3"], ["UmberHulk1", "UmberHulk2", "UmberHulk3"],
 		["Golem1", "Golem2", "Golem3"], ["Banshee1", "Banshee2", "Banshee3"], ["Wraith1", "Wraith2", "Wraith3"], ["Mindflayer1", "Mindflayer2", "Mindflayer3"], ["Rakshasa1", "Rakshasa2", "Rakshasa3"],
 		["Balrog1", "Balrog2", "Balrog3"], [""]
 	]
