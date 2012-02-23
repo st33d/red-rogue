@@ -230,9 +230,10 @@
 		public function setStats():void{
 			var i:int, effect:Effect;
 			// the character's equipment needs to be removed whilst stats are applied
-			var weaponTemp:Item, armourTemp:Item;
+			var weaponTemp:Item, armourTemp:Item, throwableTemp:Item;
 			if(weapon) weaponTemp = unequip(weapon);
 			if(armour) armourTemp = unequip(armour);
+			if(throwable) throwableTemp = unequip(throwable);
 			
 			nameStr = stats["names"][name];
 			health = stats["healths"][name] + stats["health levels"][name] * level;
@@ -321,6 +322,7 @@
 			// re-equip
 			if(weaponTemp) equip(weaponTemp);
 			if(armourTemp) equip(armourTemp);
+			if(throwableTemp) equip(throwableTemp);
 		}
 		
 		override public function createCollider(x:Number, y:Number, properties:int, ignoreProperties:int, state:int = 0, positionByBase:Boolean = true):void {
@@ -429,7 +431,7 @@
 						} else if((dir & RIGHT) && collider.rightContact && (collider.rightContact.properties & Collider.CHARACTER) && enemy(collider.rightContact.userData)){
 							target = collider.rightContact.userData as Character;
 						}
-						if(target){
+						if(target && !indifferent){
 							moving = false;
 							if(attackCount >= 1){
 								
@@ -1135,7 +1137,7 @@
 			if(state == WALKING || state == EXITING || state == ENTERING){
 				if(!moving) moveCount = 0;
 				else {
-					if(stepNoise && moving && moveCount == 0 && moveFrame == 0){
+					if(stepNoise && moving && moveCount == 0 && moveFrame == 0 && !(collider.pressure & looking)){
 						stepSound &= 1;
 						game.soundQueue.add(STEP_SOUNDS[collider.state == Collider.STACK ? 0 : 1][stepSound]);
 					}

@@ -1,13 +1,9 @@
-Change log: reduced height of minion and xp bars, hidden editor render layer on deactivation, removed some meaningless data when creating Effects, stopped running animation when pushing against walls, added area transition names and visitation hash
+Change log: accounted for borderwidth on centered text in TextBoxes, removed step sound when pusing into wall, removed attack when indifferent, removed leech armour effect print out because of application chains, added collision rendering to editor, added AI graph rendering to editor, editor delete block layer now deletes graphic, added critter creation from editor, stopped interstitial showing when running from desktop
 
 Bug hunt
 	collection lock out on chests after playing for a while - bugged chest or item?
 	minion summon after death? - unreproducable
 	combo bug: minion, indifference, level 21, identify monster twice, minion portal - unreproducable
-
-make console print outs for effects optional (due to dismiss-apply chains when changing race)
-	
-interstitial transitions - fade to some text, then fade to the scene
 
 create Editor in debug menu
 	create launch test bed option

@@ -565,7 +565,6 @@
 					if(target.health > target.totalHealth) target.health = target.totalHealth;
 					if(target == game.player) game.playerHealthBar.setValue(target.health, target.totalHealth);
 					else if(target == game.minion) game.minionHealthBar.setValue(target.health, target.totalHealth);
-					if(target == game.player || target == game.minion) game.console.print(target.nameToString() + " max health reduced");
 				}
 				
 			} else if(name == THORNS){
@@ -712,7 +711,6 @@
 					target.totalHealth = Character.stats["healths"][target.name] + Character.stats["health levels"][target.name] * target.level;
 					if(target == game.player) game.playerHealthBar.setValue(target.health, target.totalHealth);
 					else if(target == game.minion) game.minionHealthBar.setValue(target.health, target.totalHealth);
-					if(target == game.player || target == game.minion) game.console.print(target.nameToString() + " max health restored");
 				}
 				
 			}

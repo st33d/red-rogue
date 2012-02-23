@@ -210,7 +210,7 @@
 			
 			steedOption = new MenuOption("aaron steed - code/art/design");
 			steedOption.help = "opens a window to aaron steed's site - robotacid.com";
-			nateOption = new MenuOption("nathan gallardo - sound");
+			nateOption = new MenuOption("nathan gallardo - sound/music");
 			nateOption.help = "opens a window to nathan gallardo's site (where this game's OST is available) - icefishingep.tk";
 			
 			onOffOption = new ToggleMenuOption(["turn off", "turn on"]);

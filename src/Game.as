@@ -80,7 +80,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 313;
+		public static const BUILD_NUM:int = 314;
 		
 		public static var game:Game;
 		public static var renderer:Renderer;
@@ -262,10 +262,10 @@
 			SoundManager.addSound(new ChaosWallMovingSound, "chaosWallMoving", 0.5);
 			SoundManager.addSound(new ChaosWallReadySound, "chaosWallReady", 0.5);
 			SoundManager.addSound(new ChaosWallStopSound, "chaosWallStop", 0.5);
-			SoundManager.addSound(new CogDeathSound1, "cogDeath1", 0.3);
-			SoundManager.addSound(new CogDeathSound2, "cogDeath2", 0.3);
-			SoundManager.addSound(new CogDeathSound3, "cogDeath3", 0.3);
-			SoundManager.addSound(new CogDeathSound4, "cogDeath4", 0.3);
+			SoundManager.addSound(new CogDeathSound1, "cogDeath1", 0.6);
+			SoundManager.addSound(new CogDeathSound2, "cogDeath2", 0.6);
+			SoundManager.addSound(new CogDeathSound3, "cogDeath3", 0.6);
+			SoundManager.addSound(new CogDeathSound4, "cogDeath4", 0.6);
 			SoundManager.addSound(new FloorStepSound1, "floorStep1", 0.15);
 			SoundManager.addSound(new FloorStepSound2, "floorStep2", 0.15);
 			SoundManager.addSound(new LadderStepSound1, "ladderStep1", 0.15);
@@ -571,17 +571,20 @@
 			initPlayer();
 			// fire up listeners
 			addListeners();
+			
+			// init area visit notices
+			var levelName:String = Map.getName(dungeon.type, dungeon.level);
+			visitedHash = {};
+			visitedHash[levelName] = true;
+			
 			// this is a hack to force clicking on the game when the browser first pulls in the swf
 			if(forceFocus){
 				onFocusLost();
 				forceFocus = false;
+				transition.init(function():void{}, null, levelName, true);
 			} else {
 				changeMusic();
 			}
-			var levelName:String = Map.getName(dungeon.type, dungeon.level);
-			visitedHash = {};
-			visitedHash[levelName] = true;
-			transition.init(function():void{}, null, levelName, true);
 		}
 		
 		/* Pedantically clear all memory and re-init the project */

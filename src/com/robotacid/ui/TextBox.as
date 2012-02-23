@@ -366,7 +366,7 @@ package com.robotacid.ui {
 					if(align == "left"){
 						alignX = 0;
 					} else if(align == "center"){
-						alignX = _width * 0.5 - lineWidths[i] * 0.5;
+						alignX = _width * 0.5 - (lineWidths[i] * 0.5 + BORDER_ALLOWANCE);
 					} else if(align == "right"){
 						alignX = _width - lineWidths[i];
 					}
