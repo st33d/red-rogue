@@ -1,6 +1,10 @@
 package com.robotacid.ui.menu {
+	import com.robotacid.dungeon.Content;
 	import com.robotacid.engine.Character;
+	import com.robotacid.engine.Entity;
 	import com.robotacid.engine.MapTileConverter;
+	import com.robotacid.engine.MapTileManager;
+	import com.robotacid.gfx.BlitRect;
 	import com.robotacid.gfx.Renderer;
 	import com.robotacid.phys.Collider;
 	import com.robotacid.ui.Editor;
@@ -20,8 +24,6 @@ package com.robotacid.ui.menu {
 		public var createBlockList:MenuList;
 		public var createObjectList:MenuList;
 		
-		public var blockList:MenuList;
-		public var objectList:MenuList;
 		public var raceList:MenuList;
 		public var critterList:MenuList;
 		public var dungeonLevelList:MenuList;
@@ -38,8 +40,6 @@ package com.robotacid.ui.menu {
 		public var renderCollisionOption:MenuOption;
 		public var renderAIGraphOption:MenuOption;
 		
-		public var createBlockOption:MenuOption;
-		public var createObjectOption:MenuOption;
 		public var deleteOption:MenuOption;
 		public var onOption:MenuOption;
 		public var offOption:MenuOption;
@@ -58,8 +58,6 @@ package com.robotacid.ui.menu {
 			
 			createBlockList = new MenuList();
 			createObjectList = new MenuList();
-			blockList = new MenuList();
-			objectList = new MenuList();
 			raceList = new MenuList();
 			critterList = new MenuList();
 			dungeonLevelList = new MenuList();
@@ -72,16 +70,14 @@ package com.robotacid.ui.menu {
 			dungeonLevelOption = new MenuOption("dungeon level", dungeonLevelList);
 			renderOption = new MenuOption("render", renderList);
 			
-			createBlockOption = new MenuOption("create", blockList);
-			createObjectOption = new MenuOption("create", objectList);
 			deleteOption = new MenuOption("delete", null, false);
 			
 			var monsterOption:MenuOption = new MenuOption("monster", raceList);
 			var critterOption:MenuOption = new MenuOption("critter", critterList);
 			
 			var wallOption:MenuOption = new MenuOption("wall", null, false);
-			var ladderOption:MenuOption = new MenuOption("laddder", null, false);
-			var ladderLedgeOption:MenuOption = new MenuOption("laddder ledge", null, false);
+			var ladderOption:MenuOption = new MenuOption("ladder", null, false);
+			var ladderLedgeOption:MenuOption = new MenuOption("ladder ledge", null, false);
 			var ledgeOption:MenuOption = new MenuOption("ledge", null, false);
 			
 			renderCollisionOption = new MenuOption("collision", renderCollisionList);
@@ -131,7 +127,9 @@ package com.robotacid.ui.menu {
 		public function applySelection(mapX:int, mapY:int, type:int):void{
 			var list:MenuList = menu.currentMenuList;
 			var option:MenuOption = list.options[list.selection];
+			var converter:MapTileConverter = game.mapTileManager.converter;
 			var mapRect:Rectangle = new Rectangle(mapX * Game.SCALE, mapY * Game.SCALE, Game.SCALE, Game.SCALE);
+			var id:int, blit:BlitRect, entity:Entity, xml:XML;
 			
 			if(type <= MOUSE_HELD){
 				if(option == deleteOption){
@@ -139,16 +137,38 @@ package com.robotacid.ui.menu {
 						game.world.removeMapPosition(mapX, mapY);
 						renderer.blockBitmapData.fillRect(mapRect, 0x00000000);
 					}
+				} else if(list == createBlockList){
+					if(option.name == "wall"){
+						id = MapTileConverter.WALL;
+					} else if(option.name == "ladder"){
+						id = MapTileConverter.LADDER;
+					} else if(option.name == "ledge"){
+						id = MapTileConverter.LEDGE;
+					} else if(option.name == "ladder ledge"){
+						id = MapTileConverter.LADDER_LEDGE;
+					}
+					game.world.map[mapY][mapX] = MapTileConverter.getMapProperties(id);
+					game.mapTileManager.changeLayer(MapTileManager.BLOCK_LAYER);
+					blit = converter.convertIndicesToObjects(mapX, mapY, id) as BlitRect;
+					blit.x = mapX * Game.SCALE;
+					blit.y = mapY * Game.SCALE;
+					renderer.blockBitmapData.fillRect(mapRect, 0x00000000);
+					blit.render(renderer.blockBitmapData);
 				}
 			}
 			if(type == MOUSE_CLICK){
 				if(list == critterList){
-					if(option.name == "spider") game.mapTileManager.converter.convertIndicesToObjects(mapX, mapY, MapTileConverter.SPIDER);
-					else if(option.name == "rat") game.mapTileManager.converter.convertIndicesToObjects(mapX, mapY, MapTileConverter.RAT);
-					else if(option.name == "bat") game.mapTileManager.converter.convertIndicesToObjects(mapX, mapY, MapTileConverter.BAT);
-					else if(option.name == "cog") game.mapTileManager.converter.convertIndicesToObjects(mapX, mapY, MapTileConverter.COG);
-				} else if(list == raceList){
+					if(option.name == "spider") id = MapTileConverter.SPIDER;
+					else if(option.name == "rat") id = MapTileConverter.RAT;
+					else if(option.name == "bat") id = MapTileConverter.BAT;
+					else if(option.name == "cog") id = MapTileConverter.COG;
+					converter.convertIndicesToObjects(mapX, mapY, id);
 					
+				} else if(list == raceList){
+					xml =<character characterNum={-1} name={raceList.selection} type={Character.MONSTER} level={dungeonLevelList.selection + 1} />;
+					trace(xml.@level);
+					entity = Content.convertXMLToEntity(mapX, mapY, xml);
+					converter.convertIndicesToObjects(mapX, mapY, entity);
 				}
 			}
 		}

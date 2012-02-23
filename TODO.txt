@@ -1,4 +1,4 @@
-Change log: accounted for borderwidth on centered text in TextBoxes, removed step sound when pusing into wall, removed attack when indifferent, removed leech armour effect print out because of application chains, added collision rendering to editor, added AI graph rendering to editor, editor delete block layer now deletes graphic, added critter creation from editor, stopped interstitial showing when running from desktop
+Change log: added creation code for all current editor list items
 
 Bug hunt
 	collection lock out on chests after playing for a while - bugged chest or item?
