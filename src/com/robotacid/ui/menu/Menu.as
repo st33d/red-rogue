@@ -1017,6 +1017,16 @@
 			option.name = str;
 		}
 		
+		/* Checks the branch array for the presence of a MenuList */
+		public function listInBranch(list:MenuList):Boolean{
+			for(var i:int = 0; i < branch.length; i++){
+				if(branch[i] == list){
+					return true;
+				}
+			}
+			return false;
+		}
+		
 	}
 
 }

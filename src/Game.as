@@ -7,7 +7,6 @@
 	import com.robotacid.engine.ChaosWall;
 	import com.robotacid.engine.Character;
 	import com.robotacid.engine.Effect;
-	import com.robotacid.gfx.ItemMovieClip;
 	import com.robotacid.engine.Minion;
 	import com.robotacid.engine.Portal;
 	import com.robotacid.engine.Entity;
@@ -81,7 +80,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 312;
+		public static const BUILD_NUM:int = 313;
 		
 		public static var game:Game;
 		public static var renderer:Renderer;
@@ -147,6 +146,7 @@
 		public var portalHash:Object;
 		public var dogmaticMode:Boolean;
 		public var lives:int;
+		public var visitedHash:Object;
 		
 		// temp variables
 		private var i:int;
@@ -433,7 +433,7 @@
 			livesPanel.visible = false;
 			playerHealthBar.addChild(livesPanel);
 			
-			playerXpBar = new ProgressBar(5, playerHealthBar.y - 7, MiniMap.WIDTH, 6);
+			playerXpBar = new ProgressBar(5, playerHealthBar.y - 6, MiniMap.WIDTH, 5);
 			playerXpBar.barCol = 0xFFCCCCCC;
 			addChild(playerXpBar);
 			levelNumGfx = new LevelNumMC();
@@ -442,7 +442,7 @@
 			playerXpBar.addChild(levelNumGfx);
 			playerXpBar.update();
 			
-			minionHealthBar = new ProgressBar(5, playerXpBar.y - 7, MiniMap.WIDTH, 6, HEALTH_GLOW_RATIO, 0xAA0000);
+			minionHealthBar = new ProgressBar(5, playerXpBar.y - 6, MiniMap.WIDTH, 5, HEALTH_GLOW_RATIO, 0xAA0000);
 			minionHealthBar.barCol = 0xFFCCCCCC;
 			addChild(minionHealthBar);
 			var mhpBitmap:Bitmap = new library.MHPB;
@@ -578,6 +578,10 @@
 			} else {
 				changeMusic();
 			}
+			var levelName:String = Map.getName(dungeon.type, dungeon.level);
+			visitedHash = {};
+			visitedHash[levelName] = true;
+			transition.init(function():void{}, null, levelName, true);
 		}
 		
 		/* Pedantically clear all memory and re-init the project */

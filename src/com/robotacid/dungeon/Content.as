@@ -681,7 +681,7 @@
 				// is this item enchanted?
 				var effect:Effect;
 				for each(var enchantment:XML in xml.effect){
-					effect = new Effect(enchantment.@name, enchantment.@level, 0);
+					effect = new Effect(enchantment.@name, enchantment.@level);
 					obj = effect.enchant(obj);
 				}
 				

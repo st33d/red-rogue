@@ -1065,6 +1065,21 @@
 		public static function onEdge(pixel:Pixel, width:int, height:int):Boolean{
 			return pixel.x<= 0 || pixel.x >= width-1 || pixel.y <= 0 || pixel.y >= height-1;
 		}
+		
+		/* All of the levels have names, either being a subset of a zone or a specific area */
+		public static function getName(type:int, level:int):String{
+			if(type == MAIN_DUNGEON){
+				var zone:int = (level - 1) / LEVELS_PER_ZONE;
+				if(zone >= ZONE_TOTAL) zone = ZONE_TOTAL - 1;
+				return ZONE_NAMES[zone];
+			} else if(type == AREA){
+				if(level == OVERWORLD) return "overworld";
+				else if(level == UNDERWORLD) return "underworld";
+			} else if(type == ITEM_DUNGEON){
+				return "pocket";
+			}
+			return "";
+		}
 	}
 	
 }

@@ -51,6 +51,16 @@ package com.robotacid.ui {
 			}
 		}
 		
+		public function activate():void{
+			active = true;
+			bitmap.visible = true;
+		}
+		
+		public function deactivate():void{
+			active = false;
+			bitmap.visible = false;
+		}
+		
 		public function render():void{
 			bitmapData.fillRect(bitmapData.rect, 0x00000000);
 			point.x = -renderer.bitmap.x + mapX * Game.SCALE;

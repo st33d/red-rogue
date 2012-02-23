@@ -793,7 +793,7 @@
 			var effect:Effect;
 			for(i = 0; i < bucket.length; i++){
 				if(bucket[i]){
-					effect = new Effect(i, bucket[i], 0);
+					effect = new Effect(i, bucket[i]);
 					if(item.enchantable(i)) item = effect.enchant(item);
 				}
 			}

@@ -203,8 +203,21 @@
 						if(gfx.x < portal.mapX * Game.SCALE - PORTAL_DISTANCE) portal = null;
 					}
 				}
+				// LEVEL TRANSITION CODE ====================================================================================
+				// 
+				// This occurs in the player class because the player is the one who has control over the game visiting levels
+				//
 				if(!portal){
+					
+					// tell the player about the new level / area
 					game.console.print(Portal.usageMsg(portalType, portalTargetLevel));
+					var targetArea:int = Map.MAIN_DUNGEON;
+					if((portalType == Portal.STAIRS && portalTargetLevel == 0) || portalType == Portal.OVERWORLD || portalType == Portal.UNDERWORLD) targetArea = Map.AREA;
+					else if(portalType == Portal.ITEM) targetArea = Map.ITEM_DUNGEON;
+					var levelName:String = Map.getName(targetArea, portalTargetLevel);
+					if(!game.visitedHash[levelName]) game.visitedHash[levelName] = true;
+					else levelName = "";
+					
 					game.transition.init(function():void{
 						game.changeLevel(portalTargetLevel, portalType);
 						// warm up the renderer
@@ -215,7 +228,7 @@
 							}
 							game.miniMap.render();
 						}
-					});
+					}, null, levelName);
 				}
 			} else if(state == ENTERING){
 				

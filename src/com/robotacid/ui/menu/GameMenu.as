@@ -453,10 +453,10 @@
 				moveDelay = currentMenuList.selection + 1;
 				
 			} else if(currentMenuList == editorList){
-				game.editor.active = true;
+				game.editor.activate();
 				
 			} else if(option == editorOption){
-				game.editor.active = false;
+				game.editor.deactivate();
 				
 			}
 		}
@@ -734,12 +734,7 @@
 		 * and maybe some other stuff in future
 		 */
 		public function death():void{
-			for(var i:int = 0; i < branch.length; i++){
-				if(branch[i] == inventoryList){
-					while(branch.length > 1) stepLeft();
-					break;
-				}
-			}
+			if(listInBranch(inventoryList)) while(branch.length > 1) stepLeft();
 			inventoryOption.active = false;
 			missileOption.active = false;
 			disarmTrapOption.active = false;

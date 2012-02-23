@@ -170,7 +170,7 @@ package com.robotacid.ui {
 						item.curseState = xml.@curseState;
 						// is this item enchanted?
 						for each(enchantment in xml.effect){
-							effect = new Effect(enchantment.@name, enchantment.@level, 0);
+							effect = new Effect(enchantment.@name, enchantment.@level);
 							effect.enchant(item);
 						}
 						game.menu.inventoryList.addItem(item);

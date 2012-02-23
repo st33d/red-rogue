@@ -1146,7 +1146,7 @@
 			}
 			if(state == WALKING){
 				if(collider.state == Collider.STACK){
-					if(moving){
+					if(moving && !(collider.pressure & looking)){
 						if(moveFrame){
 							if(mc.currentLabel != "move1") mc.gotoAndStop("move1");
 						} else {
