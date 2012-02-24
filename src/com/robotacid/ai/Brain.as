@@ -37,6 +37,7 @@
 		public var target:Character;
 		public var scheduleTarget:Character;
 		public var leader:Character;
+		public var path:Vector.<Node>;
 		
 		public var state:int;
 		public var count:int;
@@ -59,7 +60,6 @@
 		
 		private static var start:Node;
 		private static var node:Node;
-		private static var path:Vector.<Node>;
 		private static var charPos:Point = new Point();
 		private static var scheduleTargetPos:Point = new Point();
 		private static var voiceDist:int;

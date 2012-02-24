@@ -81,7 +81,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 316;
+		public static const BUILD_NUM:int = 317;
 		
 		public static var game:Game;
 		public static var renderer:Renderer;
@@ -585,7 +585,7 @@
 			} else {
 				changeMusic();
 			}
-			transition.init(function():void{}, null, levelName, true);
+			//transition.init(function():void{}, null, levelName, true);
 		}
 		
 		/* Pedantically clear all memory and re-init the project */

@@ -32,7 +32,6 @@
 			missileIgnore |= Collider.MONSTER | Collider.MONSTER_MISSILE;
 			
 			brain = new Brain(this, Brain.MONSTER);
-			Brain.monsterCharacters.push(this);
 			
 			// monsters carrying loot should equip themselves, however
 			// we reach this code before the map has finished initialising

@@ -2,9 +2,11 @@ package com.robotacid.ui.menu {
 	import com.robotacid.dungeon.Content;
 	import com.robotacid.dungeon.DungeonBitmap;
 	import com.robotacid.engine.Character;
+	import com.robotacid.engine.Effect;
 	import com.robotacid.engine.Entity;
 	import com.robotacid.engine.MapTileConverter;
 	import com.robotacid.engine.MapTileManager;
+	import com.robotacid.geom.Pixel;
 	import com.robotacid.gfx.BlitRect;
 	import com.robotacid.gfx.Renderer;
 	import com.robotacid.phys.Collider;
@@ -32,6 +34,7 @@ package com.robotacid.ui.menu {
 		
 		public var renderCollisionList:MenuList;
 		public var renderAIGraphList:MenuList;
+		public var renderAIPathsList:MenuList;
 		
 		public var blockLayerOption:MenuOption;
 		public var objectLayerOption:MenuOption;
@@ -39,9 +42,7 @@ package com.robotacid.ui.menu {
 		public var renderOption:MenuOption;
 		public var launchTestBedOption:MenuOption;
 		public var remapAIGraphOption:MenuOption;
-		
-		public var renderCollisionOption:MenuOption;
-		public var renderAIGraphOption:MenuOption;
+		public var teleportMinionOption:MenuOption;
 		
 		public var deleteOption:MenuOption;
 		public var onOption:MenuOption;
@@ -67,6 +68,7 @@ package com.robotacid.ui.menu {
 			renderList = new MenuList();
 			renderCollisionList = new MenuList();
 			renderAIGraphList = new MenuList();
+			renderAIPathsList = new MenuList();
 			
 			blockLayerOption = new MenuOption("block layer", createBlockList);
 			objectLayerOption = new MenuOption("object layer", createObjectList);
@@ -76,6 +78,7 @@ package com.robotacid.ui.menu {
 			launchTestBedOption.selectionStep = 1;
 			remapAIGraphOption = new MenuOption("remap ai graph");
 			remapAIGraphOption.selectionStep = 1;
+			teleportMinionOption = new MenuOption("teleport minion", null, false);
 			
 			deleteOption = new MenuOption("delete", null, false);
 			
@@ -87,8 +90,9 @@ package com.robotacid.ui.menu {
 			var ladderLedgeOption:MenuOption = new MenuOption("ladder ledge", null, false);
 			var ledgeOption:MenuOption = new MenuOption("ledge", null, false);
 			
-			renderCollisionOption = new MenuOption("collision", renderCollisionList);
-			renderAIGraphOption = new MenuOption("ai graph", renderAIGraphList);
+			var renderCollisionOption:MenuOption = new MenuOption("collision", renderCollisionList);
+			var renderAIGraphOption:MenuOption = new MenuOption("ai graph", renderAIGraphList);
+			var renderAIPathsOption:MenuOption = new MenuOption("ai paths", renderAIPathsList);
 			
 			onOption = new MenuOption("on", null, false);
 			offOption = new MenuOption("off", null, false);
@@ -99,6 +103,7 @@ package com.robotacid.ui.menu {
 			options.push(renderOption);
 			options.push(launchTestBedOption);
 			options.push(remapAIGraphOption);
+			options.push(teleportMinionOption);
 			
 			createBlockList.options.push(deleteOption);
 			createBlockList.options.push(wallOption);
@@ -125,11 +130,14 @@ package com.robotacid.ui.menu {
 			// render settings
 			renderList.options.push(renderCollisionOption);
 			renderList.options.push(renderAIGraphOption);
+			renderList.options.push(renderAIPathsOption);
 			
 			renderCollisionList.options.push(offOption);
 			renderCollisionList.options.push(onOption);
 			renderAIGraphList.options.push(offOption);
 			renderAIGraphList.options.push(onOption);
+			renderAIPathsList.options.push(offOption);
+			renderAIPathsList.options.push(onOption);
 		}
 		
 		/* Performs an action at mapX, mapY based on the current configuration of the EditorMenuList */
@@ -181,6 +189,9 @@ package com.robotacid.ui.menu {
 					xml =<character characterNum={-1} name={raceList.selection} type={Character.MONSTER} level={dungeonLevelList.selection + 1} />;
 					entity = Content.convertXMLToEntity(mapX, mapY, xml);
 					converter.convertIndicesToObjects(mapX, mapY, entity);
+					
+				} else if(option == teleportMinionOption){
+					if(game.minion) Effect.teleportCharacter(game.minion, new Pixel(mapX, mapY));
 				}
 			}
 		}

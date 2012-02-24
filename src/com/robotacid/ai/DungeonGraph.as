@@ -1,5 +1,6 @@
 package com.robotacid.ai {
 	import com.robotacid.dungeon.DungeonBitmap;
+	import com.robotacid.geom.Pixel;
 	import flash.display.Graphics;
 	/**
 	 * Provides a searchable graph for the Brain object
@@ -87,10 +88,10 @@ package com.robotacid.ai {
 			
 		}
 		
-		public function drawGraph(gfx:Graphics, scale:Number):void{
+		public function drawGraph(gfx:Graphics, scale:Number, topLeft:Pixel, bottomRight:Pixel):void{
 			var r:int, c:int, i:int;
-			for(r = 0; r < height; r++){
-				for(c = 0; c < width; c++){
+			for(r = topLeft.y; r <= bottomRight.y; r++){
+				for(c = topLeft.x; c < bottomRight.x; c++){
 					if(nodes[r][c]){
 						node = nodes[r][c];
 						gfx.drawCircle((node.x + 0.5) * scale, (node.y + 0.5) * scale, scale * 0.1);
@@ -126,13 +127,36 @@ package com.robotacid.ai {
 		}
 		
 		public function drawPath(path:Vector.<Node>, gfx:Graphics, scale:Number):void{
-			var i:int;
-			gfx.lineStyle(2, 0xFF0000);
+			var i:int, a:Node, b:Node;
 			for(i = 0; i < path.length; i++){
-				gfx.drawCircle((path[i].x + 0.5) * scale, (path[i].y + 0.5) * scale, scale * 0.25);
+				a = path[i];
+				gfx.drawCircle((a.x + 0.5) * scale, (a.y + 0.5) * scale, scale * 0.1);
 				if(i > 0){
-					gfx.moveTo((path[i].x + 0.5) * scale, (path[i].y + 0.5) * scale);
-					gfx.lineTo((path[i - 1].x + 0.5) * scale, (path[i - 1].y + 0.5) * scale);
+					b = path[i - 1];
+					gfx.moveTo((a.x + 0.5) * scale, (a.y + 0.5) * scale);
+					gfx.lineTo((b.x + 0.5) * scale, (b.y + 0.5) * scale);
+					// arrows
+					if(a.x == b.x){
+						if(b.y > a.y){
+							gfx.moveTo((a.x + 0.3) * scale, (a.y + 0.7) * scale);
+							gfx.lineTo((a.x + 0.5) * scale, (a.y + 0.8) * scale);
+							gfx.lineTo((a.x + 0.7) * scale, (a.y + 0.7) * scale);
+						} else if(b.y < a.y){
+							gfx.moveTo((a.x + 0.3) * scale, (a.y + 0.3) * scale);
+							gfx.lineTo((a.x + 0.5) * scale, (a.y + 0.2) * scale);
+							gfx.lineTo((a.x + 0.7) * scale, (a.y + 0.3) * scale);
+						}
+					} else if(a.y == b.y){
+						if(b.x > a.x){
+							gfx.moveTo((a.x + 0.7) * scale, (a.y + 0.3) * scale);
+							gfx.lineTo((a.x + 0.8) * scale, (a.y + 0.5) * scale);
+							gfx.lineTo((a.x + 0.7) * scale, (a.y + 0.7) * scale);
+						} else if(b.x < a.x){
+							gfx.moveTo((a.x + 0.3) * scale, (a.y + 0.3) * scale);
+							gfx.lineTo((a.x + 0.2) * scale, (a.y + 0.5) * scale);
+							gfx.lineTo((a.x + 0.3) * scale, (a.y + 0.7) * scale);
+						}
+					}
 				}
 			}
 		}

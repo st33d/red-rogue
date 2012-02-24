@@ -1,4 +1,4 @@
-Change log: added testbed area launch option, added ai graph remapper option
+Change log: made path variable local to Brain, discovered and fixed multiple entries in Brain.monsterCharacters, added teleport minion, added draw ai paths editor render option
 
 Bug hunt
 	collection lock out on chests after playing for a while - bugged chest or item?
@@ -6,8 +6,6 @@ Bug hunt
 	combo bug: minion, indifference, level 21, identify monster twice, minion portal - unreproducable
 
 create Editor in debug menu
-	create launch test bed option
-	recalculate AI graph option
 	create option
 		map features
 			traps

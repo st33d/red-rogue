@@ -2,6 +2,7 @@ package com.robotacid.ui {
 	import com.robotacid.ai.Brain;
 	import com.robotacid.ai.DungeonGraph;
 	import com.robotacid.ai.Node;
+	import com.robotacid.engine.Character;
 	import com.robotacid.geom.Pixel;
 	import com.robotacid.gfx.Renderer;
 	import com.robotacid.phys.Collider;
@@ -86,9 +87,10 @@ package com.robotacid.ui {
 		}
 		
 		public function render():void{
-			var i:int, rect:Rectangle;
-			var r:int, c:int;
-			var gfx:Graphics;
+			var i:int, r:int, c:int;
+			var rect:Rectangle, node:Node, character:Character;
+			var gfx:Graphics = sprite.graphics;
+			var graph:DungeonGraph = Brain.dungeonGraph;
 			
 			bitmapData.fillRect(bitmapData.rect, 0x00000000);
 			
@@ -102,45 +104,23 @@ package com.robotacid.ui {
 				}
 			}
 			if(menuList.renderAIGraphList.selection == EditorMenuList.ON){
-				var graph:DungeonGraph = Brain.dungeonGraph;
-				var node:Node;
-				gfx = sprite.graphics;
 				gfx.clear();
-				for(r = topLeft.y; r <= bottomRight.y; r++){
-					for(c = topLeft.x; c <= bottomRight.x; c++){
-						if(graph.nodes[r][c]){
-							node = graph.nodes[r][c];
-							gfx.lineStyle(2, 0xFFFF00, 0.3);
-							gfx.drawCircle((node.x + 0.5) * Game.SCALE, (node.y + 0.5) * Game.SCALE, Game.SCALE * 0.1);
-							for(i = 0; i < node.connections.length; i++){
-								gfx.moveTo((node.x + 0.5) * Game.SCALE, (node.y + 0.5) * Game.SCALE);
-								gfx.lineTo((node.connections[i].x + 0.5) * Game.SCALE, (node.connections[i].y + 0.5) * Game.SCALE);
-								// arrows
-								gfx.lineStyle(2, 0xFFFF00, 0.5);
-								if(node.connections[i].x == node.x){
-									if(node.connections[i].y > node.y){
-										gfx.moveTo((node.x + 0.3) * Game.SCALE, (node.y + 0.7) * Game.SCALE);
-										gfx.lineTo((node.x + 0.5) * Game.SCALE, (node.y + 0.8) * Game.SCALE);
-										gfx.lineTo((node.x + 0.7) * Game.SCALE, (node.y + 0.7) * Game.SCALE);
-									} else if(node.connections[i].y < node.y){
-										gfx.moveTo((node.x + 0.3) * Game.SCALE, (node.y + 0.3) * Game.SCALE);
-										gfx.lineTo((node.x + 0.5) * Game.SCALE, (node.y + 0.2) * Game.SCALE);
-										gfx.lineTo((node.x + 0.7) * Game.SCALE, (node.y + 0.3) * Game.SCALE);
-									}
-								} else if(node.connections[i].y == node.y){
-									if(node.connections[i].x > node.x){
-										gfx.moveTo((node.x + 0.7) * Game.SCALE, (node.y + 0.3) * Game.SCALE);
-										gfx.lineTo((node.x + 0.8) * Game.SCALE, (node.y + 0.5) * Game.SCALE);
-										gfx.lineTo((node.x + 0.7) * Game.SCALE, (node.y + 0.7) * Game.SCALE);
-									} else if(node.connections[i].x < node.x){
-										gfx.moveTo((node.x + 0.3) * Game.SCALE, (node.y + 0.3) * Game.SCALE);
-										gfx.lineTo((node.x + 0.2) * Game.SCALE, (node.y + 0.5) * Game.SCALE);
-										gfx.lineTo((node.x + 0.3) * Game.SCALE, (node.y + 0.7) * Game.SCALE);
-									}
-								}
-							}
-						}
+				gfx.lineStyle(2, 0xFFFF00, 0.4);
+				graph.drawGraph(gfx, Game.SCALE, topLeft, bottomRight);
+				bitmapData.draw(sprite, new Matrix(1, 0, 0, 1, -renderer.bitmap.x, -renderer.bitmap.y));
+			}
+			if(menuList.renderAIPathsList.selection == EditorMenuList.ON){
+				gfx.clear();
+				gfx.lineStyle(2, 0xFF0000, 0.5);
+				for(i = 0; i < Brain.monsterCharacters.length; i++){
+					character = Brain.monsterCharacters[i];
+					if(character.brain.state != Brain.PATROL){
+						if(character.brain.path) graph.drawPath(character.brain.path, gfx, Game.SCALE);
 					}
+				}
+				for(i = 0; i < Brain.playerCharacters.length; i++){
+					character = Brain.playerCharacters[i];
+					if(character.brain.path) graph.drawPath(character.brain.path, gfx, Game.SCALE);
 				}
 				bitmapData.draw(sprite, new Matrix(1, 0, 0, 1, -renderer.bitmap.x, -renderer.bitmap.y));
 			}
