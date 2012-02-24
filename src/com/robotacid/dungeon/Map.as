@@ -153,78 +153,9 @@
 			
 			fill(0, 1, 0, width-2, height-1, layers[BLOCKS]);
 			
-			// insert test code for items and such here
-			//layers[ENTITIES][9][7] = 62;
-			//layers[ENTITIES][44][6] = 22;
-			//layers[ENTITIES][44][8] = 22;
-			
-			// access points
-			setStairsUp(15, height - 2);
-			setStairsDown(10, height - 2);
-			
-			createSecretWall(7, height - 2);
-			
-			//setValue(5, height - 2, BLOCKS, MapTileConverter.WALL);
-			//setValue(5, height - 3, BLOCKS, MapTileConverter.WALL);
-			//setValue(5, height - 4, BLOCKS, MapTileConverter.WALL);
-			//setValue(5, height - 5, BLOCKS, MapTileConverter.WALL);
-			//setValue(5, height - 6, BLOCKS, MapTileConverter.WALL);
-			//setValue(3, height - 2, BLOCKS, MapTileConverter.WALL);
-			//setValue(3, height - 3, BLOCKS, MapTileConverter.WALL);
-			//setValue(3, height - 4, BLOCKS, MapTileConverter.WALL);
-			//setValue(3, height - 5, BLOCKS, MapTileConverter.WALL);
-			//setValue(3, height - 6, BLOCKS, MapTileConverter.WALL);
-			//setValue(6, height - 2, BLOCKS, MapTileConverter.LADDER);
-			//setValue(6, height - 3, BLOCKS, MapTileConverter.LADDER);
-			//setValue(6, height - 4, BLOCKS, MapTileConverter.LADDER);
-			//setValue(6, height - 5, BLOCKS, MapTileConverter.LADDER);
-			//setValue(6, height - 6, BLOCKS, MapTileConverter.LADDER);
-			//setValue(6, height - 7, BLOCKS, MapTileConverter.LADDER);
-			
-			//setValue(9, height - 2, BLOCKS, MapTileConverter.WALL);
-			//setValue(5, height - 2, ENTITIES, MapTileConverter.COG);
-			
-			
-			// create trap
-			//setValue(13, height - 5, BLOCKS, 1);
-			//setValue(13, height - 1, ENTITIES, 56);
-			
-			//setValue(11, height - 2, BLOCKS, MapTileConverter.LADDER);
-			//setValue(11, height - 3, BLOCKS, MapTileConverter.LADDER);
-			//setValue(11, height - 4, BLOCKS, MapTileConverter.LADDER);
-			
-			// monster debug
-			//createCharacter(10, height - 2, 2, 1);
-			//createCharacter(9, height - 2, 2, 1);
-			//createCharacter(8, height - 2, 2, 1);
-			//createCharacter(5, height - 2, 2, 1);
-			//createCharacter(4, height - 2, 2, 1);
-			//createCharacter(3, height - 2, 2, 1);
-			//createCharacter(2, height - 2, 2, 1);
-			//createCharacter(15, height - 2, 2, 1);
-			
-			// critter debug
-			//setValue(5, height - 2, ENTITIES, 62);
-			
-			
-			//createChaosWalls(bitmap.bitmapData.getVector(bitmap.bitmapData.rect));
-			//layers[ENTITIES][height - 2][4] = new ChaosWall(4, height - 2);
-			//layers[BLOCKS][height - 2][4] = MapTileConverter.WALL;
-			//layers[ENTITIES][height - 3][4] = new ChaosWall(4, height - 3);
-			//layers[BLOCKS][height - 3][4] = MapTileConverter.WALL;
-			//layers[ENTITIES][height - 4][4] = new ChaosWall(4, height - 4);
-			//layers[BLOCKS][height - 4][4] = MapTileConverter.WALL;
-			//layers[ENTITIES][height - 5][4] = new ChaosWall(4, height - 5);
-			//layers[BLOCKS][height - 5][4] = MapTileConverter.WALL;
-			
-			//var xml:XML = Content.createCharacterXML(1, Character.MONSTER);
-			//layers[ENTITIES][height - 6][4] = Content.convertXMLToEntity(4, height - 6, xml);
-			
-			//createSecretWall(15, height - 2);
-			
-			
-			//layers[BLOCKS][40][10] = 1;
-			//layers[BLOCKS][44][10] = 1;
+			// access point
+			setPortal((width * 0.5) >> 0, height - 2, <portal type={Portal.ITEM_RETURN} targetLevel={-1} />);
+			start = portals[0];
 		}
 		
 		/* This is where we convert our map template into a dungeon proper made of tileIds and other

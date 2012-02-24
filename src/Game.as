@@ -54,6 +54,7 @@
 	import flash.events.Event;
 	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
+	import flash.external.ExternalInterface;
 	import flash.geom.ColorTransform;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
@@ -80,7 +81,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 315;
+		public static const BUILD_NUM:int = 316;
 		
 		public static var game:Game;
 		public static var renderer:Renderer;
@@ -581,10 +582,10 @@
 			if(forceFocus){
 				onFocusLost();
 				forceFocus = false;
-				transition.init(function():void{}, null, levelName, true);
 			} else {
 				changeMusic();
 			}
+			transition.init(function():void{}, null, levelName, true);
 		}
 		
 		/* Pedantically clear all memory and re-init the project */
@@ -611,6 +612,12 @@
 			init();
 		}
 		
+		/* Enters the the testing area */
+		public function launchTestBed():void{
+			renderer.lightBitmap.visible = false;
+			changeLevel( -1, Portal.STAIRS);
+		}
+		
 		/* Used to change to a new level in the dungeon
 		 *
 		 * This method tries to wipe all layers whilst leaving the gaming architecture in place
@@ -620,6 +627,9 @@
 			// maintain debug state if present
 			if(dungeon.level == -1){
 				n = -1;
+				Player.previousLevel = -1;
+				Player.previousPortalType = Portal.ITEM;
+				Player.previousMapType = Map.MAIN_DUNGEON;
 				loaded = true;
 			}
 			
@@ -759,7 +769,6 @@
 					player.changeName(Character.ROGUE, new RogueMC);
 				}
 			}
-			
 			player.enterLevel(entrance, Player.previousLevel < game.dungeon.level ? Collider.RIGHT : Collider.LEFT);
 			changeMusic();
 		}

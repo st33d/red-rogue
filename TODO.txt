@@ -1,4 +1,4 @@
-Change log: added creation code for all current editor list items
+Change log: added testbed area launch option, added ai graph remapper option
 
 Bug hunt
 	collection lock out on chests after playing for a while - bugged chest or item?
@@ -7,22 +7,16 @@ Bug hunt
 
 create Editor in debug menu
 	create launch test bed option
-	set current dungeon level (affects dungeon level)
+	recalculate AI graph option
 	create option
 		map features
-			walls
-			ladders
-			ledges
 			traps
 			chaos walls
-		races
 		items
-	delete option
-		remove graphic from map
 
 AI issues:
 	Add some how add a random offset to AI search values - they're in ints (fuck knows, coin flipping?)
-	walks into wall constantly when too close
+		path caching - would that solve the problem, if the ai could rememeber where they were going?
 	monster AI jitter on ladder observed - investigate
 	possible dithering when a monster may get caught between meta-heuristic paths of equal value
 	bravery - monster makes so many attacks before retreating for a while

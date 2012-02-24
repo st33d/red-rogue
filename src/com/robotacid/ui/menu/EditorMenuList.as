@@ -1,5 +1,6 @@
 package com.robotacid.ui.menu {
 	import com.robotacid.dungeon.Content;
+	import com.robotacid.dungeon.DungeonBitmap;
 	import com.robotacid.engine.Character;
 	import com.robotacid.engine.Entity;
 	import com.robotacid.engine.MapTileConverter;
@@ -36,6 +37,8 @@ package com.robotacid.ui.menu {
 		public var objectLayerOption:MenuOption;
 		public var dungeonLevelOption:MenuOption;
 		public var renderOption:MenuOption;
+		public var launchTestBedOption:MenuOption;
+		public var remapAIGraphOption:MenuOption;
 		
 		public var renderCollisionOption:MenuOption;
 		public var renderAIGraphOption:MenuOption;
@@ -69,6 +72,10 @@ package com.robotacid.ui.menu {
 			objectLayerOption = new MenuOption("object layer", createObjectList);
 			dungeonLevelOption = new MenuOption("dungeon level", dungeonLevelList);
 			renderOption = new MenuOption("render", renderList);
+			launchTestBedOption = new MenuOption("launch test bed");
+			launchTestBedOption.selectionStep = 1;
+			remapAIGraphOption = new MenuOption("remap ai graph");
+			remapAIGraphOption.selectionStep = 1;
 			
 			deleteOption = new MenuOption("delete", null, false);
 			
@@ -90,6 +97,8 @@ package com.robotacid.ui.menu {
 			options.push(objectLayerOption);
 			options.push(dungeonLevelOption);
 			options.push(renderOption);
+			options.push(launchTestBedOption);
+			options.push(remapAIGraphOption);
 			
 			createBlockList.options.push(deleteOption);
 			createBlockList.options.push(wallOption);
@@ -140,12 +149,16 @@ package com.robotacid.ui.menu {
 				} else if(list == createBlockList){
 					if(option.name == "wall"){
 						id = MapTileConverter.WALL;
+						game.dungeon.bitmap.bitmapData.setPixel32(mapX, mapY, DungeonBitmap.WALL);
 					} else if(option.name == "ladder"){
 						id = MapTileConverter.LADDER;
+						game.dungeon.bitmap.bitmapData.setPixel32(mapX, mapY, DungeonBitmap.LADDER);
 					} else if(option.name == "ledge"){
 						id = MapTileConverter.LEDGE;
+						game.dungeon.bitmap.bitmapData.setPixel32(mapX, mapY, DungeonBitmap.LEDGE);
 					} else if(option.name == "ladder ledge"){
 						id = MapTileConverter.LADDER_LEDGE;
+						game.dungeon.bitmap.bitmapData.setPixel32(mapX, mapY, DungeonBitmap.LADDER_LEDGE);
 					}
 					game.world.map[mapY][mapX] = MapTileConverter.getMapProperties(id);
 					game.mapTileManager.changeLayer(MapTileManager.BLOCK_LAYER);
@@ -166,7 +179,6 @@ package com.robotacid.ui.menu {
 					
 				} else if(list == raceList){
 					xml =<character characterNum={-1} name={raceList.selection} type={Character.MONSTER} level={dungeonLevelList.selection + 1} />;
-					trace(xml.@level);
 					entity = Content.convertXMLToEntity(mapX, mapY, xml);
 					converter.convertIndicesToObjects(mapX, mapY, entity);
 				}

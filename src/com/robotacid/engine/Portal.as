@@ -104,6 +104,8 @@
 							blit = renderer.stairsUpFeatureBlit;
 						} else if(targetLevel > game.dungeon.level){
 							blit = renderer.stairsDownFeatureBlit;
+						} else {
+							blit = renderer.portalFeatureBlit;
 						}
 					} else {
 						blit = renderer.portalFeatureBlit;

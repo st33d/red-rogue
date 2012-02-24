@@ -1,4 +1,5 @@
 ﻿package com.robotacid.ui.menu {
+	import com.robotacid.ai.Brain;
 	import com.robotacid.dungeon.Map;
 	import com.robotacid.engine.Character;
 	import com.robotacid.engine.Effect;
@@ -722,6 +723,22 @@
 				else if(option == stairsUpPortalOption) teleportToPortal(Portal.STAIRS, game.dungeon.level - 1);
 				else if(option == overworldPortalOption) teleportToPortal(Portal.OVERWORLD);
 				else if(option == underworldPortalOption) teleportToPortal(Portal.UNDERWORLD);
+				
+			// launching the test bed
+			} else if(option == editorList.launchTestBedOption){
+				game.launchTestBed();
+				
+			// remapping the ai graph
+			} else if(option == editorList.remapAIGraphOption){
+				Brain.initDungeonGraph(game.dungeon.bitmap);
+				for(i = 0; i < Brain.monsterCharacters.length; i++){
+					character = Brain.monsterCharacters[i];
+					character.brain.clear();
+				}
+				for(i = 0; i < Brain.playerCharacters.length; i++){
+					character = Brain.playerCharacters[i];
+					character.brain.clear();
+				}
 			}
 			
 			// if the menu is open, force a renderer update so the player can see the changes,
