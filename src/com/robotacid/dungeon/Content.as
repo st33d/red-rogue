@@ -142,7 +142,7 @@
 			var quantity:int;
 			quantity = equipmentQuantityPerLevel(level);
 			while(quantity--){
-				equipment.push(createItemXML(level, Map.random.value() < 0.5 ? Item.WEAPON : Item.ARMOUR));
+				equipment.push(createItemXML(level, Map.random.value() <= 0.5 ? Item.WEAPON : Item.ARMOUR));
 			}
 			quantity = runeQuantityPerLevel(level);
 			while(quantity--){

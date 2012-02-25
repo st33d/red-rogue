@@ -145,6 +145,9 @@
 			
 			charPos.x = char.collider.x + char.collider.width * 0.5;
 			charPos.y = char.collider.y + char.collider.height * 0.5;
+			var charContact:Character;
+			if(char.collider.leftContact) charContact = char.collider.leftContact.userData as Character;
+			if(!charContact && char.collider.rightContact) charContact = char.collider.rightContact.userData as Character;
 			
 			crossedTileCenter = (
 				(prevCenter < char.tileCenter && charPos.x > char.tileCenter) ||
@@ -211,12 +214,8 @@
 				// any enemy touching us counts as a target, but we also look for targets
 				// rather than checking all enemy characters, we check one at a time each frame
 				if(scheduleTarget){
-					if(char.collider.leftContact && (char.collider.leftContact.properties & Collider.CHARACTER) && char.enemy(char.collider.leftContact.userData)){
-						target = char.collider.leftContact.userData as Character;
-						state = ATTACK;
-						count = 0;
-					} else if(char.collider.rightContact && (char.collider.rightContact.properties & Collider.CHARACTER) && char.enemy(char.collider.rightContact.userData)){
-						target = char.collider.rightContact.userData as Character;
+					if(charContact && char.enemy(charContact)){
+						target = charContact;
 						state = ATTACK;
 						count = 0;
 					
@@ -249,10 +248,17 @@
 					snipe(target);
 				} else {
 					chase(target);
+					// commute allies to the target
+					if(charContact && target.active && !char.enemy(charContact) && charContact.brain) charContact.brain.copyState(this);
 				}
 				
+				if(!target || !target.active){
+					target = null;
+					patrolAreaSet = false;
+					state = PATROL;
+					
 				// if the target is directly above, get the hell out of there
-				if(
+				} else if(
 					char.collider.y >= target.collider.y + target.collider.height &&
 					!(
 						char.collider.x >= target.collider.x + target.collider.width ||
@@ -263,14 +269,11 @@
 					count = delay + game.random.range(delay * 2);
 				}
 				
-				if(!target.active){
-					target = null;
-					patrolAreaSet = false;
-					state = PATROL;
-				}
 			} else if(state == FLEE){
 				
 				flee(target);
+				// commute allies away from the target
+				if(charContact && target.active && !char.enemy(charContact) && charContact.brain) charContact.brain.copyState(this);
 				if(count-- <= 0){
 					if(char.inTheDark){
 						// we want fleeing characters in the dark to go back to patrolling
@@ -287,12 +290,8 @@
 						count = 0;
 					}
 				}
-				if(char.collider.leftContact && (char.collider.leftContact.properties & Collider.CHARACTER) && char.enemy(char.collider.leftContact.userData)){
-					target = char.collider.leftContact.userData as Character;
-					state = ATTACK;
-					count = 0;
-				} else if(char.collider.rightContact && (char.collider.rightContact.properties & Collider.CHARACTER) && char.enemy(char.collider.rightContact.userData)){
-					target = char.collider.rightContact.userData as Character;
+				if(charContact && char.enemy(charContact)){
+					target = charContact;
 					state = ATTACK;
 					count = 0;
 				}
@@ -318,6 +317,13 @@
 			target = null;
 			patrolAreaSet = false;
 			state = PATROL;
+		}
+		
+		/* Copys one brain state on to another, along with target */
+		public function copyState(template:Brain):void{
+			template.state = state;
+			template.count = count;
+			template.target = target
 		}
 		
 		/* This walks a character left and right in their patrol area
@@ -348,8 +354,11 @@
 			
 			// are we in the same tile?
 			if(target.mapX == char.mapX && target.mapY == char.mapY){
-			
-				if(targetX < charPos.x) char.actions |= LEFT;
+				
+				// when no-clipping a target, get out of the current tile
+				if(!following && target.collider.intersects(char.collider)) flee(target);
+				// else approach the target
+				else if(targetX < charPos.x) char.actions |= LEFT;
 				else if(targetX > charPos.x) char.actions |= RIGHT;
 				if(target.collider.y >= char.collider.y + char.collider.height) char.actions |= DOWN;
 				// a climbing target is a deadly target - do not engage, run away

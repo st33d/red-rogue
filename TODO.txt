@@ -1,20 +1,17 @@
-Change log: added level completion percentage to lore>map, added completion prompt for clearing a level
+Change log: minion missile traffic wasn't on - fixed, added brain state copying for commuting monsters, added move out of tile when no clipping a chase target, fixed setStats equip bug, changed level clear msg to level based in main dungeon
 
 Bug hunt
 	can crash graph renderer by changing level	
 	collection lock out on chests after playing for a while - bugged chest or item?
 	minion summon after death? - unreproducable
 	combo bug: minion, indifference, level 21, identify monster twice, minion portal - unreproducable
-
+	
 create Editor in debug menu
 	create option
 		map features
 			traps
 			chaos walls
 		items
-
-level complete prompt
-	creating quest gems or monsters will bump the completion count
 
 refactor "Map" or "Dungeon" terminology - having both is just confusing
 
@@ -28,20 +25,14 @@ Tackle the AI problem
 			genius class
 			priority queue
 			slow path
-			
-	no clip handling
-		fear out of tile?
 		
-	someone in the way
-		infect target and emotional state
-	
-	the dither bug
-		*may be solved
-	
-
-
-
 	Fear spell
+		create Shade Characters (no-clip, tint black, alpha'd, drain health of target, same race as target)
+			create flood particles (track down along surfaces)
+				add to indifference
+					tint character black when wearing indifference
+				add to shades
+			
 	Confusion spell
 
 AI issues:

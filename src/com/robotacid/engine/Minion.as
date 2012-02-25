@@ -38,7 +38,7 @@
 			
 			inventory = game.menu.inventoryList;
 			
-			missileIgnore |= Collider.PLAYER | Collider.MINION;
+			missileIgnore |= Collider.PLAYER | Collider.MINION | Collider.PLAYER_MISSILE;
 			uniqueNameStr = DEFAULT_UNIQUE_NAME_STR;
 			
 			brain = new Brain(this, Brain.PLAYER, game.player);
@@ -60,7 +60,7 @@
 		override public function createCollider(x:Number, y:Number, properties:int, ignoreProperties:int, state:int = 0, positionByBase:Boolean = true):void {
 			super.createCollider(x, y, properties, ignoreProperties, state, positionByBase);
 			collider.properties |= Collider.MINION;
-			collider.ignoreProperties |= Collider.PLAYER | Collider.MINION;
+			collider.ignoreProperties |= Collider.PLAYER | Collider.MINION | Collider.PLAYER_MISSILE;
 			collider.stompProperties = Collider.MONSTER;
 		}
 		

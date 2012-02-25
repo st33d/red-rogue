@@ -322,7 +322,7 @@
 			// re-equip
 			if(weaponTemp) equip(weaponTemp);
 			if(armourTemp) equip(armourTemp);
-			if(throwableTemp) equip(throwableTemp);
+			if(throwableTemp) equip(throwableTemp, true);
 		}
 		
 		override public function createCollider(x:Number, y:Number, properties:int, ignoreProperties:int, state:int = 0, positionByBase:Boolean = true):void {

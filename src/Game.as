@@ -81,7 +81,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 319;
+		public static const BUILD_NUM:int = 320;
 		
 		public static const TEST_BED_INIT:Boolean = false;
 		
@@ -1029,8 +1029,9 @@
 		}
 		
 		public function levelCompleteMsg():void{
-			var nameStr:String = Map.getName(game.dungeon.type, game.dungeon.level);
-			if(game.dungeon.type == Map.MAIN_DUNGEON) nameStr += " : " + game.dungeon.level;
+			var nameStr:String;
+			if(game.dungeon.type == Map.MAIN_DUNGEON) nameStr = "level " + game.dungeon.level;
+			else nameStr = Map.getName(game.dungeon.type, game.dungeon.level);
 			console.print(nameStr + " cleared");
 		}
 		
