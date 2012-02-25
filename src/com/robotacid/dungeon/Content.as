@@ -236,12 +236,13 @@
 		/* Distributes content across a level
 		 * 
 		 * Portals we leave alone for the Map to request when it needs to create access points */
-		public function populateLevel(level:int, bitmap:DungeonBitmap, layers:Array, mapType:int):void{
+		public function populateLevel(level:int, bitmap:DungeonBitmap, layers:Array, mapType:int):int{
 			var r:int, c:int;
 			var i:int;
 			var monsters:Vector.<XML>;
 			var chests:Vector.<XML>;
 			var questGems:int = 0;
+			var completionCount:int = 0;
 			if(mapType == Map.MAIN_DUNGEON){
 				if(level < monstersByLevel.length){
 					monsters = monstersByLevel[level];
@@ -262,6 +263,11 @@
 			// distribute
 			
 			if(mapType != Map.AREA){
+				
+				completionCount += monsters.length;
+				completionCount += chests.length;
+				completionCount += questGems;
+				
 				// just going to go for a random drop for now.
 				// I intend to figure out a distribution pattern later
 				while(monsters.length){
@@ -315,6 +321,8 @@
 					}
 				}
 			}
+			
+			return completionCount;
 		}
 		
 		/* Distributes quest gems to the map */

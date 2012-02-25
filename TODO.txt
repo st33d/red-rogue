@@ -1,4 +1,4 @@
-Change log: added patrol path rendering to editor ai render, added main-dungeon lighting or area lighting setting to test bed, added rendering parent colliders to editor, added test bed init constant, added coords to editor highlight rect, added panic node selection when reaching a metaheuristic path-find dead end
+Change log: added level completion percentage to lore>map, added completion prompt for clearing a level
 
 Bug hunt
 	can crash graph renderer by changing level	
@@ -13,15 +13,30 @@ create Editor in debug menu
 			chaos walls
 		items
 
-			
-		
+level complete prompt
+	creating quest gems or monsters will bump the completion count
+
+refactor "Map" or "Dungeon" terminology - having both is just confusing
+
+hide a plus one mace in a secret room above the grindstone
+
+animate the trap marker - it should bling in the level when searched
+
 Tackle the AI problem
 	meta-heuristic block - path too long
-		panic paths
-			player must cross center of start node
+		genius chase solver backup graph
+			genius class
+			priority queue
+			slow path
+			
 	no clip handling
+		fear out of tile?
+		
 	someone in the way
+		infect target and emotional state
+	
 	the dither bug
+		*may be solved
 	
 
 

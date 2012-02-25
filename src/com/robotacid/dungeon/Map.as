@@ -50,6 +50,8 @@
 		public var stairsDown:Pixel;
 		public var portals:Vector.<Pixel>;
 		public var zone:int;
+		public var completionCount:int;
+		public var completionTotal:int;
 		
 		public var bitmap:DungeonBitmap;
 		
@@ -94,6 +96,7 @@
 		public function Map(level:int, type:int = MAIN_DUNGEON) {
 			this.level = level;
 			this.type = type;
+			completionCount = completionTotal = 0;
 			layers = [];
 			portals = new Vector.<Pixel>();
 			if(type == MAIN_DUNGEON || type == ITEM_DUNGEON){
@@ -336,18 +339,20 @@
 				// a good dungeon needs to be full of loot and monsters
 				// in comes the content manager to mete out a decent amount of action and reward per level
 				// content manager stocks are limited to avoid scumming
-				game.content.populateLevel(level, bitmap, layers, type);
+				completionCount += game.content.populateLevel(level, bitmap, layers, type);
 				
 			} else if(type == ITEM_DUNGEON){
 				portalType = portalXMLs[0].@type;
 				createAccessPoint(portalType, sortRoomsTopWards, portalXMLs[0]);
-				game.content.populateLevel(level, bitmap, layers, type);
+				completionCount += game.content.populateLevel(level, bitmap, layers, type);
 			}
 			
 			// now add some flavour
 			createChaosWalls(pixels);
 			createOtherTraps();
 			createCritters();
+			
+			completionTotal = completionCount;
 		}
 		
 		/* Create the overworld
@@ -716,6 +721,7 @@
 			];
 			
 			var totalTraps:int = game.content.getTraps(level, type) - bitmap.pitTraps;
+			completionCount += totalTraps;
 			if(totalTraps == 0) return;
 			
 			var dartPos:Pixel;
@@ -789,6 +795,7 @@
 			wall.mapY = y;
 			wall.mapZ = MapTileManager.ENTITY_LAYER;
 			layers[ENTITIES][y][x] = wall;
+			completionCount++;
 		}
 		
 		/* Creates a pit trap */
@@ -801,6 +808,7 @@
 			trap.mapY = y;
 			trap.mapZ = MapTileManager.ENTITY_LAYER;
 			layers[ENTITIES][y][x] = trap;
+			completionCount++;
 		}
 		
 		/* Used to clear out a section of a grid or flood it with a particular tile type */

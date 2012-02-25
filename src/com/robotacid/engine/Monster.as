@@ -107,6 +107,7 @@
 			}
 			
 			Brain.monsterCharacters.splice(Brain.monsterCharacters.indexOf(this), 1);
+			if(--game.dungeon.completionCount == 0) game.levelCompleteMsg();
 		}
 		
 		override public function remove():void {

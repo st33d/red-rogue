@@ -143,6 +143,7 @@
 					minimapFX.active = false;
 					minimapFX = null;
 				}
+				if(--game.dungeon.completionCount == 0) game.levelCompleteMsg();
 				
 			} else if(type == POISON_DART){
 				game.console.print("poison trap triggered");
@@ -195,6 +196,7 @@
 			}
 			game.player.addXP(DISARMING_XP_REWARD * game.dungeon.level);
 			game.content.removeTrap(game.dungeon.level, game.dungeon.type);
+			if(--game.dungeon.completionCount == 0) game.levelCompleteMsg();
 		}
 		
 		/* Launches a missile from the ceiling that bears a magic effect */

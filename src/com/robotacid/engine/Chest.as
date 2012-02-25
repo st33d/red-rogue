@@ -74,6 +74,7 @@
 			game.soundQueue.add("chestOpen");
 			contents = null;
 			callMain = false;
+			if(--game.dungeon.completionCount == 0) game.levelCompleteMsg();
 		}
 		
 		override public function nameToString():String {

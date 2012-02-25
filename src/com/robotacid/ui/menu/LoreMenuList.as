@@ -1,8 +1,11 @@
 package com.robotacid.ui.menu {
+	import com.robotacid.dungeon.Map;
 	import com.robotacid.engine.Character;
 	import com.robotacid.engine.Entity;
 	import com.robotacid.engine.Item;
 	import com.robotacid.ui.TextBox;
+	import flash.display.BitmapData;
+	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	/**
 	 * Manages the Lore section of the menu, updating through use of the identify Effect as well as
@@ -124,21 +127,30 @@ package com.robotacid.ui.menu {
 		
 		/* Callback for mapInfo rendering */
 		private function renderMap():void{
-			if(infoTextBox.text != "") infoTextBox.text = "";
+			var textBuffer:BitmapData;
 			var col:uint = infoTextBox.backgroundCol;
+			var nameStr:String = Map.getName(game.dungeon.type, game.dungeon.level);
+			if(game.dungeon.type == Map.MAIN_DUNGEON) nameStr += " : " + game.dungeon.level;
+			if(game.dungeon.completionTotal){
+				if(game.dungeon.completionCount == 0) nameStr += "\n100%";
+				else {
+					var total:int = 100 - (((100 / game.dungeon.completionTotal) * game.dungeon.completionCount) >> 0);
+					nameStr += "\n" + total + "%";
+				}
+			}
+			
+			infoTextBox.backgroundCol = 0x00000000;
+			infoTextBox.align = "center";
+			infoTextBox.text = nameStr;
+			textBuffer = infoTextBox.bitmapData.clone();
+			
 			infoTextBox.backgroundCol = 0x99666666;
-			infoTextBox.drawBorder();
-			infoTextBox.backgroundCol = col;
+			infoTextBox.text = "";
 			game.miniMap.renderTo(infoTextBox.bitmapData);
-			// redraw border - overlap looks ugly
-			var horiz:Rectangle = new Rectangle(0, 0, infoTextBox.width, 1);
-			infoTextBox.bitmapData.fillRect(horiz, infoTextBox.borderCol);
-			horiz.y = infoTextBox.height - 1;
-			infoTextBox.bitmapData.fillRect(horiz, infoTextBox.borderCol);
-			var vert:Rectangle = new Rectangle(0, 0, 1, infoTextBox.height);
-			infoTextBox.bitmapData.fillRect(vert, infoTextBox.borderCol);
-			vert.y = infoTextBox.width - 1;
-			infoTextBox.bitmapData.fillRect(vert, infoTextBox.borderCol);
+			infoTextBox.bitmapData.copyPixels(textBuffer, textBuffer.rect, new Point(), null, null, true);
+			
+			infoTextBox.backgroundCol = col;
+			infoTextBox.align = "left";
 		}
 		
 		/* Callback for raceInfo rendering */

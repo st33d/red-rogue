@@ -197,6 +197,8 @@
 			// strip the monster of items - this is not an item farming spell
 			delete monsterTemplate.item;
 			monsterTotal = game.dungeon.level < Game.MAX_LEVEL ? game.dungeon.level : Game.MAX_LEVEL;
+			game.dungeon.completionCount += monsterTotal;
+			game.dungeon.completionTotal += monsterTotal;
 			monsterEntryCount = MONSTERS_ENTRY_DELAY;
 		}
 		

@@ -81,7 +81,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 318;
+		public static const BUILD_NUM:int = 319;
 		
 		public static const TEST_BED_INIT:Boolean = false;
 		
@@ -1026,6 +1026,12 @@
 			lives--;
 			if(lives == 0) livesPanel.visible = false;
 			console.print("this is not how the game is meant to be played");
+		}
+		
+		public function levelCompleteMsg():void{
+			var nameStr:String = Map.getName(game.dungeon.type, game.dungeon.level);
+			if(game.dungeon.type == Map.MAIN_DUNGEON) nameStr += " : " + game.dungeon.level;
+			console.print(nameStr + " cleared");
 		}
 		
 		private function mouseDown(e:MouseEvent):void{
