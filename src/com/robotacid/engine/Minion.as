@@ -77,6 +77,7 @@
 			if(state == WALKING && (queueSummons || !game.mapTileManager.intersects(collider, Game.SCALE * 2))){
 				teleportToPlayer();
 			}
+			tileCenter = (mapX + 0.5) * SCALE;
 			if(state == WALKING) brain.main();
 			super.main();
 			minimapFX.x = mapX;

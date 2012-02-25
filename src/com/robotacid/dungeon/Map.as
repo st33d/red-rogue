@@ -151,7 +151,7 @@
 			// game objects
 			layers.push(createGrid(null, width, height));
 			
-			fill(0, 1, 0, width-2, height-1, layers[BLOCKS]);
+			fill(0, 1, 1, width-2, height-2, layers[BLOCKS]);
 			
 			// access point
 			setPortal((width * 0.5) >> 0, height - 2, <portal type={Portal.ITEM_RETURN} targetLevel={-1} />);

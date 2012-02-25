@@ -1,6 +1,7 @@
-Change log: made path variable local to Brain, discovered and fixed multiple entries in Brain.monsterCharacters, added teleport minion, added draw ai paths editor render option
+Change log: added patrol path rendering to editor ai render, added main-dungeon lighting or area lighting setting to test bed, added rendering parent colliders to editor, added test bed init constant, added coords to editor highlight rect, added panic node selection when reaching a metaheuristic path-find dead end
 
 Bug hunt
+	can crash graph renderer by changing level	
 	collection lock out on chests after playing for a while - bugged chest or item?
 	minion summon after death? - unreproducable
 	combo bug: minion, indifference, level 21, identify monster twice, minion portal - unreproducable
@@ -12,7 +13,28 @@ create Editor in debug menu
 			chaos walls
 		items
 
+			
+		
+Tackle the AI problem
+	meta-heuristic block - path too long
+		panic paths
+			player must cross center of start node
+	no clip handling
+	someone in the way
+	the dither bug
+	
+
+
+
+	Fear spell
+	Confusion spell
+
 AI issues:
+	
+
+
+
+
 	Add some how add a random offset to AI search values - they're in ints (fuck knows, coin flipping?)
 		path caching - would that solve the problem, if the ai could rememeber where they were going?
 	monster AI jitter on ladder observed - investigate

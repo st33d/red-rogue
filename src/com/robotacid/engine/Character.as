@@ -381,7 +381,6 @@
 		// This chunk is the core state machine for all Characters
 		protected function move():void{
 			
-			tileCenter = (mapX + 0.5) * SCALE;
 			var mc:MovieClip = gfx as MovieClip;
 			
 			var moveSpeedTemp:Number = speedModifier;

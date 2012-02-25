@@ -31,6 +31,7 @@ package com.robotacid.ui {
 		public var bitmap:Bitmap;
 		public var bitmapData:BitmapData;
 		public var sprite:Sprite;
+		public var textBox:TextBox;
 		
 		public var active:Boolean;
 		public var mapX:int;
@@ -50,6 +51,7 @@ package com.robotacid.ui {
 			topLeft = new Pixel();
 			bottomRight = new Pixel();
 			sprite = new Sprite();
+			textBox = new TextBox(100, 12, 0x00000000, 0x00000000);
 			
 			//active = true;
 		}
@@ -88,14 +90,25 @@ package com.robotacid.ui {
 		
 		public function render():void{
 			var i:int, r:int, c:int;
-			var rect:Rectangle, node:Node, character:Character;
+			var node:Node, character:Character;
 			var gfx:Graphics = sprite.graphics;
 			var graph:DungeonGraph = Brain.dungeonGraph;
+			var rect:Rectangle = new Rectangle();
 			
 			bitmapData.fillRect(bitmapData.rect, 0x00000000);
 			
 			// render settings
 			if(menuList.renderCollisionList.selection == EditorMenuList.ON){
+				// parent colliders
+				for(i = 0; i < game.world.colliders.length; i++){
+					if(game.world.colliders[i].parent){
+						rect = game.world.colliders[i].parent.clone();
+						rect.x -= renderer.bitmap.x;
+						rect.y -= renderer.bitmap.y;
+						bitmapData.fillRect(rect, 0xCC0000FF);
+					}
+				}
+				// colliders
 				for(i = 0; i < game.world.colliders.length; i++){
 					rect = game.world.colliders[i].clone();
 					rect.x -= renderer.bitmap.x;
@@ -111,16 +124,40 @@ package com.robotacid.ui {
 			}
 			if(menuList.renderAIPathsList.selection == EditorMenuList.ON){
 				gfx.clear();
-				gfx.lineStyle(2, 0xFF0000, 0.5);
+				rect.width = rect.height = 5;
 				for(i = 0; i < Brain.monsterCharacters.length; i++){
 					character = Brain.monsterCharacters[i];
-					if(character.brain.state != Brain.PATROL){
+					rect.x = -renderer.bitmap.x + character.mapX * Game.SCALE;
+					rect.y = -renderer.bitmap.y + character.mapY * Game.SCALE;
+					bitmapData.fillRect(rect, 0xCCFF00FF);
+					if(character.brain.state != Brain.PATROL && character.brain.state != Brain.PAUSE){
+						gfx.lineStyle(2, 0xFF0000, 0.5);
 						if(character.brain.path) graph.drawPath(character.brain.path, gfx, Game.SCALE);
+						if(character.brain.panicNode) gfx.drawCircle(
+							(character.brain.panicNode.x + 0.5) * Game.SCALE,
+							(character.brain.panicNode.y + 0.5) * Game.SCALE,
+						Game.SCALE * 0.2);
+					} else {
+						if(character.brain.patrolAreaSet){
+							gfx.lineStyle(2, 0x0000FF, 0.5);
+							gfx.drawCircle(character.brain.patrolMinX, (character.mapY + 0.5) * Game.SCALE, Game.SCALE * 0.2);
+							gfx.drawCircle(character.brain.patrolMaxX, (character.mapY + 0.5) * Game.SCALE, Game.SCALE * 0.2);
+							gfx.moveTo(character.brain.patrolMinX, (character.mapY + 0.5) * Game.SCALE);
+							gfx.lineTo(character.brain.patrolMaxX, (character.mapY + 0.5) * Game.SCALE);
+						}
 					}
 				}
+				gfx.lineStyle(2, 0xFF0000, 0.5);
 				for(i = 0; i < Brain.playerCharacters.length; i++){
 					character = Brain.playerCharacters[i];
+					rect.x = -renderer.bitmap.x + character.mapX * Game.SCALE;
+					rect.y = -renderer.bitmap.y + character.mapY * Game.SCALE;
+					bitmapData.fillRect(rect, 0xCCFF00FF);
 					if(character.brain.path) graph.drawPath(character.brain.path, gfx, Game.SCALE);
+						if(character.brain.panicNode) gfx.drawCircle(
+							(character.brain.panicNode.x + 0.5) * Game.SCALE,
+							(character.brain.panicNode.y + 0.5) * Game.SCALE,
+						Game.SCALE * 0.2);
 				}
 				bitmapData.draw(sprite, new Matrix(1, 0, 0, 1, -renderer.bitmap.x, -renderer.bitmap.y));
 			}
@@ -138,6 +175,9 @@ package com.robotacid.ui {
 			point.x = -renderer.bitmap.x + mapX * Game.SCALE;
 			point.y = -renderer.bitmap.y + mapY * Game.SCALE;
 			bitmapData.copyPixels(highlight, highlight.rect, point, null, null, true);
+			point.x += highlight.rect.width + 1;
+			textBox.text = mapX + "," + mapY;
+			bitmapData.copyPixels(textBox.bitmapData, textBox.bitmapData.rect, point, null, null, true);
 		}
 		
 	}

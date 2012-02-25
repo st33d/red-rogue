@@ -38,6 +38,7 @@
 		public var scheduleTarget:Character;
 		public var leader:Character;
 		public var path:Vector.<Node>;
+		public var panicNode:Node;
 		
 		public var state:int;
 		public var count:int;
@@ -52,6 +53,7 @@
 		public var allegiance:int;
 		public var searchSteps:int;
 		public var firingTeam:int;
+		public var prevCenter:Number;
 		
 		public static var playerCharacters:Vector.<Character>;
 		public static var monsterCharacters:Vector.<Character>;
@@ -63,6 +65,7 @@
 		private static var charPos:Point = new Point();
 		private static var scheduleTargetPos:Point = new Point();
 		private static var voiceDist:int;
+		private static var crossedTileCenter:Boolean;
 		
 		// alliegances
 		public static const PLAYER:int = 0;
@@ -128,6 +131,7 @@
 			sheduleIndex = 0;
 			allyIndex = 0;
 			ignore = Collider.LEDGE | Collider.LADDER | Collider.HEAD | Collider.CORPSE | Collider.ITEM;
+			prevCenter = char.collider.x + char.collider.width * 0.5;
 			if(allegiance == PLAYER){
 				ignore |= Collider.MINION | Collider.PLAYER;
 				searchSteps = MINION_SEARCH_STEPS;
@@ -141,6 +145,11 @@
 			
 			charPos.x = char.collider.x + char.collider.width * 0.5;
 			charPos.y = char.collider.y + char.collider.height * 0.5;
+			
+			crossedTileCenter = (
+				(prevCenter < char.tileCenter && charPos.x > char.tileCenter) ||
+				(prevCenter > char.tileCenter && charPos.x < char.tileCenter)
+			);
 			
 			if(allegiance == PLAYER){
 				if(monsterCharacters.length){
@@ -299,6 +308,7 @@
 			//} else if(state == PAUSE){
 				//char.gfx.transform.colorTransform = new ColorTransform(1, 1, 1, 1, 0, 150, 100);
 			//}
+			prevCenter = charPos.x;
 		}
 		
 		/* Abandons any targets and reverts to PATROL state
@@ -357,14 +367,31 @@
 				
 				// no node means the character must be falling or clipping a ledge
 				if(start){
+					
 					path = dungeonGraph.getPathTo(start, dungeonGraph.nodes[target.mapY][target.mapX], searchSteps);
 					
 					if(path){
 						
-						//if(char == game.minion) dungeonGraph.drawPath(path, Game.debug, SCALE);
-						//dungeonGraph.drawPath(path, Game.debug, SCALE);
-						
+						// choose node
 						node = path[path.length - 1];
+						
+						// is this a metaheuristic dead end? choose a panic node
+						if(path.length == 1 && node == start && !(node.x == target.mapX && node.y == target.mapY)){
+							// only select a panic node after crossing the center of the tile
+							if(!panicNode){
+								if(!crossedTileCenter){
+									if(charPos.x < char.tileCenter) char.actions |= RIGHT;
+									else if(charPos.x > char.tileCenter) char.actions |= LEFT;
+								} else {
+									panicNode = dungeonGraph.getPanicNode(start, game.random);
+								}
+							}
+							if(panicNode) node = panicNode;
+						} else if(panicNode){
+							panicNode = null;
+						}
+						
+						// navigate to node
 						if(node.y == char.mapY){
 							if(node.x > char.mapX){
 								char.actions |= RIGHT;
@@ -394,7 +421,6 @@
 							// in moving from horizontal to vertical movement
 							if(node.y > char.mapY){
 								char.actions |= DOWN;
-								
 								if(charPos.x > char.tileCenter) char.actions |= LEFT;
 								else if(charPos.x < char.tileCenter) char.actions |= RIGHT;
 								
@@ -407,17 +433,18 @@
 										char.actions |= UP;
 									}
 								} else {
-									if(charPos.x < char.tileCenter) char.actions |= LEFT;
-									else if(charPos.x > char.tileCenter) char.actions |= RIGHT;
+									if(charPos.x > char.tileCenter) char.actions |= LEFT;
+									else if(charPos.x < char.tileCenter) char.actions |= RIGHT;
 								}
 							}
 						}
 					}
 					
+				// no path data to work with
 				} else {
 					// character might be standing on the edge of a ledge - outside of a node
 					char.actions |= DOWN;
-					// chase the target
+					// chase the target blindly
 					if(targetX < charPos.x) char.actions |= LEFT;
 					else if(targetX > charPos.x) char.actions |= RIGHT;
 					
@@ -453,10 +480,25 @@
 					
 					if(path){
 						
-						//if(char == game.minion) dungeonGraph.drawPath(path, Game.debug, SCALE);
-						//dungeonGraph.drawPath(path, Game.debug, SCALE);
-						
+						// choose node
 						node = path[path.length - 1];
+						
+						// is this a metaheuristic dead end? choose a panic node
+						if(path.length == 1 && node == start){
+							// only select a panic node after crossing the center of the tile
+							if(!panicNode){
+								if(!crossedTileCenter){
+									if(charPos.x < char.tileCenter) char.actions |= RIGHT;
+									else if(charPos.x > char.tileCenter) char.actions |= LEFT;
+								} else {
+									panicNode = dungeonGraph.getPanicNode(start, game.random);
+								}
+							}
+							if(panicNode) node = panicNode;
+						} else if(panicNode){
+							panicNode = null;
+						}
+						
 						if(node.y == char.mapY){
 							if(node.x > char.mapX){
 								char.actions |= RIGHT;
@@ -486,7 +528,6 @@
 							// in moving from horizontal to vertical movement
 							if(node.y > char.mapY){
 								char.actions |= DOWN;
-								
 								if(charPos.x > char.tileCenter) char.actions |= LEFT;
 								else if(charPos.x < char.tileCenter) char.actions |= RIGHT;
 								
@@ -494,8 +535,8 @@
 								if(char.canClimb()){
 									char.actions |= UP;
 								} else {
-									if(charPos.x < char.tileCenter) char.actions |= LEFT;
-									else if(charPos.x > char.tileCenter) char.actions |= RIGHT;
+									if(charPos.x > char.tileCenter) char.actions |= LEFT;
+									else if(charPos.x < char.tileCenter) char.actions |= RIGHT;
 								}
 							}
 						}

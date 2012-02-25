@@ -1,6 +1,7 @@
 package com.robotacid.ai {
 	import com.robotacid.dungeon.DungeonBitmap;
 	import com.robotacid.geom.Pixel;
+	import com.robotacid.util.XorRandom;
 	import flash.display.Graphics;
 	/**
 	 * Provides a searchable graph for the Brain object
@@ -86,79 +87,6 @@ package com.robotacid.ai {
 				}
 			}
 			
-		}
-		
-		public function drawGraph(gfx:Graphics, scale:Number, topLeft:Pixel, bottomRight:Pixel):void{
-			var r:int, c:int, i:int;
-			for(r = topLeft.y; r <= bottomRight.y; r++){
-				for(c = topLeft.x; c < bottomRight.x; c++){
-					if(nodes[r][c]){
-						node = nodes[r][c];
-						gfx.drawCircle((node.x + 0.5) * scale, (node.y + 0.5) * scale, scale * 0.1);
-						for(i = 0; i < node.connections.length; i++){
-							gfx.moveTo((node.x + 0.5) * scale, (node.y + 0.5) * scale);
-							gfx.lineTo((node.connections[i].x + 0.5) * scale, (node.connections[i].y + 0.5) * scale);
-							// arrows
-							if(node.connections[i].x == node.x){
-								if(node.connections[i].y > node.y){
-									gfx.moveTo((node.x + 0.3) * scale, (node.y + 0.7) * scale);
-									gfx.lineTo((node.x + 0.5) * scale, (node.y + 0.8) * scale);
-									gfx.lineTo((node.x + 0.7) * scale, (node.y + 0.7) * scale);
-								} else if(node.connections[i].y < node.y){
-									gfx.moveTo((node.x + 0.3) * scale, (node.y + 0.3) * scale);
-									gfx.lineTo((node.x + 0.5) * scale, (node.y + 0.2) * scale);
-									gfx.lineTo((node.x + 0.7) * scale, (node.y + 0.3) * scale);
-								}
-							} else if(node.connections[i].y == node.y){
-								if(node.connections[i].x > node.x){
-									gfx.moveTo((node.x + 0.7) * scale, (node.y + 0.3) * scale);
-									gfx.lineTo((node.x + 0.8) * scale, (node.y + 0.5) * scale);
-									gfx.lineTo((node.x + 0.7) * scale, (node.y + 0.7) * scale);
-								} else if(node.connections[i].x < node.x){
-									gfx.moveTo((node.x + 0.3) * scale, (node.y + 0.3) * scale);
-									gfx.lineTo((node.x + 0.2) * scale, (node.y + 0.5) * scale);
-									gfx.lineTo((node.x + 0.3) * scale, (node.y + 0.7) * scale);
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-		
-		public function drawPath(path:Vector.<Node>, gfx:Graphics, scale:Number):void{
-			var i:int, a:Node, b:Node;
-			for(i = 0; i < path.length; i++){
-				a = path[i];
-				gfx.drawCircle((a.x + 0.5) * scale, (a.y + 0.5) * scale, scale * 0.1);
-				if(i > 0){
-					b = path[i - 1];
-					gfx.moveTo((a.x + 0.5) * scale, (a.y + 0.5) * scale);
-					gfx.lineTo((b.x + 0.5) * scale, (b.y + 0.5) * scale);
-					// arrows
-					if(a.x == b.x){
-						if(b.y > a.y){
-							gfx.moveTo((a.x + 0.3) * scale, (a.y + 0.7) * scale);
-							gfx.lineTo((a.x + 0.5) * scale, (a.y + 0.8) * scale);
-							gfx.lineTo((a.x + 0.7) * scale, (a.y + 0.7) * scale);
-						} else if(b.y < a.y){
-							gfx.moveTo((a.x + 0.3) * scale, (a.y + 0.3) * scale);
-							gfx.lineTo((a.x + 0.5) * scale, (a.y + 0.2) * scale);
-							gfx.lineTo((a.x + 0.7) * scale, (a.y + 0.3) * scale);
-						}
-					} else if(a.y == b.y){
-						if(b.x > a.x){
-							gfx.moveTo((a.x + 0.7) * scale, (a.y + 0.3) * scale);
-							gfx.lineTo((a.x + 0.8) * scale, (a.y + 0.5) * scale);
-							gfx.lineTo((a.x + 0.7) * scale, (a.y + 0.7) * scale);
-						} else if(b.x < a.x){
-							gfx.moveTo((a.x + 0.3) * scale, (a.y + 0.3) * scale);
-							gfx.lineTo((a.x + 0.2) * scale, (a.y + 0.5) * scale);
-							gfx.lineTo((a.x + 0.3) * scale, (a.y + 0.7) * scale);
-						}
-					}
-				}
-			}
 		}
 		
 		/* Returns a vector of nodes describing a route from the start Node to the finish Node
@@ -247,8 +175,6 @@ package com.robotacid.ai {
 			return path;
 		}
 		
-		
-		
 		/* Returns a vector of nodes describing a route from the start Node away from the target Node
 		 *
 		 * This algorithm, we'll call Brown*, is simply A* but with the heuristic rearranged to send
@@ -335,6 +261,86 @@ package com.robotacid.ai {
 			return path;
 		}
 		
+		/* Chooses a node at random in the hope that it might lead somewhere */
+		public function getPanicNode(start:Node, random:XorRandom):Node{
+			if(start.connections.length == 1) return start.connections[0];
+			return start.connections[random.rangeInt(start.connections.length)];
+		}
+		
+		/* Diagnositic illustration of the AI graph for the map */
+		public function drawGraph(gfx:Graphics, scale:Number, topLeft:Pixel, bottomRight:Pixel):void{
+			var r:int, c:int, i:int;
+			for(r = topLeft.y; r <= bottomRight.y; r++){
+				for(c = topLeft.x; c < bottomRight.x; c++){
+					if(nodes[r][c]){
+						node = nodes[r][c];
+						gfx.drawCircle((node.x + 0.5) * scale, (node.y + 0.5) * scale, scale * 0.1);
+						for(i = 0; i < node.connections.length; i++){
+							gfx.moveTo((node.x + 0.5) * scale, (node.y + 0.5) * scale);
+							gfx.lineTo((node.connections[i].x + 0.5) * scale, (node.connections[i].y + 0.5) * scale);
+							// arrows
+							if(node.connections[i].x == node.x){
+								if(node.connections[i].y > node.y){
+									gfx.moveTo((node.x + 0.3) * scale, (node.y + 0.7) * scale);
+									gfx.lineTo((node.x + 0.5) * scale, (node.y + 0.8) * scale);
+									gfx.lineTo((node.x + 0.7) * scale, (node.y + 0.7) * scale);
+								} else if(node.connections[i].y < node.y){
+									gfx.moveTo((node.x + 0.3) * scale, (node.y + 0.3) * scale);
+									gfx.lineTo((node.x + 0.5) * scale, (node.y + 0.2) * scale);
+									gfx.lineTo((node.x + 0.7) * scale, (node.y + 0.3) * scale);
+								}
+							} else if(node.connections[i].y == node.y){
+								if(node.connections[i].x > node.x){
+									gfx.moveTo((node.x + 0.7) * scale, (node.y + 0.3) * scale);
+									gfx.lineTo((node.x + 0.8) * scale, (node.y + 0.5) * scale);
+									gfx.lineTo((node.x + 0.7) * scale, (node.y + 0.7) * scale);
+								} else if(node.connections[i].x < node.x){
+									gfx.moveTo((node.x + 0.3) * scale, (node.y + 0.3) * scale);
+									gfx.lineTo((node.x + 0.2) * scale, (node.y + 0.5) * scale);
+									gfx.lineTo((node.x + 0.3) * scale, (node.y + 0.7) * scale);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		/* Diagnostic illustration of a path of nodes */
+		public function drawPath(path:Vector.<Node>, gfx:Graphics, scale:Number):void{
+			var i:int, a:Node, b:Node;
+			for(i = 0; i < path.length; i++){
+				a = path[i];
+				gfx.drawCircle((a.x + 0.5) * scale, (a.y + 0.5) * scale, scale * 0.1);
+				if(i > 0){
+					b = path[i - 1];
+					gfx.moveTo((a.x + 0.5) * scale, (a.y + 0.5) * scale);
+					gfx.lineTo((b.x + 0.5) * scale, (b.y + 0.5) * scale);
+					// arrows
+					if(a.x == b.x){
+						if(b.y > a.y){
+							gfx.moveTo((a.x + 0.3) * scale, (a.y + 0.7) * scale);
+							gfx.lineTo((a.x + 0.5) * scale, (a.y + 0.8) * scale);
+							gfx.lineTo((a.x + 0.7) * scale, (a.y + 0.7) * scale);
+						} else if(b.y < a.y){
+							gfx.moveTo((a.x + 0.3) * scale, (a.y + 0.3) * scale);
+							gfx.lineTo((a.x + 0.5) * scale, (a.y + 0.2) * scale);
+							gfx.lineTo((a.x + 0.7) * scale, (a.y + 0.3) * scale);
+						}
+					} else if(a.y == b.y){
+						if(b.x > a.x){
+							gfx.moveTo((a.x + 0.7) * scale, (a.y + 0.3) * scale);
+							gfx.lineTo((a.x + 0.8) * scale, (a.y + 0.5) * scale);
+							gfx.lineTo((a.x + 0.7) * scale, (a.y + 0.7) * scale);
+						} else if(b.x < a.x){
+							gfx.moveTo((a.x + 0.3) * scale, (a.y + 0.3) * scale);
+							gfx.lineTo((a.x + 0.2) * scale, (a.y + 0.5) * scale);
+							gfx.lineTo((a.x + 0.3) * scale, (a.y + 0.7) * scale);
+						}
+					}
+				}
+			}
+		}
 		
 	}
 

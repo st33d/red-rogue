@@ -81,7 +81,9 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 317;
+		public static const BUILD_NUM:int = 318;
+		
+		public static const TEST_BED_INIT:Boolean = false;
 		
 		public static var game:Game;
 		public static var renderer:Renderer;
@@ -586,6 +588,7 @@
 				changeMusic();
 			}
 			//transition.init(function():void{}, null, levelName, true);
+			if(TEST_BED_INIT) initTestBed();
 		}
 		
 		/* Pedantically clear all memory and re-init the project */
@@ -614,8 +617,16 @@
 		
 		/* Enters the the testing area */
 		public function launchTestBed():void{
-			renderer.lightBitmap.visible = false;
 			changeLevel( -1, Portal.STAIRS);
+			menu.editorList.setLight(menu.editorList.lightList.selection);
+		}
+		
+		/* Enters the the testing area from game init */
+		public function initTestBed():void{
+			menu.editorList.renderAIPathsList.selection = EditorMenuList.ON;
+			menu.editorList.renderAIGraphList.selection = EditorMenuList.ON;
+			menu.editorList.renderCollisionList.selection = EditorMenuList.ON;
+			launchTestBed();
 		}
 		
 		/* Used to change to a new level in the dungeon
