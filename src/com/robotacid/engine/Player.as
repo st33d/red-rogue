@@ -134,6 +134,8 @@
 		// Loop
 		override public function main():void{
 			
+			tileCenter = (mapX + 0.5) * SCALE;
+			
 			// keyboard input is managed from the PlayerBrain - thus psychological states can be inflicted upon the player
 			if(state == WALKING) brain.main();
 			

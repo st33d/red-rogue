@@ -587,8 +587,9 @@
 			} else {
 				changeMusic();
 			}
-			//transition.init(function():void{}, null, levelName, true);
+			
 			if(TEST_BED_INIT) initTestBed();
+			else transition.init(function():void{}, null, levelName, true);
 		}
 		
 		/* Pedantically clear all memory and re-init the project */
