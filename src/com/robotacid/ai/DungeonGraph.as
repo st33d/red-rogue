@@ -34,9 +34,7 @@ package com.robotacid.ai {
 					nodes[r].push(null);
 				}
 			}
-			// there is a node on every surface
-			// I am considering ladders and falling as a transition between nodes
-			// Characters on ladders will require different rules
+			// there is a node on every surface and ladder
 			var pixels:Vector.<uint> = bitmap.bitmapData.getVector(bitmap.bitmapData.rect);
 			var i:int;
 			for(i = width; i < pixels.length - width; i++){
@@ -56,8 +54,8 @@ package com.robotacid.ai {
 			}
 			// connect the nodes
 			var n:int;
-			for(r = 0; r < height; r++){
-				for(c = 0; c < width; c++){
+			for(r = 1; r < height - 1; r++){
+				for(c = 1; c < width - 1; c++){
 					if(nodes[r][c]){
 						n = c + r * width;
 						// because we are walking top to bottom, left to right
@@ -67,7 +65,6 @@ package com.robotacid.ai {
 							nodes[r][c + 1].connections.push(nodes[r][c]);
 						}
 						if(
-							//pixels[n + width] == MapBitmap.PIT ||
 							pixels[n + width] == MapBitmap.LEDGE
 						){
 							for(i = r + 1; i < height; i++){
@@ -87,13 +84,61 @@ package com.robotacid.ai {
 				}
 			}
 			
+			// dive connections - descending upon the enemy is a popular tactic,
+			// so we cast down diagonally for combat drops
+			var walkC:int, walkR:int;
+			for(r = 1; r < height - 1; r++){
+				for(c = 1; c < width - 1; c++){
+					n = c + r * width;
+					if(
+						nodes[r][c] &&
+						pixels[n] != MapBitmap.WALL && pixels[n] != MapBitmap.PIT &&
+						pixels[n + width] != MapBitmap.WALL && pixels[n + width] != MapBitmap.PIT &&
+						pixels[n - width] != MapBitmap.WALL && pixels[n - width] != MapBitmap.PIT
+					){
+						// walk down right
+						walkC = c + 1;
+						walkR = r + 1;
+						while(walkC < width - 1 && walkR < height - 1){
+							n = walkC + walkR * width;
+							if(
+								pixels[n] == MapBitmap.WALL || pixels[n] == MapBitmap.PIT ||
+								pixels[n - width] == MapBitmap.WALL || pixels[n - width] == MapBitmap.PIT
+							) break;
+							if(nodes[walkR][walkC]){
+								nodes[r][c].connections.push(nodes[walkR][walkC]);
+								break;
+							}
+							walkC++;
+							walkR++;
+						}
+						// walk down left
+						walkC = c - 1;
+						walkR = r + 1;
+						while(walkC > 0 && walkR < height - 1){
+							n = walkC + walkR * width;
+							if(
+								pixels[n] == MapBitmap.WALL || pixels[n] == MapBitmap.PIT ||
+								pixels[n - width] == MapBitmap.WALL || pixels[n - width] == MapBitmap.PIT
+							) break;
+							if(nodes[walkR][walkC]){
+								nodes[r][c].connections.push(nodes[walkR][walkC]);
+								break;
+							}
+							walkC--;
+							walkR++;
+						}
+					}
+				}
+			}
+			
 		}
 		
 		/* Returns a vector of nodes describing a route from the start Node to the finish Node
 		 *
 		 * This algorithm is an implementation of A* with tagging optimisations and a cut off
 		 * defined by the variable steps - limiting the search duration eases cpu load */
-		public function getPathTo(start:Node, finish:Node, steps:int = 10):Vector.<Node> {
+		public function getPathTo(start:Node, finish:Node, steps:int = 10, allowDiagonals:Boolean = true):Vector.<Node> {
 			
 			// the searchId allows the algorithm to mark Nodes as closed or open instead
 			// of adding them to arrays and sifting through those arrays all the time
@@ -139,7 +184,8 @@ package com.robotacid.ai {
 				for(j = 0; j < current.connections.length; j++){
 					adjacentNode = current.connections[j];
 					if(adjacentNode.closedId != searchId){
-						if(adjacentNode.openId != searchId) {
+						if(!allowDiagonals && adjacentNode.x != current.x && adjacentNode.y != current.y) adjacentNode.closedId = searchId;
+						else if(adjacentNode.openId != searchId) {
 							open.push(adjacentNode);
 							adjacentNode.openId = searchId;
 							adjacentNode.closedId = 0;
@@ -182,7 +228,7 @@ package com.robotacid.ai {
 		 * a search of the entire map to satisfy a Brown* search.
 		 * 
 		 * For this reason, KEEP THE SEARCH STEPS LOW, it will use all of them, unlike A* */
-		public function getPathAway(start:Node, target:Node, steps:int = 10):Vector.<Node> {
+		public function getPathAway(start:Node, target:Node, steps:int = 10, allowDiagonals:Boolean = true):Vector.<Node> {
 			
 			// the searchId allows the algorithm to mark Nodes as closed or open instead
 			// of adding them to arrays and sifting through those arrays all the time
@@ -226,7 +272,8 @@ package com.robotacid.ai {
 				for(j = 0; j < current.connections.length; j++){
 					adjacentNode = current.connections[j];
 					if(adjacentNode.closedId != searchId){
-						if(adjacentNode.openId != searchId) {
+						if(!allowDiagonals && adjacentNode.x != current.x && adjacentNode.y != current.y) adjacentNode.closedId = searchId;
+						else if(adjacentNode.openId != searchId) {
 							open.push(adjacentNode);
 							adjacentNode.openId = searchId;
 							adjacentNode.closedId = 0;

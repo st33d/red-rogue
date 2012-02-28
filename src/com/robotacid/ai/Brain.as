@@ -317,6 +317,14 @@
 			prevCenter = charPos.x;
 		}
 		
+		/* Called when a character fails a bravery check during melee */
+		public function runAway(target:Character):void{
+			state = FLEE;
+			altNode = null;
+			count = delay + game.random.range(delay * 2);
+			char.collider.vx = 0;
+		}
+		
 		/* Abandons any targets and reverts to PATROL state
 		 *
 		 * must be called on minion entering a new level as a target may still be pursued */
@@ -438,9 +446,17 @@
 							// heading up or down it's best to center on a tile to avoid the confusion
 							// in moving from horizontal to vertical movement
 							if(node.y > char.mapY){
-								char.actions |= DOWN;
-								if(charPos.x > char.tileCenter) char.actions |= LEFT;
-								else if(charPos.x < char.tileCenter) char.actions |= RIGHT;
+								// if the target is below, avoid climbing down in favour of dropping
+								if(!following && target.mapX == char.mapX){
+									if(char.collider.state == Collider.HOVER){
+										char.collider.state = Collider.FALL;
+									}
+									if(char.collider.parent) char.actions |= DOWN;
+								} else {
+									char.actions |= DOWN;
+									if(charPos.x > char.tileCenter) char.actions |= LEFT;
+									else if(charPos.x < char.tileCenter) char.actions |= RIGHT;
+								}
 								
 							} else if(node.y < char.mapY){
 								if(char.canClimb()){
@@ -454,6 +470,14 @@
 									if(charPos.x > char.tileCenter) char.actions |= LEFT;
 									else if(charPos.x < char.tileCenter) char.actions |= RIGHT;
 								}
+							}
+							
+						// we must be looking at a dive node
+						} else {
+							if(node.x > char.mapX){
+								char.actions |= RIGHT;
+							} else if(node.x < char.mapX){
+								char.actions |= LEFT;
 							}
 						}
 					}
@@ -495,7 +519,7 @@
 				
 				// no node means the character must be falling or clipping a ledge
 				if(start){
-					path = dungeonGraph.getPathAway(start, dungeonGraph.nodes[target.mapY][target.mapX], searchSteps);
+					path = dungeonGraph.getPathAway(start, dungeonGraph.nodes[target.mapY][target.mapX], searchSteps, !following);
 					
 					if(path){
 						
@@ -550,10 +574,17 @@
 							// heading up or down it's best to center on a tile to avoid the confusion
 							// in moving from horizontal to vertical movement
 							if(node.y > char.mapY){
-								char.actions |= DOWN;
-								if(charPos.x > char.tileCenter) char.actions |= LEFT;
-								else if(charPos.x < char.tileCenter) char.actions |= RIGHT;
-								
+								// if the target is above, avoid climbing down in favour of dropping
+								if(!following && target.mapX == char.mapX){
+									if(char.collider.state == Collider.HOVER){
+										char.collider.state = Collider.FALL;
+									}
+									if(char.collider.parent) char.actions |= DOWN;
+								} else {
+									char.actions |= DOWN;
+									if(charPos.x > char.tileCenter) char.actions |= LEFT;
+									else if(charPos.x < char.tileCenter) char.actions |= RIGHT;
+								}
 							} else if(node.y < char.mapY){
 								if(char.canClimb()){
 									char.actions |= UP;
@@ -561,6 +592,14 @@
 									if(charPos.x > char.tileCenter) char.actions |= LEFT;
 									else if(charPos.x < char.tileCenter) char.actions |= RIGHT;
 								}
+							}
+							
+						// we must be looking at a dive node
+						} else {
+							if(node.x > char.mapX){
+								char.actions |= RIGHT;
+							} else if(node.x < char.mapX){
+								char.actions |= LEFT;
 							}
 						}
 					}

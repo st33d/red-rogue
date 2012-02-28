@@ -1,4 +1,4 @@
-Change log: refactored "Dungeon" to "Map" in code terminology, discovered logic flaw in missile that would allow missiles to pass thru Stones - fixed, monsters and minion can now use throwables, implemented catching throwing weapons for characters facing missile throwables
+Change log: removed redundant state settings in Character, added diving node connections to AI, altered Brain routines to fit new regime, bravery stat implemented (fast characters with low bravery do a bravery check to stay in combat)
 
 Bug hunt
 	can crash graph renderer by changing level	
@@ -20,17 +20,8 @@ animate the trap marker - it should bling in the level when searched
 move enchant to item menu?
 
 Tackle the AI problem
-
-	clear panic node on state change - may induce bugs
 	
-	flee logic incompatible with panic logic
-		*test new node visiting logic with play-testing
-	
-	
-	bravery
-	
-	ninja node links
-		encourage drop tactics instead of climbing ladders down
+	bravery - stat roll?
 
 	meta-heuristic block - path too long
 		genius chase solver backup graph

@@ -90,6 +90,7 @@
 		public var specialAttack:Boolean;
 		public var undead:Boolean;
 		public var protectionModifier:Number;
+		public var bravery:Number;
 		
 		private var hitResult:int;
 		
@@ -248,6 +249,7 @@
 			knockback = stats["knockbacks"][name] * KNOCKBACK_DIST;
 			endurance = stats["endurances"][name];
 			undead = stats["undeads"][name] == 1;
+			bravery = stats["braveries"][name];
 			voice = stats["voices"][name];
 			debrisType = Renderer.BLOOD;
 			losBorder = Brain.DEFAULT_LOS_BORDER;
@@ -493,7 +495,20 @@
 								} else {
 									game.soundQueue.add("miss");
 								}
-								if(state != QUICKENING) state = LUNGING;
+								if(state != QUICKENING){
+									state = LUNGING;
+									
+									// bravery check - quick monsters may favour running away
+									if(this != game.player){
+										if(
+											bravery < 1 &&
+											speed * speedModifier >= target.speed * target.speedModifier &&
+											game.random.value() >= bravery
+										){
+											brain.runAway(target);
+										}
+									}
+								}
 							}
 							victim = target;
 						}
@@ -510,17 +525,14 @@
 							collider.vy = speed * moveSpeedTemp;
 							centerOnTile();
 						} else if(dir & (RIGHT | LEFT)){
-							state = WALKING;
 							collider.state = Collider.FALL;
 						} else {
 							collider.vy = 0;
 						}
 						if(collider.parent){
-							state = WALKING;
 							dir &= ~(UP | DOWN);
 						}
 					} else {
-						state = WALKING;
 						collider.state = Collider.FALL;
 						dir &= ~(UP | DOWN);
 						collider.vy = 0;
@@ -999,6 +1011,8 @@
 				var item:Item;
 				if(target.weapon){
 					item = target.weapon;
+				} else if(target.throwable){
+					item = target.throwable;
 				} else if(target.armour){
 					item = target.armour;
 				}

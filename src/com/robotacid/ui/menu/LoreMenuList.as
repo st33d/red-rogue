@@ -168,7 +168,8 @@ package com.robotacid.ui.menu {
 			str += "move speed: " + Character.stats["speeds"][n] + " + " + Character.stats["speed levels"][n] + " x lvl\n";
 			str += "knockback: " + Character.stats["knockbacks"][n] + "\n";
 			str += "stun: " + Character.stats["stuns"][n] + "\n";
-			str += "endurance: " + Character.stats["endurances"][n];
+			str += "endurance: " + Character.stats["endurances"][n] + "\n";
+			str += "bravery: " + Character.stats["braveries"][n];
 			infoTextBox.wordWrap = false;
 			infoTextBox.marquee = true;
 			infoTextBox.text = str;
