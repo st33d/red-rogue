@@ -61,8 +61,8 @@ package com.robotacid.ui {
 			mapY = renderer.canvas.mouseY * Game.INV_SCALE;
 			if(mapX < 1) mapX = 1;
 			if(mapY < 1) mapY = 1;
-			if(mapX > game.dungeon.width - 2) mapX = game.dungeon.width - 2;
-			if(mapY > game.dungeon.height - 2) mapY = game.dungeon.height - 2;
+			if(mapX > game.map.width - 2) mapX = game.map.width - 2;
+			if(mapY > game.map.height - 2) mapY = game.map.height - 2;
 			if(game.mousePressedCount == game.frameCount){
 				menuList.applySelection(mapX, mapY, EditorMenuList.MOUSE_CLICK);
 			} else if(game.mousePressed){
@@ -74,8 +74,8 @@ package com.robotacid.ui {
 			if(topLeft.y < 1) topLeft.y = 1;
 			bottomRight.x = (-renderer.canvas.x + Game.WIDTH) * Game.INV_SCALE;
 			bottomRight.y = (-renderer.canvas.y + Game.WIDTH) * Game.INV_SCALE;
-			if(bottomRight.x > game.dungeon.width - 2) bottomRight.x = game.dungeon.width - 2;
-			if(bottomRight.y > game.dungeon.height - 2) bottomRight.y = game.dungeon.height - 2;
+			if(bottomRight.x > game.map.width - 2) bottomRight.x = game.map.width - 2;
+			if(bottomRight.y > game.map.height - 2) bottomRight.y = game.map.height - 2;
 		}
 		
 		public function activate():void{
@@ -133,9 +133,9 @@ package com.robotacid.ui {
 					if(character.brain.state != Brain.PATROL && character.brain.state != Brain.PAUSE){
 						gfx.lineStyle(2, 0xFF0000, 0.5);
 						if(character.brain.path) graph.drawPath(character.brain.path, gfx, Game.SCALE);
-						if(character.brain.panicNode) gfx.drawCircle(
-							(character.brain.panicNode.x + 0.5) * Game.SCALE,
-							(character.brain.panicNode.y + 0.5) * Game.SCALE,
+						if(character.brain.altNode) gfx.drawCircle(
+							(character.brain.altNode.x + 0.5) * Game.SCALE,
+							(character.brain.altNode.y + 0.5) * Game.SCALE,
 						Game.SCALE * 0.2);
 					} else {
 						if(character.brain.patrolAreaSet){
@@ -154,9 +154,9 @@ package com.robotacid.ui {
 					rect.y = -renderer.bitmap.y + character.mapY * Game.SCALE;
 					bitmapData.fillRect(rect, 0xCCFF00FF);
 					if(character.brain.path) graph.drawPath(character.brain.path, gfx, Game.SCALE);
-						if(character.brain.panicNode) gfx.drawCircle(
-							(character.brain.panicNode.x + 0.5) * Game.SCALE,
-							(character.brain.panicNode.y + 0.5) * Game.SCALE,
+						if(character.brain.altNode) gfx.drawCircle(
+							(character.brain.altNode.x + 0.5) * Game.SCALE,
+							(character.brain.altNode.y + 0.5) * Game.SCALE,
 						Game.SCALE * 0.2);
 				}
 				bitmapData.draw(sprite, new Matrix(1, 0, 0, 1, -renderer.bitmap.x, -renderer.bitmap.y));

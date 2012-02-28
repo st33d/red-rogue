@@ -103,10 +103,12 @@
 		}
 		
 		public function resolveCollision():void {
+			
+			game.console.print(getName(type) + " trap triggered");
+			
 			if(type == PIT){
 				if(count) return;
 				count = PIT_COVER_DELAY;
-				game.console.print("pit trap triggered");
 				renderer.createDebrisRect(rect, 0, 100, Renderer.STONE);
 				renderer.shake(0, 3);
 				game.soundQueue.addRandom("pitTrap", Stone.STONE_DEATH_SOUNDS);
@@ -132,7 +134,7 @@
 				// the dungeon graph is currently unaware of a new route
 				// we need to educate it by looking down from the node that must be above the
 				// pit to the node that must be below it
-				for(var r:int = mapY; r < game.dungeon.height; r++){
+				for(var r:int = mapY; r < game.map.height; r++){
 					if(Brain.dungeonGraph.nodes[r][mapX]){
 						Brain.dungeonGraph.nodes[mapY - 1][mapX].connections.push(Brain.dungeonGraph.nodes[r][mapX]);
 						break;
@@ -143,25 +145,21 @@
 					minimapFX.active = false;
 					minimapFX = null;
 				}
-				if(--game.dungeon.completionCount == 0) game.levelCompleteMsg();
+				if(--game.map.completionCount == 0) game.levelCompleteMsg();
 				
 			} else if(type == POISON_DART){
-				game.console.print("poison trap triggered");
 				game.soundQueue.add("throw");
-				shootDart(new Effect(Effect.POISON, game.dungeon.level < Game.MAX_LEVEL ? game.dungeon.level : Game.MAX_LEVEL, Effect.THROWN));
+				shootDart(new Effect(Effect.POISON, game.map.level < Game.MAX_LEVEL ? game.map.level : Game.MAX_LEVEL, Effect.THROWN));
 			} else if(type == STUN_DART){
-				game.console.print("stun trap triggered");
 				game.soundQueue.add("throw");
-				shootDart(new Effect(Effect.STUN, game.dungeon.level < Game.MAX_LEVEL ? game.dungeon.level : Game.MAX_LEVEL, Effect.THROWN));
+				shootDart(new Effect(Effect.STUN, game.map.level < Game.MAX_LEVEL ? game.map.level : Game.MAX_LEVEL, Effect.THROWN));
 			} else if(type == TELEPORT_DART){
-				game.console.print("teleport trap triggered");
 				game.soundQueue.add("throw");
 				shootDart(new Effect(Effect.TELEPORT, Game.MAX_LEVEL, Effect.THROWN));
 				
 			} else if(type == MONSTER_PORTAL){
-				game.console.print("monster trap triggered");
-				var portal:Portal = Portal.createPortal(Portal.MONSTER, mapX, mapY - 1, game.dungeon.level);
-				portal.setMonsterTemplate(Content.createCharacterXML(game.dungeon.level < Game.MAX_LEVEL ? game.dungeon.level : Game.MAX_LEVEL, Character.MONSTER));
+				var portal:Portal = Portal.createPortal(Portal.MONSTER, mapX, mapY - 1, game.map.level);
+				portal.setMonsterTemplate(Content.createCharacterXML(game.map.level < Game.MAX_LEVEL ? game.map.level : Game.MAX_LEVEL, Character.MONSTER));
 				// monster portal traps are triggered once and then destroy themselves
 				active = false;
 				if(!minimapFX) game.miniMap.addFX(mapX, mapY, renderer.featureRevealedBlit);
@@ -194,9 +192,9 @@
 				minimapFX.active = false;
 				minimapFX = null;
 			}
-			game.player.addXP(DISARMING_XP_REWARD * game.dungeon.level);
-			game.content.removeTrap(game.dungeon.level, game.dungeon.type);
-			if(--game.dungeon.completionCount == 0) game.levelCompleteMsg();
+			game.player.addXP(DISARMING_XP_REWARD * game.map.level);
+			game.content.removeTrap(game.map.level, game.map.type);
+			if(--game.map.completionCount == 0) game.levelCompleteMsg();
 		}
 		
 		/* Launches a missile from the ceiling that bears a magic effect */
@@ -204,6 +202,14 @@
 			var missileMc:DisplayObject = new DartMC();
 			var clipRect:Rectangle = new Rectangle(dartGun.x - Game.SCALE * 0.5, dartGun.y, Game.SCALE, (rect.y + 1) - dartGun.y);
 			var missile:Missile = new Missile(missileMc, dartGun.x, dartGun.y, Missile.DART, null, 0, 1, 5, Collider.LADDER | Collider.LEDGE | Collider.HEAD | Collider.ITEM | Collider.CORPSE, effect, null, clipRect);
+		}
+		
+		public static function getName(type:int):String{
+			if(type == PIT) return "pit";
+			else if(type == TELEPORT_DART) return "teleport";
+			else if(type == STUN_DART) return "stun";
+			else if(type == MONSTER_PORTAL) return "monster";
+			return "";
 		}
 		
 	}

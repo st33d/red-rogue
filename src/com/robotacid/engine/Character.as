@@ -353,7 +353,7 @@
 			// and making them invisible will help the lighting engine conceal their presence.
 			// however - if they are moving, they may "pop" in and out of darkness, so we check around them
 			// for light
-			if(light || game.dungeon.type == Map.AREA) inTheDark = false;
+			if(light || game.map.type == Map.AREA) inTheDark = false;
 			else{
 				if(dir == 0){
 					if(game.lightMap.darkImage.getPixel32(mapX, mapY) != 0xFF000000) inTheDark = false;
@@ -602,14 +602,14 @@
 			} else if(state == ENTERING){
 				moving = true;
 				if(portal.type == Portal.STAIRS){
-					if(portal.targetLevel < game.dungeon.level){
+					if(portal.targetLevel < game.map.level){
 						if(moveCount){
 							if(dir == RIGHT) gfx.x += STAIRS_SPEED;
 							else if(dir == LEFT) gfx.x -= STAIRS_SPEED;
 							gfx.y += STAIRS_SPEED;
 						}
 						if(gfx.y >= (portal.mapY + 1) * Game.SCALE) portal = null;
-					} else if(portal.targetLevel > game.dungeon.level){
+					} else if(portal.targetLevel > game.map.level){
 						if(moveCount){
 							if(dir == RIGHT) gfx.x += STAIRS_SPEED;
 							else if(dir == LEFT) gfx.x -= STAIRS_SPEED;
@@ -688,9 +688,9 @@
 				gfx.x = (portal.mapX + 0.5) * Game.SCALE + PORTAL_DISTANCE;
 			}
 			if(portal.type == Portal.STAIRS){
-				if(portal.targetLevel > game.dungeon.level){
+				if(portal.targetLevel > game.map.level){
 					gfx.y = (portal.mapY + 1) * Game.SCALE + PORTAL_DISTANCE;
-				} else if(portal.targetLevel < game.dungeon.level){
+				} else if(portal.targetLevel < game.map.level){
 					gfx.y = (portal.mapY + 1) * Game.SCALE - PORTAL_DISTANCE;
 				}
 			} else {
@@ -887,11 +887,11 @@
 			if(type == Missile.ITEM){
 				if(throwable){
 					item = unequip(throwable);
-					item = game.menu.inventoryList.removeItem(item);
+					if(this == game.player || this == game.minion) item = game.menu.inventoryList.removeItem(item);
 					item.location = Item.FLIGHT;
 					missileMc = item.gfx;
 					item.gfx.visible = true;
-					item.autoEquip = true;
+					item.autoEquip = this.type;
 					if(item.gfx is ItemMovieClip) (item.gfx as ItemMovieClip).setThrowRender();
 					if(item.name == Item.CHAKRAM){
 						reflections = CHAKRAM_REFLECTIONS;
@@ -917,6 +917,12 @@
 			}
 			missileMc.scaleX = (looking & RIGHT) ? 1 : -1;
 			var missile:Missile = new Missile(missileMc, collider.x + collider.width * 0.5, collider.y + collider.height * 0.5, type, this, (looking & RIGHT) ? 1 : -1, 0, 5, missileIgnore, effect, item, null, reflections, brain.firingTeam, alchemical);
+		}
+		
+		/* Called by Missile to effect a throwing being caught by a character */
+		public function catchThrowable(item:Item):void{
+			item.collect(this, true, true);
+			if(!throwable && !(weapon && weapon.range & Item.THROWN)) equip(item, true);
 		}
 		
 		/* Adds damage to the Character */

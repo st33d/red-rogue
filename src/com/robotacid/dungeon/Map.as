@@ -28,8 +28,8 @@
 	 *
 	 * The layout for every dungeon is calculated in here.
 	 * 
-	 * DungeonBitmap creates the passage ways and creates a connectivity graph to place ladders and ledges
-	 * the convertDungeonBitmap method converts that data into references to graphics and entities
+	 * MapBitmap creates the passage ways and creates a connectivity graph to place ladders and ledges
+	 * the convertMapBitmap method converts that data into references to graphics and entities
 	 * within that method Content.populateLevel distributes monsters and treasure
 	 *
 	 * @author Aaron Steed, robotacid.com
@@ -53,7 +53,7 @@
 		public var completionCount:int;
 		public var completionTotal:int;
 		
-		public var bitmap:DungeonBitmap;
+		public var bitmap:MapBitmap;
 		
 		private var i:int, j:int;
 		
@@ -107,10 +107,10 @@
 			if(type == MAIN_DUNGEON){
 				if(level > 0){
 					random.r = game.content.getSeed(level, type);
-					bitmap = new DungeonBitmap(level, type, zone);
+					bitmap = new MapBitmap(level, type, zone);
 					width = bitmap.width;
 					height = bitmap.height;
-					convertDungeonBitmap(bitmap.bitmapData);
+					convertMapBitmap(bitmap.bitmapData);
 				} else {
 					createTestBed();
 				}
@@ -118,10 +118,10 @@
 			} else if(type == ITEM_DUNGEON){
 				random.r = game.content.getSeed(level, type);
 				var sideDungeonSize:int = 1 + (Number(level) / 10);
-				bitmap = new DungeonBitmap(sideDungeonSize, type, zone);
+				bitmap = new MapBitmap(sideDungeonSize, type, zone);
 				width = bitmap.width;
 				height = bitmap.height;
-				convertDungeonBitmap(bitmap.bitmapData);
+				convertMapBitmap(bitmap.bitmapData);
 				
 			} else if(type == AREA){
 				if(level == OVERWORLD){
@@ -143,7 +143,7 @@
 		 */
 		public function createTestBed():void{
 			
-			bitmap = new DungeonBitmap(0, AREA);
+			bitmap = new MapBitmap(0, AREA);
 			
 			width = bitmap.width;
 			height = bitmap.height;
@@ -164,7 +164,7 @@
 		/* This is where we convert our map template into a dungeon proper made of tileIds and other
 		 * information
 		 */
-		public function convertDungeonBitmap(bitmapData:BitmapData):void{
+		public function convertMapBitmap(bitmapData:BitmapData):void{
 			width = bitmapData.width;
 			height = bitmapData.height;
 			// background
@@ -184,143 +184,143 @@
 			for(i = width; i < pixels.length - width; i++){
 				c = i % width;
 				r = i / width;
-				if(pixels[i] == DungeonBitmap.PIT){
+				if(pixels[i] == MapBitmap.PIT){
 					createPitTrap(c, r);
-					pixels[i] = DungeonBitmap.WALL;
-				} else if(pixels[i] == DungeonBitmap.SECRET){
+					pixels[i] = MapBitmap.WALL;
+				} else if(pixels[i] == MapBitmap.SECRET){
 					createSecretWall(c, r);
-					pixels[i] = DungeonBitmap.WALL;
+					pixels[i] = MapBitmap.WALL;
 				}
 			}
 			// now for ladders, ledges and empty spaces
 			for(i = width; i < pixels.length - width; i++){
 				c = i % width;
 				r = i / width;
-				if(pixels[i] == DungeonBitmap.EMPTY && pixels[i + width] == DungeonBitmap.LADDER_LEDGE){
+				if(pixels[i] == MapBitmap.EMPTY && pixels[i + width] == MapBitmap.LADDER_LEDGE){
 					layers[BLOCKS][r][c] = MapTileConverter.LADDER_TOP;
-				} else if(pixels[i] == DungeonBitmap.LEDGE && pixels[i + width] == DungeonBitmap.LADDER_LEDGE){
+				} else if(pixels[i] == MapBitmap.LEDGE && pixels[i + width] == MapBitmap.LADDER_LEDGE){
 					
 					
-					if((pixels[i - 1] == DungeonBitmap.EMPTY || pixels[i - 1] == DungeonBitmap.LADDER) && (pixels[i + 1] == DungeonBitmap.EMPTY || pixels[i + 1] == DungeonBitmap.LADDER)){
+					if((pixels[i - 1] == MapBitmap.EMPTY || pixels[i - 1] == MapBitmap.LADDER) && (pixels[i + 1] == MapBitmap.EMPTY || pixels[i + 1] == MapBitmap.LADDER)){
 						
 						layers[BLOCKS][r][c] = MapTileConverter.LADDER_TOP_LEDGE;
 						
-					} else if((pixels[i - 1] == DungeonBitmap.EMPTY || pixels[i - 1] == DungeonBitmap.LADDER) && (pixels[i + 1] == DungeonBitmap.LEDGE || pixels[i + 1] == DungeonBitmap.LADDER_LEDGE)){
+					} else if((pixels[i - 1] == MapBitmap.EMPTY || pixels[i - 1] == MapBitmap.LADDER) && (pixels[i + 1] == MapBitmap.LEDGE || pixels[i + 1] == MapBitmap.LADDER_LEDGE)){
 						
 						layers[BLOCKS][r][c] = MapTileConverter.LADDER_TOP_LEDGE_END_LEFT;
 						
-					} else if((pixels[i - 1] == DungeonBitmap.EMPTY || pixels[i - 1] == DungeonBitmap.LADDER) && pixels[i + 1] == DungeonBitmap.WALL){
+					} else if((pixels[i - 1] == MapBitmap.EMPTY || pixels[i - 1] == MapBitmap.LADDER) && pixels[i + 1] == MapBitmap.WALL){
 						
 						layers[BLOCKS][r][c] = MapTileConverter.LADDER_TOP_LEDGE_START_RIGHT_END;
 						
-					} else if(pixels[i - 1] == DungeonBitmap.WALL && (pixels[i + 1] == DungeonBitmap.LEDGE || pixels[i + 1] == DungeonBitmap.LADDER_LEDGE)){
+					} else if(pixels[i - 1] == MapBitmap.WALL && (pixels[i + 1] == MapBitmap.LEDGE || pixels[i + 1] == MapBitmap.LADDER_LEDGE)){
 						
 						layers[BLOCKS][r][c] = MapTileConverter.LADDER_TOP_LEDGE_START_LEFT;
 						
-					} else if(pixels[i - 1] == DungeonBitmap.WALL && pixels[i + 1] == DungeonBitmap.WALL){
+					} else if(pixels[i - 1] == MapBitmap.WALL && pixels[i + 1] == MapBitmap.WALL){
 						
 						layers[BLOCKS][r][c] = MapTileConverter.LADDER_TOP_LEDGE_SINGLE;
 						
-					} else if((pixels[i - 1] == DungeonBitmap.LEDGE || pixels[i - 1] == DungeonBitmap.LADDER_LEDGE) && pixels[i + 1] == DungeonBitmap.WALL){
+					} else if((pixels[i - 1] == MapBitmap.LEDGE || pixels[i - 1] == MapBitmap.LADDER_LEDGE) && pixels[i + 1] == MapBitmap.WALL){
 						
 						layers[BLOCKS][r][c] = MapTileConverter.LADDER_TOP_LEDGE_START_RIGHT;
 						
-					} else if((pixels[i - 1] == DungeonBitmap.LEDGE || pixels[i - 1] == DungeonBitmap.LADDER_LEDGE) && (pixels[i + 1] == DungeonBitmap.EMPTY || pixels[i + 1] == DungeonBitmap.LADDER)){
+					} else if((pixels[i - 1] == MapBitmap.LEDGE || pixels[i - 1] == MapBitmap.LADDER_LEDGE) && (pixels[i + 1] == MapBitmap.EMPTY || pixels[i + 1] == MapBitmap.LADDER)){
 						
 						layers[BLOCKS][r][c] = MapTileConverter.LADDER_TOP_LEDGE_END_RIGHT;
 						
-					} else if(pixels[i - 1] == DungeonBitmap.WALL && (pixels[i + 1] == DungeonBitmap.EMPTY || pixels[i + 1] == DungeonBitmap.LADDER)){
+					} else if(pixels[i - 1] == MapBitmap.WALL && (pixels[i + 1] == MapBitmap.EMPTY || pixels[i + 1] == MapBitmap.LADDER)){
 						
 						layers[BLOCKS][r][c] = MapTileConverter.LADDER_TOP_LEDGE_START_LEFT_END;
 						
-					} else if((pixels[i - 1] == DungeonBitmap.LEDGE || pixels[i - 1] == DungeonBitmap.LADDER_LEDGE) && (pixels[i + 1] == DungeonBitmap.LEDGE || pixels[i + 1] == DungeonBitmap.LADDER_LEDGE)){
+					} else if((pixels[i - 1] == MapBitmap.LEDGE || pixels[i - 1] == MapBitmap.LADDER_LEDGE) && (pixels[i + 1] == MapBitmap.LEDGE || pixels[i + 1] == MapBitmap.LADDER_LEDGE)){
 						
 						layers[BLOCKS][r][c] = MapTileConverter.LADDER_TOP_LEDGE_MIDDLE;
 					}
 					
 					
 					
-				} else if(pixels[i] == DungeonBitmap.LADDER_LEDGE){
+				} else if(pixels[i] == MapBitmap.LADDER_LEDGE){
 					
-					if((pixels[i - 1] == DungeonBitmap.EMPTY || pixels[i - 1] == DungeonBitmap.LADDER) && (pixels[i + 1] == DungeonBitmap.EMPTY || pixels[i + 1] == DungeonBitmap.LADDER)){
+					if((pixels[i - 1] == MapBitmap.EMPTY || pixels[i - 1] == MapBitmap.LADDER) && (pixels[i + 1] == MapBitmap.EMPTY || pixels[i + 1] == MapBitmap.LADDER)){
 						
 						layers[BLOCKS][r][c] = MapTileConverter.LADDER_LEDGE;
 						
-					} else if((pixels[i - 1] == DungeonBitmap.EMPTY || pixels[i - 1] == DungeonBitmap.LADDER) && (pixels[i + 1] == DungeonBitmap.LEDGE || pixels[i + 1] == DungeonBitmap.LADDER_LEDGE)){
+					} else if((pixels[i - 1] == MapBitmap.EMPTY || pixels[i - 1] == MapBitmap.LADDER) && (pixels[i + 1] == MapBitmap.LEDGE || pixels[i + 1] == MapBitmap.LADDER_LEDGE)){
 						
 						layers[BLOCKS][r][c] = MapTileConverter.LADDER_LEDGE_END_LEFT;
 						
-					} else if((pixels[i - 1] == DungeonBitmap.EMPTY || pixels[i - 1] == DungeonBitmap.LADDER) && pixels[i + 1] == DungeonBitmap.WALL){
+					} else if((pixels[i - 1] == MapBitmap.EMPTY || pixels[i - 1] == MapBitmap.LADDER) && pixels[i + 1] == MapBitmap.WALL){
 						
 						layers[BLOCKS][r][c] = MapTileConverter.LADDER_LEDGE_START_RIGHT_END;
 						
-					} else if(pixels[i - 1] == DungeonBitmap.WALL && (pixels[i + 1] == DungeonBitmap.LEDGE || pixels[i + 1] == DungeonBitmap.LADDER_LEDGE)){
+					} else if(pixels[i - 1] == MapBitmap.WALL && (pixels[i + 1] == MapBitmap.LEDGE || pixels[i + 1] == MapBitmap.LADDER_LEDGE)){
 						
 						layers[BLOCKS][r][c] = MapTileConverter.LADDER_LEDGE_START_LEFT;
 						
-					} else if(pixels[i - 1] == DungeonBitmap.WALL && pixels[i + 1] == DungeonBitmap.WALL){
+					} else if(pixels[i - 1] == MapBitmap.WALL && pixels[i + 1] == MapBitmap.WALL){
 						
 						layers[BLOCKS][r][c] = MapTileConverter.LADDER_LEDGE_SINGLE;
 						
-					} else if((pixels[i - 1] == DungeonBitmap.LEDGE || pixels[i - 1] == DungeonBitmap.LADDER_LEDGE) && pixels[i + 1] == DungeonBitmap.WALL){
+					} else if((pixels[i - 1] == MapBitmap.LEDGE || pixels[i - 1] == MapBitmap.LADDER_LEDGE) && pixels[i + 1] == MapBitmap.WALL){
 						
 						layers[BLOCKS][r][c] = MapTileConverter.LADDER_LEDGE_START_RIGHT;
 						
-					} else if((pixels[i - 1] == DungeonBitmap.LEDGE || pixels[i - 1] == DungeonBitmap.LADDER_LEDGE) && (pixels[i + 1] == DungeonBitmap.EMPTY || pixels[i + 1] == DungeonBitmap.LADDER)){
+					} else if((pixels[i - 1] == MapBitmap.LEDGE || pixels[i - 1] == MapBitmap.LADDER_LEDGE) && (pixels[i + 1] == MapBitmap.EMPTY || pixels[i + 1] == MapBitmap.LADDER)){
 						
 						layers[BLOCKS][r][c] = MapTileConverter.LADDER_LEDGE_END_RIGHT;
 						
-					} else if(pixels[i - 1] == DungeonBitmap.WALL && (pixels[i + 1] == DungeonBitmap.EMPTY || pixels[i + 1] == DungeonBitmap.LADDER)){
+					} else if(pixels[i - 1] == MapBitmap.WALL && (pixels[i + 1] == MapBitmap.EMPTY || pixels[i + 1] == MapBitmap.LADDER)){
 						
 						layers[BLOCKS][r][c] = MapTileConverter.LADDER_LEDGE_START_LEFT_END;
 						
-					} else if((pixels[i - 1] == DungeonBitmap.LEDGE || pixels[i - 1] == DungeonBitmap.LADDER_LEDGE) && (pixels[i + 1] == DungeonBitmap.LEDGE || pixels[i + 1] == DungeonBitmap.LADDER_LEDGE)){
+					} else if((pixels[i - 1] == MapBitmap.LEDGE || pixels[i - 1] == MapBitmap.LADDER_LEDGE) && (pixels[i + 1] == MapBitmap.LEDGE || pixels[i + 1] == MapBitmap.LADDER_LEDGE)){
 						
 						layers[BLOCKS][r][c] = MapTileConverter.LADDER_LEDGE_MIDDLE;
 					}
 					
-				} else if(pixels[i] == DungeonBitmap.LADDER){
+				} else if(pixels[i] == MapBitmap.LADDER){
 					layers[BLOCKS][r][c] = MapTileConverter.LADDER;
-				} else if(pixels[i] == DungeonBitmap.LEDGE){
+				} else if(pixels[i] == MapBitmap.LEDGE){
 					
-					if((pixels[i - 1] == DungeonBitmap.EMPTY || pixels[i - 1] == DungeonBitmap.LADDER) && (pixels[i + 1] == DungeonBitmap.EMPTY || pixels[i + 1] == DungeonBitmap.LADDER)){
+					if((pixels[i - 1] == MapBitmap.EMPTY || pixels[i - 1] == MapBitmap.LADDER) && (pixels[i + 1] == MapBitmap.EMPTY || pixels[i + 1] == MapBitmap.LADDER)){
 						
 						layers[BLOCKS][r][c] = MapTileConverter.LEDGE;
 						
-					} else if((pixels[i - 1] == DungeonBitmap.EMPTY || pixels[i - 1] == DungeonBitmap.LADDER) && (pixels[i + 1] == DungeonBitmap.LEDGE || pixels[i + 1] == DungeonBitmap.LADDER_LEDGE)){
+					} else if((pixels[i - 1] == MapBitmap.EMPTY || pixels[i - 1] == MapBitmap.LADDER) && (pixels[i + 1] == MapBitmap.LEDGE || pixels[i + 1] == MapBitmap.LADDER_LEDGE)){
 						
 						layers[BLOCKS][r][c] = MapTileConverter.LEDGE_END_LEFT;
 						
-					} else if((pixels[i - 1] == DungeonBitmap.EMPTY || pixels[i - 1] == DungeonBitmap.LADDER) && pixels[i + 1] == DungeonBitmap.WALL){
+					} else if((pixels[i - 1] == MapBitmap.EMPTY || pixels[i - 1] == MapBitmap.LADDER) && pixels[i + 1] == MapBitmap.WALL){
 						
 						layers[BLOCKS][r][c] = MapTileConverter.LEDGE_START_RIGHT_END;
 						
-					} else if(pixels[i - 1] == DungeonBitmap.WALL && (pixels[i + 1] == DungeonBitmap.LEDGE || pixels[i + 1] == DungeonBitmap.LADDER_LEDGE)){
+					} else if(pixels[i - 1] == MapBitmap.WALL && (pixels[i + 1] == MapBitmap.LEDGE || pixels[i + 1] == MapBitmap.LADDER_LEDGE)){
 						
 						layers[BLOCKS][r][c] = MapTileConverter.LEDGE_START_LEFT;
 						
-					} else if(pixels[i - 1] == DungeonBitmap.WALL && pixels[i + 1] == DungeonBitmap.WALL){
+					} else if(pixels[i - 1] == MapBitmap.WALL && pixels[i + 1] == MapBitmap.WALL){
 						
 						layers[BLOCKS][r][c] = MapTileConverter.LEDGE_SINGLE;
 						
-					} else if((pixels[i - 1] == DungeonBitmap.LEDGE || pixels[i - 1] == DungeonBitmap.LADDER_LEDGE) && pixels[i + 1] == DungeonBitmap.WALL){
+					} else if((pixels[i - 1] == MapBitmap.LEDGE || pixels[i - 1] == MapBitmap.LADDER_LEDGE) && pixels[i + 1] == MapBitmap.WALL){
 						
 						layers[BLOCKS][r][c] = MapTileConverter.LEDGE_START_RIGHT;
 						
-					} else if((pixels[i - 1] == DungeonBitmap.LEDGE || pixels[i - 1] == DungeonBitmap.LADDER_LEDGE) && (pixels[i + 1] == DungeonBitmap.EMPTY || pixels[i + 1] == DungeonBitmap.LADDER)){
+					} else if((pixels[i - 1] == MapBitmap.LEDGE || pixels[i - 1] == MapBitmap.LADDER_LEDGE) && (pixels[i + 1] == MapBitmap.EMPTY || pixels[i + 1] == MapBitmap.LADDER)){
 						
 						layers[BLOCKS][r][c] = MapTileConverter.LEDGE_END_RIGHT;
 						
-					} else if(pixels[i - 1] == DungeonBitmap.WALL && (pixels[i + 1] == DungeonBitmap.EMPTY || pixels[i + 1] == DungeonBitmap.LADDER)){
+					} else if(pixels[i - 1] == MapBitmap.WALL && (pixels[i + 1] == MapBitmap.EMPTY || pixels[i + 1] == MapBitmap.LADDER)){
 						
 						layers[BLOCKS][r][c] = MapTileConverter.LEDGE_START_LEFT_END;
 						
-					} else if((pixels[i - 1] == DungeonBitmap.LEDGE || pixels[i - 1] == DungeonBitmap.LADDER_LEDGE) && (pixels[i + 1] == DungeonBitmap.LEDGE || pixels[i + 1] == DungeonBitmap.LADDER_LEDGE)){
+					} else if((pixels[i - 1] == MapBitmap.LEDGE || pixels[i - 1] == MapBitmap.LADDER_LEDGE) && (pixels[i + 1] == MapBitmap.LEDGE || pixels[i + 1] == MapBitmap.LADDER_LEDGE)){
 						
 						layers[BLOCKS][r][c] = MapTileConverter.LEDGE_MIDDLE;
 					}
 					
-				} else if(pixels[i] == DungeonBitmap.EMPTY){
+				} else if(pixels[i] == MapBitmap.EMPTY){
 					layers[BLOCKS][r][c] = 0;
 				}
 			}
@@ -364,7 +364,7 @@
 		 */
 		public function createOverworld():void{
 			
-			bitmap = new DungeonBitmap(OVERWORLD, AREA);
+			bitmap = new MapBitmap(OVERWORLD, AREA);
 			
 			width = bitmap.width;
 			height = bitmap.height;
@@ -402,7 +402,7 @@
 		 */
 		public function createUnderworld():void{
 			
-			bitmap = new DungeonBitmap(UNDERWORLD, AREA);
+			bitmap = new MapBitmap(UNDERWORLD, AREA);
 			
 			width = bitmap.width;
 			height = bitmap.height;
@@ -443,7 +443,7 @@
 				renderer.createTeleportSparkRect(colliderEntity.collider, 20);
 				colliderEntity.active = false;
 			} else if(colliderEntity is Character){
-				Effect.teleportCharacter(colliderEntity as Character, new Pixel(UNDERWORLD_PORTAL_X + 1, DungeonBitmap.UNDERWORLD_HEIGHT - 3));
+				Effect.teleportCharacter(colliderEntity as Character, new Pixel(UNDERWORLD_PORTAL_X + 1, MapBitmap.UNDERWORLD_HEIGHT - 3));
 			}
 		}
 		
@@ -465,7 +465,7 @@
 					do{
 						r++;
 						pos = bitmap.bitmapData.getPixel32(c, r);
-					} while(pos != DungeonBitmap.WALL && r < portalRoom.y + portalRoom.height * 2);
+					} while(pos != MapBitmap.WALL && r < portalRoom.y + portalRoom.height * 2);
 					r--;
 					if(goodPortalPosition(c, r, random.value() < 0.3)) candidates.push(new Pixel(c, r));
 				}
@@ -598,9 +598,9 @@
 			if(bitmap.leftSecretRoom && bitmap.leftSecretRoom.contains(x, y)) return false;
 			if(bitmap.rightSecretRoom && bitmap.rightSecretRoom.contains(x, y)) return false;
 			return (
-				(posLeft != DungeonBitmap.WALL && posRight != DungeonBitmap.WALL) &&
-				(posBelow == DungeonBitmap.WALL || (posBelow == DungeonBitmap.LEDGE && ledgeAllowed)) &&
-				(pos == DungeonBitmap.EMPTY || pos == DungeonBitmap.LEDGE)
+				(posLeft != MapBitmap.WALL && posRight != MapBitmap.WALL) &&
+				(posBelow == MapBitmap.WALL || (posBelow == MapBitmap.LEDGE && ledgeAllowed)) &&
+				(pos == MapBitmap.EMPTY || pos == MapBitmap.LEDGE)
 			);
 		}
 		
@@ -635,8 +635,8 @@
 						(
 							critterId == MapTileConverter.RAT &&
 							(
-								bitmap.bitmapData.getPixel32(c, r + 1) == DungeonBitmap.LEDGE ||
-								bitmap.bitmapData.getPixel32(c, r + 1) == DungeonBitmap.LADDER_LEDGE ||
+								bitmap.bitmapData.getPixel32(c, r + 1) == MapBitmap.LEDGE ||
+								bitmap.bitmapData.getPixel32(c, r + 1) == MapBitmap.LADDER_LEDGE ||
 								layers[BLOCKS][r + 1][c] == MapTileConverter.WALL
 							)
 						) ||
@@ -644,7 +644,7 @@
 							(critterId == MapTileConverter.SPIDER || critterId == MapTileConverter.BAT) &&
 							(
 								layers[BLOCKS][r - 1][c] == MapTileConverter.WALL &&
-								bitmap.bitmapData.getPixel32(c, r - 1) != DungeonBitmap.PIT
+								bitmap.bitmapData.getPixel32(c, r - 1) != MapBitmap.PIT
 							)
 						) ||
 						(
@@ -652,7 +652,7 @@
 							(
 								(
 									layers[BLOCKS][r - 1][c] == MapTileConverter.WALL &&
-									bitmap.bitmapData.getPixel32(c, r - 1) != DungeonBitmap.PIT
+									bitmap.bitmapData.getPixel32(c, r - 1) != MapBitmap.PIT
 								) ||
 								layers[BLOCKS][r + 1][c] == MapTileConverter.WALL ||
 								layers[BLOCKS][r][c - 1] == MapTileConverter.WALL ||
@@ -678,25 +678,25 @@
 			for(i = width; i < pixels.length - width; i++){
 				c = i % width;
 				r = i / width;
-				if(c > 0 && c < width - 1 && pixels[i] == DungeonBitmap.EMPTY){
+				if(c > 0 && c < width - 1 && pixels[i] == MapBitmap.EMPTY){
 					if(
 						// horizontal corridor
 						(
-							pixels[(i - width) - 1] == DungeonBitmap.WALL && 
-							pixels[i - width] == DungeonBitmap.WALL && 
-							pixels[(i - width) + 1] == DungeonBitmap.WALL && 
-							pixels[(i + width) - 1] == DungeonBitmap.WALL && 
-							pixels[i + width] == DungeonBitmap.WALL && 
-							pixels[(i + width) + 1] == DungeonBitmap.WALL
+							pixels[(i - width) - 1] == MapBitmap.WALL && 
+							pixels[i - width] == MapBitmap.WALL && 
+							pixels[(i - width) + 1] == MapBitmap.WALL && 
+							pixels[(i + width) - 1] == MapBitmap.WALL && 
+							pixels[i + width] == MapBitmap.WALL && 
+							pixels[(i + width) + 1] == MapBitmap.WALL
 						) ||
 						// vertical corridor
 						(
-							pixels[(i - width) - 1] == DungeonBitmap.WALL && 
-							pixels[i - 1] == DungeonBitmap.WALL && 
-							pixels[(i + width) - 1] == DungeonBitmap.WALL && 
-							pixels[(i - width) + 1] == DungeonBitmap.WALL && 
-							pixels[i + 1] == DungeonBitmap.WALL && 
-							pixels[(i + width) + 1] == DungeonBitmap.WALL
+							pixels[(i - width) - 1] == MapBitmap.WALL && 
+							pixels[i - 1] == MapBitmap.WALL && 
+							pixels[(i + width) - 1] == MapBitmap.WALL && 
+							pixels[(i - width) + 1] == MapBitmap.WALL && 
+							pixels[i + 1] == MapBitmap.WALL && 
+							pixels[(i + width) + 1] == MapBitmap.WALL
 						)
 					){
 						if(random.value() < 0.4 && !layers[ENTITIES][r][c]){
@@ -729,13 +729,13 @@
 			var pixels:Vector.<uint> = bitmap.bitmapData.getVector(bitmap.bitmapData.rect);
 			var mapWidth:int = bitmap.bitmapData.width;
 			for(i = mapWidth; i < pixels.length - mapWidth; i++){
-				if((pixels[i] == DungeonBitmap.WALL) && (pixels[i - mapWidth] == DungeonBitmap.EMPTY || pixels[i - mapWidth] == DungeonBitmap.LEDGE)){
+				if((pixels[i] == MapBitmap.WALL) && (pixels[i - mapWidth] == MapBitmap.EMPTY || pixels[i - mapWidth] == MapBitmap.LEDGE)){
 					for(j = i - mapWidth; j > mapWidth; j -= mapWidth){
 						// no combining ladders or pit traps with dart traps
 						// it confuses the trap and it's unfair to have to climb a ladder into a dart
-						if(pixels[j] == DungeonBitmap.LADDER || pixels[j] == DungeonBitmap.LADDER_LEDGE || pixels[j] == DungeonBitmap.PIT){
+						if(pixels[j] == MapBitmap.LADDER || pixels[j] == MapBitmap.LADDER_LEDGE || pixels[j] == MapBitmap.PIT){
 							break;
-						} else if(pixels[j] == DungeonBitmap.WALL){
+						} else if(pixels[j] == MapBitmap.WALL){
 							trapPositions.push(new Pixel(i % mapWidth, i / mapWidth));
 							break;
 						}
@@ -757,7 +757,7 @@
 					dartPos = trapPos.copy();
 					do{
 						dartPos.y--;
-					} while(pixels[dartPos.x + dartPos.y * width] != DungeonBitmap.WALL);
+					} while(pixels[dartPos.x + dartPos.y * width] != MapBitmap.WALL);
 				} else {
 					dartPos = null;
 				}

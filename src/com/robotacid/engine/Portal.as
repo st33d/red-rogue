@@ -100,9 +100,9 @@
 					seen = true;
 					var blit:BlitClip;
 					if(type == STAIRS){
-						if(targetLevel < game.dungeon.level) {
+						if(targetLevel < game.map.level) {
 							blit = renderer.stairsUpFeatureBlit;
-						} else if(targetLevel > game.dungeon.level){
+						} else if(targetLevel > game.map.level){
 							blit = renderer.stairsDownFeatureBlit;
 						} else {
 							blit = renderer.portalFeatureBlit;
@@ -196,9 +196,9 @@
 			monsterTemplate = xml;
 			// strip the monster of items - this is not an item farming spell
 			delete monsterTemplate.item;
-			monsterTotal = game.dungeon.level < Game.MAX_LEVEL ? game.dungeon.level : Game.MAX_LEVEL;
-			game.dungeon.completionCount += monsterTotal;
-			game.dungeon.completionTotal += monsterTotal;
+			monsterTotal = game.map.level < Game.MAX_LEVEL ? game.map.level : Game.MAX_LEVEL;
+			game.map.completionCount += monsterTotal;
+			game.map.completionTotal += monsterTotal;
 			monsterEntryCount = MONSTERS_ENTRY_DELAY;
 		}
 		
@@ -265,9 +265,9 @@
 			
 			// retarget overworld or underworld portals
 			if(type == OVERWORLD){
-				game.content.setOverworldPortal(game.dungeon.level);
+				game.content.setOverworldPortal(game.map.level);
 			} else if(type == UNDERWORLD){
-				game.content.setUnderworldPortal(game.dungeon.level);
+				game.content.setUnderworldPortal(game.map.level);
 			}
 			
 			return portal;
@@ -279,7 +279,7 @@
 				if(targetLevel == Map.OVERWORLD){
 					return "ascended to overworld";
 				} else {
-					return (targetLevel > game.dungeon.level ? "descended" : "ascended") + " to level " + targetLevel;
+					return (targetLevel > game.map.level ? "descended" : "ascended") + " to level " + targetLevel;
 				}
 			} else if(type == Portal.OVERWORLD){
 				return "travelled to overworld";

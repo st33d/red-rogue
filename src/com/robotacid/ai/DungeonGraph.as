@@ -1,5 +1,5 @@
 package com.robotacid.ai {
-	import com.robotacid.dungeon.DungeonBitmap;
+	import com.robotacid.dungeon.MapBitmap;
 	import com.robotacid.geom.Pixel;
 	import com.robotacid.util.XorRandom;
 	import flash.display.Graphics;
@@ -22,7 +22,7 @@ package com.robotacid.ai {
 		private var node:Node;
 		private var adjacentTile:Node;
 		
-		public function DungeonGraph(bitmap:DungeonBitmap) {
+		public function DungeonGraph(bitmap:MapBitmap) {
 			searchId = 0;
 			nodes = new Vector.<Vector.<Node>>();
 			width = bitmap.bitmapData.width;
@@ -41,13 +41,13 @@ package com.robotacid.ai {
 			var i:int;
 			for(i = width; i < pixels.length - width; i++){
 				if(
-					(pixels[i] != DungeonBitmap.WALL && (
-						pixels[i + width] == DungeonBitmap.PIT ||
-						pixels[i + width] == DungeonBitmap.LEDGE ||
-						pixels[i + width] == DungeonBitmap.LADDER_LEDGE ||
-						pixels[i + width] == DungeonBitmap.WALL
+					(pixels[i] != MapBitmap.WALL && (
+						pixels[i + width] == MapBitmap.PIT ||
+						pixels[i + width] == MapBitmap.LEDGE ||
+						pixels[i + width] == MapBitmap.LADDER_LEDGE ||
+						pixels[i + width] == MapBitmap.WALL
 					)) ||
-					pixels[i] == DungeonBitmap.LADDER || pixels[i] == DungeonBitmap.LADDER_LEDGE
+					pixels[i] == MapBitmap.LADDER || pixels[i] == MapBitmap.LADDER_LEDGE
 				){
 					r = i / width;
 					c = i % width;
@@ -67,8 +67,8 @@ package com.robotacid.ai {
 							nodes[r][c + 1].connections.push(nodes[r][c]);
 						}
 						if(
-							//pixels[n + width] == DungeonBitmap.PIT ||
-							pixels[n + width] == DungeonBitmap.LEDGE
+							//pixels[n + width] == MapBitmap.PIT ||
+							pixels[n + width] == MapBitmap.LEDGE
 						){
 							for(i = r + 1; i < height; i++){
 								if(nodes[i][c]){
@@ -77,8 +77,8 @@ package com.robotacid.ai {
 								}
 							}
 						} else if(
-							pixels[n + width] == DungeonBitmap.LADDER_LEDGE ||
-							pixels[n + width] == DungeonBitmap.LADDER
+							pixels[n + width] == MapBitmap.LADDER_LEDGE ||
+							pixels[n + width] == MapBitmap.LADDER
 						){
 							nodes[r][c].connections.push(nodes[r + 1][c]);
 							nodes[r + 1][c].connections.push(nodes[r][c]);
@@ -262,8 +262,9 @@ package com.robotacid.ai {
 		}
 		
 		/* Chooses a node at random in the hope that it might lead somewhere */
-		public function getPanicNode(start:Node, random:XorRandom):Node{
+		public function getRandomNode(start:Node, random:XorRandom):Node{
 			if(start.connections.length == 1) return start.connections[0];
+			else if(start.connections.length == 0) return null;
 			return start.connections[random.rangeInt(start.connections.length)];
 		}
 		

@@ -129,12 +129,12 @@ package com.robotacid.ui.menu {
 		private function renderMap():void{
 			var textBuffer:BitmapData;
 			var col:uint = infoTextBox.backgroundCol;
-			var nameStr:String = Map.getName(game.dungeon.type, game.dungeon.level);
-			if(game.dungeon.type == Map.MAIN_DUNGEON) nameStr += " : " + game.dungeon.level;
-			if(game.dungeon.completionTotal){
-				if(game.dungeon.completionCount == 0) nameStr += "\n100%";
+			var nameStr:String = Map.getName(game.map.type, game.map.level);
+			if(game.map.type == Map.MAIN_DUNGEON) nameStr += " : " + game.map.level;
+			if(game.map.completionTotal){
+				if(game.map.completionCount == 0) nameStr += "\n100%";
 				else {
-					var total:int = 100 - (((100 / game.dungeon.completionTotal) * game.dungeon.completionCount) >> 0);
+					var total:int = 100 - (((100 / game.map.completionTotal) * game.map.completionCount) >> 0);
 					nameStr += "\n" + total + "%";
 				}
 			}

@@ -1,6 +1,6 @@
 package com.robotacid.ui.menu {
 	import com.robotacid.dungeon.Content;
-	import com.robotacid.dungeon.DungeonBitmap;
+	import com.robotacid.dungeon.MapBitmap;
 	import com.robotacid.dungeon.Map;
 	import com.robotacid.engine.Character;
 	import com.robotacid.engine.Effect;
@@ -161,21 +161,21 @@ package com.robotacid.ui.menu {
 					if(list == createBlockList){
 						game.world.removeMapPosition(mapX, mapY);
 						renderer.blockBitmapData.fillRect(mapRect, 0x00000000);
-						game.dungeon.bitmap.bitmapData.setPixel32(mapX, mapY, DungeonBitmap.EMPTY);
+						game.map.bitmap.bitmapData.setPixel32(mapX, mapY, MapBitmap.EMPTY);
 					}
 				} else if(list == createBlockList){
 					if(option.name == "wall"){
 						id = MapTileConverter.WALL;
-						game.dungeon.bitmap.bitmapData.setPixel32(mapX, mapY, DungeonBitmap.WALL);
+						game.map.bitmap.bitmapData.setPixel32(mapX, mapY, MapBitmap.WALL);
 					} else if(option.name == "ladder"){
 						id = MapTileConverter.LADDER;
-						game.dungeon.bitmap.bitmapData.setPixel32(mapX, mapY, DungeonBitmap.LADDER);
+						game.map.bitmap.bitmapData.setPixel32(mapX, mapY, MapBitmap.LADDER);
 					} else if(option.name == "ledge"){
 						id = MapTileConverter.LEDGE;
-						game.dungeon.bitmap.bitmapData.setPixel32(mapX, mapY, DungeonBitmap.LEDGE);
+						game.map.bitmap.bitmapData.setPixel32(mapX, mapY, MapBitmap.LEDGE);
 					} else if(option.name == "ladder ledge"){
 						id = MapTileConverter.LADDER_LEDGE;
-						game.dungeon.bitmap.bitmapData.setPixel32(mapX, mapY, DungeonBitmap.LADDER_LEDGE);
+						game.map.bitmap.bitmapData.setPixel32(mapX, mapY, MapBitmap.LADDER_LEDGE);
 					}
 					game.world.map[mapY][mapX] = MapTileConverter.getMapProperties(id);
 					game.mapTileManager.changeLayer(MapTileManager.BLOCK_LAYER);
@@ -207,11 +207,11 @@ package com.robotacid.ui.menu {
 		
 		public function setLight(n:int):void{
 			if(n == OFF){
-				game.dungeon.type = Map.AREA;
+				game.map.type = Map.AREA;
 				renderer.lightBitmap.visible = false;
 			
 			} else if(n == ON){
-				game.dungeon.type = Map.MAIN_DUNGEON;
+				game.map.type = Map.MAIN_DUNGEON;
 				renderer.lightBitmap.visible = true;
 			}
 		}

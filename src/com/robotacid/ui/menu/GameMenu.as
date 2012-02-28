@@ -384,7 +384,7 @@
 					
 					// no equipping face armour on the overworld
 					if(item.name == Item.FACE){
-						if(game.dungeon.level == 0){
+						if(game.map.level == 0){
 							inventoryList.equipOption.active = false;
 							inventoryList.equipMinionOption.active = false;
 						}
@@ -411,10 +411,10 @@
 						if(game.minion) inventoryList.feedMinionOption.active = game.minion.level < Game.MAX_LEVEL;
 						inventoryList.eatOption.active = game.player.level < Game.MAX_LEVEL;
 					} else if(item.name == Effect.PORTAL){
-						inventoryList.eatOption.active = game.dungeon.type == Map.MAIN_DUNGEON;
+						inventoryList.eatOption.active = game.map.type == Map.MAIN_DUNGEON;
 						if(game.minion) inventoryList.feedMinionOption.active = inventoryList.eatOption.active;
 					} else if(item.name == Effect.POLYMORPH){
-						inventoryList.eatOption.active = !(game.dungeon.type == Map.AREA && game.dungeon.level == Map.OVERWORLD);
+						inventoryList.eatOption.active = !(game.map.type == Map.AREA && game.map.level == Map.OVERWORLD);
 						if(game.minion) inventoryList.feedMinionOption.active = inventoryList.eatOption.active;
 					}
 				}
@@ -586,7 +586,7 @@
 						if(SoundManager.soundLoops["underworldMusic2"]) SoundManager.stopSound("underworldMusic2");
 					} else {
 						SoundManager.turnOnMusic();
-						if(game.dungeon.type == Map.AREA && game.dungeon.level == Map.UNDERWORLD){
+						if(game.map.type == Map.AREA && game.map.level == Map.UNDERWORLD){
 							SoundManager.fadeLoopSound("underworldMusic2");
 						}
 					}
@@ -719,8 +719,8 @@
 				
 			// teleporting
 			} else if(currentMenuList == portalTeleportList){
-				if(option == stairsDownPortalOption) teleportToPortal(Portal.STAIRS, game.dungeon.level + 1);
-				else if(option == stairsUpPortalOption) teleportToPortal(Portal.STAIRS, game.dungeon.level - 1);
+				if(option == stairsDownPortalOption) teleportToPortal(Portal.STAIRS, game.map.level + 1);
+				else if(option == stairsUpPortalOption) teleportToPortal(Portal.STAIRS, game.map.level - 1);
 				else if(option == overworldPortalOption) teleportToPortal(Portal.OVERWORLD);
 				else if(option == underworldPortalOption) teleportToPortal(Portal.UNDERWORLD);
 				
@@ -730,7 +730,7 @@
 				
 			// remapping the ai graph
 			} else if(option == editorList.remapAIGraphOption){
-				Brain.initDungeonGraph(game.dungeon.bitmap);
+				Brain.initDungeonGraph(game.map.bitmap);
 				for(i = 0; i < Brain.monsterCharacters.length; i++){
 					character = Brain.monsterCharacters[i];
 					character.brain.clear();
@@ -808,8 +808,8 @@
 			if(type == Portal.STAIRS){
 				// scan the entity layer
 				var r:int, c:int, entity:*;
-				for(r = 0; r < game.dungeon.height; r++){
-					for(c = 0; c < game.dungeon.width; c++){
+				for(r = 0; r < game.map.height; r++){
+					for(c = 0; c < game.map.width; c++){
 						entity = game.mapTileManager.mapLayers[MapTileManager.ENTITY_LAYER][r][c];
 						if(entity){
 							if(entity is Portal){
@@ -819,8 +819,8 @@
 									return;
 								}
 							} else if(
-								(entity == MapTileConverter.STAIRS_DOWN && targetLevel > game.dungeon.level) ||
-								(entity == MapTileConverter.STAIRS_UP && targetLevel < game.dungeon.level)
+								(entity == MapTileConverter.STAIRS_DOWN && targetLevel > game.map.level) ||
+								(entity == MapTileConverter.STAIRS_UP && targetLevel < game.map.level)
 							){
 								Effect.teleportCharacter(game.player, new Pixel(c, r));
 								return;

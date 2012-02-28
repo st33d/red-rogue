@@ -311,7 +311,7 @@
 			
 			// if this is being called from Effect.enchant and there is only one item in the enchantables list
 			// menu.update() will crash the game - walking back to the trunk is necessary
-			if(menu.currentMenuList == equipmentList && equipmentList.options.length == 0) while(menu.previousMenuList) menu.stepLeft();
+			if(menu.currentMenuList.options.length == 0) while(menu.previousMenuList) menu.stepLeft();
 			
 			menu.update();
 			

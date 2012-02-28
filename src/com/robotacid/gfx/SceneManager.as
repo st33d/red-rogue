@@ -42,7 +42,7 @@ package com.robotacid.gfx {
 			if(mapLevel == Map.UNDERWORLD && mapType == Map.AREA){
 				fx = new Vector.<FX>();
 				for(i = 0; i < UNDERWORLD_NOVAS; i++){
-					fx[i] = new FX(game.random.range(game.dungeon.width * Game.SCALE), game.random.range(UNDERWORLD_NOVA_HEIGHT * Game.SCALE), renderer.novaBlit, renderer.bitmapData, renderer.bitmap);
+					fx[i] = new FX(game.random.range(game.map.width * Game.SCALE), game.random.range(UNDERWORLD_NOVA_HEIGHT * Game.SCALE), renderer.novaBlit, renderer.bitmapData, renderer.bitmap);
 					fx[i].frame = game.random.rangeInt(renderer.novaBlit.totalFrames);
 				}
 				var bitmap:Bitmap = new game.library.WaveB()
@@ -57,7 +57,7 @@ package com.robotacid.gfx {
 				var item:FX;
 				for(i = fx.length - 1; i > -1; i--){
 					item = fx[i];
-					if(!item.active) fx[i] = new FX(game.random.range(game.dungeon.width * Game.SCALE), game.random.range(UNDERWORLD_NOVA_HEIGHT * Game.SCALE), renderer.novaBlit, renderer.bitmapData, renderer.bitmap);
+					if(!item.active) fx[i] = new FX(game.random.range(game.map.width * Game.SCALE), game.random.range(UNDERWORLD_NOVA_HEIGHT * Game.SCALE), renderer.novaBlit, renderer.bitmapData, renderer.bitmap);
 					else{
 						item.main();
 						if(item.frame == item.blit.totalFrames) game.soundQueue.addRandom("star", STAR_SOUNDS);
@@ -73,13 +73,13 @@ package com.robotacid.gfx {
 				if(vx < bitmapData.width) vx += WAVE_SPEED;
 				else vx = 0;
 				point.y = -renderer.bitmap.y + UNDERWORLD_WAVE_HEIGHT * Game.SCALE-bitmapData.height;
-				for(point.x = -bitmapData.width + vx; point.x < game.dungeon.width * Game.SCALE; point.x += bitmapData.width){
+				for(point.x = -bitmapData.width + vx; point.x < game.map.width * Game.SCALE; point.x += bitmapData.width){
 					renderer.bitmapData.copyPixels(bitmapData, bitmapData.rect, point, null, null, true);
 				}
 				
 			} else if(mapLevel == Map.OVERWORLD && mapType == Map.AREA){
 				// the overworld requires an effect over the stairwell to imply the time loop spell
-				renderer.createTeleportSparkRect(new Rectangle(12 * Game.SCALE, (game.dungeon.height - 2) * Game.SCALE, Game.SCALE, Game.SCALE), 2);
+				renderer.createTeleportSparkRect(new Rectangle(12 * Game.SCALE, (game.map.height - 2) * Game.SCALE, Game.SCALE, Game.SCALE), 2);
 			}
 		}
 		

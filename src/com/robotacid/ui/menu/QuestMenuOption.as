@@ -26,7 +26,7 @@ package com.robotacid.ui.menu {
 			if(type == COLLECT){
 				num = 3 + game.random.rangeInt(3);
 				name = "collect " + num + " gems";
-				xpReward = num * game.dungeon.level;
+				xpReward = num * game.map.level;
 				
 			} else if(type == KILL){
 				name = "kill " + subject.nameToString();

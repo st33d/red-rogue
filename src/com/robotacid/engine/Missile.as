@@ -109,7 +109,6 @@
 						if(target != sender){
 							if(type == ITEM){
 								// is the target protected?
-								trace(target.protectionModifier);
 								if(
 									target.protectionModifier < 1 &&
 									game.random.value() > (target.protectionModifier < Character.MIN_PROTECTION_MODIFIER ? Character.MIN_PROTECTION_MODIFIER : target.protectionModifier)
@@ -120,8 +119,24 @@
 									if(hitResult){
 										hitCharacter(target, hitResult);
 									} else {
-										// pass through next simulation frame
-										collider.ignoreProperties |= Collider.SOLID;
+										if(target is Stone){
+											kill();
+										} else {
+											// if the character is facing a throwable missile, they can catch it
+											if(
+												item && (item.range & Item.THROWN) && (
+													(dx < 0 && (target.looking & Collider.RIGHT)) ||
+													(dx > 0 && (target.looking & Collider.LEFT))
+												)
+											){
+												target.catchThrowable(item);
+												item = null;
+												kill();
+											} else {
+												// pass through next simulation frame
+												collider.ignoreProperties |= Collider.SOLID;
+											}
+										}
 									}
 								}
 							} else {

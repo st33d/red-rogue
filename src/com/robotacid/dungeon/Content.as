@@ -236,7 +236,7 @@
 		/* Distributes content across a level
 		 * 
 		 * Portals we leave alone for the Map to request when it needs to create access points */
-		public function populateLevel(level:int, bitmap:DungeonBitmap, layers:Array, mapType:int):int{
+		public function populateLevel(level:int, bitmap:MapBitmap, layers:Array, mapType:int):int{
 			var r:int, c:int;
 			var i:int;
 			var monsters:Vector.<XML>;
@@ -273,7 +273,7 @@
 				while(monsters.length){
 					r = 1 + Map.random.range(bitmap.height - 1);
 					c = 1 + Map.random.range(bitmap.width - 1);
-					if(!layers[Map.ENTITIES][r][c] && layers[Map.BLOCKS][r][c] != MapTileConverter.WALL && (bitmap.bitmapData.getPixel32(c, r + 1) == DungeonBitmap.LEDGE || layers[Map.BLOCKS][r + 1][c] == MapTileConverter.WALL)){
+					if(!layers[Map.ENTITIES][r][c] && layers[Map.BLOCKS][r][c] != MapTileConverter.WALL && (bitmap.bitmapData.getPixel32(c, r + 1) == MapBitmap.LEDGE || layers[Map.BLOCKS][r + 1][c] == MapTileConverter.WALL)){
 						//trace(monstersByLevel[level][0].toXMLString());
 						layers[Map.ENTITIES][r][c] = convertXMLToEntity(c, r, monsters.shift());
 					}
@@ -281,7 +281,7 @@
 				while(chests.length){
 					r = 1 + Map.random.range(bitmap.height - 2);
 					c = 1 + Map.random.range(bitmap.width - 2);
-					if(!layers[Map.ENTITIES][r][c] && layers[Map.BLOCKS][r][c] != MapTileConverter.WALL && (bitmap.bitmapData.getPixel32(c, r + 1) == DungeonBitmap.LEDGE || layers[Map.BLOCKS][r + 1][c] == MapTileConverter.WALL)){
+					if(!layers[Map.ENTITIES][r][c] && layers[Map.BLOCKS][r][c] != MapTileConverter.WALL && (bitmap.bitmapData.getPixel32(c, r + 1) == MapBitmap.LEDGE || layers[Map.BLOCKS][r + 1][c] == MapTileConverter.WALL)){
 						//trace(chestsByLevel[level][0].toXMLString());
 						layers[Map.ENTITIES][r][c] = convertXMLToEntity(c, r, chests.shift());
 					}
@@ -326,7 +326,7 @@
 		}
 		
 		/* Distributes quest gems to the map */
-		public function dropQuestGems(total:int, layers:Array, bitmap:DungeonBitmap, dropToMap:Boolean = false):void{
+		public function dropQuestGems(total:int, layers:Array, bitmap:MapBitmap, dropToMap:Boolean = false):void{
 			
 			var breaker:int = 1000;
 			var r:int, c:int, item:Item;
@@ -424,7 +424,7 @@
 		 * again if the level is re-visited */
 		public function recycleLevel(mapType:int):void{
 			var i:int;
-			var level:int = game.dungeon.level;
+			var level:int = game.map.level;
 			// no recycling debug
 			if(level < 0) return;
 			if(mapType == Map.MAIN_DUNGEON){

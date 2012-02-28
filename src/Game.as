@@ -3,7 +3,7 @@
 	import com.robotacid.ai.Brain;
 	import com.robotacid.ai.Node;
 	import com.robotacid.dungeon.Content;
-	import com.robotacid.dungeon.DungeonBitmap;
+	import com.robotacid.dungeon.MapBitmap;
 	import com.robotacid.engine.ChaosWall;
 	import com.robotacid.engine.Character;
 	import com.robotacid.engine.Effect;
@@ -81,7 +81,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 320;
+		public static const BUILD_NUM:int = 321;
 		
 		public static const TEST_BED_INIT:Boolean = false;
 		
@@ -95,7 +95,7 @@
 		public var player:Player;
 		public var minion:Minion;
 		public var library:Library;
-		public var dungeon:Map;
+		public var map:Map;
 		public var content:Content;
 		public var entrance:Portal;
 		public var world:CollisionWorld;
@@ -199,7 +199,7 @@
 			Map.game = this;
 			Content.game = this;
 			Brain.game = this;
-			DungeonBitmap.game = this;
+			MapBitmap.game = this;
 			Lightning.game = this;
 			ItemMovieClip.game = this;
 			SceneManager.game = this;
@@ -547,27 +547,27 @@
 			content = new Content();
 			
 			// DEBUG HERE ==========================================================================================
-			dungeon = new Map(1);
-			Brain.initDungeonGraph(dungeon.bitmap);
-			mapTileManager = new MapTileManager(this, renderer.canvas, SCALE, dungeon.width, dungeon.height, WIDTH, HEIGHT);
-			mapTileManager.setLayers(dungeon.layers);
+			map = new Map(1);
+			Brain.initDungeonGraph(map.bitmap);
+			mapTileManager = new MapTileManager(this, renderer.canvas, SCALE, map.width, map.height, WIDTH, HEIGHT);
+			mapTileManager.setLayers(map.layers);
 			renderer.blockBitmapData = mapTileManager.layerToBitmapData(MapTileManager.BACKGROUND_LAYER);
 			renderer.blockBitmapData = mapTileManager.layerToBitmapData(MapTileManager.BLOCK_LAYER, renderer.blockBitmapData);
-			world = new CollisionWorld(dungeon.width, dungeon.height, SCALE);
+			world = new CollisionWorld(map.width, map.height, SCALE);
 			world.map = createPropertyMap(mapTileManager.mapLayers[MapTileManager.BLOCK_LAYER]);
 			
 			//world.debug = debug;
 			
-			renderer.sceneManager = SceneManager.getSceneManager(dungeon.level, dungeon.type);
+			renderer.sceneManager = SceneManager.getSceneManager(map.level, map.type);
 			
 			lightMap = new LightMap(world.map);
 			
-			mapTileManager.init(dungeon.start.x, dungeon.start.y);
+			mapTileManager.init(map.start.x, map.start.y);
 			
 			//renderer.lightBitmap.visible = false;
 			
 			// modify the mapRect to conceal secrets
-			mapTileManager.mapRect = renderer.camera.mapRect = dungeon.bitmap.adjustedMapRect;
+			mapTileManager.mapRect = renderer.camera.mapRect = map.bitmap.adjustedMapRect;
 			miniMap = new MiniMap(world.map, this, renderer);
 			miniMap.y = miniMap.x = 5;
 			miniMapHolder.addChild(miniMap);
@@ -576,7 +576,7 @@
 			addListeners();
 			
 			// init area visit notices
-			var levelName:String = Map.getName(dungeon.type, dungeon.level);
+			var levelName:String = Map.getName(map.type, map.level);
 			visitedHash = {};
 			visitedHash[levelName] = true;
 			
@@ -606,7 +606,7 @@
 			player = null;
 			minion = null;
 			mapTileManager = null;
-			dungeon = null;
+			map = null;
 			world = null;
 			Player.previousLevel = Map.OVERWORLD;
 			Player.previousPortalType = Portal.STAIRS;
@@ -637,7 +637,7 @@
 		public function changeLevel(n:int, portalType:int, loaded:Boolean = false):void{
 			
 			// maintain debug state if present
-			if(dungeon.level == -1){
+			if(map.level == -1){
 				n = -1;
 				Player.previousLevel = -1;
 				Player.previousPortalType = Portal.ITEM;
@@ -648,7 +648,7 @@
 			if(!loaded){
 				// left over content needs to be pulled back into the content manager to be found
 				// if the level is visited again
-				content.recycleLevel(dungeon.type);
+				content.recycleLevel(map.type);
 				QuickSave.save(this, true);
 			}
 			
@@ -693,39 +693,39 @@
 				mapType = Map.AREA;
 			}
 			
-			dungeon = new Map(n, mapType);
+			map = new Map(n, mapType);
 			
-			Brain.initDungeonGraph(dungeon.bitmap);
+			Brain.initDungeonGraph(map.bitmap);
 			
-			mapTileManager.newMap(dungeon.width, dungeon.height, dungeon.layers);
+			mapTileManager.newMap(map.width, map.height, map.layers);
 			renderer.blockBitmapData = mapTileManager.layerToBitmapData(MapTileManager.BACKGROUND_LAYER);
-			if(dungeon.type != Map.AREA) renderer.blockBitmapData = mapTileManager.layerToBitmapData(MapTileManager.BLOCK_LAYER, renderer.blockBitmapData);
+			if(map.type != Map.AREA) renderer.blockBitmapData = mapTileManager.layerToBitmapData(MapTileManager.BLOCK_LAYER, renderer.blockBitmapData);
 			
 			// modify the mapRect to conceal secrets
-			mapTileManager.mapRect = dungeon.bitmap.adjustedMapRect;
-			renderer.camera.mapRect = dungeon.bitmap.adjustedMapRect;
+			mapTileManager.mapRect = map.bitmap.adjustedMapRect;
+			renderer.camera.mapRect = map.bitmap.adjustedMapRect;
 			
-			world = new CollisionWorld(dungeon.width, dungeon.height, SCALE);
+			world = new CollisionWorld(map.width, map.height, SCALE);
 			world.map = createPropertyMap(mapTileManager.mapLayers[MapTileManager.BLOCK_LAYER]);
 			
-			renderer.sceneManager = SceneManager.getSceneManager(dungeon.level, dungeon.type);
+			renderer.sceneManager = SceneManager.getSceneManager(map.level, map.type);
 			
 			lightMap.newMap(world.map);
 			lightMap.setLight(player, player.light);
 			
-			mapTileManager.init(dungeon.start.x, dungeon.start.y);
+			mapTileManager.init(map.start.x, map.start.y);
 			
 			miniMap.newMap(world.map);
 			
-			player.collider.x = -player.collider.width * 0.5 + (dungeon.start.x + 0.5) * SCALE;
-			player.collider.y = -player.collider.height + (dungeon.start.y + 1) * SCALE;
+			player.collider.x = -player.collider.width * 0.5 + (map.start.x + 0.5) * SCALE;
+			player.collider.y = -player.collider.height + (map.start.y + 1) * SCALE;
 			player.mapX = (player.collider.x + player.collider.width * 0.5) * INV_SCALE;
 			player.mapY = (player.collider.y + player.collider.height * 0.5) * INV_SCALE;
 			player.snapCamera();
 			
 			if(minion){
-				minion.collider.x = -minion.collider.width * 0.5 + (dungeon.start.x + 0.5) * SCALE;
-				minion.collider.y = -minion.collider.height + (dungeon.start.y + 1) * SCALE;
+				minion.collider.x = -minion.collider.width * 0.5 + (map.start.x + 0.5) * SCALE;
+				minion.collider.y = -minion.collider.height + (map.start.y + 1) * SCALE;
 				minion.mapX = (minion.collider.x + minion.collider.width * 0.5) * INV_SCALE;
 				minion.mapY = (minion.collider.y + minion.collider.height * 0.5) * INV_SCALE;
 				entities.push(minion);
@@ -745,7 +745,7 @@
 				SoundManager.fadeMusic("music1", -SoundManager.DEFAULT_FADE_STEP);
 				
 				// the overworld changes the rogue to a colour version and reverts all polymorph effects
-				if(dungeon.level == Map.OVERWORLD){
+				if(map.level == Map.OVERWORLD){
 					var skinMc:MovieClip;
 					
 					// unequip face armour if worn
@@ -763,12 +763,12 @@
 						console.print("minion reverts to undead form");
 					}
 					
-				} else if(dungeon.level == Map.UNDERWORLD){
+				} else if(map.level == Map.UNDERWORLD){
 					if(player.undead) player.applyHealth(player.totalHealth);
 					if(minion && minion.undead) minion.applyHealth(minion.totalHealth);
 				}
 				
-			} else if(dungeon.level == -1){
+			} else if(map.level == -1){
 				renderer.lightBitmap.visible = false;
 				
 			} else if(Player.previousMapType == Map.AREA){
@@ -781,15 +781,15 @@
 					player.changeName(Character.ROGUE, new RogueMC);
 				}
 			}
-			player.enterLevel(entrance, Player.previousLevel < game.dungeon.level ? Collider.RIGHT : Collider.LEFT);
+			player.enterLevel(entrance, Player.previousLevel < game.map.level ? Collider.RIGHT : Collider.LEFT);
 			changeMusic();
 		}
 		
 		private function initPlayer():void{
 			var playerMc:MovieClip = new RogueMC();
 			var minionMc:MovieClip = new SkeletonMC();
-			var startX:Number = (dungeon.start.x + 0.5) * SCALE;
-			var startY:Number = (dungeon.start.y + 1) * SCALE;
+			var startX:Number = (map.start.x + 0.5) * SCALE;
+			var startY:Number = (map.start.y + 1) * SCALE;
 			player = new Player(playerMc, startX, startY);
 			minion = new Minion(minionMc, startX, startY, Character.SKELETON);
 			minion.prepareToEnter(entrance);
@@ -985,20 +985,20 @@
 					SoundManager.fadeMusic("introMusic");
 				}
 			} else {
-				if(dungeon.type == Map.AREA){
-					if(dungeon.level == Map.OVERWORLD) name = "overworldMusic";
-					else if(dungeon.level == Map.UNDERWORLD) name = "underworldMusic1";
+				if(map.type == Map.AREA){
+					if(map.level == Map.OVERWORLD) name = "overworldMusic";
+					else if(map.level == Map.UNDERWORLD) name = "underworldMusic1";
 					if(!SoundManager.currentMusic || SoundManager.currentMusic != name){
-						if(dungeon.level == Map.OVERWORLD){
+						if(map.level == Map.OVERWORLD){
 							start = int(SoundManager.musicTimes[name]);
-						} else if(dungeon.level == Map.UNDERWORLD){
+						} else if(map.level == Map.UNDERWORLD){
 							start = (SoundManager.sounds["underworldMusic1"] as Sound).length * 0.5;
 							if(SoundManager.music && !SoundManager.soundLoops["underworldMusic2"]) SoundManager.fadeLoopSound("underworldMusic2");
 						}
 						SoundManager.fadeMusic(name, SoundManager.DEFAULT_FADE_STEP, start);
 					}
 				} else {
-					name = Map.ZONE_NAMES[dungeon.zone] + "Music";
+					name = Map.ZONE_NAMES[map.zone] + "Music";
 					if(!SoundManager.currentMusic || SoundManager.currentMusic != name){
 						start = int(SoundManager.musicTimes[name]);
 						SoundManager.fadeMusic(name, SoundManager.DEFAULT_FADE_STEP, start);
@@ -1030,8 +1030,8 @@
 		
 		public function levelCompleteMsg():void{
 			var nameStr:String;
-			if(game.dungeon.type == Map.MAIN_DUNGEON) nameStr = "level " + game.dungeon.level;
-			else nameStr = Map.getName(game.dungeon.type, game.dungeon.level);
+			if(game.map.type == Map.MAIN_DUNGEON) nameStr = "level " + game.map.level;
+			else nameStr = Map.getName(game.map.type, game.map.level);
 			console.print(nameStr + " cleared");
 		}
 		

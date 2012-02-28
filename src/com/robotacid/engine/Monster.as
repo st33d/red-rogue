@@ -45,11 +45,15 @@
 		/* Called when the MapTileManager activates this monster for the first time */
 		public function mapInit():void{
 			if(loot){
+				var item:Item;
 				for(var i:int = 0; i < loot.length; i++){
-					if((!weapon && loot[i].type == Item.WEAPON) || (!armour && loot[i].type == Item.ARMOUR)){
-						equip(loot[i]);
-						if(weapon && armour) break;
+					item = loot[i];
+					if((!weapon && item.type == Item.WEAPON) || (!armour && item.type == Item.ARMOUR)){
+						equip(item);
+					} else if(!throwable && item.type == Item.WEAPON && (item.range & Item.THROWN)){
+						equip(item, true);
 					}
+					if(weapon && armour && throwable) break;
 				}
 			}
 		}
@@ -107,7 +111,7 @@
 			}
 			
 			Brain.monsterCharacters.splice(Brain.monsterCharacters.indexOf(this), 1);
-			if(--game.dungeon.completionCount == 0) game.levelCompleteMsg();
+			if(--game.map.completionCount == 0) game.levelCompleteMsg();
 		}
 		
 		override public function remove():void {

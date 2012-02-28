@@ -176,19 +176,19 @@
 			// update exiting a level
 			if(state == EXITING){
 				// capture the exit direction before we clear the reference to the portal
-				var exitDir:int = portal.targetLevel > game.dungeon.level ? 1 : -1;
+				var exitDir:int = portal.targetLevel > game.map.level ? 1 : -1;
 				var portalType:int = portal.type;
 				var portalTargetLevel:int = portal.targetLevel;
 				moving = true;
 				if(portal.type == Portal.STAIRS){
-					if(portal.targetLevel > game.dungeon.level){
+					if(portal.targetLevel > game.map.level){
 						if(moveCount){
 							if(dir == RIGHT) gfx.x += STAIRS_SPEED;
 							else if(dir == LEFT) gfx.x -= STAIRS_SPEED;
 							gfx.y += STAIRS_SPEED;
 						}
 						if(gfx.y >= (portal.mapY + 1) * Game.SCALE + PORTAL_DISTANCE) portal = null;
-					} else if(portal.targetLevel < game.dungeon.level){
+					} else if(portal.targetLevel < game.map.level){
 						if(moveCount){
 							if(dir == RIGHT) gfx.x += STAIRS_SPEED;
 							else if(dir == LEFT) gfx.x -= STAIRS_SPEED;
@@ -224,7 +224,7 @@
 						game.changeLevel(portalTargetLevel, portalType);
 						// warm up the renderer
 						renderer.main();
-						if(game.dungeon.type != Map.AREA){
+						if(game.map.type != Map.AREA){
 							for(i = 0; i < 8; i++){
 								game.lightMap.main();
 							}
@@ -474,12 +474,12 @@
 			gfx.x = (portal.mapX + 0.5) * Game.SCALE;
 			state = EXITING;
 			// prepare the dungeon generator for what entrance the player will use
-			previousLevel = game.dungeon.level;
+			previousLevel = game.map.level;
 			previousPortalType = portal.type;
-			previousMapType = game.dungeon.type;
-			if(portal.targetLevel < game.dungeon.level){
+			previousMapType = game.map.type;
+			if(portal.targetLevel < game.map.level){
 				dir = looking = LEFT;
-			} else if(portal.targetLevel > game.dungeon.level){
+			} else if(portal.targetLevel > game.map.level){
 				dir = looking = RIGHT;
 			} else {
 				dir = looking & (LEFT | RIGHT);

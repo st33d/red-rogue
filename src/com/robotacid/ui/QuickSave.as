@@ -47,7 +47,7 @@ package com.robotacid.ui {
 				obj.playerData = true;
 				// we only save on stairs but the level doesn't change till the animation
 				// finishes, so we have to take a reading from the player's state
-				obj.dungeonLevel = game.dungeon.level + (Player.previousLevel < Player.previousLevel ? 1 : -1);
+				obj.dungeonLevel = game.map.level + (Player.previousLevel < Player.previousLevel ? 1 : -1);
 				obj.previousLevel = Player.previousLevel;
 				obj.previousPortalType = Player.previousPortalType;
 				obj.player = game.player.toXML();

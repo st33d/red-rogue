@@ -1,4 +1,4 @@
-Change log: minion missile traffic wasn't on - fixed, added brain state copying for commuting monsters, added move out of tile when no clipping a chase target, fixed setStats equip bug, changed level clear msg to level based in main dungeon
+Change log: refactored "Dungeon" to "Map" in code terminology, discovered logic flaw in missile that would allow missiles to pass thru Stones - fixed, monsters and minion can now use throwables, implemented catching throwing weapons for characters facing missile throwables
 
 Bug hunt
 	can crash graph renderer by changing level	
@@ -13,13 +13,25 @@ create Editor in debug menu
 			chaos walls
 		items
 
-refactor "Map" or "Dungeon" terminology - having both is just confusing
-
 hide a plus one mace in a secret room above the grindstone
 
 animate the trap marker - it should bling in the level when searched
 
+move enchant to item menu?
+
 Tackle the AI problem
+
+	clear panic node on state change - may induce bugs
+	
+	flee logic incompatible with panic logic
+		*test new node visiting logic with play-testing
+	
+	
+	bravery
+	
+	ninja node links
+		encourage drop tactics instead of climbing ladders down
+
 	meta-heuristic block - path too long
 		genius chase solver backup graph
 			genius class

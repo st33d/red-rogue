@@ -15,7 +15,7 @@
 	 *
 	 * @author Aaron Steed, robotacid.com
 	 */
-	public class DungeonBitmap extends Bitmap{
+	public class MapBitmap extends Bitmap{
 		
 		public static var game:Game;
 		
@@ -107,7 +107,7 @@
 		/* Adobe don't provide this as a constant for some reason */
 		public static const MAXIMUM_PIXELS:int = 16769025;
 		
-		public function DungeonBitmap(level:int, type:int, zone:int = 0) {
+		public function MapBitmap(level:int, type:int, zone:int = 0) {
 			
 			this.level = level;
 			this.type = type;

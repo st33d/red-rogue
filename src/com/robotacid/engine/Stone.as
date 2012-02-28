@@ -137,24 +137,24 @@
 			game.console.print("secret revealed");
 			renderer.shake(0, 3);
 			game.soundQueue.addRandom("stoneDeath", STONE_DEATH_SOUNDS);
-			game.player.addXP(SECRET_XP_REWARD * game.dungeon.level);
+			game.player.addXP(SECRET_XP_REWARD * game.map.level);
 			game.world.removeMapPosition(mapX, mapY);
 			game.mapTileManager.removeTile(this, mapX, mapY, mapZ);
 			renderer.blockBitmapData.fillRect(new Rectangle(mapX * SCALE, mapY * SCALE, SCALE, SCALE), 0x00000000);
 			// adjust the mapRect to show new content
 			if(mapX < game.player.mapX){
 				game.mapTileManager.mapRect.x = 0;
-				game.mapTileManager.mapRect.width += game.dungeon.bitmap.leftSecretWidth;
+				game.mapTileManager.mapRect.width += game.map.bitmap.leftSecretWidth;
 			} else if(mapX > game.player.mapX){
-				game.mapTileManager.mapRect.width += game.dungeon.bitmap.rightSecretWidth;
+				game.mapTileManager.mapRect.width += game.map.bitmap.rightSecretWidth;
 			}
 			if(minimapFeature) {
 				minimapFeature.active = false;
 				minimapFeature = null;
 			}
 			collider.world.removeCollider(collider);
-			game.content.removeSecret(game.dungeon.level, game.dungeon.type);
-			if(--game.dungeon.completionCount == 0) game.levelCompleteMsg();
+			game.content.removeSecret(game.map.level, game.map.type);
+			if(--game.map.completionCount == 0) game.levelCompleteMsg();
 		}
 		
 		/* A search action can reveal to the player where a secret wall is */

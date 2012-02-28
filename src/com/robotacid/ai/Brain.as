@@ -1,5 +1,5 @@
 ﻿package com.robotacid.ai {
-	import com.robotacid.dungeon.DungeonBitmap;
+	import com.robotacid.dungeon.MapBitmap;
 	import com.robotacid.engine.Character;
 	import com.robotacid.engine.Item;
 	import com.robotacid.engine.Minion;
@@ -38,7 +38,7 @@
 		public var scheduleTarget:Character;
 		public var leader:Character;
 		public var path:Vector.<Node>;
-		public var panicNode:Node;
+		public var altNode:Node;
 		
 		public var state:int;
 		public var count:int;
@@ -112,7 +112,7 @@
 			playerCharacters = new Vector.<Character>();
 			monsterCharacters = new Vector.<Character>();
 		}
-		public static function initDungeonGraph(bitmap:DungeonBitmap):void{
+		public static function initDungeonGraph(bitmap:MapBitmap):void{
 			dungeonGraph = new DungeonGraph(bitmap);
 		}
 		
@@ -216,6 +216,7 @@
 				if(scheduleTarget){
 					if(charContact && char.enemy(charContact)){
 						target = charContact;
+						altNode = null;
 						state = ATTACK;
 						count = 0;
 					
@@ -231,6 +232,7 @@
 								if(Cast.los(charPos, scheduleTarget.collider, new Point((char.looking & RIGHT) ? 1 : -1, 0), 0.5, game.world, ignore)){
 									state = ATTACK;
 									target = scheduleTarget;
+									altNode = null;
 									count = 0;
 									// characters will vocalise when they see a target
 									if(voiceCount == 0){
@@ -244,7 +246,7 @@
 				}
 			} else if(state == ATTACK){
 				
-				if(char.weapon && (char.weapon.range & Item.MISSILE)){
+				if(char.throwable || (char.weapon && (char.weapon.range & Item.MISSILE))){
 					snipe(target);
 				} else {
 					chase(target);
@@ -255,6 +257,7 @@
 				if(!target || !target.active){
 					target = null;
 					patrolAreaSet = false;
+					altNode = null;
 					state = PATROL;
 					
 				// if the target is directly above, get the hell out of there
@@ -266,6 +269,7 @@
 					)
 				){
 					state = FLEE;
+					altNode = null;
 					count = delay + game.random.range(delay * 2);
 				}
 				
@@ -282,17 +286,20 @@
 							count = 1 + game.random.range(delay);
 						} else {
 							target = null;
+							altNode = null;
 							patrolAreaSet = false;
 							state = PATROL;
 						}
 					} else {
 						state = ATTACK;
+						altNode = null;
 						count = 0;
 					}
 				}
 				if(charContact && char.enemy(charContact)){
 					target = charContact;
 					state = ATTACK;
+					altNode = null;
 					count = 0;
 				}
 			}
@@ -317,6 +324,7 @@
 			target = null;
 			patrolAreaSet = false;
 			state = PATROL;
+			altNode = null;
 		}
 		
 		/* Copys one brain state on to another, along with target */
@@ -369,6 +377,7 @@
 					state = FLEE;
 					count = delay + game.random.range(delay * 2);
 				}
+				if(altNode) altNode = null;
 			
 			// perform an A* search to locate the target
 			} else {
@@ -386,18 +395,18 @@
 						
 						// is this a metaheuristic dead end? choose a panic node
 						if(path.length == 1 && node == start && !(node.x == target.mapX && node.y == target.mapY)){
-							// only select a panic node after crossing the center of the tile
-							if(!panicNode){
+							// only select a random node after crossing the center of the tile
+							if(!altNode){
 								if(!crossedTileCenter){
 									if(charPos.x < char.tileCenter) char.actions |= RIGHT;
 									else if(charPos.x > char.tileCenter) char.actions |= LEFT;
 								} else {
-									panicNode = dungeonGraph.getPanicNode(start, game.random);
+									altNode = dungeonGraph.getRandomNode(start, game.random);
 								}
 							}
-							if(panicNode) node = panicNode;
-						} else if(panicNode){
-							panicNode = null;
+							if(altNode) node = altNode;
+						} else if(altNode){
+							altNode = null;
 						}
 						
 						// navigate to node
@@ -478,6 +487,7 @@
 				if(targetX < charPos.x) char.actions |= RIGHT;
 				else if(targetX > charPos.x) char.actions |= LEFT;
 				if(target.collider.y >= char.collider.y + char.collider.height) char.actions |= UP;
+				if(altNode) altNode = null;
 			
 			// perform an Brown* search to escape the target
 			} else {
@@ -492,20 +502,24 @@
 						// choose node
 						node = path[path.length - 1];
 						
-						// is this a metaheuristic dead end? choose a panic node
-						if(path.length == 1 && node == start){
-							// only select a panic node after crossing the center of the tile
-							if(!panicNode){
-								if(!crossedTileCenter){
-									if(charPos.x < char.tileCenter) char.actions |= RIGHT;
-									else if(charPos.x > char.tileCenter) char.actions |= LEFT;
-								} else {
-									panicNode = dungeonGraph.getPanicNode(start, game.random);
+						if(!following){
+							// the character might be in a dead end - to lengthen their dither cycle,
+							// get them to fully visit the node, otherwise they will twiddle on the spot
+							if(altNode){
+								node = altNode;
+								if(node.x == char.mapX && node.y == char.mapY){
+									if(!crossedTileCenter){
+										if(charPos.x < char.tileCenter) char.actions |= RIGHT;
+										else if(charPos.x > char.tileCenter) char.actions |= LEFT;
+									} else {
+										altNode = null;
+									}
 								}
+							} else if(path.length == 1){
+								altNode = node;
+							} else {
+								altNode = null;
 							}
-							if(panicNode) node = panicNode;
-						} else if(panicNode){
-							panicNode = null;
 						}
 						
 						if(node.y == char.mapY){
@@ -595,9 +609,6 @@
 			
 			var targetX:Number = target.collider.x + target.collider.width * 0.5;
 			var targetY:Number = target.collider.y + target.collider.height * 0.5;
-			
-			//Game.debug.drawCircle(char.x, char.y, SNIPE_CHASE_EDGE);
-			//Game.debug.drawCircle(char.x, char.y, SNIPE_FLEE_EDGE);
 			
 			// use melee combat when in contact with the enemy
 			if(char.collider.leftContact && (char.collider.leftContact.properties & Collider.CHARACTER) && char.enemy(char.collider.leftContact.userData)){

@@ -47,8 +47,8 @@ package com.robotacid.engine {
 			gfx.filters = [DROP_GLOW_FILTER];
 		}
 		
-		override public function collect(character:Character, print:Boolean = true):void {
-			super.collect(character, print);
+		override public function collect(character:Character, print:Boolean = true, caught:Boolean = false):void {
+			super.collect(character, print, false);
 			gfx = new Sprite();
 		}
 		

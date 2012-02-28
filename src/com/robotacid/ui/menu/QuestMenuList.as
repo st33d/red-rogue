@@ -84,11 +84,11 @@ package com.robotacid.ui.menu {
 			}
 			// quests need to fallback to COLLECT quests - do not refactor to else-if
 			if(type == QuestMenuOption.COLLECT){
-				game.dungeon.completionCount += option.num;
-				game.dungeon.completionTotal += option.num;
+				game.map.completionCount += option.num;
+				game.map.completionTotal += option.num;
 				option = new QuestMenuOption(type);
 				options.push(option);
-				game.content.dropQuestGems(option.num, game.mapTileManager.mapLayers, game.dungeon.bitmap, true);
+				game.content.dropQuestGems(option.num, game.mapTileManager.mapLayers, game.map.bitmap, true);
 			}
 			if(!Game.dialog){
 				Game.dialog = new Dialog(
@@ -106,7 +106,7 @@ package com.robotacid.ui.menu {
 					option = options[i] as QuestMenuOption;
 					if(option.type == QuestMenuOption.COLLECT){
 						option.collect();
-						if(--game.dungeon.completionCount == 0) game.levelCompleteMsg();
+						if(--game.map.completionCount == 0) game.levelCompleteMsg();
 						if(option.num == 0){
 							options.splice(i, 1);
 							questComplete(option);

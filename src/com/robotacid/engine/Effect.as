@@ -296,10 +296,10 @@
 				if(inventoryList){
 					renderer.createTeleportSparkRect(user.collider, 10);
 					item = inventoryList.removeItem(item);
-					item = randomEnchant(item, game.dungeon.level);
+					item = randomEnchant(item, game.map.level);
 					item.location = Item.UNASSIGNED;
-					var portal:Portal = Portal.createPortal(Portal.ITEM, user.mapX, user.mapY, game.dungeon.level);
-					game.content.setItemDungeonContent(item, game.dungeon.level);
+					var portal:Portal = Portal.createPortal(Portal.ITEM, user.mapX, user.mapY, game.map.level);
+					game.content.setItemDungeonContent(item, game.map.level);
 				}
 				return item;
 				

@@ -39,7 +39,7 @@
 		public var position:int;
 		public var user:Character;
 		public var uniqueNameStr:String;
-		public var autoEquip:Boolean;
+		public var autoEquip:int;
 		
 		// stats
 		public var damage:Number;
@@ -184,7 +184,7 @@
 			location = UNASSIGNED;
 			stacked = false;
 			callMain = true;
-			autoEquip = false;
+			autoEquip = 0;
 			user = null;
 			uniqueNameStr = null;
 			twinkleCount = TWINKLE_DELAY + game.random.range(TWINKLE_DELAY);
@@ -282,7 +282,7 @@
 			}
 			// concealing the item in the dark will help avoid showing a clipped effect on the edge
 			// of the light map
-			if(game.dungeon.level <= 0) gfx.visible = true;
+			if(game.map.level <= 0) gfx.visible = true;
 			else gfx.visible = game.lightMap.darkImage.getPixel32(mapX, mapY) != 0xFF000000 || game.player.infravision > 1;
 			
 			if(gfx.visible){
@@ -300,7 +300,7 @@
 			}
 		}
 		
-		public function collect(character:Character, print:Boolean = true):void{
+		public function collect(character:Character, print:Boolean = true, caught:Boolean = false):void{
 			if(location == DROPPED){
 				collider.world.removeCollider(collider);
 				active = false;
@@ -310,13 +310,19 @@
 				return;
 			}
 			location = INVENTORY;
-			if(character is Player || character is Minion){
-				game.menu.inventoryList.addItem(this, autoEquip);
-				if(print) game.console.print("picked up " + nameToString());
-			} else character.loot.push(this);
+			if(character == game.player || character == game.minion){
+				game.menu.inventoryList.addItem(this, autoEquip > 0);
+				if(print) game.console.print(character.nameToString() + (caught ? " caught " : " picked up ") + nameToString());
+			} else {
+				if(print && caught) game.console.print(character.nameToString() + " caught " + nameToString());
+				character.loot.push(this);
+			}
 			gfx.filters = [];
 			gfx.visible = true;
-			if(type == WEAPON && autoEquip && !character.throwable) character.equip(this, true);
+			if(type == WEAPON && autoEquip && !character.throwable){
+				if(autoEquip == Character.MINION && character == game.player && game.minion) game.minion.equip(this, true);
+				else character.equip(this, true);
+			}
 		}
 		
 		/* Puts this item on the map */
@@ -362,7 +368,7 @@
 					)
 				)
 			)) return false;
-			else if(runeName == PORTAL && (game.dungeon.level == 0 || game.dungeon.type == Map.ITEM_DUNGEON)) return false;
+			else if(runeName == PORTAL && (game.map.level == 0 || game.map.type == Map.ITEM_DUNGEON)) return false;
 			if(!effects) return true;
 			for(var i:int = 0; i < effects.length; i++){
 				if(effects[i].name == runeName && effects[i].level >= Game.MAX_LEVEL) return false;
@@ -391,7 +397,7 @@
 				game.console.print("the " + str + " is cursed!");
 				if(user.undead) game.console.print("but the dead are unaffected...");
 			}
-			autoEquip = false;
+			autoEquip = 0;
 			curseState = CURSE_REVEALED;
 		}
 		
