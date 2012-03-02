@@ -13,16 +13,19 @@
 		
 		public var mapX:int, mapY:int;
 		public var dx:Number, dy:Number;
-		public var ignoreProperties:int;
 		public var px:Number;
 		public var py:Number;
-		public var tempX:Number;
-		public var tempY:Number;
 		public var print:BlitRect;
 		public var smear:Boolean;
 		public var map:Boolean;
 		
-		public static var cast:Cast;
+		// temp vars
+		private static var tempX:Number;
+		private static var tempY:Number;
+		private static var cast:Cast;
+		
+		public static var IGNORE_PROPERTIES:int;// this is set in Game to Collider.CHARACTER | Collider.LEDGE | Collider.LADDER | Collider.HEAD | Collider.CORPSE
+		// you can't set a constant using math with other constants
 		
 		public function DebrisFX(x:Number, y:Number, blit:BlitRect, bitmapData:BitmapData, bitmap:DisplayObject, print:BlitRect = null, smear:Boolean = false, map:Boolean = true) {
 			super(x, y, blit, bitmapData, bitmap);
@@ -34,9 +37,8 @@
 			mapY = y * Game.INV_SCALE;
 			px = x;
 			py = y;
-			ignoreProperties = Collider.CHARACTER | Collider.LEDGE | Collider.LADDER | Collider.HEAD | Collider.CORPSE;
 		}
-	
+		
 		override public function main():void{
 			// inlined verlet routine
 			tempX = x;
@@ -56,10 +58,10 @@
 					return;
 				}
 				// block collision
-				if(game.world.map[mapY][mapX] > Collider.EMPTY && !(game.world.map[mapY][mapX] & ignoreProperties)){
+				if(game.world.map[mapY][mapX] > Collider.EMPTY && !(game.world.map[mapY][mapX] & IGNORE_PROPERTIES)){
 					// resolve and kill
 					getVector();
-					cast = Cast.ray(px, py, dx, dy, game.world, ignoreProperties);
+					cast = Cast.ray(px, py, dx, dy, game.world, IGNORE_PROPERTIES);
 					x = px + cast.distance * dx;
 					y = py + cast.distance * dy;
 					if(print) printFade();

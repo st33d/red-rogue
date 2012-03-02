@@ -26,6 +26,7 @@
 	import flash.display.MovieClip;
 	import flash.display.Shape;
 	import flash.display.Sprite;
+	import flash.geom.ColorTransform;
 	import flash.geom.Matrix;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;

@@ -20,23 +20,22 @@ animate the trap marker - it should bling in the level when searched
 move enchant to item menu?
 
 Tackle the AI problem
-	
-	bravery - stat roll?
+		
+	Fear spell
+		create Shade Characters (no-clip, tint black, alpha'd, drain health of target, same race as target)
+		Shade object class
+			accepts a character to construct
+			moves at half speed
+			slides instead of animating
+			generates DripFX
+			
+	Confusion spell
 
 	meta-heuristic block - path too long
 		genius chase solver backup graph
 			genius class
 			priority queue
 			slow path
-		
-	Fear spell
-		create Shade Characters (no-clip, tint black, alpha'd, drain health of target, same race as target)
-			create flood particles (track down along surfaces)
-				add to indifference
-					tint character black when wearing indifference
-				add to shades
-			
-	Confusion spell
 
 AI issues:
 	

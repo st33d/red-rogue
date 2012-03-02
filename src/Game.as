@@ -81,7 +81,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 322;
+		public static const BUILD_NUM:int = 323;
 		
 		public static const TEST_BED_INIT:Boolean = false;
 		
@@ -207,6 +207,12 @@
 			QuestMenuOption.game = this;
 			Dialog.game = this;
 			EditorMenuList.game = this;
+			DebrisFX.IGNORE_PROPERTIES = (
+				Collider.CHARACTER | Collider.LEDGE | Collider.LADDER | Collider.HEAD | Collider.CORPSE
+			);
+			DripFX.IGNORE_PROPERTIES = (
+				Collider.CHARACTER | Collider.LADDER | Collider.HEAD | Collider.CORPSE
+			);
 			
 			Effect.BANNED_RANDOM_ENCHANTMENTS[Effect.PORTAL] = true;
 			Effect.BANNED_RANDOM_ENCHANTMENTS[Effect.NULL] = true;
