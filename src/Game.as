@@ -1,6 +1,7 @@
 ﻿package {
 	import com.adobe.serialization.json.JSON;
 	import com.robotacid.ai.Brain;
+	import com.robotacid.ai.HorrorBrain;
 	import com.robotacid.ai.Node;
 	import com.robotacid.dungeon.Content;
 	import com.robotacid.dungeon.MapBitmap;
@@ -81,7 +82,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 323;
+		public static const BUILD_NUM:int = 324;
 		
 		public static const TEST_BED_INIT:Boolean = false;
 		
@@ -309,6 +310,10 @@
 			SoundManager.addSound(new StarSound2, "star2", 0.05);
 			SoundManager.addSound(new StarSound3, "star3", 0.05);
 			SoundManager.addSound(new StarSound4, "star4", 0.05);
+			SoundManager.addSound(new HorrorSound1, "horror1", 0.9);
+			SoundManager.addSound(new HorrorSound2, "horror2", 0.9);
+			SoundManager.addSound(new HorrorSound3, "horror3", 0.9);
+			SoundManager.addSound(new HorrorSound4, "horror4", 0.9);
 			
 			// voices
 			SoundManager.addSound(new BansheeSound01, "Balrog1", 0.4);
@@ -931,6 +936,7 @@
 					
 					frameCount++;
 					if(Brain.voiceCount) Brain.voiceCount--;
+					if(HorrorBrain.horrorVoiceCount) HorrorBrain.horrorVoiceCount--;
 					ProgressBar.glowCount = frameCount % ProgressBar.glowTable.length;
 					
 					// examine the key buffer for cheat codes

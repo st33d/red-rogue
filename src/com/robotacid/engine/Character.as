@@ -99,7 +99,7 @@
 		public static const MONSTER:int = 1 << 1;
 		public static const MINION:int = 1 << 2;
 		public static const STONE:int = 1 << 3;
-		public static const NON_PLAYER_CHARACTER:int = 1 << 4;
+		public static const HORROR:int = 1 << 4;
 		
 		// character names
 		public static const ROGUE:int = 0;
@@ -132,6 +132,7 @@
 		public static const EXITING:int = 4;
 		public static const ENTERING:int = 5;
 		public static const STUNNED:int = 6;
+		public static const SMITED:int = 7;
 		
 		public static const MOVE_DELAY:int = 3;
 		
@@ -219,7 +220,7 @@
 			callMain = true;
 			inTheDark = false;
 			quickenQueued = false;
-			missileIgnore = Collider.LADDER | Collider.LEDGE | Collider.CORPSE | Collider.ITEM | Collider.HEAD;
+			missileIgnore = Collider.LADDER | Collider.LEDGE | Collider.CORPSE | Collider.ITEM | Collider.HEAD | Collider.HORROR;
 			uniqueNameStr = null;
 			
 			setStats();
@@ -669,8 +670,7 @@
 			}
 		}
 		
-		/* Kill the Character, printing a cause to the console and generating a Head object
-		 * on decapitation. Decapitation is meant to occur only via hand to hand combat */
+		/* Kill the Character, printing a cause to the console and generating a Head object on decapitation */
 		public function death(cause:String = "crushing", decapitation:Boolean = false, aggressor:Character = null):void{
 			active = false;
 			renderer.createDebrisRect(collider, 0, 32, debrisType);
@@ -1049,6 +1049,7 @@
 				
 			// fear attack
 			} else if(name == BANSHEE){
+				effect = new Effect(Effect.FEAR, level, Effect.THROWN, target);
 				
 			// level drain attack
 			} else if(name == MIND_FLAYER){
@@ -1149,8 +1150,8 @@
 				gfx.x = ((collider.x + collider.width * 0.5) + 0.5) >> 0;
 				gfx.y = ((collider.y + collider.height) + 0.5) >> 0;
 			}
-			if ((looking & LEFT) && mc.scaleX != -1) mc.scaleX = -1;
-			else if ((looking & RIGHT) && mc.scaleX != 1) mc.scaleX = 1;
+			if((looking & LEFT) && mc.scaleX != -1) mc.scaleX = -1;
+			else if((looking & RIGHT) && mc.scaleX != 1) mc.scaleX = 1;
 			
 			// pace movement
 			if(state == WALKING || state == EXITING || state == ENTERING){

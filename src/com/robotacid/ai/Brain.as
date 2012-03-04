@@ -60,16 +60,17 @@
 		public static var dungeonGraph:DungeonGraph;
 		public static var voiceCount:int;
 		
-		private static var start:Node;
-		private static var node:Node;
-		private static var charPos:Point = new Point();
-		private static var scheduleTargetPos:Point = new Point();
-		private static var voiceDist:int;
-		private static var crossedTileCenter:Boolean;
+		protected static var start:Node;
+		protected static var node:Node;
+		protected static var charPos:Point = new Point();
+		protected static var scheduleTargetPos:Point = new Point();
+		protected static var voiceDist:int;
+		protected static var crossedTileCenter:Boolean;
 		
 		// alliegances
 		public static const PLAYER:int = 0;
 		public static const MONSTER:int = 1;
+		public static const NONE:int = 2;
 		
 		// behavioural states
 		public static const PATROL:int = 0;
@@ -317,12 +318,13 @@
 			prevCenter = charPos.x;
 		}
 		
-		/* Called when a character fails a bravery check during melee */
+		/* Called when a character fails a bravery check during melee, and used by Horror characters */
 		public function runAway(target:Character):void{
 			state = FLEE;
 			altNode = null;
 			count = delay + game.random.range(delay * 2);
 			char.collider.vx = 0;
+			this.target = target;
 		}
 		
 		/* Abandons any targets and reverts to PATROL state
@@ -519,7 +521,8 @@
 				
 				// no node means the character must be falling or clipping a ledge
 				if(start){
-					path = dungeonGraph.getPathAway(start, dungeonGraph.nodes[target.mapY][target.mapX], searchSteps, !following);
+					// dive nodes confuse the Brown* algorithm, so we can't use them
+					path = dungeonGraph.getPathAway(start, dungeonGraph.nodes[target.mapY][target.mapX], searchSteps, false);
 					
 					if(path){
 						

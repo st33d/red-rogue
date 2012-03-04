@@ -1,10 +1,12 @@
-Change log: removed redundant state settings in Character, added diving node connections to AI, altered Brain routines to fit new regime, bravery stat implemented (fast characters with low bravery do a bravery check to stay in combat)
+Change log: Created Horror Character as part of FEAR Effect, fixed bug in Missile where effects would be applied to Stones, removed dive node usage from flee() due to confusion
 
 Bug hunt
 	can crash graph renderer by changing level	
 	collection lock out on chests after playing for a while - bugged chest or item?
 	minion summon after death? - unreproducable
 	combo bug: minion, indifference, level 21, identify monster twice, minion portal - unreproducable
+	
+	goblin dither on stairs
 	
 create Editor in debug menu
 	create option
@@ -17,7 +19,7 @@ hide a plus one mace in a secret room above the grindstone
 
 animate the trap marker - it should bling in the level when searched
 
-move enchant to item menu?
+create enchant option item menu
 
 Tackle the AI problem
 		
@@ -38,27 +40,19 @@ Tackle the AI problem
 			slow path
 
 AI issues:
-	
 
-
-
-
-	Add some how add a random offset to AI search values - they're in ints (fuck knows, coin flipping?)
-		path caching - would that solve the problem, if the ai could rememeber where they were going?
-	monster AI jitter on ladder observed - investigate
-	possible dithering when a monster may get caught between meta-heuristic paths of equal value
-	bravery - monster makes so many attacks before retreating for a while
-	chasing monster getting stuck on patrolling monster
 	explore - monsters should check out ladders when alone
+	rally - a monster could see the character and could call other monsters to aid, there should be a rallying pose and a shockwave type graphic, implying he's just told everyone on screen to mob the player
 
 help on menu has not been fully written out
 
 level generator overhaul:
 	distribution tactics -
-		distribution bubbles
-
-
-rally - a monster could see the character and could call other monsters to aid, there should be a rallying pose and a shockwave type graphic, implying he's just told everyone on screen to mob the player
+		expand room defined areas
+		drop monsters into rooms only (or in certain zones - other areas as well)
+		create context groups for monsters in packs
+		create an xp pool per level and subtract monsters and level content from it to control progression
 
 smite - blessed weapons could deliver a blow to characters that send them flying
+	create smited state for all characters
 

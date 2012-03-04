@@ -61,7 +61,7 @@
 		override public function createCollider(x:Number, y:Number, properties:int, ignoreProperties:int, state:int = 0, positionByBase:Boolean = true):void {
 			super.createCollider(x, y, properties, ignoreProperties, state, positionByBase);
 			collider.properties |= Collider.MONSTER;
-			collider.ignoreProperties |= Collider.MONSTER_MISSILE;
+			collider.ignoreProperties |= Collider.MONSTER_MISSILE | Collider.HORROR;
 			collider.stompProperties = Collider.PLAYER | Collider.MINION;
 		}
 		

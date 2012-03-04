@@ -4,6 +4,7 @@ package com.robotacid.gfx {
 	import flash.display.BitmapData;
 	import flash.display.DisplayObject;
 	import flash.geom.Point;
+	import flash.geom.Rectangle;
 	
 	/**
 	 * An FX that drips down colliders and walls
@@ -12,7 +13,7 @@ package com.robotacid.gfx {
 	 */
 	public class DripFX extends FX {
 		
-		public var collider:Collider;
+		public var rect:Rectangle;
 		public var print:BlitRect;
 		public var mapX:int;
 		public var mapY:int;
@@ -32,15 +33,15 @@ package com.robotacid.gfx {
 		// you can't set a constant using math with other constants
 		public static const DELAY:int = 30;
 		
-		public function DripFX(x:Number, y:Number, blit:BlitRect, bitmapData:BitmapData, bitmap:DisplayObject, print:BlitRect, collider:Collider = null) {
+		public function DripFX(x:Number, y:Number, blit:BlitRect, bitmapData:BitmapData, bitmap:DisplayObject, print:BlitRect, rect:Rectangle = null) {
 			super(x, y, blit, bitmapData, bitmap, null, 0, true);
-			this.collider = collider;
+			this.rect = rect;
 			this.print = print;
 			count = DELAY + game.random.range(DELAY);
 			speed = 0.05 + game.random.value();
-			if(collider){
-				offsetX = x - collider.x;
-				offsetY = y - collider.y;
+			if(rect){
+				offsetX = x - rect.x;
+				offsetY = y - rect.y;
 				surface = true;
 			} else {
 				surface = false;
@@ -51,15 +52,15 @@ package com.robotacid.gfx {
 		override public function main():void{
 			
 			if(surface){
-				// drip down collider
-				if(collider){
+				// drip down rect
+				if(rect){
 					offsetY += speed;
-					x = collider.x + offsetX;
-					y = collider.y + offsetY;
-					if(offsetY > collider.height - 1){
+					x = rect.x + offsetX;
+					y = rect.y + offsetY;
+					if(offsetY > rect.height - 1){
 						surface = false;
-						y = py = collider.y + collider.height - 1;
-						collider = null;
+						y = py = rect.y + rect.height - 1;
+						rect = null;
 					}
 				
 				// slide along map surfaces

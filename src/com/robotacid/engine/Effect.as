@@ -38,19 +38,22 @@
 		public static const LIGHT:int = Item.LIGHT;
 		public static const HEAL:int = Item.HEAL;
 		public static const POISON:int = Item.POISON;
-		public static const TELEPORT:int = Item.TELEPORT;
+		public static const IDENTIFY:int = Item.IDENTIFY;
 		public static const UNDEAD:int = Item.UNDEAD;
-		public static const POLYMORPH:int = Item.POLYMORPH;
-		public static const XP:int = Item.XP;
-		public static const LEECH:int = Item.LEECH_RUNE;
+		public static const TELEPORT:int = Item.TELEPORT;
 		public static const THORNS:int = Item.THORNS;
+		public static const NULL:int = Item.NULL;
 		public static const PORTAL:int = Item.PORTAL;
 		public static const SLOW:int = Item.SLOW;
 		public static const HASTE:int = Item.HASTE;
+		//public static const HOLY:int = Item.HOLY;
 		public static const PROTECTION:int = Item.PROTECTION;
 		public static const STUN:int = Item.STUN;
-		public static const NULL:int = Item.NULL;
-		public static const IDENTIFY:int = Item.IDENTIFY;
+		public static const POLYMORPH:int = Item.POLYMORPH;
+		public static const FEAR:int = Item.FEAR;
+		//public static const CONFUSION:int = Item.CONFUSION;
+		public static const LEECH:int = Item.LEECH_RUNE;
+		public static const XP:int = Item.XP;
 		public static const CHAOS:int = Item.CHAOS;
 		
 		public static var BANNED_RANDOM_ENCHANTMENTS:Array = [];
@@ -76,6 +79,10 @@
 		public static const HASTE_PER_LEVEL:Number = 1.0 / 20;
 		/* Protection should only add a maximum of 0.5 or halve damage */
 		public static const PROTECTION_PER_LEVEL:Number = 1.0 / 40;
+		/* The duration refers to how long the Horror created by the FEAR Effect will last */
+		public static const FEAR_PER_LEVEL:int = 30;
+		/* Random chance for a spell to work */
+		public static const CHANCE_PER_LEVEL:Number = 1.0 / 20;
 		
 		public static const MIN_TELEPORT_DIST:int = 10;
 		public static const ARMOUR_COUNTDOWN_STEP:int = 600 / 20;
@@ -230,6 +237,15 @@
 				else {
 					if(target.state == Character.WALKING){
 						target.applyStun(level * STUN_PER_LEVEL);
+						count = (21 - level) * ARMOUR_COUNTDOWN_STEP;
+					}
+				}
+			} else if(name == FEAR){
+				// fear armour is similar to teleport armour in that it spawns level 1 Horrors periodically
+				if(count) count--;
+				else {
+					if(target.state == Character.WALKING){
+						var horror:Horror = new Horror(target, FEAR_PER_LEVEL);
 						count = (21 - level) * ARMOUR_COUNTDOWN_STEP;
 					}
 				}
@@ -504,7 +520,7 @@
 					count = (21 - level) * ARMOUR_COUNTDOWN_STEP;
 					callMain = true;
 				} else {
-					if(game.random.value() < 0.05 * level){
+					if(game.random.value() < CHANCE_PER_LEVEL * level){
 						teleportCharacter(target);
 					}
 					// all other sources of teleport do not embed, they are one time effects only
@@ -623,6 +639,20 @@
 				}
 				return;
 				
+			} else if(name == FEAR){
+				if(source == ARMOUR){
+					count = (21 - level) * ARMOUR_COUNTDOWN_STEP;
+					callMain = true;
+				} else {
+					if(
+						source == THROWN ||
+						source == EATEN ||
+						game.random.value() < CHANCE_PER_LEVEL * level
+					){
+						var horror:Horror = new Horror(target, FEAR_PER_LEVEL * level);
+					}
+					return;
+				}
 			}
 			
 			// racial effects are managed by the character class internally
@@ -656,7 +686,7 @@
 					living = false;
 				}
 				if(!target.active && !buffer && living){
-					if(game.random.value() < 0.05 * level){
+					if(game.random.value() < CHANCE_PER_LEVEL * level){
 						var mc:MovieClip;
 						// resurrect the player or the minion as a skeleton
 						if(target == game.player || target == game.minion){

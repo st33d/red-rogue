@@ -26,7 +26,6 @@
 	import flash.display.MovieClip;
 	import flash.display.Shape;
 	import flash.display.Sprite;
-	import flash.geom.ColorTransform;
 	import flash.geom.Matrix;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
@@ -123,7 +122,7 @@
 		override public function createCollider(x:Number, y:Number, properties:int, ignoreProperties:int, state:int = 0, positionByBase:Boolean = true):void {
 			super.createCollider(x, y, properties, ignoreProperties, state, positionByBase);
 			collider.properties |= Collider.PLAYER;
-			collider.ignoreProperties |= Collider.PLAYER | Collider.MINION | Collider.PLAYER_MISSILE;
+			collider.ignoreProperties |= Collider.PLAYER | Collider.MINION | Collider.PLAYER_MISSILE | Collider.HORROR;
 			collider.stompProperties = Collider.MONSTER;
 			collider.stackCallback = hitFloor;
 		}

@@ -246,7 +246,9 @@
 				// would help if the player can see what they're doing to the target
 				if(sender is Player) sender.victim = character;
 				if(hitResult & Character.CRITICAL) renderer.shake(0, 5);
-				if(item.effects) character.applyWeaponEffects(item);
+				if(item.effects && character.active && !(character.type & Character.STONE)){
+					character.applyWeaponEffects(item);
+				}
 				var thrownWeapon:Boolean = Boolean(item.range & Item.THROWN);
 				// knockback
 				var enduranceDamping:Number = 1.0 - (character.endurance + (character.armour ? character.armour.endurance : 0));
