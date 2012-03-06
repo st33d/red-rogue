@@ -18,7 +18,7 @@ package com.robotacid.ai {
 			super(char, NONE, null);
 			searchSteps = MONSTER_SEARCH_STEPS;
 			this.target = target;
-			target.brain.runAway(char);
+			target.brain.flee(char);
 			
 		}
 		
@@ -33,7 +33,7 @@ package com.robotacid.ai {
 			
 			chase(target, true);
 			
-			if(target != game.player && !target.brain.target) target.brain.runAway(char);
+			if(target != game.player && !target.brain.target) target.brain.flee(char);
 			prevCenter = charPos.x;
 			
 			if(horrorVoiceCount <= 0){

@@ -305,6 +305,8 @@
 			
 			if(name == TROLL){
 				racialEffect = new Effect(Effect.HEAL, level, Effect.ARMOUR, this, 0, true);
+			} else if(name == WEREWOLF){
+				racialEffect = new Effect(Effect.CONFUSION, level, Effect.ARMOUR, this, 0, true);
 			} else {
 				racialEffect = null;
 			}
@@ -506,7 +508,7 @@
 											speed * speedModifier >= target.speed * target.speedModifier &&
 											game.random.value() >= bravery
 										){
-											brain.runAway(target);
+											brain.flee(target);
 										}
 									}
 								}

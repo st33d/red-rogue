@@ -156,25 +156,33 @@
 				(prevCenter > char.tileCenter && charPos.x < char.tileCenter)
 			);
 			
-			if(allegiance == PLAYER){
-				if(monsterCharacters.length){
-					sheduleIndex = (sheduleIndex + 1) % monsterCharacters.length;
-					scheduleTarget = monsterCharacters[sheduleIndex];
-				} else {
-					scheduleTarget = null;
+			if(confusedCount){
+				confusedCount--;
+				if(confusedCount == 0) clear();
+				else if(confusedCount % 30 == 0) confusedBehaviour();
+				
+			// only random targets whilst confused
+			} else {
+				if(allegiance == PLAYER){
+					if(monsterCharacters.length){
+						sheduleIndex = (sheduleIndex + 1) % monsterCharacters.length;
+						scheduleTarget = monsterCharacters[sheduleIndex];
+					} else {
+						scheduleTarget = null;
+					}
+				} else if(allegiance == MONSTER){
+					if(playerCharacters.length){
+						sheduleIndex = (sheduleIndex + 1) % playerCharacters.length;
+						scheduleTarget = playerCharacters[sheduleIndex];
+					} else {
+						scheduleTarget = null;
+					}
 				}
-			} else if(allegiance == MONSTER){
-				if(playerCharacters.length){
-					sheduleIndex = (sheduleIndex + 1) % playerCharacters.length;
-					scheduleTarget = playerCharacters[sheduleIndex];
-				} else {
-					scheduleTarget = null;
+				
+				if(scheduleTarget){
+					scheduleTargetPos.x = scheduleTarget.collider.x + scheduleTarget.collider.width * 0.5;
+					scheduleTargetPos.y = scheduleTarget.collider.y + scheduleTarget.collider.height * 0.5;
 				}
-			}
-			
-			if(scheduleTarget){
-				scheduleTargetPos.x = scheduleTarget.collider.x + scheduleTarget.collider.width * 0.5;
-				scheduleTargetPos.y = scheduleTarget.collider.y + scheduleTarget.collider.height * 0.5;
 			}
 			
 			if(state == PATROL || state == PAUSE){
@@ -182,21 +190,12 @@
 					if(allegiance == MONSTER){
 						if(patrolAreaSet){
 							patrol();
-							//Game.debug.moveTo(char.x, char.y);
-							//Game.debug.lineTo(patrolMaxX, char.y);
-							//Game.debug.moveTo(char.x, char.y);
-							//Game.debug.lineTo(patrolMinX, char.y);
-						}
-						else (setPatrolArea(game.world.map));
+						} else (setPatrolArea(game.world.map));
+						
 						if(count-- <= 0){
 							count = delay + game.random.range(delay);
 							state = PAUSE;
 							char.actions = char.dir = 0;
-							// monsters will vocalise when they have finished pausing
-							if(voiceCount == 0){
-								voiceDist = Math.abs(game.player.mapX - char.mapX) + Math.abs(game.player.mapY - char.mapY);
-								if(voiceDist < VOICE_DIST_MAX) speak(char.voice, voiceDist);
-							}
 						}
 					} else if(allegiance == PLAYER){
 						if(game.player.state != Character.QUICKENING) follow(leader);
@@ -206,6 +205,11 @@
 					if(count-- <= 0){
 						count = delay + game.random.range(delay);
 						state = PATROL;
+						// monsters will vocalise when they have finished pausing
+						if(voiceCount == 0){
+							voiceDist = Math.abs(game.player.mapX - char.mapX) + Math.abs(game.player.mapY - char.mapY);
+							if(voiceDist < VOICE_DIST_MAX) speak(char.voice, voiceDist);
+						}
 					}
 				}
 				
@@ -217,10 +221,7 @@
 				// rather than checking all enemy characters, we check one at a time each frame
 				if(scheduleTarget){
 					if(charContact && char.enemy(charContact)){
-						target = charContact;
-						altNode = null;
-						state = ATTACK;
-						count = 0;
+						attack(charContact);
 					
 					// we test LOS when the player is within a square area near the monster - this is cheaper
 					// than doing a radial test and we don't want all monsters calling LOS all the time
@@ -232,10 +233,8 @@
 								scheduleTargetPos.y > charPos.y - char.losBorder && scheduleTargetPos.y < charPos.y + char.losBorder
 							){
 								if(Cast.los(charPos, scheduleTarget.collider, new Point((char.looking & RIGHT) ? 1 : -1, 0), 0.5, game.world, ignore)){
-									state = ATTACK;
-									target = scheduleTarget;
-									altNode = null;
-									count = 0;
+									attack(scheduleTarget);
+									
 									// characters will vocalise when they see a target
 									if(voiceCount == 0){
 										voiceDist = Math.abs(game.player.mapX - char.mapX) + Math.abs(game.player.mapY - char.mapY);
@@ -257,10 +256,7 @@
 				}
 				
 				if(!target || !target.active){
-					target = null;
-					patrolAreaSet = false;
-					altNode = null;
-					state = PATROL;
+					clear();
 					
 				// if the target is directly above, get the hell out of there
 				} else if(
@@ -270,14 +266,12 @@
 						char.collider.x + char.collider.width <= target.collider.x
 					)
 				){
-					state = FLEE;
-					altNode = null;
-					count = delay + game.random.range(delay * 2);
+					flee(target);
 				}
 				
 			} else if(state == FLEE){
 				
-				flee(target);
+				avoid(target);
 				// commute allies away from the target
 				if(charContact && target.active && !char.enemy(charContact) && charContact.brain) charContact.brain.copyState(this);
 				if(count-- <= 0){
@@ -287,44 +281,34 @@
 						if(char.collider.state == Collider.HOVER){
 							count = 1 + game.random.range(delay);
 						} else {
-							target = null;
-							altNode = null;
-							patrolAreaSet = false;
-							state = PATROL;
+							clear();
 						}
 					} else {
-						state = ATTACK;
-						altNode = null;
-						count = 0;
+						attack(target);
 					}
 				}
 				if(charContact && char.enemy(charContact)){
-					target = charContact;
-					state = ATTACK;
-					altNode = null;
-					count = 0;
+					attack(target);
 				}
 			}
 			
-			// debugging colours
-			//if(state == PATROL){
-				//char.gfx.transform.colorTransform = new ColorTransform(1, 1, 1, 1, 0, 200);
-			//} else if(state == ATTACK){
-				//char.gfx.transform.colorTransform = new ColorTransform(1, 1, 1, 1, 200, 0);
-			//} else if(state == FLEE){
-				//char.gfx.transform.colorTransform = new ColorTransform(1, 1, 1, 1, 150, 150);
-			//} else if(state == PAUSE){
-				//char.gfx.transform.colorTransform = new ColorTransform(1, 1, 1, 1, 0, 150, 100);
-			//}
 			prevCenter = charPos.x;
 		}
 		
 		/* Called when a character fails a bravery check during melee, and used by Horror characters */
-		public function runAway(target:Character):void{
+		public function flee(target:Character):void{
 			state = FLEE;
 			altNode = null;
 			count = delay + game.random.range(delay * 2);
 			char.collider.vx = 0;
+			this.target = target;
+		}
+		
+		/* Called when a character engages a target */
+		public function attack(target:Character):void{
+			state = ATTACK;
+			altNode = null;
+			count = 0;
 			this.target = target;
 		}
 		
@@ -340,6 +324,9 @@
 		
 		/* Copys one brain state on to another, along with target */
 		public function copyState(template:Brain):void{
+			// refuse state copying when either is confused
+			if(confusedCount || template.confusedCount) return;
+			
 			template.state = state;
 			template.count = count;
 			template.target = target
@@ -375,7 +362,7 @@
 			if(target.mapX == char.mapX && target.mapY == char.mapY){
 				
 				// when no-clipping a target, get out of the current tile
-				if(!following && target.collider.intersects(char.collider)) flee(target);
+				if(!following && target.collider.intersects(char.collider)) avoid(target);
 				// else approach the target
 				else if(targetX < charPos.x) char.actions |= LEFT;
 				else if(targetX > charPos.x) char.actions |= RIGHT;
@@ -385,8 +372,7 @@
 					target.collider.y + target.collider.height < char.collider.y + char.collider.height &&
 					char.collider.state == Collider.HOVER
 				){
-					state = FLEE;
-					count = delay + game.random.range(delay * 2);
+					flee(target);
 				}
 				if(altNode) altNode = null;
 			
@@ -464,8 +450,7 @@
 							} else if(node.y < char.mapY){
 								if(char.canClimb()){
 									if(!following && stompDanger()){
-										state = FLEE;
-										count = delay + game.random.range(delay * 2);
+										flee(target);
 									} else {
 										char.actions |= UP;
 									}
@@ -502,7 +487,7 @@
 		}
 		
 		/* Run away from a target, Brown Trousers algorithm */
-		public function flee(target:Character, following:Boolean = false):void {
+		public function avoid(target:Character, following:Boolean = false):void {
 			char.actions = 0;
 			var i:int;
 			var targetX:Number = target.collider.x + target.collider.width * 0.5;
@@ -636,7 +621,7 @@
 			if(distSq > FOLLOW_CHASE_EDGE_SQ){
 				chase(target, true);
 			} else if(distSq < FOLLOW_FLEE_EDGE_SQ){
-				flee(target, true);
+				avoid(target, true);
 			} else {
 				// face the same direction as the leader - this sets up a charging tactic against
 				// approaching enemies
@@ -660,13 +645,13 @@
 				char.dir = char.looking = char.actions = RIGHT;
 			} else {
 				if(char.collider.state == Collider.HOVER){
-					flee(target);
+					avoid(target);
 				} else if(char.mapY >= target.mapY){
 					var vx:Number = targetX - charPos.x;
 					var vy:Number = targetY - charPos.y;
 					var distSq:Number = vx * vx + vy * vy;
 					if(distSq < SNIPE_FLEE_EDGE_SQ){
-						flee(target);
+						avoid(target);
 					} else if(distSq > SNIPE_CHASE_EDGE_SQ){
 						chase(target);
 					} else {
@@ -681,8 +666,7 @@
 						}
 					}
 				} else {
-					patrolAreaSet = false;
-					state = PATROL;
+					clear();
 				}
 				
 			}
@@ -720,6 +704,7 @@
 			}
 			patrolAreaSet = true;
 		}
+		
 		/* This shoots at the target Character when it has a line of sight to it */
 		public function shootWhenReady(target:Character, length:int, ignore:int = 0):void {
 			if(char.attackCount >= 1 && canShoot(target, length, ignore)) {
@@ -765,7 +750,20 @@
 		
 		/* Enters the character into a confused state */
 		public function confuse(delay:int):void{
+			if(confusedCount == 0) game.console.print(char.nameToString() + " is confused");
 			confusedCount += delay;
+		}
+		
+		/* Randomly assigns a target - any target */
+		private function confusedBehaviour():void{
+			
+			var characters:Vector.<Character> = monsterCharacters.concat(playerCharacters);
+			
+			if(game.random.value() < 0.5){
+				flee(characters[game.random.rangeInt(characters.length)]);
+			} else {
+				attack(characters[game.random.rangeInt(characters.length)]);
+			}
 		}
 	}
 	

@@ -1,10 +1,33 @@
-Change log: Added the ability to destroy Horrors to the null rune, fixed null rune not working on target with no active Effects
+Change log: Werewolves now suffer periodic confusion, refactored Brain to make state changes go through methods named after states, Brain.flee is now Brain.avoid, added confusion spell
 
 Bug hunt
 	can crash graph renderer by changing level	
 	collection lock out on chests after playing for a while - bugged chest or item?
 	minion summon after death? - unreproducable
 	combo bug: minion, indifference, level 21, identify monster twice, minion portal - unreproducable
+	
+	bug reported entering underworld
+	
+
+Holy rune
+	create smited state for Characters
+		draw smite frame for all races
+		draw smite impact effect
+	blessed weapons
+		draw asterisk for font
+		draw plated leech
+		check blessed weapon descriptions and settings
+		added blessed state to enchantments (cursed as toggle option?)
+	create prayer effect
+		catalogue all beneficial effects
+		create easter egg effects
+			create room for future easter egg effects like unique weapons
+	
+
+Unique items
+	mokesmoe's bug
+	rumrusher's fez
+	nate's horn
 	
 create Editor in debug menu
 	create option
@@ -15,26 +38,22 @@ create Editor in debug menu
 
 hide a plus one mace in a secret room above the grindstone
 
+add fear and confusion traps
+
+reduce volume on vertically placed voices
+	research possibility of applying envelope to sound
+
 animate the trap marker - it should bling in the level when searched
 
 create enchant option item menu
 
-Tackle the AI problem
-			
-	Confusion spell - add stun status graphic to confused characters
-		player: flip screen, flip controls
-		monster: periodically switch from chase to flee to patrol
-			add confusion count to monster ai
-			
-		add confusion to werewolf
+AI problems:
 
 	meta-heuristic block - path too long
 		genius chase solver backup graph
 			genius class
 			priority queue
 			slow path
-
-AI issues:
 
 	explore - monsters should check out ladders when alone
 	rally - a monster could see the character and could call other monsters to aid, there should be a rallying pose and a shockwave type graphic, implying he's just told everyone on screen to mob the player
