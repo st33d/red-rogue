@@ -54,6 +54,7 @@
 		public var searchSteps:int;
 		public var firingTeam:int;
 		public var prevCenter:Number;
+		public var confusedCount:int;
 		
 		public static var playerCharacters:Vector.<Character>;
 		public static var monsterCharacters:Vector.<Character>;
@@ -760,6 +761,11 @@
 					char.collider.x <= scheduleTarget.collider.x + scheduleTarget.collider.width + SCALE * 0.5 &&
 					char.collider.x + char.collider.width + SCALE * 0.5 >= scheduleTarget.collider.x
 				));
+		}
+		
+		/* Enters the character into a confused state */
+		public function confuse(delay:int):void{
+			confusedCount += delay;
 		}
 	}
 	

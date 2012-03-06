@@ -1252,8 +1252,8 @@
 					renderer.bitmapData.draw(gfx, matrix, gfx.transform.colorTransform, null, clipRect);
 				} else {
 					super.render();
-					// render stars above a character's head when they are stunned
-					if(state == STUNNED){
+					// render stars above a character's head when they are stunned or confused
+					if(state == STUNNED || brain.confusedCount > 0){
 						renderer.stunBlit.x = -renderer.bitmap.x + gfx.x;
 						renderer.stunBlit.y = -renderer.bitmap.y + gfx.y - (collider.height + 2);
 						renderer.stunBlit.render(renderer.bitmapData, game.frameCount % renderer.stunBlit.totalFrames);

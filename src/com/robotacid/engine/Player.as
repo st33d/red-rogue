@@ -449,6 +449,7 @@
 			if(!active) return;
 			super.death(cause, decapitation);
 			game.soundQueue.add("rogueDeath");
+			brain.clear();
 			if(!active){
 				// is the lives cheat on?
 				if(game.lives){

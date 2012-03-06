@@ -3,6 +3,7 @@
 	import com.robotacid.ai.Brain;
 	import com.robotacid.ai.HorrorBrain;
 	import com.robotacid.ai.Node;
+	import com.robotacid.ai.PlayerBrain;
 	import com.robotacid.dungeon.Content;
 	import com.robotacid.dungeon.MapBitmap;
 	import com.robotacid.engine.ChaosWall;
@@ -82,7 +83,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 324;
+		public static const BUILD_NUM:int = 325;
 		
 		public static const TEST_BED_INIT:Boolean = false;
 		
@@ -958,6 +959,8 @@
 			}
 			
 			menu.main();
+			
+			if(player.brain.confusedCount) (player.brain as PlayerBrain).renderConfusion();
 		}
 		
 		/* Pause the game and make the inventory screen visible */

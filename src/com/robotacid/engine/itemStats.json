@@ -27,12 +27,12 @@
 		"light", "heal", "poison", "identify", "undead",
 		"teleport", "thorns", "null", "portal", "slow",
 		"haste", "protection", "stun", "polymorph", "fear",
-		"leech", "xp"
+		"confusion", "leech", "xp"
 	],
 	"rune descriptions":[
 		"glows brightly", "makes you feel better", "makes you feel sick", "grants knowledge undiscovered", "is connected to the underworld",
 		"appears and disappears in your hand", "is covered in spikes", "destroys magic", "has a hole in it", "m a k e s  t h i n g s  s l o w e r", "mks thngs fstr", "protects and reflects", "err, what does it do again?", "constantly changes shape", "fills you with dread",
-		"is the magic of blood demons", "imbues wisdom and quality"
+		"drah gnikniht sekam", "is the magic of blood demons", "imbues wisdom and quality"
 	],
 	"weapon ranges":[
 		5, 1, 5, 1, 2,

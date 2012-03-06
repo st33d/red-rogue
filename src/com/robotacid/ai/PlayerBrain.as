@@ -1,6 +1,9 @@
 package com.robotacid.ai {
 	import com.robotacid.engine.Character;
 	import com.robotacid.ui.Key;
+	import flash.display.Bitmap;
+	import flash.display.BitmapData;
+	import flash.geom.Matrix;
 	import flash.ui.Keyboard;
 	
 	/**
@@ -10,12 +13,26 @@ package com.robotacid.ai {
 	 */
 	public class PlayerBrain extends Brain {
 		
+		public var confusionOverlay:Bitmap;
+		
+		public static const CONFUSION_SCALE_TRANSFORMS:Vector.<Matrix> = Vector.<Matrix>([
+			new Matrix(-1, 0, 0, 1, Game.WIDTH, 0),
+			new Matrix(1, 0, 0, -1, 0, Game.HEIGHT),
+			new Matrix(-1, 0, 0, -1, Game.WIDTH, Game.HEIGHT)
+		]);
+		
 		public function PlayerBrain(char:Character) {
 			super(char, PLAYER);
-			
+			confusionOverlay = new Bitmap(new BitmapData(Game.WIDTH, Game.HEIGHT, true, 0x00000000));
 		}
 		
 		override public function main():void {
+			
+			// check confusion state
+			if(confusedCount){
+				confusedCount--;
+				if(confusedCount == 0) clear();
+			}
 			
 			// capture input state
 			if((Key.isDown(Keyboard.UP) || Key.customDown(Game.UP_KEY)) && !(Key.isDown(Keyboard.DOWN) || Key.customDown(Game.DOWN_KEY))){
@@ -50,6 +67,25 @@ package com.robotacid.ai {
 			}
 			
 			char.dir = char.actions & (UP | RIGHT | LEFT | DOWN);
+		}
+		
+		override public function clear():void {
+			if(confusionOverlay.parent) confusionOverlay.parent.removeChild(confusionOverlay);
+			confusedCount = 0;
+		}
+		
+		override public function confuse(delay:int):void {
+			super.confuse(delay);
+			if(!confusionOverlay.parent){
+				confusionOverlay.transform.matrix = CONFUSION_SCALE_TRANSFORMS[game.random.rangeInt(CONFUSION_SCALE_TRANSFORMS.length)];
+				game.addChild(confusionOverlay);
+			}
+		}
+		
+		public function renderConfusion():void{
+			confusionOverlay.visible = false;
+			confusionOverlay.bitmapData.draw(game);
+			confusionOverlay.visible = true;
 		}
 		
 	}

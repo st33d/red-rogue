@@ -51,7 +51,7 @@
 		public static const STUN:int = Item.STUN;
 		public static const POLYMORPH:int = Item.POLYMORPH;
 		public static const FEAR:int = Item.FEAR;
-		//public static const CONFUSION:int = Item.CONFUSION;
+		public static const CONFUSION:int = Item.CONFUSION;
 		public static const LEECH:int = Item.LEECH_RUNE;
 		public static const XP:int = Item.XP;
 		public static const CHAOS:int = Item.CHAOS;
@@ -81,6 +81,8 @@
 		public static const PROTECTION_PER_LEVEL:Number = 1.0 / 40;
 		/* The duration refers to how long the Horror created by the FEAR Effect will last */
 		public static const FEAR_PER_LEVEL:int = 30;
+		/* The duration refers to how long confusion created by the CONFUSION Effect will last */
+		public static const CONFUSION_PER_LEVEL:int = 30;
 		/* Random chance for a spell to work */
 		public static const CHANCE_PER_LEVEL:Number = 1.0 / 20;
 		
@@ -232,7 +234,7 @@
 					}
 				}
 			} else if(name == STUN){
-				// stun armour is similar to teleport armour in that it stuns you periodically
+				// stun armour is similar to teleport armour in that it stuns the target periodically
 				if(count) count--;
 				else {
 					if(target.state == Character.WALKING){
@@ -246,6 +248,15 @@
 				else {
 					if(target.state == Character.WALKING){
 						var horror:Horror = new Horror(target, FEAR_PER_LEVEL);
+						count = (21 - level) * ARMOUR_COUNTDOWN_STEP;
+					}
+				}
+			} else if(name == CONFUSION){
+				// confusion armour is similar to teleport armour in that it confuses the target periodically
+				if(count) count--;
+				else {
+					if(target.state == Character.WALKING){
+						target.brain.confuse(CONFUSION_PER_LEVEL);
 						count = (21 - level) * ARMOUR_COUNTDOWN_STEP;
 					}
 				}
@@ -608,12 +619,26 @@
 			} else if(name == NULL){
 				// strip all eaten and thrown effects
 				var effect:Effect;
-				for(i = target.effects.length - 1; i > -1; i--){
-					effect = target.effects[i];
-					if(effect.source == THROWN || effect.source == EATEN || effect.source == WEAPON){
-						effect.dismiss();
+				if(target.effects){
+					for(i = target.effects.length - 1; i > -1; i--){
+						effect = target.effects[i];
+						if(effect.source == THROWN || effect.source == EATEN || effect.source == WEAPON){
+							effect.dismiss();
+						}
 					}
 				}
+				// destroy all Horrors chasing the target
+				for(i = game.entities.length - 1; i > -1; i--){
+					if(game.entities[i] is Horror && (game.entities[i] as Horror).victim == target){
+						(game.entities[i] as Horror).count = 0;
+					}
+				}
+				// cancel confusion
+				if(target.brain.confusedCount){
+					target.brain.confusedCount = 0;
+					target.brain.clear();
+				}
+				// strip name
 				if(!(target is Player) && !(target is Minion)) target.uniqueNameStr = null;
 				return;
 				
@@ -650,6 +675,20 @@
 						game.random.value() < CHANCE_PER_LEVEL * level
 					){
 						var horror:Horror = new Horror(target, FEAR_PER_LEVEL * level);
+					}
+					return;
+				}
+			} else if(name == CONFUSION){
+				if(source == ARMOUR){
+					count = (21 - level) * ARMOUR_COUNTDOWN_STEP;
+					callMain = true;
+				} else {
+					if(
+						source == THROWN ||
+						source == EATEN ||
+						game.random.value() < CHANCE_PER_LEVEL * level
+					){
+						target.brain.confuse(CONFUSION_PER_LEVEL * level);
 					}
 					return;
 				}

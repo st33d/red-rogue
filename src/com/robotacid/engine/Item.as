@@ -151,10 +151,10 @@
 		public static const STUN:int = 12;
 		public static const POLYMORPH:int = 13;
 		public static const FEAR:int = 14;
-		//public static const CONFUSION:int = ;
-		public static const LEECH_RUNE:int = 15;
-		public static const XP:int = 16;
-		public static const CHAOS:int = 20;
+		public static const CONFUSION:int = 15;
+		public static const LEECH_RUNE:int = 16;
+		public static const XP:int = 17;
+		public static const CHAOS:int = 19;
 		
 		// curse states
 		public static const NO_CURSE:int = 0;
