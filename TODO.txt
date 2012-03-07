@@ -6,6 +6,8 @@ Bug hunt
 	minion summon after death? - unreproducable
 	combo bug: minion, indifference, level 21, identify monster twice, minion portal - unreproducable
 	
+	bug with quests
+	
 
 Holy rune
 	create smited state for Characters

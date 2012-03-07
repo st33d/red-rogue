@@ -84,11 +84,11 @@ package com.robotacid.ui.menu {
 			}
 			// quests need to fallback to COLLECT quests - do not refactor to else-if
 			if(type == QuestMenuOption.COLLECT){
-				game.map.completionCount += option.num;
-				game.map.completionTotal += option.num;
 				option = new QuestMenuOption(type);
 				options.push(option);
 				game.content.dropQuestGems(option.num, game.mapTileManager.mapLayers, game.map.bitmap, true);
+				game.map.completionCount += option.num;
+				game.map.completionTotal += option.num;
 			}
 			if(!Game.dialog){
 				Game.dialog = new Dialog(
