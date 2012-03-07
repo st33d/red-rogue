@@ -44,7 +44,7 @@ package com.robotacid.ai {
 		
 		
 		/* Triggers a sample representing horrors */
-		override public function speak(voice:Array, dist:int):void{
+		override public function speak(voice:Array, dist:Number):void{
 			game.soundQueue.addRandom("horror", voice, (VOICE_DIST_MAX - dist) * INV_VOICE_DIST_MAX);
 			horrorVoiceCount = HORROR_VOICE_DELAY;
 		}

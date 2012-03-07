@@ -1048,6 +1048,7 @@
 				
 			// confuse attack
 			} else if(name == UMBER_HULK){
+				effect = new Effect(Effect.CONFUSION, level, Effect.THROWN, target);
 				
 			// fear attack
 			} else if(name == BANSHEE){
@@ -1255,7 +1256,7 @@
 				} else {
 					super.render();
 					// render stars above a character's head when they are stunned or confused
-					if(state == STUNNED || brain.confusedCount > 0){
+					if(state == STUNNED || (brain && brain.confusedCount > 0)){
 						renderer.stunBlit.x = -renderer.bitmap.x + gfx.x;
 						renderer.stunBlit.y = -renderer.bitmap.y + gfx.y - (collider.height + 2);
 						renderer.stunBlit.render(renderer.bitmapData, game.frameCount % renderer.stunBlit.totalFrames);

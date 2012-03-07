@@ -1,12 +1,10 @@
-Change log: Werewolves now suffer periodic confusion, refactored Brain to make state changes go through methods named after states, Brain.flee is now Brain.avoid, added confusion spell
+Change log: fixed bug entering underworld, multiplied vertical voice distance from sound engineer's advice
 
 Bug hunt
 	can crash graph renderer by changing level	
 	collection lock out on chests after playing for a while - bugged chest or item?
 	minion summon after death? - unreproducable
 	combo bug: minion, indifference, level 21, identify monster twice, minion portal - unreproducable
-	
-	bug reported entering underworld
 	
 
 Holy rune
@@ -39,9 +37,6 @@ create Editor in debug menu
 hide a plus one mace in a secret room above the grindstone
 
 add fear and confusion traps
-
-reduce volume on vertically placed voices
-	research possibility of applying envelope to sound
 
 animate the trap marker - it should bling in the level when searched
 

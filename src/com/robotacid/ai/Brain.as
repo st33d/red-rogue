@@ -65,7 +65,7 @@
 		protected static var node:Node;
 		protected static var charPos:Point = new Point();
 		protected static var scheduleTargetPos:Point = new Point();
-		protected static var voiceDist:int;
+		protected static var voiceDist:Number;
 		protected static var crossedTileCenter:Boolean;
 		
 		// alliegances
@@ -93,6 +93,7 @@
 		public static const VOICE_DELAY:int = 30;
 		public static const VOICE_DIST_MAX:int = 12;
 		public static const INV_VOICE_DIST_MAX:Number = 1.0 / VOICE_DIST_MAX;
+		public static const VERTICAL_DIST_MULTIPLIER:Number = 1.5;
 		
 		public static const MONSTER_SEARCH_STEPS:int = 14;
 		public static const MINION_SEARCH_STEPS:int = 20;
@@ -207,7 +208,7 @@
 						state = PATROL;
 						// monsters will vocalise when they have finished pausing
 						if(voiceCount == 0){
-							voiceDist = Math.abs(game.player.mapX - char.mapX) + Math.abs(game.player.mapY - char.mapY);
+							voiceDist = Math.abs(game.player.mapX - char.mapX) + Math.abs(game.player.mapY - char.mapY) * VERTICAL_DIST_MULTIPLIER;
 							if(voiceDist < VOICE_DIST_MAX) speak(char.voice, voiceDist);
 						}
 					}
@@ -673,7 +674,7 @@
 		}
 		
 		/* Triggers a sample representing the character grunting something */
-		public function speak(voice:Array, dist:int):void{
+		public function speak(voice:Array, dist:Number):void{
 			game.soundQueue.addRandom("voice", voice, (VOICE_DIST_MAX - dist) * INV_VOICE_DIST_MAX);
 			voiceCount = VOICE_DELAY + game.random.range(VOICE_DELAY);
 		}
