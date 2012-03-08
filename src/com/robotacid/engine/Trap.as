@@ -41,6 +41,8 @@
 		public static const TELEPORT_DART:int = 2;
 		public static const STUN_DART:int = 3;
 		public static const MONSTER_PORTAL:int = 4;
+		public static const CONFUSION_DART:int = 5;
+		public static const FEAR_DART:int = 6;
 		
 		public static const PIT_COVER_DELAY:int = 7;
 		
@@ -157,6 +159,14 @@
 				game.soundQueue.add("throw");
 				shootDart(new Effect(Effect.TELEPORT, Game.MAX_LEVEL, Effect.THROWN));
 				
+			} else if(type == CONFUSION_DART){
+				game.soundQueue.add("throw");
+				shootDart(new Effect(Effect.CONFUSION, game.map.level < Game.MAX_LEVEL ? game.map.level : Game.MAX_LEVEL, Effect.THROWN));
+				
+			} else if(type == FEAR_DART){
+				game.soundQueue.add("throw");
+				shootDart(new Effect(Effect.FEAR, game.map.level < Game.MAX_LEVEL ? game.map.level : Game.MAX_LEVEL, Effect.THROWN));
+				
 			} else if(type == MONSTER_PORTAL){
 				var portal:Portal = Portal.createPortal(Portal.MONSTER, mapX, mapY - 1, game.map.level);
 				portal.setMonsterTemplate(Content.createCharacterXML(game.map.level < Game.MAX_LEVEL ? game.map.level : Game.MAX_LEVEL, Character.MONSTER));
@@ -209,6 +219,8 @@
 			else if(type == TELEPORT_DART) return "teleport";
 			else if(type == STUN_DART) return "stun";
 			else if(type == MONSTER_PORTAL) return "monster";
+			else if(type == CONFUSION_DART) return "confusion";
+			else if(type == FEAR_DART) return "fear";
 			return "";
 		}
 		

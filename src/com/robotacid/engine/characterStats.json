@@ -7,7 +7,7 @@
 		"balrog", "skeleton"
 	],
 	"unique names":[
-		["rogue"], ["skree", "krilitz"], ["yubnub", "noobub", "gilbub"] , ["grom", "hrash", "thogar"], ["goom", "hoor", "boor"],
+		["rogue"], ["skree", "krilitz", "krellax"], ["yubnub", "noobub", "gilbub"] , ["grom", "hrash", "thogar"], ["goom", "hoor", "boor"],
 		["rofl", "lol", "flol"], ["drizzt", "traxex"], ["spike", "ge-ka", "saboten"] , ["calypso", "creusa", "echo", "harmonia", "arethusa"], ["bram", "dracula", "vlad", "edward", "alucard", "demitri"],
 		["talbot", "talbain"], ["bridget", "xana"], ["hissa", "sri", "astika", "vasuki"], ["medusa", "stheno", "euryale"], ["xit't't'k", "k'tch'k", "xt'chk't"],
 		["emet", "met"], ["sadako", "eevul", "maeveen"], ["gul", "khamul", "ulaire"], ["rlyeh", "ph'nglui", "wgah'nagl", "fhtagri"], ["alamvusha", "bakasura", "kirmira", "virakshi"],
@@ -172,7 +172,7 @@
 		"possible bonus chest items", "infravision", "damage reflection", "theft attack", "life steal, undead",
 		"superior speed and combat, infectious, insane", "form steal", "poison attack", "stupefy attack", "confuse attack",
 		"superior defence", "fear attack, undead", "wall walk, undead", "xp steal", "chaos attack",
-		"superior", "poison immune, undead"
+		"superior, possession", "poison immune, undead"
 	],
 	"descriptions":[
 		"widow to the thief adventurer named @", "reptile goblinoid", "true goblin", "greater goblin", "goblin protector",

@@ -716,8 +716,8 @@
 			var ZONE_TRAPS:Array = [
 				[Trap.TELEPORT_DART],
 				[Trap.STUN_DART, Trap.TELEPORT_DART],
-				[Trap.STUN_DART, Trap.POISON_DART, Trap.TELEPORT_DART],
-				[Trap.MONSTER_PORTAL, Trap.STUN_DART, Trap.POISON_DART, Trap.TELEPORT_DART]
+				[Trap.STUN_DART, Trap.POISON_DART, Trap.TELEPORT_DART, Trap.CONFUSION_DART],
+				[Trap.MONSTER_PORTAL, Trap.STUN_DART, Trap.POISON_DART, Trap.TELEPORT_DART, Trap.CONFUSION_DART, Trap.FEAR_DART]
 			];
 			
 			var totalTraps:int = game.content.getTraps(level, type) - bitmap.pitTraps;

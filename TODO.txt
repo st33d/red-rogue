@@ -1,12 +1,10 @@
-Change log: fixed bug entering underworld, multiplied vertical voice distance from sound engineer's advice
+Change log: fixed possible cursed indifference via polymorph, swapped order of fear and confusion effects, added fear and confusion traps
 
 Bug hunt
 	can crash graph renderer by changing level	
 	collection lock out on chests after playing for a while - bugged chest or item?
 	minion summon after death? - unreproducable
 	combo bug: minion, indifference, level 21, identify monster twice, minion portal - unreproducable
-	
-	bug with quests
 	
 
 Holy rune
@@ -37,8 +35,6 @@ create Editor in debug menu
 		items
 
 hide a plus one mace in a secret room above the grindstone
-
-add fear and confusion traps
 
 animate the trap marker - it should bling in the level when searched
 

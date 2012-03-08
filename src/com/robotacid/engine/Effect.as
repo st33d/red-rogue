@@ -50,8 +50,8 @@
 		public static const PROTECTION:int = Item.PROTECTION;
 		public static const STUN:int = Item.STUN;
 		public static const POLYMORPH:int = Item.POLYMORPH;
-		public static const FEAR:int = Item.FEAR;
 		public static const CONFUSION:int = Item.CONFUSION;
+		public static const FEAR:int = Item.FEAR;
 		public static const LEECH:int = Item.LEECH_RUNE;
 		public static const XP:int = Item.XP;
 		public static const CHAOS:int = Item.CHAOS;
@@ -294,6 +294,11 @@
 				}
 				item.gfx = game.library.getItemGfx(newName, item.type);
 				item.name = newName;
+				// rolling a cursed indifference could brick the game for someone
+				if(
+					item.type == Item.ARMOUR && item.name == Item.INDIFFERENCE &&
+					(item.curseState == Item.CURSE_REVEALED || item.curseState == Item.CURSE_HIDDEN)
+				) item.curseState = Item.NO_CURSE;
 				item.setStats();
 				
 				// now we try putting it back in
