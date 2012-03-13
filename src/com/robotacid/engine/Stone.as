@@ -159,25 +159,18 @@
 		
 		/* A search action can reveal to the player where a secret wall is */
 		public function reveal():void{
-			var trapRevealedB:Bitmap = new game.library.TrapRevealedB();
-			var matrix:Matrix = new Matrix();
-			matrix.tx = -SCALE * 0.5;
-			matrix.ty = -SCALE * 0.5;
+			var revealedGfx:MovieClip = new SecretMC();
 			var side:int;
 			if(mapX * SCALE >= game.mapTileManager.mapRect.x + game.mapTileManager.mapRect.width * 0.5){
 				side = RIGHT;
+				revealedGfx.scaleX = -1;
+				renderer.addFX(gfx.x - SCALE, gfx.y, renderer.secretRevealRightBlit);
 			} else {
 				side = LEFT;
+				revealedGfx.x = SCALE;
+				renderer.addFX(gfx.x + SCALE, gfx.y, renderer.secretRevealLeftBlit);
 			}
-			matrix.rotate(side == RIGHT ? -Math.PI * 0.5 : Math.PI * 0.5);
-			matrix.tx += side == RIGHT ? -((SCALE * 0.5) - 1) : 1 + (SCALE * 1.5);
-			matrix.ty += SCALE * 0.5;
-			trapRevealedB.transform.matrix = matrix;
-			(gfx as Sprite).addChild(trapRevealedB);
-			var bitmapData:BitmapData = new BitmapData(3, 3, true, 0x00000000);
-			bitmapData.setPixel32(1, 0, 0xFFAA0000);
-			bitmapData.fillRect(new Rectangle(0, 1, 3, 1), 0xFFAA0000);
-			bitmapData.setPixel32(1, 2, 0xFFAA0000);
+			(gfx as Sprite).addChild(revealedGfx);
 			minimapFeature = game.miniMap.addFeature(mapX, mapY, renderer.searchFeatureBlit, true);
 			gfx.visible = true;
 			revealed = true;

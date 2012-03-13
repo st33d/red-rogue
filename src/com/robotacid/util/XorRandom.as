@@ -20,6 +20,8 @@ package com.robotacid.util {
 				r = seed;
 			} else {
 				r = (new Date().time % uint.MAX_VALUE) as uint;
+				// once in a blue moon we can roll a zero from sourcing the seed from the Date
+				if(r == 0) r = Math.random() * MAX_RATIO;
 			}
 			this.seed = r;
 		}

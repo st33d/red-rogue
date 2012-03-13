@@ -1,4 +1,4 @@
-Change log: fixed possible cursed indifference via polymorph, swapped order of fear and confusion effects, added fear and confusion traps
+Change log: fixed possible 0 error on XorRandom, new progress bar ui, new revealed secret and trap gfx, new reveal effect for traps and secrets, added ChaosAutomata to Chaos background
 
 Bug hunt
 	can crash graph renderer by changing level	
@@ -6,6 +6,18 @@ Bug hunt
 	minion summon after death? - unreproducable
 	combo bug: minion, indifference, level 21, identify monster twice, minion portal - unreproducable
 	
+	minion auto equip not working
+	equip gets broken
+	undead respawn causes issue
+
+
+platedLeechMc
+revealMc
+smiteMc
+plateauMc
+smited frames for all monsters
+
+*chaos background crawler fx - robotacid old school
 
 Holy rune
 	create smited state for Characters

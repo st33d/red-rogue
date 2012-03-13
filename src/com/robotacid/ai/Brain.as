@@ -751,7 +751,6 @@
 		
 		/* Enters the character into a confused state */
 		public function confuse(delay:int):void{
-			if(confusedCount == 0) game.console.print(char.nameToString() + " is confused");
 			confusedCount += delay;
 		}
 		

@@ -12,6 +12,7 @@
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
 	import flash.display.DisplayObject;
+	import flash.display.MovieClip;
 	import flash.display.Sprite;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
@@ -187,11 +188,12 @@
 		
 		/* Adds a graphic to this trap to show the player where it is and adds a feature to the minimap */
 		public function reveal():void{
-			var trapRevealedB:Bitmap = new game.library.TrapRevealedB();
-			trapRevealedB.y = -SCALE;
-			(gfx as Sprite).addChild(trapRevealedB);
+			var trapRevealedGfx:MovieClip = new TrapMC();
+			trapRevealedGfx.y = -SCALE;
+			(gfx as Sprite).addChild(trapRevealedGfx);
 			minimapFX = game.miniMap.addFeature(mapX, mapY, renderer.searchFeatureBlit, true);
 			revealed = true;
+			renderer.addFX(gfx.x, gfx.y - SCALE, renderer.trapRevealBlit);
 		}
 		
 		/* Destroys this object and gives xp */

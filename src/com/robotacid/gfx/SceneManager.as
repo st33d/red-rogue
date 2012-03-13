@@ -18,6 +18,7 @@ package com.robotacid.gfx {
 		
 		public var mapLevel:int;
 		public var mapType:int;
+		public var mapZone:int;
 		
 		// utilities
 		private var i:int;
@@ -26,9 +27,11 @@ package com.robotacid.gfx {
 		private var vy:Number;
 		private var length:Number;
 		private var fx:Vector.<FX>;
+		private var automata:Vector.<ChaosAutomata>;
 		private var bitmapData:BitmapData;
 		private var matrix:Matrix = new Matrix();
 		private var point:Point = new Point();
+		private var auto:ChaosAutomata;
 		
 		public static const UNDERWORLD_NOVAS:int = 20;
 		public static const UNDERWORLD_NOVA_HEIGHT:int = 9;
@@ -39,6 +42,8 @@ package com.robotacid.gfx {
 		public function SceneManager(mapLevel:int, mapType:int) {
 			this.mapLevel = mapLevel;
 			this.mapType = mapType;
+			mapZone = (mapLevel - 1) / Map.LEVELS_PER_ZONE;
+			if(mapZone >= Map.ZONE_TOTAL) mapZone = Map.ZONE_TOTAL - 1;
 			if(mapLevel == Map.UNDERWORLD && mapType == Map.AREA){
 				fx = new Vector.<FX>();
 				for(i = 0; i < UNDERWORLD_NOVAS; i++){
@@ -48,7 +53,15 @@ package com.robotacid.gfx {
 				var bitmap:Bitmap = new game.library.WaveB()
 				bitmapData = bitmap.bitmapData;
 				vx = 0;
+				
+			} else if(mapZone == Map.CHAOS){
+				ChaosAutomata.pixels = renderer.backgroundBitmapData.getVector(renderer.backgroundBitmapData.rect);
+				automata = new Vector.<ChaosAutomata>();
+				for(i = 0; i < 30; i++){
+					automata.push(new ChaosAutomata(i < 15));
+				}
 			}
+			
 		}
 		
 		public function renderBackground():void{
@@ -63,7 +76,12 @@ package com.robotacid.gfx {
 						if(item.frame == item.blit.totalFrames) game.soundQueue.addRandom("star", STAR_SOUNDS);
 					}
 				}
-				
+			} else if(mapZone == Map.CHAOS){
+				for(i = 0; i < automata.length; i++){
+					auto = automata[i];
+					auto.main();
+				}
+				renderer.backgroundBitmapData.setVector(renderer.backgroundBitmapData.rect, ChaosAutomata.pixels);
 			}
 		}
 		
@@ -86,6 +104,16 @@ package com.robotacid.gfx {
 		public static function getSceneManager(level:int, type:int):SceneManager{
 			if(type == Map.AREA){
 				return new SceneManager(level, type);
+			} else if(type == Map.MAIN_DUNGEON || type == Map.ITEM_DUNGEON){
+				// account for being in the test bed
+				if(level == -1){
+					level = game.menu.editorList.dungeonLevelList.selection
+				}
+				var zone:int = (level - 1) / Map.LEVELS_PER_ZONE;
+				if(zone >= Map.ZONE_TOTAL) zone = Map.ZONE_TOTAL - 1;
+				if(zone == Map.CHAOS){
+					return new SceneManager(level, type);
+				}
 			}
 			return null;
 		}

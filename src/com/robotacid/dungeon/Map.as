@@ -159,6 +159,9 @@
 			// access point
 			setPortal((width * 0.5) >> 0, height - 2, <portal type={Portal.ITEM_RETURN} targetLevel={-1} />);
 			start = portals[0];
+			
+			// set zone for background debugging
+			zone = (game.menu.editorList.dungeonLevelList.selection) / LEVELS_PER_ZONE;
 		}
 		
 		/* This is where we convert our map template into a dungeon proper made of tileIds and other
@@ -846,7 +849,7 @@
 						bitmapData.copyPixels(source, source.rect, point);
 					}
 				}
-				if(zone == SEWERS || zone == CHAOS) createPipes(bitmapData);
+				if(zone == SEWERS) createPipes(bitmapData);
 			}
 			renderer.backgroundBitmapData = bitmapData;
 		}

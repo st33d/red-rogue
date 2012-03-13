@@ -83,7 +83,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 328;
+		public static const BUILD_NUM:int = 330;
 		
 		public static const TEST_BED_INIT:Boolean = false;
 		
@@ -426,38 +426,21 @@
 			miniMapHolder = new Sprite();
 			addChild(miniMapHolder);
 			
-			playerActionBar = new ProgressBar(5, console.y - 8, MiniMap.WIDTH, 3);
-			playerActionBar.barCol = 0xFFCCCCCC;
-			var actBitmap:Bitmap = new library.ACT;
-			actBitmap.x = playerActionBar.width + 1;
-			playerActionBar.addChild(actBitmap);
-			addChild(playerActionBar);
-			playerActionBar.update();
-			
-			playerHealthBar = new ProgressBar(5, playerActionBar.y - 9, MiniMap.WIDTH, 8, HEALTH_GLOW_RATIO, 0xAA0000);
+			playerHealthBar = new ProgressBar(5, console.y - 22, 27, 17, HEALTH_GLOW_RATIO, 0xAA0000);
 			playerHealthBar.barCol = 0xFFCCCCCC;
 			addChild(playerHealthBar);
 			var hpBitmap:Bitmap = new library.HPB;
-			hpBitmap.x = playerHealthBar.width + 1;
-			hpBitmap.y = 1;
+			hpBitmap.x = 3;
+			hpBitmap.y = 5;
 			playerHealthBar.addChild(hpBitmap);
 			playerHealthBar.update();
 			
 			livesPanel = new LivesPanel();
-			livesPanel.x = playerHealthBar.width + 2;
+			livesPanel.y = -(livesPanel.height + 2);
 			livesPanel.visible = false;
 			playerHealthBar.addChild(livesPanel);
 			
-			playerXpBar = new ProgressBar(5, playerHealthBar.y - 6, MiniMap.WIDTH, 5);
-			playerXpBar.barCol = 0xFFCCCCCC;
-			addChild(playerXpBar);
-			levelNumGfx = new LevelNumMC();
-			levelNumGfx.stop();
-			levelNumGfx.x = playerXpBar.width + 1;
-			playerXpBar.addChild(levelNumGfx);
-			playerXpBar.update();
-			
-			minionHealthBar = new ProgressBar(5, playerXpBar.y - 6, MiniMap.WIDTH, 5, HEALTH_GLOW_RATIO, 0xAA0000);
+			minionHealthBar = new ProgressBar(playerHealthBar.x + playerHealthBar.bitmap.width + 1, playerHealthBar.y, 27, 5, HEALTH_GLOW_RATIO, 0xAA0000);
 			minionHealthBar.barCol = 0xFFCCCCCC;
 			addChild(minionHealthBar);
 			var mhpBitmap:Bitmap = new library.MHPB;
@@ -466,7 +449,24 @@
 			minionHealthBar.visible = false;
 			minionHealthBar.update();
 			
-			enemyHealthBar = new ProgressBar(WIDTH - 59, console.y - 13, 54, 8, HEALTH_GLOW_RATIO, 0xAA0000);
+			playerXpBar = new ProgressBar(playerHealthBar.x + playerHealthBar.bitmap.width + 1, minionHealthBar.y + minionHealthBar.height, 27, 5);
+			playerXpBar.barCol = 0xFFCCCCCC;
+			addChild(playerXpBar);
+			levelNumGfx = new LevelNumMC();
+			levelNumGfx.stop();
+			levelNumGfx.x = playerXpBar.width + 1;
+			playerXpBar.addChild(levelNumGfx);
+			playerXpBar.update();
+			
+			playerActionBar = new ProgressBar(playerHealthBar.x + playerHealthBar.bitmap.width + 1, playerXpBar.y + playerXpBar.height, 27, 5);
+			playerActionBar.barCol = 0xFFCCCCCC;
+			var actBitmap:Bitmap = new library.ACT;
+			actBitmap.x = playerActionBar.width + 1;
+			playerActionBar.addChild(actBitmap);
+			addChild(playerActionBar);
+			playerActionBar.update();
+			
+			enemyHealthBar = new ProgressBar(WIDTH - 32, playerHealthBar.y, 27, 17, HEALTH_GLOW_RATIO, 0xAA0000);
 			enemyHealthBar.barCol = 0xFFCCCCCC;
 			addChild(enemyHealthBar);
 			enemyHealthBar.active = false;
