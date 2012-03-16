@@ -46,7 +46,7 @@
 		public static const PORTAL:int = Item.PORTAL;
 		public static const SLOW:int = Item.SLOW;
 		public static const HASTE:int = Item.HASTE;
-		//public static const HOLY:int = Item.HOLY;
+		public static const HOLY:int = Item.HOLY;
 		public static const PROTECTION:int = Item.PROTECTION;
 		public static const STUN:int = Item.STUN;
 		public static const POLYMORPH:int = Item.POLYMORPH;
@@ -56,7 +56,10 @@
 		public static const XP:int = Item.XP;
 		public static const CHAOS:int = Item.CHAOS;
 		
-		public static var BANNED_RANDOM_ENCHANTMENTS:Array = [];
+		public static var BANNED_RANDOM_ENCHANTMENTS:Object = {};
+		
+		public static const FAVOURABLE_WEAPON_ENCHANTMENTS:Array = [POISON, UNDEAD, TELEPORT, SLOW, STUN, CONFUSION, FEAR, LEECH];
+		public static const FAVOURABLE_ARMOUR_ENCHANTMENTS:Array = [LIGHT, HEAL, UNDEAD, THORNS, HASTE, PROTECTION];
 		
 		public static const WEAPON:int = Item.WEAPON;
 		public static const ARMOUR:int = Item.ARMOUR;
@@ -375,6 +378,23 @@
 				if(inventoryList) inventoryList.updateItem(item);
 				return item;
 				
+			} else if(name == HOLY){
+				favourableEnchant(item, game.deepestLevelReached);
+				if(item.curseState != Item.BLESSED){
+					// leech weapons become plated
+					if(item.type == Item.WEAPON && item.name == Item.LEECH_WEAPON){
+						item.uniqueNameStr = "plated leech";
+						item.gfx = game.library.getItemGfx(newName, item.type);
+					}
+					game.console.print((item.uniqueNameStr ? item.uniqueNameStr : item.nameStr) + " has been blessed by the gods");
+					item.curseState = Item.BLESSED;
+				}
+				if(inventoryList) inventoryList.updateItem(item);
+				return item;
+				
+			} else if(name == CHAOS){
+				randomEnchant(item, Game.MAX_LEVEL);
+				return item;
 			}
 			
 			// this is the embedding routine
@@ -697,6 +717,15 @@
 					}
 					return;
 				}
+			} else if(name == HOLY){
+				prayer(target);
+				return;
+				
+			} else if(name == CHAOS){
+				// change to a random name and re-apply
+				while(name == CHAOS) name = game.random.rangeInt(Game.MAX_LEVEL);
+				apply(target, count, racial);
+				return;
 			}
 			
 			// racial effects are managed by the character class internally
@@ -823,7 +852,7 @@
 		}
 		
 		public function nameToString():String{
-			return Item.stats["rune names"][name];
+			return Item.runeNames[name];
 		}
 		
 		public function toXML():XML{
@@ -844,10 +873,10 @@
 		public static function randomEnchant(item:Item, level:int):Item{
 			var name:int;
 			var nameRange:int;
-			var enchantments:int = 2 + game.random.range(level * 0.5);
+			var enchantments:int = 2 + game.random.range(level * 0.2);
 			var runeList:Vector.<int> = new Vector.<int>();
 			while(enchantments--){
-				nameRange = game.random.range(Item.stats["rune names"].length);
+				nameRange = game.random.range(Game.MAX_LEVEL);
 				if(nameRange > game.deepestLevelReached) nameRange = game.deepestLevelReached;
 				name = game.random.range(nameRange);
 				// some enchantments confer multiple extra enchantments -
@@ -857,7 +886,7 @@
 			}
 			// each effect must now be given a level, for this we do a bucket sort
 			// to stack the effects
-			var bucket:Vector.<int> = new Vector.<int>(Item.stats["rune names"].length);
+			var bucket:Vector.<int> = new Vector.<int>(Game.MAX_LEVEL);
 			var i:int;
 			for(i = 0; i < runeList.length; i++){
 				bucket[runeList[i]]++;
@@ -875,6 +904,38 @@
 				else item.curseState = Item.CURSE_HIDDEN;
 			}
 			return item;
+		}
+		
+		/* Applies a set of favourable random enchantments to an item */
+		public static function favourableEnchant(item:Item, level:int):Item{
+			var name:int;
+			var nameRange:int;
+			var enchantments:int = 1 + game.random.range(level * 0.2);
+			var runeList:Vector.<int> = new Vector.<int>();
+			var list:Array = item.type == Item.WEAPON ? FAVOURABLE_WEAPON_ENCHANTMENTS : FAVOURABLE_ARMOUR_ENCHANTMENTS;
+			while(enchantments--){
+				runeList.push(list[game.random.rangeInt(list.length)]);
+			}
+			// each effect must now be given a level, for this we do a bucket sort
+			// to stack the effects
+			var bucket:Vector.<int> = new Vector.<int>(Game.MAX_LEVEL);
+			var i:int;
+			for(i = 0; i < runeList.length; i++){
+				bucket[runeList[i]]++;
+			}
+			var effect:Effect;
+			for(i = 0; i < bucket.length; i++){
+				if(bucket[i]){
+					effect = new Effect(i, bucket[i]);
+					if(item.enchantable(i)) item = effect.enchant(item);
+				}
+			}
+			return item;
+		}
+		
+		/* Performs a random effect that is beneficial to the player */
+		public static function prayer(target:Character):void{
+			
 		}
 	}
 	

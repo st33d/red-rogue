@@ -28,6 +28,7 @@
 			
 			// cursed?
 			if(item.curseState == Item.CURSE_REVEALED) options.push(new MenuOption("cursed", null, false));
+			else if(item.curseState == Item.BLESSED) options.push(new MenuOption("blessed", null, false));
 			
 			// enchantments?
 			if(item.effects){

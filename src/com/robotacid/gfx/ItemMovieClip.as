@@ -41,7 +41,7 @@ package com.robotacid.gfx {
 		public static const CAPTURE_WIDTH:int = 18;
 		public static const CAPTURE_HEIGHT:int = 18;
 		
-		public function ItemMovieClip(name:int, type:int) {
+		public function ItemMovieClip(name:int, type:int, curseState:int = 0) {
 			this._name = name;
 			this._type = type;
 			
@@ -98,7 +98,8 @@ package com.robotacid.gfx {
 					gfx = new LongBowMC();
 					addChild(gfx);
 				} else if(name == Item.LEECH_WEAPON){
-					gfx = new LeechMC();
+					if(curseState == Item.BLESSED) gfx = new PlatedLeechMC();
+					else gfx = new LeechMC();
 					addChild(gfx);
 				}
 			}

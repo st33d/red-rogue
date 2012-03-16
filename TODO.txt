@@ -1,7 +1,7 @@
-Change log: fixed possible 0 error on XorRandom, new progress bar ui, new revealed secret and trap gfx, new reveal effect for traps and secrets, added ChaosAutomata to Chaos background
+Change log: reduced the number of enchantments from identify, added rakshasa chaos attack, refactored rune spawning for complete fixed list, enchantments on items listed as ? till identified, added holy rune, added chaos rune, added smite mechanic, added blessed weapons, critical hits now guarantee racial special attacks are applied
 
 Bug hunt
-	can crash graph renderer by changing level	
+	can crash graph renderer by changing level
 	collection lock out on chests after playing for a while - bugged chest or item?
 	minion summon after death? - unreproducable
 	combo bug: minion, indifference, level 21, identify monster twice, minion portal - unreproducable
@@ -10,26 +10,12 @@ Bug hunt
 	equip gets broken
 	undead respawn causes issue
 
-
-platedLeechMc
-revealMc
-smiteMc
 plateauMc
-smited frames for all monsters
 
-*chaos background crawler fx - robotacid old school
+need the ability to block effect apply printouts
 
 Holy rune
-	create smited state for Characters
-		draw smite frame for all races
-		draw smite impact effect
-	blessed weapons
-		draw asterisk for font
-		draw plated leech
-		check blessed weapon descriptions and settings
-		added blessed state to enchantments (cursed as toggle option?)
 	create prayer effect
-		catalogue all beneficial effects
 		create easter egg effects
 			create room for future easter egg effects like unique weapons
 	
@@ -47,8 +33,6 @@ create Editor in debug menu
 		items
 
 hide a plus one mace in a secret room above the grindstone
-
-animate the trap marker - it should bling in the level when searched
 
 create enchant option item menu
 

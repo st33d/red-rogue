@@ -592,11 +592,11 @@
 			} else if(type == Item.WEAPON){
 				nameRange = Item.ITEM_MAX;
 			} else if(type == Item.RUNE){
-				nameRange = Item.stats["rune names"].length;
+				nameRange = Game.MAX_LEVEL;
 				level = 0;
 				enchantments = 0;
 			} else if(type == Item.HEART){
-				nameRange = Game.MAX_LEVEL
+				nameRange = Game.MAX_LEVEL;
 				level = 0;
 				enchantments = 0;
 			}
@@ -609,7 +609,7 @@
 				var runeList:Vector.<int> = new Vector.<int>();
 				var enchantmentName:int, enchantmentNameRange:int;
 				while(enchantments--){
-					enchantmentNameRange = Map.random.range(Item.stats["rune names"].length);
+					enchantmentNameRange = Map.random.range(Game.MAX_LEVEL);
 					if(enchantmentNameRange > dungeonLevel) enchantmentNameRange = dungeonLevel;
 					enchantmentName = Map.random.range(enchantmentNameRange);
 					// some enchantments confer multiple extra enchantments -
@@ -619,7 +619,7 @@
 				}
 				// each effect must now be given a level, for this we do a bucket sort
 				// to stack the effects
-				var bucket:Vector.<int> = new Vector.<int>(Item.stats["rune names"].length);
+				var bucket:Vector.<int> = new Vector.<int>(Game.MAX_LEVEL);
 				var i:int;
 				for(i = 0; i < runeList.length; i++){
 					bucket[runeList[i]]++;
@@ -695,6 +695,8 @@
 				
 				// is this item cursed?
 				obj.curseState = int(xml.@curseState);
+				
+				// does it have a name?
 				if(xml.@uniqueNameStr && xml.@uniqueNameStr != "null") obj.uniqueNameStr = xml.@uniqueNameStr;
 				
 			} else if(objectType == "character"){

@@ -91,6 +91,7 @@
 		public var undead:Boolean;
 		public var protectionModifier:Number;
 		public var bravery:Number;
+		public var smiteDamage:Number;
 		
 		private var hitResult:int;
 		
@@ -149,6 +150,8 @@
 			["ladderStep1", "ladderStep2"]
 		];
 		
+		public static const SMITE_SOUNDS:Array = ["star1", "star2", "star3", "star4"];
+		
 		public static const FLOOR_STEP_SOUND:int = 0;
 		public static const LADDER_STEP_SOUND:int = 1;
 		
@@ -188,6 +191,8 @@
 		public static const MIN_PROTECTION_MODIFIER:Number = 0.5;
 		public static const CHAKRAM_REFLECTIONS:int = 10;
 		public static const RUNE_REFLECTIONS:int = 5;
+		public static const SMITED_SPEED:Number = 8;
+		public static const SMITE_DAMAGE_RATIO:Number = 1.5;
 		
 		public static const DEFAULT_COL:ColorTransform = new ColorTransform();
 		public static const INFRAVISION_COLS:Vector.<ColorTransform> = Vector.<ColorTransform>([DEFAULT_COL, new ColorTransform(1, 0, 0, 1, 255), new ColorTransform(1, 0.7, 0.7, 1, 50)]);
@@ -441,13 +446,16 @@
 								
 								hitResult = hit(target, Item.MELEE);
 								if(hitResult){
+									// weapon position
+									p.x = gfx.x + (mc.weapon ? mc.weapon.x : 0);
+									p.y = gfx.y + (mc.weapon ? mc.weapon.y : 0);
 									// nudge
 									if(!(target.type & STONE)) target.collider.pushDamping = 1;
 									// effects
 									if(weapon && weapon.effects && target.active && !(target.type & STONE)){
 										target.applyWeaponEffects(weapon);
 									}
-									if(specialAttack && target.active && (!(target.type & STONE) || name == NYMPH)) racialAttack(target);
+									if(specialAttack && target.active && (!(target.type & STONE) || name == NYMPH)) racialAttack(target, hitResult);
 									var meleeWeapon:Boolean = Boolean(weapon && (weapon.range & Item.MELEE));
 									// knockback
 									var enduranceDamping:Number = 1.0 - (target.endurance + (target.armour ? target.armour.endurance : 0));
@@ -464,12 +472,20 @@
 									if(target.protectionModifier < 1){
 										hitDamage *= target.protectionModifier < MIN_PROTECTION_MODIFIER ? MIN_PROTECTION_MODIFIER : target.protectionModifier;
 									}
-									// crit multiplier
-									if(hitResult & CRITICAL) hitDamage *= 2;
 									// rogue's backstab multiplier
 									if(name == ROGUE && (looking & (LEFT | RIGHT)) == (target.looking & (LEFT | RIGHT))){
 										hitDamage *= 2;
 										renderer.createDebrisRect(target.collider, (looking & (LEFT | RIGHT)) == RIGHT ? 8 : -8, 30, target.debrisType);
+									}
+									// crit multiplier
+									if(hitResult & CRITICAL){
+										hitDamage *= 2;
+										// smite?
+										if(weapon && weapon.curseState == Item.BLESSED){
+											target.smite(looking, hitDamage * 0.5);
+											// half of hitDamage is transferred to the smite state
+											hitDamage *= 0.5;
+										}
 									}
 									// leech
 									if((leech || (weapon && weapon.leech)) && !(target.armour && target.armour.name == Item.BLOOD) && !(target.type & STONE)){
@@ -487,8 +503,6 @@
 										applyDamage(hitDamage * (target.thorns <= 1 ? target.thorns : 1), target.nameToString(), 0, false);
 									}
 									// blood
-									p.x = gfx.x + (mc.weapon ? mc.weapon.x : 0);
-									p.y = gfx.y + (mc.weapon ? mc.weapon.y : 0);
 									if(dir & RIGHT){
 										renderer.createDebrisSpurt(p.x < target.collider.x ? p.x : target.collider.x - 1, p.y, -2, 8, target.debrisType);
 									} else if(dir & LEFT){
@@ -546,6 +560,23 @@
 				if(stunCount <= 0){
 					state = WALKING;
 				}
+			} else if(state == SMITED){
+				if(looking & RIGHT) collider.vx -= SMITED_SPEED;
+				else if(looking & LEFT) collider.vx += SMITED_SPEED;
+				
+				// hitting a surface deals damage to the smitee and knocks them out of the SMITED state
+				if(
+					(collider.pressure & (UP | DOWN)) ||
+					((looking & RIGHT) && (collider.pressure & LEFT)) ||
+					((looking & LEFT) && (collider.pressure & RIGHT))
+				){
+					applyDamage(smiteDamage, "smite", 0, true);
+					state = WALKING;
+					collider.state = Collider.FALL;
+					collider.divorce();
+					renderer.createDebrisSpurt(collider.x + collider.width * 0.5, collider.y + collider.height * 0.5, (looking & RIGHT) ? 2 : -2, 8, debrisType);
+				}
+				
 			} else if(state == LUNGING){
 				if(attackCount > 0.5){
 					state = WALKING;
@@ -661,7 +692,7 @@
 		}
 		
 		private function stompCallback(stomper:Collider):void{
-			if(state == QUICKENING || !active) return;
+			if(state == QUICKENING || state == SMITED || !active) return;
 			applyStun(0.5);
 			var center:Number = collider.x + collider.width * 0.5;
 			var stomperCenter:Number = stomper.x + stomper.width * 0.5;
@@ -755,6 +786,23 @@
 			var colliderCenter:Number = collider.x + collider.width * 0.5;
 			if(colliderCenter > tileCenter) collider.vx = colliderCenter - speed > tileCenter ? -speed : tileCenter - colliderCenter;
 			else if(colliderCenter < tileCenter) collider.vx = colliderCenter + speed < tileCenter ? speed : tileCenter - colliderCenter;
+		}
+		
+		/* Enters the SMITED state - caused by being hit by a blessed weapon */
+		public function smite(dir:int, damage:Number):void{
+			state = SMITED;
+			collider.state = Collider.HOVER;
+			collider.divorce();
+			this.dir = dir;
+			smiteDamage = damage * SMITE_DAMAGE_RATIO;
+			if(dir & RIGHT){
+				looking = LEFT;
+				renderer.addFX(collider.x + collider.width * 0.5, collider.y + collider.height * 0.5, renderer.smiteRightBlit);
+			} else if(dir & LEFT){
+				looking = RIGHT;
+				renderer.addFX(collider.x + collider.width * 0.5, collider.y + collider.height * 0.5, renderer.smiteLeftBlit);
+			}
+			game.soundQueue.addRandom("smite", SMITE_SOUNDS, 20);
 		}
 		
 		/* The logic to validate climbing is pretty convoluted so it resides in another method,
@@ -998,13 +1046,15 @@
 		}
 		
 		/* Some races have a special attack as their racial ability, this method is executed during a successful melee strike */
-		public function racialAttack(target:Character):void{
+		public function racialAttack(target:Character, hitResult:int):void{
 			
 			// racial attacks require a roll to see if they are executed (level based with racial modifiers)
-			var roll:Number = game.random.value();
-			if(name == NYMPH) roll *= 1.5;
-			else if(name == MIND_FLAYER) roll *= 0.5;
-			if(roll > level * SPECIAL_ATTACK_PER_LEVEL) return;
+			if(!(hitResult & CRITICAL)){
+				var roll:Number = game.random.value();
+				if(name == NYMPH) roll *= 1.5;
+				else if(name == MIND_FLAYER) roll *= 0.5;
+				if(roll > level * SPECIAL_ATTACK_PER_LEVEL) return;
+			}
 			
 			var effect:Effect;
 			
@@ -1069,7 +1119,7 @@
 				
 			// chaos attack
 			} else if(name == RAKSHASA){
-				
+				effect = new Effect(Effect.CHAOS, level, Effect.THROWN, target);
 			}
 		}
 		
@@ -1207,6 +1257,9 @@
 				}
 			} else if(state == STUNNED){
 				if(mc.currentLabel != "stun") mc.gotoAndStop("stun");
+				
+			} else if(state == SMITED){
+				if(mc.currentLabel != "smited") mc.gotoAndStop("smited");
 			}
 			
 			if(gfx.alpha < 1){

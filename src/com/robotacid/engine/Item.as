@@ -146,14 +146,14 @@
 		public static const PORTAL:int = 8;
 		public static const SLOW:int = 9;
 		public static const HASTE:int = 10;
-		//public static const HOLY:int = ;
-		public static const PROTECTION:int = 11;
-		public static const STUN:int = 12;
-		public static const POLYMORPH:int = 13;
-		public static const CONFUSION:int = 14;
-		public static const FEAR:int = 15;
-		public static const LEECH_RUNE:int = 16;
-		public static const XP:int = 17;
+		public static const HOLY:int = 11;
+		public static const PROTECTION:int = 12;
+		public static const STUN:int = 13;
+		public static const POLYMORPH:int = 14;
+		public static const CONFUSION:int = 15;
+		public static const FEAR:int = 16;
+		public static const LEECH_RUNE:int = 17;
+		public static const XP:int = 18;
 		public static const CHAOS:int = 19;
 		
 		// curse states
@@ -484,6 +484,7 @@
 			//if(level > 0) str += "+" + level + " ";
 			
 			if(curseState == CURSE_REVEALED) str += "- ";
+			else if(curseState == BLESSED) str += "* ";
 			else if(effects) str += "+ ";
 			
 			if(uniqueNameStr) return str + uniqueNameStr;
@@ -534,18 +535,21 @@
 					str += stats["rune descriptions"][name];
 				}
 				str += "\nrunes can be cast on items, monsters and yourself"
-			} else if(type == ARMOUR){
-				str += "this armour is" + (uniqueNameStr ? " " + uniqueNameStr : "") + " a \nlevel " + level + " ";
+			} else if(type == WEAPON || type == ARMOUR){
+				if(type == WEAPON){
+					str += "this weapon is";
+				} else if(type == ARMOUR){
+					str += "this armour is";
+				}
+				str += (uniqueNameStr ? " " + uniqueNameStr : "") + " a \nlevel " + level + " ";
 				if(curseState == CURSE_REVEALED) str += "cursed ";
 				else if(curseState == BLESSED) str += "blessed ";
 				else if(effects) str += "enchanted ";
-				str += stats["armour names"][name];
-			} else if(type == WEAPON){
-				str += "this weapon is" + (uniqueNameStr ? " " + uniqueNameStr : "") + " a \nlevel " + level + " ";
-				if(curseState == CURSE_REVEALED) str += "cursed ";
-				else if(curseState == BLESSED) str += "blessed ";
-				else if(effects) str += "enchanted ";
-				str += stats["weapon names"][name];
+				if(type == WEAPON){
+					str += stats["weapon names"][name];
+				} else if(type == ARMOUR){
+					str += stats["armour names"][name];
+				}
 			} else if(type == HEART){
 				str += "this " + Character.stats["names"][name] + " heart\nrestores some health when eaten";
 			}

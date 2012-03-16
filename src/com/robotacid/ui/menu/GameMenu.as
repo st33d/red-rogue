@@ -687,7 +687,7 @@
 				navigateToURL(new URLRequest("http://robotacid.com"), "_blank");
 				
 			} else if(option == nateOption){
-				navigateToURL(new URLRequest("http://icefishingep.tk"), "_blank");
+				navigateToURL(new URLRequest("http://gallardosound.com"), "_blank");
 				
 			// changing race
 			} else if(currentMenuList == changeRaceList){

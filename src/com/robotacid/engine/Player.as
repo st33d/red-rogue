@@ -555,6 +555,12 @@
 			if(canMenuAction) lockMenuActions();
 		}
 		
+		override public function smite(dir:int, damage:Number):void {
+			super.smite(dir, damage);
+			game.playerActionBar.barCol = Game.DISABLED_BAR_COL;
+			if(canMenuAction) lockMenuActions();
+		}
+		
 		override public function changeName(name:int, gfx:MovieClip = null):void {
 			super.changeName(name, gfx);
 			// a change to the undead stat affects throwables

@@ -73,7 +73,7 @@
 		public const CHARACTER_HEAD_GFX_CLASSES:Array = [RogueHeadMC, KoboldHeadMC, GoblinHeadMC, OrcHeadMC, TrollHeadMC, GnollHeadMC, DrowHeadMC, CactuarHeadMC, NymphHeadMC, VampireHeadMC, WerewolfHeadMC, RogueHeadMC, NagaHeadMC, MedusaHeadMC, UmberHulkHeadMC, GolemHeadMC, BansheeHeadMC, WraithHeadMC, MindFlayerHeadMC, RakshasaHeadMC, BalrogHeadMC, MinionHeadMC];
 		
 		/* Return the graphics for a given item, some items use the ItemMovieClip to manage rendering */
-		public function getItemGfx(name:int, type:int):DisplayObject{
+		public function getItemGfx(name:int, type:int, curseState:int = 0):DisplayObject{
 			var c:Class;
 			
 			if(type == Item.ARMOUR){
@@ -88,7 +88,7 @@
 				return new QuestGemMC;
 			}
 			if(c == ItemMovieClip){
-				return new c(name, type);
+				return new c(name, type, curseState);
 			} else {
 				return new c;
 			}

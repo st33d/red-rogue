@@ -83,7 +83,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 330;
+		public static const BUILD_NUM:int = 331;
 		
 		public static const TEST_BED_INIT:Boolean = false;
 		
@@ -220,6 +220,7 @@
 			Effect.BANNED_RANDOM_ENCHANTMENTS[Effect.NULL] = true;
 			Effect.BANNED_RANDOM_ENCHANTMENTS[Effect.CHAOS] = true;
 			Effect.BANNED_RANDOM_ENCHANTMENTS[Effect.IDENTIFY] = true;
+			Effect.BANNED_RANDOM_ENCHANTMENTS[Effect.HOLY] = true;
 			
 			TextBox.init();
 			MapTileConverter.init();
@@ -544,7 +545,7 @@
 			portalHash = {};
 			
 			Item.runeNames = [];
-			for(i = 0; i < Item.stats["rune names"].length; i++){
+			for(i = 0; i < MAX_LEVEL; i++){
 				Item.runeNames.push("?");
 			}
 			// the identify rune's name is already known (obviously)

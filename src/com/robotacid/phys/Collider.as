@@ -268,6 +268,7 @@ package com.robotacid.phys {
 				collider.vy = 0;
 				collider.awake = AWAKE_DELAY;
 			}
+			pressure = 0;
 			children.length = 0;
 			awake = AWAKE_DELAY;
 		}
