@@ -59,7 +59,6 @@
 		public var actionsOption:MenuOption;
 		public var debugOption:MenuOption;
 		
-		public var exitLevelOption:MenuOption;
 		public var summonOption:MenuOption;
 		public var searchOption:MenuOption;
 		public var disarmTrapOption:MenuOption;
@@ -169,8 +168,6 @@
 			overworldPortalOption = new MenuOption("overworld");
 			underworldPortalOption = new MenuOption("underworld");
 			
-			exitLevelOption = new MenuOption("exit level", null, false);
-			exitLevelOption.help = "exit this level when standing next to a stairway";
 			summonOption = new MenuOption("summon");
 			summonOption.help = "teleport your minion to your location";
 			searchOption = new MenuOption("search");
@@ -212,7 +209,7 @@
 			steedOption = new MenuOption("aaron steed - code/art/design");
 			steedOption.help = "opens a window to aaron steed's site - robotacid.com";
 			nateOption = new MenuOption("nathan gallardo - sound/music");
-			nateOption.help = "opens a window to nathan gallardo's site (where this game's OST is available) - icefishingep.tk";
+			nateOption.help = "opens a window to nathan gallardo's site (where this game's OST is available)";
 			
 			onOffOption = new ToggleMenuOption(["turn off", "turn on"]);
 			onOffOption.selectionStep = 1;
@@ -233,7 +230,6 @@
 			actionsList.options.push(searchOption);
 			actionsList.options.push(summonOption);
 			actionsList.options.push(disarmTrapOption);
-			actionsList.options.push(exitLevelOption);
 			actionsList.options.push(missileOption);
 			
 			optionsList.options.push(soundOption);
@@ -285,11 +281,7 @@
 			var defaultHotKeyXML:Array = [
 				<hotKey>
 				  <branch selection="1" name="actions" context="null"/>
-				  <branch selection="3" name="exit level" context="null"/>
-				</hotKey>,
-				<hotKey>
-				  <branch selection="1" name="actions" context="null"/>
-				  <branch selection="4" name="shoot" context="missile"/>
+				  <branch selection="3" name="shoot" context="missile"/>
 				</hotKey>,
 				<hotKey>
 				  <branch selection="1" name="actions" context="null"/>
@@ -651,13 +643,6 @@
 				if(user && item.location == Item.INVENTORY && item.type == originalType) item = user.equip(item);
 				
 				rune = inventoryList.removeItem(rune);
-			
-			// exit the level
-			} else if(option == exitLevelOption){
-				game.player.exitLevel(exitLevelOption.userData as Portal);
-				exitLevelOption.active = false;
-				game.player.disarmableTraps.length = 0;
-				disarmTrapOption.active = false;
 			
 			// searching
 			} else if(option == searchOption){

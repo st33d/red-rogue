@@ -12,6 +12,8 @@
 	import com.robotacid.engine.Character;
 	import com.robotacid.phys.Collider;
 	import com.robotacid.sound.SoundManager;
+	import com.robotacid.ui.Dialog;
+	import com.robotacid.ui.Key;
 	import com.robotacid.ui.menu.GameMenu;
 	import com.robotacid.ui.menu.InventoryMenuList;
 	import com.robotacid.util.HiddenInt;
@@ -55,6 +57,8 @@
 		private var searchCount:int;
 		private var searchRevealCount:int;
 		
+		private var exitKeyPressReady:Boolean;
+		
 		private var i:int, j:int;
 		
 		// states
@@ -95,6 +99,7 @@
 			active = true;
 			callMain = false;
 			stepNoise = true;
+			exitKeyPressReady = false;
 			searchRadius = -1;
 			canMenuAction = true;
 			uniqueNameStr = DEFAULT_UNIQUE_NAME_STR;
@@ -236,16 +241,19 @@
 				
 			} else {
 				if(portalContact){
-					if(!portalContact.rect.intersects(collider) || state != Character.WALKING){
-						portalContact = null;
-						game.menu.exitLevelOption.active = false;
-						game.menu.update();
-					}
-					// restore access to menu
+					// restore access to menu after entering level
 					if(collider.world && !game.menu.actionsOption.active){
 						game.menu.actionsOption.active = true;
 						game.menu.inventoryOption.active = Boolean(game.menu.inventoryList.options.length);
 						game.menu.update();
+					}
+					if(!portalContact.rect.intersects(collider) || state != Character.WALKING){
+						portalContact = null;
+					} else {
+						// Cave Story style doorway access - clean down press
+						if(dir == DOWN && exitKeyPressReady){
+							openExitDialog();
+						}
 					}
 					
 				} else {
@@ -256,10 +264,7 @@
 						portal = game.portals[i];
 						if(portal.playerPortal && portal.rect.intersects(collider) && state == Character.WALKING){
 							if(!portalContact){
-								portalContact = portal
-								game.menu.exitLevelOption.active = true;
-								game.menu.update();
-								game.menu.exitLevelOption.userData = portal;
+								portalContact = portal;
 								break;
 							}
 						}
@@ -305,6 +310,27 @@
 			}
 			game.playerActionBar.setValue(attackCount, 1);
 			
+			// exiting requires a clean key press
+			exitKeyPressReady = Key.keysPressed == 0;
+			
+		}
+		
+		/* Opens a confirmation dialog for exiting the level */
+		public function openExitDialog():void{
+			if(!Game.dialog){
+				Game.dialog = new Dialog(
+					"exit level",
+					"this level may not be the same when you return, are you sure?",
+					function():void{
+						// exit the level
+						exitLevel(portalContact);
+						disarmableTraps.length = 0;
+						game.menu.disarmTrapOption.active = false;
+						game.menu.update();
+					},
+					function():void{}
+				);
+			}
 		}
 		
 		/* Initiates a search for traps and secrets */

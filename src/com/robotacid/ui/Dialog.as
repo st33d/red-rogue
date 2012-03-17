@@ -1,4 +1,5 @@
 package com.robotacid.ui {
+	import com.robotacid.ui.menu.Menu;
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
 	import flash.display.Sprite;
@@ -16,22 +17,28 @@ package com.robotacid.ui {
 		
 		private var active:Boolean;
 		private var okayCallback:Function;
+		private var cancelCallback:Function;
 		private var okayTextBox:TextBox;
+		private var cancelTextBox:TextBox;
 		private var okayButton:Sprite;
+		private var cancelButton:Sprite;
 		private var previousGameState:int;
 		
 		public static var game:Game;
 		
-		public static const WIDTH:Number = 200;
+		public static const WIDTH:Number = 220;
 		public static const ROLL_OUT_COL:uint = 0xFF000000;
 		public static const ROLL_OVER_COL:uint = 0xFF555555;
 		
-		public function Dialog(titleStr:String, text:String, okayCallback:Function = null) {
+		public function Dialog(titleStr:String, text:String, okayCallback:Function = null, cancelCallback:Function = null) {
 			this.okayCallback = okayCallback;
+			this.cancelCallback = cancelCallback;
 			active = true;
 			alpha = 0;
 			x = Game.WIDTH * 0.5;
 			y = Game.HEIGHT * 0.5;
+			
+			// create background and text
 			var textBox:TextBox = new TextBox(WIDTH, 12, 0x00000000, 0x00000000);
 			textBox.align = "center";
 			textBox.alignVert = "center";
@@ -46,24 +53,55 @@ package com.robotacid.ui {
 			background.y = -(background.height * 0.5) >> 0;
 			addChild(background);
 			addChild(textBox);
+			
+			// create title
 			var titleBox:TextBox = new TextBox(WIDTH - 20, 12, ROLL_OUT_COL);
 			titleBox.align = "center";
 			titleBox.text = titleStr;
 			titleBox.y = background.y + 2;
 			titleBox.x = -(titleBox.width * 0.5) >> 0;
 			addChild(titleBox);
+			
+			// buttons:
+			// there is always an okay button
 			okayButton = new Sprite();
-			okayTextBox = new TextBox(WIDTH - 20, 12, ROLL_OUT_COL);
+			okayTextBox = new TextBox(Menu.LIST_WIDTH, 12, ROLL_OUT_COL);
 			okayTextBox.align = "center";
-			okayTextBox.text = "press menu key";
 			okayButton.addChild(okayTextBox);
-			okayButton.y = background.y + background.height - (okayTextBox.height + 2);
-			okayButton.x = -(okayTextBox.width * 0.5) >> 0;
 			addChild(okayButton);
 			okayButton.addEventListener(MouseEvent.CLICK, okay, false, 0, true);
 			okayButton.addEventListener(MouseEvent.ROLL_OVER, okayOver, false, 0, true);
 			okayButton.addEventListener(MouseEvent.ROLL_OUT, okayOut, false, 0, true);
 			game.stage.addEventListener(KeyboardEvent.KEY_DOWN, okay);
+			
+			if(!Boolean(cancelCallback)){
+				// create singular okay button
+				okayTextBox.text = "press menu key";
+				okayButton.y = background.y + background.height - (okayTextBox.height + 2);
+				okayButton.x = -(okayTextBox.width * 0.5) >> 0;
+				
+			} else {
+				// create two buttons
+				cancelButton = new Sprite();
+				cancelTextBox = new TextBox(Menu.LIST_WIDTH, 12, ROLL_OUT_COL);
+				cancelTextBox.align = "center";
+				cancelButton.addChild(cancelTextBox);
+				addChild(cancelButton);
+				cancelButton.addEventListener(MouseEvent.CLICK, cancel, false, 0, true);
+				cancelButton.addEventListener(MouseEvent.ROLL_OVER, cancelOver, false, 0, true);
+				cancelButton.addEventListener(MouseEvent.ROLL_OUT, cancelOut, false, 0, true);
+				game.stage.addEventListener(KeyboardEvent.KEY_DOWN, cancel);
+				
+				okayTextBox.text = "right to accept";
+				cancelTextBox.text = "left to cancel";
+				
+				okayButton.y = background.y + background.height - (okayTextBox.height + 2);
+				okayButton.x = 1;
+				cancelButton.y = background.y + background.height - (cancelTextBox.height + 2);
+				cancelButton.x = -(cancelButton.width + 1);
+			}
+			
+			// launch dialog
 			addEventListener(Event.ENTER_FRAME, onEnterFrame, false, 0, true);
 			game.addChild(this);
 			Key.lockOut = true;
@@ -85,15 +123,35 @@ package com.robotacid.ui {
 		}
 		
 		private function okay(e:Event):void{
+			if(!active) return;
 			if(e is KeyboardEvent){
 				// we've locked out keys so we have to go for the Key class' internals
-				if((e as KeyboardEvent).keyCode != Key.custom[Game.MENU_KEY]) return;
+				if(!Boolean(cancelCallback)){
+					if((e as KeyboardEvent).keyCode != Key.custom[Game.MENU_KEY]) return;
+				} else {
+					if((e as KeyboardEvent).keyCode != Key.custom[Game.RIGHT_KEY]) return;
+				}
 			}
 			if(Boolean(okayCallback)) okayCallback();
 			active = false;
 			Key.lockOut = false;
 			Game.dialog = null;
 			game.stage.removeEventListener(KeyboardEvent.KEY_DOWN, okay);
+			game.state = previousGameState;
+		}
+		
+		private function cancel(e:Event):void{
+			if(!active) return;
+			if(e is KeyboardEvent){
+				// we've locked out keys so we have to go for the Key class' internals
+				if((e as KeyboardEvent).keyCode != Key.custom[Game.LEFT_KEY]) return;
+			}
+			cancelCallback();
+			active = false;
+			Key.lockOut = false;
+			Game.dialog = null;
+			game.stage.removeEventListener(KeyboardEvent.KEY_DOWN, okay);
+			game.stage.removeEventListener(KeyboardEvent.KEY_DOWN, cancel);
 			game.state = previousGameState;
 		}
 		
@@ -105,6 +163,16 @@ package com.robotacid.ui {
 		private function okayOut(e:MouseEvent):void{
 			okayTextBox.backgroundCol = ROLL_OUT_COL;
 			okayTextBox.draw();
+		}
+		
+		private function cancelOver(e:MouseEvent):void{
+			cancelTextBox.backgroundCol = ROLL_OVER_COL;
+			cancelTextBox.draw();
+		}
+		
+		private function cancelOut(e:MouseEvent):void{
+			cancelTextBox.backgroundCol = ROLL_OUT_COL;
+			cancelTextBox.draw();
 		}
 	}
 

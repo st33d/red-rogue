@@ -1,4 +1,4 @@
-Change log: inserted clause into Stone to prevent smite-flight, introduced smite rolls for smite with crit roll guaranteeing smite, fixed errors in auto-equip logic
+Change log: removed exit option - refactored to use down press to exit level with confimation dialog, blessed armour now blocks smite
 
 Bug hunt
 	can crash graph renderer by changing level
@@ -8,10 +8,19 @@ Bug hunt
 	undead respawn causes issue - unreproducable
 
 plateauMc
+	new exit logic
+		refactor exit option to pressing down at exits
+		create plateau surface in physics
+			create plateau spawner (part of portal code?)
+				create node pruning function for spawned plateaus
+			change portal location rules
+				create list of legal floor positions in map
+					use floor list for traps
+					create list of legal floor positions in rooms
 
 need the ability to block effect apply printouts
 
-	
+
 
 Unique items
 	mokesmoe's bug

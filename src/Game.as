@@ -83,7 +83,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 332;
+		public static const BUILD_NUM:int = 333;
 		
 		public static const TEST_BED_INIT:Boolean = false;
 		
@@ -403,7 +403,7 @@
 			// KEYS INIT
 			if(!Key.initialized){
 				Key.init(stage);
-				Key.custom = [Key.W, Key.S, Key.A, Key.D, Keyboard.SPACE, Key.E, Key.F, Key.Z, Key.X, Key.C, Key.NUMBER_1, Key.NUMBER_2, Key.NUMBER_3, Key.NUMBER_4, Key.NUMBER_5];
+				Key.custom = [Key.W, Key.S, Key.A, Key.D, Keyboard.SPACE, Key.F, Key.Z, Key.X, Key.C, Key.NUMBER_1, Key.NUMBER_2, Key.NUMBER_3, Key.NUMBER_4, Key.NUMBER_5, Key.NUMBER_6];
 				Key.hotKeyTotal = 10;
 			}
 			
@@ -1066,7 +1066,14 @@
 				pauseGame();
 			}
 			/*if(Key.isDown(Key.T)){
-				throw new Error("");
+				if(!Game.dialog){
+					Game.dialog = new Dialog(
+						"exit level",
+						"this level may not be the same when you return, are you sure?",
+						function():void{trace("okay");},
+						function():void{trace("cancel");}
+					);
+				}
 			}
 			if(Key.isDown(Key.R)){
 				reset();

@@ -791,6 +791,17 @@
 		
 		/* Enters the SMITED state - caused by being hit by a blessed weapon */
 		public function smite(dir:int, damage:Number):void{
+			// blessed armour resists smiting - also cancelling damage
+			if(armour && armour.curseState == Item.BLESSED){
+				game.soundQueue.addRandom("smite", SMITE_SOUNDS, 10);
+				renderer.createSparks(
+					collider.x + ((dir & RIGHT) ? 0 : collider.width),
+					collider.y + collider.height * 0.5,
+					(dir & RIGHT) ? -2 : 2,
+					0, 10
+				);
+				return;
+			}
 			if(type & STONE){
 				applyDamage(damage * SMITE_DAMAGE_RATIO, "smite", 0, true);
 			} else {
