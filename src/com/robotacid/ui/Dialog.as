@@ -8,6 +8,7 @@ package com.robotacid.ui {
 	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
 	import flash.geom.Rectangle;
+	import flash.ui.Keyboard;
 	/**
 	 * A pop up dialog
 	 * 
@@ -129,7 +130,7 @@ package com.robotacid.ui {
 				if(!Boolean(cancelCallback)){
 					if((e as KeyboardEvent).keyCode != Key.custom[Game.MENU_KEY]) return;
 				} else {
-					if((e as KeyboardEvent).keyCode != Key.custom[Game.RIGHT_KEY]) return;
+					if(!((e as KeyboardEvent).keyCode == Key.custom[Game.RIGHT_KEY] || (e as KeyboardEvent).keyCode == Keyboard.RIGHT)) return;
 				}
 			}
 			if(Boolean(okayCallback)) okayCallback();
@@ -144,7 +145,7 @@ package com.robotacid.ui {
 			if(!active) return;
 			if(e is KeyboardEvent){
 				// we've locked out keys so we have to go for the Key class' internals
-				if((e as KeyboardEvent).keyCode != Key.custom[Game.LEFT_KEY]) return;
+				if(!((e as KeyboardEvent).keyCode == Key.custom[Game.LEFT_KEY] || (e as KeyboardEvent).keyCode == Keyboard.LEFT)) return;
 			}
 			cancelCallback();
 			active = false;
