@@ -313,16 +313,16 @@
 			if(character == game.player || character == game.minion){
 				game.menu.inventoryList.addItem(this, autoEquip > 0);
 				if(print) game.console.print(character.nameToString() + (caught ? " caught " : " picked up ") + nameToString());
+				if(type == WEAPON && (range & THROWN) && autoEquip){
+					if((autoEquip & Character.MINION) && game.minion && !game.minion.throwable) game.minion.equip(this, true);
+					else if((autoEquip & Character.PLAYER) && !game.player.throwable) game.player.equip(this, true);
+				}
 			} else {
 				if(print && caught) game.console.print(character.nameToString() + " caught " + nameToString());
 				character.loot.push(this);
 			}
 			gfx.filters = [];
 			gfx.visible = true;
-			if(type == WEAPON && autoEquip && !character.throwable){
-				if(autoEquip == Character.MINION && character == game.player && game.minion) game.minion.equip(this, true);
-				else character.equip(this, true);
-			}
 		}
 		
 		/* Puts this item on the map */

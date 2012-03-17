@@ -935,7 +935,20 @@
 		
 		/* Performs a random effect that is beneficial to the player */
 		public static function prayer(target:Character):void{
-			
+			// assess situation and respond in kind
+			if(target == game.player || target == game.minion){
+				// if health is low, insta-heal
+				if(target.health <= target.totalHealth * 0.25){
+					target.applyHealth(target.totalHealth);
+				} else {
+					var list:Array = FAVOURABLE_ARMOUR_ENCHANTMENTS.slice();
+					list.push(PORTAL, XP);
+					var effect:Effect = new Effect(list[game.random.rangeInt(list.length)], Game.MAX_LEVEL, EATEN, target);
+				}
+			} else {
+				// obliterate the target
+				target.smite((target.looking & Collider.RIGHT) ? Collider.LEFT : Collider.RIGHT, target.totalHealth);
+			}
 		}
 	}
 	

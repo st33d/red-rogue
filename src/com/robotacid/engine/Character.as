@@ -193,6 +193,7 @@
 		public static const RUNE_REFLECTIONS:int = 5;
 		public static const SMITED_SPEED:Number = 8;
 		public static const SMITE_DAMAGE_RATIO:Number = 1.5;
+		public static const SMITE_PER_LEVEL:Number = 0.05;
 		
 		public static const DEFAULT_COL:ColorTransform = new ColorTransform();
 		public static const INFRAVISION_COLS:Vector.<ColorTransform> = Vector.<ColorTransform>([DEFAULT_COL, new ColorTransform(1, 0, 0, 1, 255), new ColorTransform(1, 0.7, 0.7, 1, 50)]);
@@ -480,12 +481,12 @@
 									// crit multiplier
 									if(hitResult & CRITICAL){
 										hitDamage *= 2;
-										// smite?
-										if(weapon && weapon.curseState == Item.BLESSED){
-											target.smite(looking, hitDamage * 0.5);
-											// half of hitDamage is transferred to the smite state
-											hitDamage *= 0.5;
-										}
+									}
+									// blessed weapon? roll for smite
+									if(weapon && weapon.curseState == Item.BLESSED && ((hitResult & CRITICAL) || game.random.value() < SMITE_PER_LEVEL * weapon.level)){
+										target.smite(looking, hitDamage * 0.5);
+										// half of hitDamage is transferred to the smite state
+										hitDamage *= 0.5;
 									}
 									// leech
 									if((leech || (weapon && weapon.leech)) && !(target.armour && target.armour.name == Item.BLOOD) && !(target.type & STONE)){
@@ -790,17 +791,21 @@
 		
 		/* Enters the SMITED state - caused by being hit by a blessed weapon */
 		public function smite(dir:int, damage:Number):void{
-			state = SMITED;
-			collider.state = Collider.HOVER;
-			collider.divorce();
-			this.dir = dir;
-			smiteDamage = damage * SMITE_DAMAGE_RATIO;
+			if(type & STONE){
+				applyDamage(damage * SMITE_DAMAGE_RATIO, "smite", 0, true);
+			} else {
+				state = SMITED;
+				collider.state = Collider.HOVER;
+				collider.divorce();
+				this.dir = dir;
+				smiteDamage = damage * SMITE_DAMAGE_RATIO;
+			}
 			if(dir & RIGHT){
 				looking = LEFT;
-				renderer.addFX(collider.x + collider.width * 0.5, collider.y + collider.height * 0.5, renderer.smiteRightBlit);
+				renderer.addFX(collider.x, collider.y + collider.height * 0.5, renderer.smiteRightBlit, new Point(1, 0));
 			} else if(dir & LEFT){
 				looking = RIGHT;
-				renderer.addFX(collider.x + collider.width * 0.5, collider.y + collider.height * 0.5, renderer.smiteLeftBlit);
+				renderer.addFX(collider.x + collider.width, collider.y + collider.height * 0.5, renderer.smiteLeftBlit, new Point(-1, 0));
 			}
 			game.soundQueue.addRandom("smite", SMITE_SOUNDS, 20);
 		}

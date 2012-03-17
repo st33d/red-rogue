@@ -1,23 +1,16 @@
-Change log: reduced the number of enchantments from identify, added rakshasa chaos attack, refactored rune spawning for complete fixed list, enchantments on items listed as ? till identified, added holy rune, added chaos rune, added smite mechanic, added blessed weapons, critical hits now guarantee racial special attacks are applied
+Change log: inserted clause into Stone to prevent smite-flight, introduced smite rolls for smite with crit roll guaranteeing smite, fixed errors in auto-equip logic
 
 Bug hunt
 	can crash graph renderer by changing level
 	collection lock out on chests after playing for a while - bugged chest or item?
 	minion summon after death? - unreproducable
 	combo bug: minion, indifference, level 21, identify monster twice, minion portal - unreproducable
-	
-	minion auto equip not working
-	equip gets broken
-	undead respawn causes issue
+	undead respawn causes issue - unreproducable
 
 plateauMc
 
 need the ability to block effect apply printouts
 
-Holy rune
-	create prayer effect
-		create easter egg effects
-			create room for future easter egg effects like unique weapons
 	
 
 Unique items

@@ -268,12 +268,12 @@
 				// crit multiplier
 				if(hitResult & Character.CRITICAL){
 					hitDamage *= 2;
-					// smite?
-					if(item.curseState == Item.BLESSED){
-						character.smite(dx > 0 ? Collider.RIGHT : Collider.LEFT, hitDamage * 0.5);
-						// half of hitDamage is transferred to the smite state
-						hitDamage *= 0.5;
-					}
+				}
+				// blessed weapon? roll for smite
+				if(item.curseState == Item.BLESSED && ((hitResult & Character.CRITICAL) || game.random.value() < Character.SMITE_PER_LEVEL * item.level)){
+					character.smite(dx > 0 ? Collider.RIGHT : Collider.LEFT, hitDamage * 0.5);
+					// half of hitDamage is transferred to the smite state
+					hitDamage *= 0.5;
 				}
 				// leech
 				if((sender.leech || (item.leech)) && !(character.armour && character.armour.name == Item.BLOOD) && !(character.type & Character.STONE)){
