@@ -311,7 +311,7 @@
 			game.playerActionBar.setValue(attackCount, 1);
 			
 			// exiting requires a clean key press
-			exitKeyPressReady = Key.keysPressed == 0;
+			exitKeyPressReady = Key.keysPressed == 0 || (game.dogmaticMode && !(dir & DOWN));
 			
 		}
 		
