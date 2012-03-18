@@ -380,14 +380,16 @@
 									Game.game.pauseGame();
 								}
 							} else {
-								// the step back and forth shakes out select events and updates the labels
-								while(selectionStep--){
-									// the step left may back up into a menu list with no options,
-									// in which case, just drop out to the trunk
-									if(previousMenuList.options.length == 0){
+								// inspect the branch list for empty menu lists that will crash the walk back
+								// upon finding one we drop out to the root menu
+								for(var i:int = branch.length - 1; i > -1; i--){
+									if(branch[i].options.length == 0){
 										setTrunk(branch[0]);
 										return;
 									}
+								}
+								// the step back and forth shakes out select events and updates the labels
+								while(selectionStep--){
 									stepLeft();
 								}
 								stepRight();

@@ -1,4 +1,4 @@
-Change log: removed exit option - refactored to use down press to exit level with confimation dialog, blessed armour now blocks smite
+Change log: fixed Menu selectionStep walk-back bug, refactored enchantment menu, set up selection steps on all inventory options to stay local after selection
 
 Bug hunt
 	can crash graph renderer by changing level
@@ -35,8 +35,6 @@ create Editor in debug menu
 		items
 
 hide a plus one mace in a secret room above the grindstone
-
-create enchant option item menu
 
 AI problems:
 

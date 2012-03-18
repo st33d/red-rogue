@@ -310,6 +310,8 @@
 		
 		override public function changeSelection():void{
 			
+			var i:int, runeName:int;
+			
 			var option:MenuOption = currentMenuList.options[selection];
 			
 			if(parent && option.help){
@@ -434,10 +436,16 @@
 				upDownOption.state = game.console.targetScrollDir == 1 ? 0 : 1;
 				renderMenu();
 				
-			} else if(option == inventoryList.enchantOption){
-				var runeName:int = inventoryList.runesList.options[inventoryList.runesList.selection].userData.name;
-				for(var i:int = 0; i < inventoryList.equipmentList.options.length; i++){
-					inventoryList.equipmentList.options[i].active = inventoryList.equipmentList.options[i].userData.enchantable(runeName);
+			} else if(option == inventoryList.enchantableWeaponsOption){
+				runeName = inventoryList.runesList.options[inventoryList.runesList.selection].userData.name;
+				for(i = 0; i < inventoryList.enchantableWeaponsList.options.length; i++){
+					inventoryList.enchantableWeaponsList.options[i].active = inventoryList.enchantableWeaponsList.options[i].userData.enchantable(runeName);
+				}
+				
+			} else if(option == inventoryList.enchantableArmourOption){
+				runeName = inventoryList.runesList.options[inventoryList.runesList.selection].userData.name;
+				for(i = 0; i < inventoryList.enchantableArmourList.options.length; i++){
+					inventoryList.enchantableArmourList.options[i].active = inventoryList.enchantableArmourList.options[i].userData.enchantable(runeName);
 				}
 				
 			} else if(option == giveItemOption){
@@ -624,7 +632,7 @@
 				game.player.shoot(Missile.RUNE, new Effect(item.name, 20, Effect.THROWN), item);
 			
 			// enchanting items
-			} else if(previousMenuList.options[previousMenuList.selection] == inventoryList.enchantOption){
+			} else if(currentMenuList == inventoryList.enchantableWeaponsList || currentMenuList == inventoryList.enchantableArmourList){
 				item = option.userData;
 				var rune:Item = inventoryList.runesList.options[inventoryList.runesList.selection].userData;
 				effect = new Effect(rune.name, 1);

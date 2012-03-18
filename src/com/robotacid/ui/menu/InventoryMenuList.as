@@ -18,13 +18,16 @@
 		public var armourList:MenuList;
 		public var runesList:MenuList;
 		public var heartsList:MenuList;
-		public var equipmentList:MenuList;
 		
 		public var weaponActionList:MenuList;
 		public var armourActionList:MenuList;
 		public var runeActionList:MenuList;
 		public var heartActionList:MenuList;
 		public var enchantmentList:EnchantmentList;
+		
+		public var enchantableList:MenuList;
+		public var enchantableWeaponsList:MenuList;
+		public var enchantableArmourList:MenuList;
 		
 		public var weaponsOption:MenuOption;
 		public var armourOption:MenuOption;
@@ -44,9 +47,11 @@
 		public var enchantOption:MenuOption
 		public var throwRuneOption:MenuOption;
 		public var enchantmentsOption:MenuOption;
+		public var enchantableWeaponsOption:MenuOption;
+		public var enchantableArmourOption:MenuOption;
 		
 		public var itemToOption:Dictionary;
-		public var equipmentToOption:Dictionary;
+		public var enchantableToOption:Dictionary;
 		
 		public static const EQUIP:int = 0;
 		public static const UNEQUIP:int = 1;
@@ -63,13 +68,15 @@
 			runesList = new MenuList();
 			heartsList = new MenuList();
 			
-			equipmentList = new MenuList();
-			
 			weaponActionList = new MenuList();
 			armourActionList = new MenuList();
 			runeActionList = new MenuList();
 			heartActionList = new MenuList();
 			enchantmentList = new EnchantmentList();
+			
+			enchantableList = new MenuList();
+			enchantableWeaponsList = new MenuList();
+			enchantableArmourList = new MenuList();
 			
 			// MENU OPTIONS
 			
@@ -85,7 +92,11 @@
 			sortOption.selectionStep = 1;
 			sortOption.help = "sorts weapons and armour according to the highest stats. does not consider special abilities or enchantments.";
 			
-			enchantOption = new MenuOption("enchant", equipmentList, false);
+			enchantOption = new MenuOption("enchant", enchantableList, false);
+			enchantableWeaponsOption = new MenuOption("weapons", enchantableWeaponsList, false);
+			enchantableWeaponsOption.help = "The list of weapons you can enchant.";
+			enchantableArmourOption = new MenuOption("armour", enchantableArmourList, false);
+			enchantableArmourOption.help = "The list of armour you can enchant.";
 			
 			equipMainOption = new ToggleMenuOption(["equip main", "unequip main"]);
 			equipMainOption.selectionStep = 2;
@@ -100,9 +111,13 @@
 			equipMinionOption = new ToggleMenuOption(["equip minion", "unequip minion"]);
 			equipMinionOption.selectionStep = 2;
 			dropOption = new MenuOption("drop");
+			dropOption.selectionStep = 2;
 			eatOption = new MenuOption("eat");
+			eatOption.selectionStep = 2;
 			feedMinionOption = new MenuOption("feed minion");
+			feedMinionOption.selectionStep = 2;
 			throwRuneOption = new MenuOption("throw");
+			throwRuneOption.selectionStep = 2;
 			enchantmentsOption = new MenuOption("enchantments", enchantmentList);
 			
 			enchantmentList.pointers = new Vector.<MenuOption>();
@@ -138,8 +153,11 @@
 			heartActionList.options.push(feedMinionOption);
 			heartActionList.options.push(dropOption);
 			
+			enchantableList.options.push(enchantableWeaponsOption);
+			enchantableList.options.push(enchantableArmourOption);
+			
 			itemToOption = new Dictionary(true);
-			equipmentToOption = new Dictionary(true);
+			enchantableToOption = new Dictionary(true);
 		}
 		
 		/* Called when a new game starts */
@@ -160,16 +178,20 @@
 			heartsList.selection = 0;
 			heartsOption.active = false;
 			heartsOption.visited = true;
-			equipmentList.options.length = 0;
-			equipmentList.selection = 0;
+			enchantableList.options.length = 0;
+			enchantableList.selection = 0;
+			enchantableWeaponsList.options.length = 0;
+			enchantableWeaponsList.selection = 0;
+			enchantableArmourList.options.length = 0;
+			enchantableArmourList.selection = 0;
 			itemToOption = new Dictionary(true);
-			equipmentToOption = new Dictionary(true);
+			enchantableToOption = new Dictionary(true);
 			enchantOption.active = false;
 		}
 		
 		/* Adds a new menu item and selects that item on the MenuList */
 		public function addItem(item:Item, visited:Boolean = false):Item{
-			var equipmentOption:MenuOptionStack, itemOption:MenuOptionStack, usageOptions:MenuList, i:int, context:String;
+			var enchantableOption:MenuOptionStack, itemOption:MenuOptionStack, usageOptions:MenuList, i:int, context:String;
 			
 			var targetList:MenuList;
 			var targetOption:MenuOption;
@@ -238,14 +260,22 @@
 			
 			// equipment needs to be targetable by runes and so gets added to the equipment list
 			if(item.type == Item.ARMOUR || item.type == Item.WEAPON){
-				equipmentOption = new MenuOptionStack(item.toString());
-				equipmentOption.userData = item;
-				equipmentOption.help = item.getHelpText() + "\npress right to enchant this item";
-				equipmentList.options.push(equipmentOption);
-				equipmentList.selection = equipmentList.options.length - 1;
-				equipmentToOption[item] = equipmentOption;
+				enchantableOption = new MenuOptionStack(item.toString());
+				enchantableOption.selectionStep = 4;
+				enchantableOption.userData = item;
+				enchantableOption.help = item.getHelpText() + "\npress right to enchant this item";
+				enchantableToOption[item] = enchantableOption;
 				// make sure the enchant option is active
 				enchantOption.active = true;
+				if(item.type == Item.WEAPON){
+					enchantableWeaponsList.options.push(enchantableOption);
+					enchantableWeaponsList.selection = enchantableWeaponsList.options.length - 1;
+					enchantableWeaponsOption.active = true;
+				} else if(item.type == Item.ARMOUR){
+					enchantableArmourList.options.push(enchantableOption);
+					enchantableArmourList.selection = enchantableArmourList.options.length - 1;
+					enchantableArmourOption.active = true;
+				}
 			}
 			
 			menu.update();
@@ -285,21 +315,33 @@
 			option.active = false;
 			itemToOption[item] = null;
 			
-			if(item.type == Item.ARMOUR || item.type == Item.WEAPON){
-				var equipmentIndex:int = equipmentList.options.indexOf(equipmentToOption[item]);
-				if(equipmentIndex == equipmentList.options.length - 1) equipmentList.selection = 0;
-				equipmentList.options.splice(equipmentIndex, 1);
+			var enchantableTypeList:MenuList;
+			var enchantableTypeOption:MenuOption;
+			
+			if(item.type == Item.WEAPON){
+				enchantableTypeList = enchantableWeaponsList;
+				enchantableTypeOption = enchantableWeaponsOption;
+			} else if(item.type == Item.ARMOUR){
+				enchantableTypeList = enchantableArmourList;
+				enchantableTypeOption = enchantableArmourOption;
+			}
+			
+			if(enchantableTypeList){
+				var equipmentIndex:int = enchantableTypeList.options.indexOf(enchantableToOption[item]);
+				if(equipmentIndex == enchantableTypeList.options.length - 1) enchantableTypeList.selection = 0;
+				enchantableTypeList.options.splice(equipmentIndex, 1);
 				// a reference to this item may still exist in a hot key map - we need to neutralise it
-				equipmentToOption[item].active = false;
-				equipmentToOption[item] = null;
+				enchantableToOption[item].active = false;
+				enchantableToOption[item] = null;
 				// if there is no equipment, there is nothing to enchant
-				if(equipmentList.options.length == 0){
-					enchantOption.active = false;
+				if(enchantableTypeList.options.length == 0){
+					enchantableTypeOption.active = false;
 				// don't let the equipment option point to a blank space
-				} else if(equipmentList.selection >= equipmentList.options.length){
-					equipmentList.selection = equipmentList.options.length - 1;
+				} else if(enchantableTypeList.selection >= enchantableTypeList.options.length){
+					enchantableTypeList.selection = enchantableTypeList.options.length - 1;
 				}
 			}
+			
 			// block empty lists
 			if(targetList.options.length == 0){
 				targetOption.active = false;
@@ -323,8 +365,8 @@
 			itemToOption[item].name = item.toString();
 			itemToOption[item].help = item.getHelpText();
 			if(item.type == Item.ARMOUR || item.type == Item.WEAPON){
-				equipmentToOption[item].name = item.nameToString();
-				equipmentToOption[item].help = item.getHelpText() + "\nstep right to enchant this item";
+				enchantableToOption[item].name = item.nameToString();
+				enchantableToOption[item].help = item.getHelpText() + "\nstep right to enchant this item";
 			}
 			menu.update();
 		}
@@ -342,8 +384,12 @@
 		public function sortEquipment():void{
 			weaponsList.selection = 0;
 			armourList.selection = 0;
+			enchantableWeaponsList.selection = 0;
+			enchantableArmourList.selection = 0;
 			weaponsList.options.sort(weaponSortCallback);
 			armourList.options.sort(armourSortCallback);
+			enchantableWeaponsList.options.sort(weaponSortCallback);
+			enchantableArmourList.options.sort(armourSortCallback);
 			//var i:int;
 			//trace("");
 			//for(i = 0; i < weaponsList.options.length; i++){
