@@ -36,7 +36,7 @@ package com.robotacid.ui.menu {
 		public var enchantOption:MenuOption;
 		public var createOption:MenuOption;
 		
-		public var cursedList:MenuList;
+		public var holyStateList:MenuList;
 		
 		public function GiveItemMenuList(menu:Menu, game:Game) {
 			super();
@@ -56,7 +56,7 @@ package com.robotacid.ui.menu {
 			enchantmentLevelList = new MenuList();
 			finaliseItemList = new MenuList();
 			createList = new MenuList();
-			cursedList = new MenuList();
+			holyStateList = new MenuList();
 			
 			weaponOption = new MenuOption("weapon", nameLists[Item.WEAPON]);
 			armourOption = new MenuOption("armour", nameLists[Item.ARMOUR]);
@@ -93,13 +93,15 @@ package com.robotacid.ui.menu {
 			
 			finaliseItemList.options.push(createOption);
 			finaliseItemList.options.push(enchantOption);
-			finaliseItemList.options.push(new MenuOption("cursed", cursedList));
+			finaliseItemList.options.push(new MenuOption("holy state", holyStateList));
 			
 			createList.options.push(createOption);
 			
-			cursedList.options = Vector.<MenuOption>([
-				new MenuOption("no", null, false),
-				new MenuOption("yes", null, false),
+			holyStateList.options = Vector.<MenuOption>([
+				new MenuOption("none", null, false),
+				new MenuOption("hidden curse", null, false),
+				new MenuOption("cursed", null, false),
+				new MenuOption("blessed", null, false)
 			]);
 		}
 		
@@ -152,7 +154,7 @@ package com.robotacid.ui.menu {
 		
 		public function createItem():void{
 			if(int(itemXML.@type) == Item.ARMOUR || int(itemXML.@type) == Item.WEAPON){
-				itemXML.@curseState = cursedList.selection;
+				itemXML.@holyState = holyStateList.selection;
 			}
 			var item:Item = Content.convertXMLToEntity(0, 0, itemXML);
 			item.collect(game.player);

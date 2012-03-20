@@ -53,7 +53,7 @@ package com.robotacid.engine {
 				delay = 12;
 				speed = 3;
 				state = PATROL;
-				dir = game.random.value() < 0.5 ? LEFT : RIGHT;
+				dir = game.random.coinFlip() ? LEFT : RIGHT;
 				createCollider(x, y, Collider.HEAD | Collider.SOLID, Collider.HEAD, Collider.FALL);
 				collider.stackCallback = hitFloor;
 				debrisType = Renderer.BLOOD;
@@ -62,7 +62,7 @@ package com.robotacid.engine {
 				delay = 15;
 				speed = 1;
 				state = PATROL;
-				dir = game.random.value() < 0.5 ? UP : DOWN;
+				dir = game.random.coinFlip() ? UP : DOWN;
 				// spiders should always be placed on the ceiling
 				topOfThreadY = y - SCALE * 0.5;
 				createCollider(x, y, Collider.HEAD | Collider.SOLID, Collider.HEAD, Collider.HOVER);
@@ -74,7 +74,7 @@ package com.robotacid.engine {
 				speed = 1;
 				state = PATROL;
 				patrolAreaSet = true;
-				dir = game.random.value() < 0.5 ? LEFT : RIGHT;
+				dir = game.random.coinFlip() ? LEFT : RIGHT;
 				createCollider(x, y, Collider.HEAD | Collider.SOLID, Collider.HEAD, Collider.FALL, false);
 				(gfx as MovieClip).gotoAndPlay("fly");
 				debrisType = Renderer.BLOOD;
@@ -95,11 +95,11 @@ package com.robotacid.engine {
 				if(surface & (UP | DOWN)){
 					if(surface == DOWN) y -= Game.SCALE * 0.5 - 2;
 					else if(surface == UP) y += Game.SCALE * 0.5 - 2;
-					dir = game.random.value() < 0.5 ? LEFT : RIGHT;
+					dir = game.random.coinFlip() ? LEFT : RIGHT;
 				} else if(surface & (LEFT | RIGHT)){
 					if(surface == RIGHT) x -= Game.SCALE * 0.5 - 2;
 					else if(surface == LEFT) x += Game.SCALE * 0.5 - 2;
-					dir = game.random.value() < 0.5 ? UP : DOWN;
+					dir = game.random.coinFlip() ? UP : DOWN;
 				}
 				// a cogs collider exists at its hub
 				// so we have to create the collider manually
@@ -160,7 +160,7 @@ package com.robotacid.engine {
 					if(name == BAT){
 						(gfx as MovieClip).gotoAndPlay("fly");
 						collider.state = Collider.FALL;
-						dir = game.random.value() < 0.5 ? LEFT : RIGHT;
+						dir = game.random.coinFlip() ? LEFT : RIGHT;
 					}
 				}
 				

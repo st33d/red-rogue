@@ -178,12 +178,14 @@
 			heartsList.selection = 0;
 			heartsOption.active = false;
 			heartsOption.visited = true;
-			enchantableList.options.length = 0;
 			enchantableList.selection = 0;
+			enchantableWeaponsOption.active = false;
+			enchantableArmourOption.active = false;
 			enchantableWeaponsList.options.length = 0;
 			enchantableWeaponsList.selection = 0;
 			enchantableArmourList.options.length = 0;
 			enchantableArmourList.selection = 0;
+			enchantOption.active = false;
 			itemToOption = new Dictionary(true);
 			enchantableToOption = new Dictionary(true);
 			enchantOption.active = false;
@@ -336,6 +338,7 @@
 				// if there is no equipment, there is nothing to enchant
 				if(enchantableTypeList.options.length == 0){
 					enchantableTypeOption.active = false;
+					if(enchantableWeaponsList.options.length == 0 && enchantableArmourList.options.length == 0) enchantOption.active = false;
 				// don't let the equipment option point to a blank space
 				} else if(enchantableTypeList.selection >= enchantableTypeList.options.length){
 					enchantableTypeList.selection = enchantableTypeList.options.length - 1;
@@ -377,6 +380,25 @@
 			for(i = 0; i < runesList.options.length; i++){
 				rune = runesList.options[i].userData as Item;
 				Item.revealName(rune.name, runesList);
+			}
+		}
+		
+		/* Iterates through the equipment in the inventory and reveals any curses */
+		public function revealCurses():void{
+			var i:int, item:Item;
+			for(i = 0; i < weaponsList.options.length; i++){
+				item = weaponsList.options[i].userData as Item;
+				if(item.holyState == Item.CURSE_HIDDEN){
+					item.revealCurse(true);
+					updateItem(item);
+				}
+			}
+			for(i = 0; i < armourList.options.length; i++){
+				item = armourList.options[i].userData as Item;
+				if(item.holyState == Item.CURSE_HIDDEN){
+					item.revealCurse(true);
+					updateItem(item);
+				}
 			}
 		}
 		

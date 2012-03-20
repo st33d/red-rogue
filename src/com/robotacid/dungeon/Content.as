@@ -50,6 +50,9 @@
 		public static const TOTAL_LEVELS:int = 20;
 		public static const TOTAL_AREAS:int = 2;
 		
+		public static const CURSED_CHANCE:Number = 0.05;
+		public static const BLESSED_CHANCE:Number = 0.95;
+		
 		public function Content() {
 			var obj:Object;
 			var level:int;
@@ -179,7 +182,7 @@
 				if(chestQuantity > equipment.length + runes.length) chestQuantity = equipment.length + runes.length;
 				var chest:XML = <chest />;
 				while(chestQuantity){
-					if(Map.random.value() < 0.5){
+					if(Map.random.coinFlip()){
 						if(runes.length){
 							chest.appendChild(runes.shift());
 							chestQuantity--;
@@ -603,7 +606,16 @@
 			if(nameRange > dungeonLevel) nameRange = dungeonLevel;
 			name = Map.random.range(nameRange);
 			
-			var itemXML:XML = <item name={name} type={type} level={level} />;
+			var itemXML:XML =<item name={name} type={type} level={level} />;
+			
+			// naturally occurring cursed and blessed items appear level 6+, at the point you can do something about them
+			if((type == Item.ARMOUR || type == Item.WEAPON) && dungeonLevel >= 6){
+				var holyState:int = 0;
+				var roll:Number = Map.random.value();
+				if(roll < CURSED_CHANCE) holyState = Item.CURSE_HIDDEN;
+				else if(roll > BLESSED_CHANCE) holyState = Item.BLESSED;
+				itemXML.@holyState = holyState;
+			}
 
 			if(enchantments > 0){
 				var runeList:Vector.<int> = new Vector.<int>();
@@ -693,8 +705,8 @@
 					obj = effect.enchant(obj);
 				}
 				
-				// is this item cursed?
-				obj.curseState = int(xml.@curseState);
+				// is this item cursed or blessed?
+				obj.holyState = int(xml.@holyState);
 				
 				// does it have a name?
 				if(xml.@uniqueNameStr && xml.@uniqueNameStr != "null") obj.uniqueNameStr = xml.@uniqueNameStr;

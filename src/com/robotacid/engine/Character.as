@@ -483,7 +483,7 @@
 										hitDamage *= 2;
 									}
 									// blessed weapon? roll for smite
-									if(weapon && weapon.curseState == Item.BLESSED && ((hitResult & CRITICAL) || game.random.value() < SMITE_PER_LEVEL * weapon.level)){
+									if(weapon && weapon.holyState == Item.BLESSED && ((hitResult & CRITICAL) || game.random.value() < SMITE_PER_LEVEL * weapon.level)){
 										target.smite(looking, hitDamage * 0.5);
 										// half of hitDamage is transferred to the smite state
 										hitDamage *= 0.5;
@@ -792,7 +792,7 @@
 		/* Enters the SMITED state - caused by being hit by a blessed weapon */
 		public function smite(dir:int, damage:Number):void{
 			// blessed armour resists smiting - also cancelling damage
-			if(armour && armour.curseState == Item.BLESSED){
+			if(armour && armour.holyState == Item.BLESSED){
 				game.soundQueue.addRandom("smite", SMITE_SOUNDS, 10);
 				renderer.createSparks(
 					collider.x + ((dir & RIGHT) ? 0 : collider.width),

@@ -366,8 +366,8 @@
 			else if(dirs == (DOWN | RIGHT | LEFT)) return PIPE_T_LEFT_DOWN_RIGHT;
 			else if(dirs == (UP | RIGHT | DOWN)) return PIPE_T_UP_RIGHT_DOWN;
 			else if(dirs == (DOWN | UP | LEFT)) return PIPE_T_LEFT_UP_DOWN;
-			else if(dirs == (DOWN | UP)) return Game.game.random.value() < 0.5 ? PIPE_VERT1 : PIPE_VERT2;
-			else if(dirs == (LEFT | RIGHT)) return Game.game.random.value() < 0.5 ? PIPE_HORIZ1 : PIPE_HORIZ2;
+			else if(dirs == (DOWN | UP)) return Game.game.random.coinFlip() ? PIPE_VERT1 : PIPE_VERT2;
+			else if(dirs == (LEFT | RIGHT)) return Game.game.random.coinFlip() ? PIPE_HORIZ1 : PIPE_HORIZ2;
 			else if(dirs == (DOWN | UP | LEFT | RIGHT)) return PIPE_CROSS;
 			return 0;
 		}

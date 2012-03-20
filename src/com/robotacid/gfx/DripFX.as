@@ -106,7 +106,7 @@ package com.robotacid.gfx {
 					if(cast && cast.collider){
 						y = cast.collider.y - 1;
 						surface = true;
-						slideDir = game.random.value() < 0.5 ? -1 : 1;
+						slideDir = game.random.coinFlip() ? -1 : 1;
 					}
 				}
 			}

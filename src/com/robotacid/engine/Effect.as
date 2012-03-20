@@ -300,8 +300,8 @@
 				// rolling a cursed indifference could brick the game for someone
 				if(
 					item.type == Item.ARMOUR && item.name == Item.INDIFFERENCE &&
-					(item.curseState == Item.CURSE_REVEALED || item.curseState == Item.CURSE_HIDDEN)
-				) item.curseState = Item.NO_CURSE;
+					(item.holyState == Item.CURSE_REVEALED || item.holyState == Item.CURSE_HIDDEN)
+				) item.holyState = Item.NO_CURSE;
 				item.setStats();
 				
 				// now we try putting it back in
@@ -316,7 +316,7 @@
 				
 			} else if(name == LEECH){
 				// leech levels up leeches and curses other items
-				if(item.curseState != Item.BLESSED) item.applyCurse();
+				if(item.holyState != Item.BLESSED) item.applyCurse();
 				if(
 					(item.type == Item.WEAPON && item.name == Item.LEECH_WEAPON) ||
 					(item.type == Item.ARMOUR && item.name == Item.BLOOD)
@@ -346,7 +346,7 @@
 					item.type = Item.ARMOUR;
 					item.name = Item.BLOOD;
 					item.gfx = game.library.getItemGfx(Item.BLOOD, Item.ARMOUR);
-					if(item.curseState == Item.CURSE_REVEALED || item.curseState == Item.CURSE_HIDDEN) item.curseState = Item.NO_CURSE;
+					if(item.holyState == Item.CURSE_REVEALED || item.holyState == Item.CURSE_HIDDEN) item.holyState = Item.NO_CURSE;
 					item.setStats();
 					// now we try putting it back in
 					if(inventoryList) inventoryList.addItem(item);
@@ -356,7 +356,7 @@
 				} else {
 					// strip all enchantments
 					item.effects = null;
-					item.curseState = Item.NO_CURSE;
+					item.holyState = Item.NO_CURSE;
 					item.uniqueNameStr = null;
 					item.setStats();
 					if(inventoryList) inventoryList.updateItem(item);
@@ -380,14 +380,14 @@
 				
 			} else if(name == HOLY){
 				favourableEnchant(item, game.deepestLevelReached);
-				if(item.curseState != Item.BLESSED){
+				if(item.holyState != Item.BLESSED){
 					// leech weapons become plated
 					if(item.type == Item.WEAPON && item.name == Item.LEECH_WEAPON){
 						item.uniqueNameStr = "plated leech";
 						item.gfx = game.library.getItemGfx(newName, item.type);
 					}
 					game.console.print((item.uniqueNameStr ? item.uniqueNameStr : item.nameStr) + " has been blessed by the gods");
-					item.curseState = Item.BLESSED;
+					item.holyState = Item.BLESSED;
 				}
 				if(inventoryList) inventoryList.updateItem(item);
 				return item;
@@ -422,9 +422,6 @@
 				// wizard hats double their first enchantment
 				if(item.type == Item.ARMOUR && item.name == Item.WIZARD_HAT) level++;
 				item.effects.push(this);
-				
-				// upon enchanting this item for the first time, there is a chance it may become cursed
-				if(game.random.value() < Item.CURSE_CHANCE) item.applyCurse();
 			}
 			
 			// non-applicable enchantments merely alter a stat on an item, they don't transmit effect objects to the target
@@ -606,7 +603,7 @@
 				if(source == EATEN || source == THROWN){
 					var item:Item = new Item(new ItemMovieClip(Item.LEECH_WEAPON, Item.WEAPON), Item.LEECH_WEAPON, Item.WEAPON, target.level);
 					item.applyCurse();
-					item.curseState = Item.CURSE_REVEALED;
+					item.holyState = Item.CURSE_REVEALED;
 					item.collect(target, false);
 					if(target.weapon) target.unequip(target.weapon);
 					target.equip(item);
@@ -670,6 +667,7 @@
 			} else if(name == IDENTIFY){
 				if(target is Player){
 					game.menu.inventoryList.identifyRunes();
+					game.menu.inventoryList.revealCurses();
 					game.miniMap.reveal();
 					
 				} else if(target is Minion){
@@ -899,9 +897,9 @@
 				}
 			}
 			// apply/remove curse?
-			if(item.curseState != Item.BLESSED && game.random.value() < 0.2){
-				if(item.curseState == Item.CURSE_HIDDEN || item.curseState == Item.CURSE_REVEALED) item.curseState = Item.NO_CURSE;
-				else item.curseState = Item.CURSE_HIDDEN;
+			if(item.holyState != Item.BLESSED && game.random.value() < 0.2){
+				if(item.holyState == Item.CURSE_HIDDEN || item.holyState == Item.CURSE_REVEALED) item.holyState = Item.NO_CURSE;
+				else item.holyState = Item.CURSE_HIDDEN;
 			}
 			return item;
 		}

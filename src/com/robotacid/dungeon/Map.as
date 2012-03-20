@@ -899,8 +899,8 @@
 					// move agent
 					if(turnDelay-- <= 0){
 						turnDelay = random.range(4) + 2;
-						if(dir & (Collider.LEFT | Collider.RIGHT)) newDir = random.value() < 0.5 ? Collider.UP : Collider.DOWN;
-						else if(dir & (Collider.UP | Collider.DOWN)) newDir = random.value() < 0.5 ? Collider.RIGHT : Collider.LEFT;
+						if(dir & (Collider.LEFT | Collider.RIGHT)) newDir = random.coinFlip() ? Collider.UP : Collider.DOWN;
+						else if(dir & (Collider.UP | Collider.DOWN)) newDir = random.coinFlip() ? Collider.RIGHT : Collider.LEFT;
 						// bend current pipe tile
 						pipeMap[y][x] &= ~dir;
 						pipeMap[y][x] |= newDir;

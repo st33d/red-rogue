@@ -33,7 +33,7 @@
 		// states
 		public var location:int;
 		public var stacked:Boolean;
-		public var curseState:int;
+		public var holyState:int;
 		public var twinkleCount:int;
 		public var range:int;
 		public var position:int;
@@ -156,13 +156,12 @@
 		public static const XP:int = 18;
 		public static const CHAOS:int = 19;
 		
-		// curse states
+		// holy states
 		public static const NO_CURSE:int = 0;
 		public static const CURSE_HIDDEN:int = 1;
 		public static const CURSE_REVEALED:int = 2;
 		public static const BLESSED:int = 3;
 		
-		public static const CURSE_CHANCE:Number = 0.05;
 		public static const MAX_LEVEL:int = 20;
 		public static const DROP_GLOW_FILTER:GlowFilter = new GlowFilter(0xFFFFFF, 0.5, 2, 2, 1000);
 		public static const INDIFFERENCE_ALPHA:Number = 0.5;
@@ -180,7 +179,7 @@
 			this.level = level;
 			active = false;
 			setStats();
-			curseState = NO_CURSE;
+			holyState = NO_CURSE;
 			location = UNASSIGNED;
 			stacked = false;
 			callMain = true;
@@ -378,11 +377,11 @@
 		
 		/* Turns this item into a cursed item - it cannot be unequipped by the player other than through Effects */
 		public function applyCurse():void{
-			if(curseState == CURSE_REVEALED || curseState == BLESSED) return;
+			if(holyState == CURSE_REVEALED || holyState == BLESSED) return;
 			// no cursed indifference - that would be silly
 			if(type == ARMOUR && name == INDIFFERENCE) return;
 			
-			curseState = CURSE_HIDDEN;
+			holyState = CURSE_HIDDEN;
 			
 			if(location == EQUIPPED){
 				revealCurse();
@@ -390,15 +389,14 @@
 		}
 		
 		/* Reveals that this item is cursed in the menu */
-		public function revealCurse():void{
-			if(user && (user == game.player || user == game.minion)){
-				var str:String = nameToString();
-				if(str.indexOf(":") != -1) str = str.substr(str.indexOf(":") + 2);
+		public function revealCurse(identify:Boolean = false):void{
+			if(identify || (user && (user == game.player || user == game.minion))){
+				var str:String = uniqueNameStr ? uniqueNameStr : nameStr;
 				game.console.print("the " + str + " is cursed!");
-				if(user.undead) game.console.print("but the dead are unaffected...");
+				if(!identify && user.undead) game.console.print("but the dead are unaffected...");
 			}
 			autoEquip = 0;
-			curseState = CURSE_REVEALED;
+			holyState = CURSE_REVEALED;
 		}
 		
 		/* Adds special abilities to a Character when equipped */
@@ -483,8 +481,8 @@
 			//if(stack > 0) str += stack + "x ";
 			//if(level > 0) str += "+" + level + " ";
 			
-			if(curseState == CURSE_REVEALED) str += "- ";
-			else if(curseState == BLESSED) str += "* ";
+			if(holyState == CURSE_REVEALED) str += "- ";
+			else if(holyState == BLESSED) str += "* ";
 			else if(effects) str += "+ ";
 			
 			if(uniqueNameStr) return str + uniqueNameStr;
@@ -542,8 +540,8 @@
 					str += "this armour is";
 				}
 				str += (uniqueNameStr ? " " + uniqueNameStr : "") + " a \nlevel " + level + " ";
-				if(curseState == CURSE_REVEALED) str += "cursed ";
-				else if(curseState == BLESSED) str += "blessed ";
+				if(holyState == CURSE_REVEALED) str += "cursed ";
+				else if(holyState == BLESSED) str += "blessed ";
 				else if(effects) str += "enchanted ";
 				if(type == WEAPON){
 					str += stats["weapon names"][name];
@@ -557,7 +555,7 @@
 		}
 		
 		override public function toXML():XML{
-			var xml:XML = <item name={name} type={type} level={level} location={location} curseState={curseState} user={user ? user.nameToString() : ""} uniqueNameStr={uniqueNameStr} />;
+			var xml:XML = <item name={name} type={type} level={level} location={location} holyState={holyState} user={user ? user.nameToString() : ""} uniqueNameStr={uniqueNameStr} />;
 			if(effects && effects.length){
 				for(var i:int = 0; i < effects.length; i++){
 					xml.appendChild(effects[i].toXML());

@@ -64,8 +64,8 @@ package com.robotacid.engine {
 			var str:String = "this armour is" + (uniqueNameStr ? " " + uniqueNameStr : "") + " a";
 			var name:String = Character.stats["names"][level] + " face";
 			
-			if(curseState == CURSE_REVEALED) name = "cursed " + name;
-			else if(curseState == BLESSED) name = "blessed " + name;
+			if(holyState == CURSE_REVEALED) name = "cursed " + name;
+			else if(holyState == BLESSED) name = "blessed " + name;
 			else if(effects) name = "enchanted " + name;
 			
 			str += (name.charAt(0).search(/[aeiou]/i) == 0) ? "n " : " ";

@@ -1,4 +1,4 @@
-Change log: fixed Menu selectionStep walk-back bug, refactored enchantment menu, set up selection steps on all inventory options to stay local after selection
+Change log: refactored curseState to holyState, IDENTIFY now reveals cursed items, fixed bug with inventory list reset, removed cursing items from Effect, cursed and blessed items now appear naturally from level 6 onwards, added "coinFlip" function to XorRandom for readability (no performance change), added full holy state options to give item debug
 
 Bug hunt
 	can crash graph renderer by changing level
@@ -7,20 +7,29 @@ Bug hunt
 	combo bug: minion, indifference, level 21, identify monster twice, minion portal - unreproducable
 	undead respawn causes issue - unreproducable
 
-plateauMc
-	new exit logic
-		refactor exit option to pressing down at exits
-		create plateau surface in physics
-			create plateau spawner (part of portal code?)
-				create node pruning function for spawned plateaus
-			change portal location rules
-				create list of legal floor positions in map
-					use floor list for traps
-					create list of legal floor positions in rooms
-
 need the ability to block effect apply printouts
 
+turn xp bar red at level 20 - illustrates the level cap
 
+mimic
+	create mimic trap - creates the mimic character
+		insert clause into content generator
+
+wraith
+	create filtered collider
+		upon detecting a given property will interpret that block as something else - like a ledge or ladder ledge for a wall
+	create wraith graph
+
+exploding chaos walls
+	golem chaos walls
+
+refactor "curseState"
+	make items cursed or blessed by default
+		identify spell reveals curses
+
+save and quit
+
+title screen
 
 Unique items
 	mokesmoe's bug
@@ -54,8 +63,16 @@ level generator overhaul:
 		expand room defined areas
 		drop monsters into rooms only (or in certain zones - other areas as well)
 		create context groups for monsters in packs
-		create an xp pool per level and subtract monsters and level content from it to control progression
+			dramatis personae creator
+		distribute 150% of level's worth of xp across monsters on one level instead of set xp for each monster
 
-smite - blessed weapons could deliver a blow to characters that send them flying
-	create smited state for all characters
-
+plateauMc?
+	new exit logic
+		refactor exit option to pressing down at exits
+		create plateau surface in physics
+			create plateau spawner (part of portal code?)
+				create node pruning function for spawned plateaus
+			change portal location rules
+				create list of legal floor positions in map
+					use floor list for traps
+					create list of legal floor positions in rooms

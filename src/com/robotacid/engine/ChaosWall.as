@@ -194,7 +194,7 @@ package com.robotacid.engine {
 				var blit:BlitRect;
 				var print:FadingBlitRect;
 				for(var i:int = 0; i < 5; i++){
-					if(game.random.value() < 0.5){
+					if(game.random.coinFlip()){
 						blit = renderer.smallDebrisBlits[Renderer.STONE];
 						print = renderer.smallFadeBlits[Renderer.STONE];
 					} else {

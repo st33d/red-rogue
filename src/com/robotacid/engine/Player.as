@@ -445,14 +445,14 @@
 		/* Select an item as a weapon or armour */
 		override public function equip(item:Item, throwing:Boolean = false):Item{
 			super.equip(item, throwing);
-			if(item.curseState == Item.CURSE_HIDDEN) item.revealCurse();
+			if(item.holyState == Item.CURSE_HIDDEN) item.revealCurse();
 			// set the active state and name of the missile option in the menu
 			if(item.type == Item.WEAPON){
 				game.menu.missileOption.active = (
 					!indifferent && canMenuAction &&
 					(
 						(weapon && weapon.range & Item.MISSILE) ||
-						(throwable && !(throwable.curseState == Item.CURSE_REVEALED && !undead))
+						(throwable && !(throwable.holyState == Item.CURSE_REVEALED && !undead))
 					)
 				);
 				if(game.menu.missileOption.active){
@@ -555,7 +555,7 @@
 				!indifferent &&
 				(
 					(weapon && weapon.range & Item.MISSILE) ||
-					(throwable && !(throwable.curseState == Item.CURSE_REVEALED && !undead))
+					(throwable && !(throwable.holyState == Item.CURSE_REVEALED && !undead))
 				)
 			);
 			game.menu.inventoryList.throwRuneOption.active = true;
@@ -592,7 +592,7 @@
 			// a change to the undead stat affects throwables
 			if(throwable){
 				game.menu.missileOption.active = (
-					!indifferent && !(throwable.curseState == Item.CURSE_REVEALED && !undead)
+					!indifferent && !(throwable.holyState == Item.CURSE_REVEALED && !undead)
 				);
 				game.menu.missileOption.state = GameMenu.THROW;
 			}

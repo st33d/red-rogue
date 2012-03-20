@@ -129,7 +129,7 @@
 			state = PATROL;
 			delay = Character.stats["pauses"][char.name];
 			count = delay + game.random.range(delay);
-			char.looking = game.random.value() < 0.5 ? LEFT : RIGHT;
+			char.looking = game.random.coinFlip() ? LEFT : RIGHT;
 			dontRunIntoTheWallCount = 0;
 			sheduleIndex = 0;
 			allyIndex = 0;
@@ -759,7 +759,7 @@
 			
 			var characters:Vector.<Character> = monsterCharacters.concat(playerCharacters);
 			
-			if(game.random.value() < 0.5){
+			if(game.random.coinFlip()){
 				flee(characters[game.random.rangeInt(characters.length)]);
 			} else {
 				attack(characters[game.random.rangeInt(characters.length)]);

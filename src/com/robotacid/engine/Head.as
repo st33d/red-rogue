@@ -71,7 +71,7 @@
 				if(bloodCount > 0){
 					bloodCount--;
 					var blit:BlitRect, print:BlitRect;
-					if(game.random.value() < 0.5){
+					if(game.random.coinFlip()){
 						blit = renderer.smallDebrisBlits[Renderer.BLOOD];
 						print = renderer.smallFadeBlits[Renderer.BLOOD];
 					} else {

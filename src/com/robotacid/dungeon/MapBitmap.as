@@ -867,7 +867,7 @@
 						ledgePos++;
 					}
 					ledgePos = ladderPos - 1;
-					while(pixels[ledgePos] != WALL && Map.random.value() < 0.5){
+					while(pixels[ledgePos] != WALL && Map.random.coinFlip()){
 						pixels[ledgePos] = LEDGE;
 						ledgePos--;
 					}
@@ -933,7 +933,7 @@
 						ledgePos--;
 					}
 					ledgePos = ladderPos + 1;
-					while(pixels[ledgePos] != WALL && Map.random.value() < 0.5){
+					while(pixels[ledgePos] != WALL && Map.random.coinFlip()){
 						pixels[ledgePos] = LEDGE;
 						ledgePos++;
 					}

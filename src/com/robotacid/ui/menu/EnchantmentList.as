@@ -19,16 +19,16 @@
 			// set options active/false
 			if(pointers){
 				for(i = 0; i < pointers.length; i++){
-					pointers[i].active = Boolean(item.effects || item.curseState == Item.CURSE_REVEALED);
+					pointers[i].active = Boolean(item.effects || item.holyState == Item.CURSE_REVEALED);
 				}
 			}
-			if(!item.effects && item.curseState != Item.CURSE_REVEALED) return;
+			if(!item.effects && item.holyState != Item.CURSE_REVEALED) return;
 			
 			options = new Vector.<MenuOption>();
 			
 			// cursed?
-			if(item.curseState == Item.CURSE_REVEALED) options.push(new MenuOption("cursed", null, false));
-			else if(item.curseState == Item.BLESSED) options.push(new MenuOption("blessed", null, false));
+			if(item.holyState == Item.CURSE_REVEALED) options.push(new MenuOption("cursed", null, false));
+			else if(item.holyState == Item.BLESSED) options.push(new MenuOption("blessed", null, false));
 			
 			// enchantments?
 			if(item.effects){

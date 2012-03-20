@@ -195,7 +195,7 @@ package com.robotacid.gfx {
 					if(character.state != Character.EXITING && character.state != Character.ENTERING){
 						if(game.frameCount){
 							var blit:BlitRect, print:BlitRect;
-							if(game.random.value() < 0.5){
+							if(game.random.coinFlip()){
 								blit = renderer.smallDebrisBlits[Renderer.BLOOD];
 								print = renderer.smallFadeBlits[Renderer.BLOOD];
 							} else {

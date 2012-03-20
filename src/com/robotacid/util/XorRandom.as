@@ -46,6 +46,13 @@ package com.robotacid.util {
 			r ^= r << 4;
 			return r * MAX_RATIO * n;
 		}
+		
+		public function coinFlip():Boolean{
+			r ^= r << 21;
+			r ^= r >>> 35;
+			r ^= r << 4;
+			return r * MAX_RATIO < 0.5;
+		}
 	}
 
 }

@@ -218,7 +218,7 @@
 				
 				renderer.createDebrisRect(entity.collider, 0, 30, debrisType);
 				for(var i:int = 0; i < 30; i++){
-					if(game.random.value() < 0.5){
+					if(game.random.coinFlip()){
 						blit = renderer.smallDebrisBlits[debrisType];
 						print = renderer.smallFadeBlits[debrisType];
 					} else {
@@ -270,7 +270,7 @@
 					hitDamage *= 2;
 				}
 				// blessed weapon? roll for smite
-				if(item.curseState == Item.BLESSED && ((hitResult & Character.CRITICAL) || game.random.value() < Character.SMITE_PER_LEVEL * item.level)){
+				if(item.holyState == Item.BLESSED && ((hitResult & Character.CRITICAL) || game.random.value() < Character.SMITE_PER_LEVEL * item.level)){
 					character.smite(dx > 0 ? Collider.RIGHT : Collider.LEFT, hitDamage * 0.5);
 					// half of hitDamage is transferred to the smite state
 					hitDamage *= 0.5;

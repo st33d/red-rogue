@@ -93,7 +93,7 @@
 		/* Select an item as a weapon or armour */
 		override public function equip(item:Item, throwing:Boolean = false):Item {
 			super.equip(item, throwing);
-			if(item.curseState == Item.CURSE_HIDDEN) item.revealCurse();
+			if(item.holyState == Item.CURSE_HIDDEN) item.revealCurse();
 			inventory.updateItem(item);
 			return item;
 		}

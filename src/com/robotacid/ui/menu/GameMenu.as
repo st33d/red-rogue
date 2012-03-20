@@ -338,27 +338,27 @@
 					
 					// cursed items disable equipping items of that type, they cannot be dropped either (but undead are immune to curses)
 					inventoryList.equipMainOption.active = (
-						!(item.user && item.curseState == Item.CURSE_REVEALED && !item.user.undead) &&
-						!(game.player.weapon && game.player.weapon.curseState == Item.CURSE_REVEALED && !game.player.undead)
+						!(item.user && item.holyState == Item.CURSE_REVEALED && !item.user.undead) &&
+						!(game.player.weapon && game.player.weapon.holyState == Item.CURSE_REVEALED && !game.player.undead)
 					);
 					inventoryList.equipThrowOption.active = (
 						(item.range & Item.THROWN) &&
-						!(item.user && item.curseState == Item.CURSE_REVEALED && !item.user.undead) &&
-						!(game.player.throwable && game.player.throwable.curseState == Item.CURSE_REVEALED && !game.player.undead)
+						!(item.user && item.holyState == Item.CURSE_REVEALED && !item.user.undead) &&
+						!(game.player.throwable && game.player.throwable.holyState == Item.CURSE_REVEALED && !game.player.undead)
 					);
 					inventoryList.equipMinionMainOption.active = (
 						game.minion &&
-						!(item.user && item.curseState == Item.CURSE_REVEALED && !item.user.undead) &&
-						!(game.minion.weapon && game.minion.weapon.curseState == Item.CURSE_REVEALED && !game.minion.undead)
+						!(item.user && item.holyState == Item.CURSE_REVEALED && !item.user.undead) &&
+						!(game.minion.weapon && game.minion.weapon.holyState == Item.CURSE_REVEALED && !game.minion.undead)
 					);
 					inventoryList.equipMinionThrowOption.active = (
 						game.minion &&
 						(item.range & Item.THROWN) &&
-						!(item.user && item.curseState == Item.CURSE_REVEALED && !item.user.undead) &&
-						!(game.minion.throwable && game.minion.throwable.curseState == Item.CURSE_REVEALED && !game.minion.undead)
+						!(item.user && item.holyState == Item.CURSE_REVEALED && !item.user.undead) &&
+						!(game.minion.throwable && game.minion.throwable.holyState == Item.CURSE_REVEALED && !game.minion.undead)
 					);
 					
-					inventoryList.dropOption.active = game.player.undead || item.curseState != Item.CURSE_REVEALED;
+					inventoryList.dropOption.active = game.player.undead || item.holyState != Item.CURSE_REVEALED;
 					
 				} else if(item.type == Item.ARMOUR){
 					inventoryList.equipOption.state = (item.user && item.user == game.player && item == game.player.armour) ? 1 : 0;
@@ -367,13 +367,13 @@
 					
 					// cursed items disable equipping items of that type, they cannot be dropped either (but undead are immune to curses)
 					inventoryList.equipOption.active = (
-						!(item.user && item.curseState == Item.CURSE_REVEALED && !item.user.undead) &&
-						!(game.player.armour && game.player.armour.curseState == Item.CURSE_REVEALED && !game.player.undead)
+						!(item.user && item.holyState == Item.CURSE_REVEALED && !item.user.undead) &&
+						!(game.player.armour && game.player.armour.holyState == Item.CURSE_REVEALED && !game.player.undead)
 					);
 					inventoryList.equipMinionOption.active = (
 						game.minion &&
-						!(item.user && item.curseState == Item.CURSE_REVEALED && !item.user.undead) &&
-						!(game.minion.armour && game.minion.armour.curseState == Item.CURSE_REVEALED && !game.minion.undead)
+						!(item.user && item.holyState == Item.CURSE_REVEALED && !item.user.undead) &&
+						!(game.minion.armour && game.minion.armour.holyState == Item.CURSE_REVEALED && !game.minion.undead)
 					);
 					
 					// no equipping face armour on the overworld
@@ -389,7 +389,7 @@
 						else if(item.user == game.minion) inventoryList.equipOption.active = false;
 					}
 					
-					inventoryList.dropOption.active = game.player.undead || item.curseState != Item.CURSE_REVEALED;
+					inventoryList.dropOption.active = game.player.undead || item.holyState != Item.CURSE_REVEALED;
 					
 				} else if(item.type == Item.HEART){
 					if(!hotKeyMapRecord) inventoryList.eatOption.active = game.player.health < game.player.totalHealth;

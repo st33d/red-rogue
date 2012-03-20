@@ -167,7 +167,7 @@ package com.robotacid.ui {
 						type = xml.@type;
 						item = new Item(game.library.getItemGfx(name, type), name, type, level);
 						item.location = xml.@location;
-						item.curseState = xml.@curseState;
+						item.holyState = xml.@holyState;
 						// is this item enchanted?
 						for each(enchantment in xml.effect){
 							effect = new Effect(enchantment.@name, enchantment.@level);

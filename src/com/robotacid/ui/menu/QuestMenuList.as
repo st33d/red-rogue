@@ -26,7 +26,7 @@ package com.robotacid.ui.menu {
 		
 		public function createQuest():void{
 			var i:int, subject:Character, targets:Vector.<Character>, option:QuestMenuOption;
-			var type:int = game.random.value() < 0.5 ? QuestMenuOption.COLLECT : QuestMenuOption.KILL;
+			var type:int = game.random.coinFlip() ? QuestMenuOption.COLLECT : QuestMenuOption.KILL;
 			if(type == QuestMenuOption.KILL){
 				
 				targets = new Vector.<Character>();
