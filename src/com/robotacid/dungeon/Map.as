@@ -521,7 +521,7 @@
 		/* Creates a portal */
 		public function setPortal(x:int, y:int, xml:XML):void{
 			var p:Pixel = new Pixel(x, y);
-			var portal:Portal = Content.convertXMLToEntity(x, y, xml);
+			var portal:Portal = Content.XMLToEntity(x, y, xml);
 			game.portalHash[portal.type] = portal;
 			if(type == AREA){
 				if(portal.type == Portal.OVERWORLD_RETURN || portal.type == Portal.UNDERWORLD_RETURN){
@@ -780,7 +780,7 @@
 			characterXML.@name = name;
 			characterXML.@type = Character.MONSTER;
 			characterXML.@level = level;
-			layers[ENTITIES][y][x] = Content.convertXMLToEntity(x, y, characterXML);
+			layers[ENTITIES][y][x] = Content.XMLToEntity(x, y, characterXML);
 		}
 		
 		public function setValue(x:int, y:int, z:int, value:*):void{

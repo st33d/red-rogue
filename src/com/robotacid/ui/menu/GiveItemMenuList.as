@@ -156,7 +156,7 @@ package com.robotacid.ui.menu {
 			if(int(itemXML.@type) == Item.ARMOUR || int(itemXML.@type) == Item.WEAPON){
 				itemXML.@holyState = holyStateList.selection;
 			}
-			var item:Item = Content.convertXMLToEntity(0, 0, itemXML);
+			var item:Item = Content.XMLToEntity(0, 0, itemXML);
 			item.collect(game.player);
 			active = false;
 		}

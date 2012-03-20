@@ -1,4 +1,5 @@
-Change log: refactored curseState to holyState, IDENTIFY now reveals cursed items, fixed bug with inventory list reset, removed cursing items from Effect, cursed and blessed items now appear naturally from level 6 onwards, added "coinFlip" function to XorRandom for readability (no performance change), added full holy state options to give item debug
+Change log: refactored Content.convertXMLToEntity to Content.XMLToEntity, xp bar is red at level 20, player no longer receives
+xp at level 20, added crumbling chaos walls to caves and chaos zones with a 1:20 spawn rate of golems
 
 Bug hunt
 	can crash graph renderer by changing level
@@ -9,8 +10,6 @@ Bug hunt
 
 need the ability to block effect apply printouts
 
-turn xp bar red at level 20 - illustrates the level cap
-
 mimic
 	create mimic trap - creates the mimic character
 		insert clause into content generator
@@ -19,13 +18,7 @@ wraith
 	create filtered collider
 		upon detecting a given property will interpret that block as something else - like a ledge or ladder ledge for a wall
 	create wraith graph
-
-exploding chaos walls
-	golem chaos walls
-
-refactor "curseState"
-	make items cursed or blessed by default
-		identify spell reveals curses
+	
 
 save and quit
 

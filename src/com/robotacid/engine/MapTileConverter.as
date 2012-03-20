@@ -30,7 +30,7 @@
 		// NOTE TO MAINTAINER
 		//
 		// These can't be made static due to some completely illegal references I'm getting away
-		// with below
+		// with in ID_TO_GRAPHIC
 		public var game:Game;
 		public var renderer:Renderer;
 		public var mapTileManager:MapTileManager;

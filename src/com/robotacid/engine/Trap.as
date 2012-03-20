@@ -49,8 +49,8 @@
 		
 		public static const DISARMING_XP_REWARD:Number = 1;
 		
-		public function Trap(mc:DisplayObject, mapX:int, mapY:int, type:int, dartPos:Pixel = null) {
-			super(mc, false, false);
+		public function Trap(gfx:DisplayObject, mapX:int, mapY:int, type:int, dartPos:Pixel = null) {
+			super(gfx, false, false);
 			this.type = type;
 			revealed = false;
 			if(type == PIT){

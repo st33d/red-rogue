@@ -1099,10 +1099,12 @@
 			} else if(name == WEREWOLF){
 				game.console.print(target.nameToString() + " falls to the werewolf curse");
 				target.changeName(WEREWOLF);
+				renderer.createTeleportSparkRect(collider, 20);
 			
 			// polymorph into target
 			} else if(name == MIMIC){
 				changeName(target.name);
+				renderer.createTeleportSparkRect(collider, 20);
 				
 			// poison attack
 			} else if(name == NAGA){

@@ -1,5 +1,6 @@
 package com.robotacid.engine {
 	import adobe.utils.CustomActions;
+	import com.robotacid.dungeon.Content;
 	import com.robotacid.dungeon.Map;
 	import com.robotacid.geom.Pixel;
 	import com.robotacid.gfx.BlitRect;
@@ -53,6 +54,10 @@ package com.robotacid.engine {
 		public static const READY_DELAY:int = 10;
 		public static const RETIRE_DELAY:int = 10;
 		
+		public static const GOLEM_CHANCE:Number = 1.0 / 20;
+		public static const GOLEM_TEMPLATE_XML:XML =<character name={Character.GOLEM} type={Character.MONSTER} characterNum={-1} />;
+		public static const CHAOS_EXPLODE_CHANCE:Number = 1.0 / 5;
+		
 		public function ChaosWall(mapX:int, mapY:int) {
 			super(new Sprite(), false);
 			this.mapX = mapX;
@@ -101,7 +106,12 @@ package com.robotacid.engine {
 				distY = game.player.mapY - mapY;
 				if(distY < 0) distY = -distY;
 				if(distX + distY < READY_DIST && game.lightMap.darkImage.getPixel32(mapX, mapY) != 0xFF000000){
-					ready();
+					// in later zones chaos walls simply crumble, and possibly spawn golems
+					if(game.map.zone == Map.CAVES || (game.map.zone == Map.CHAOS && game.random.value() < CHAOS_EXPLODE_CHANCE)){
+						crumble();
+					} else {
+						ready();
+					}
 				}
 			} else if(state == READY){
 				if(count){
@@ -168,6 +178,30 @@ package com.robotacid.engine {
 			else if(target.x < mapX) collider.vx = -SPEED;
 			state = MOVING;
 			game.soundQueue.add("chaosWallMoving");
+		}
+		
+		/* The standard way for chaos walls to go in the Caves zone and occasionally in Chaos */
+		public function crumble():void{
+			chaosWalls[mapY][mapX] = null;
+			// remove from map renderer
+			game.world.removeMapPosition(mapX, mapY);
+			game.mapTileManager.removeTile(this, mapX, mapY, mapZ);
+			renderer.blockBitmapData.fillRect(new Rectangle(mapX * SCALE, mapY * SCALE, SCALE, SCALE), 0x00000000);
+			// show empty on minimap
+			game.miniMap.bitmapData.setPixel32(mapX, mapY, LightMap.MINIMAP_EMPTY_COL);
+			gfx.visible = true;
+			free = true;
+			game.soundQueue.addRandom("pitTrap", Stone.STONE_DEATH_SOUNDS);
+			renderer.createDebrisRect(collider, 0, 100, Renderer.STONE);
+			// create a golem?
+			if(game.random.value() < GOLEM_CHANCE){
+				renderer.shake(0, 5);
+				var xml:XML = GOLEM_TEMPLATE_XML.copy();
+				xml.@level = game.map.level;
+				var monster:Monster = Content.XMLToEntity(mapX, mapY, xml);
+				game.mapTileManager.converter.convertIndicesToObjects(mapX, mapY, monster);
+			}
+			kill();
 		}
 		
 		/* Destructor */

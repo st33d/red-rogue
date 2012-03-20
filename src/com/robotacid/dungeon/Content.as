@@ -278,7 +278,7 @@
 					c = 1 + Map.random.range(bitmap.width - 1);
 					if(!layers[Map.ENTITIES][r][c] && layers[Map.BLOCKS][r][c] != MapTileConverter.WALL && (bitmap.bitmapData.getPixel32(c, r + 1) == MapBitmap.LEDGE || layers[Map.BLOCKS][r + 1][c] == MapTileConverter.WALL)){
 						//trace(monstersByLevel[level][0].toXMLString());
-						layers[Map.ENTITIES][r][c] = convertXMLToEntity(c, r, monsters.shift());
+						layers[Map.ENTITIES][r][c] = XMLToEntity(c, r, monsters.shift());
 					}
 				}
 				while(chests.length){
@@ -286,7 +286,7 @@
 					c = 1 + Map.random.range(bitmap.width - 2);
 					if(!layers[Map.ENTITIES][r][c] && layers[Map.BLOCKS][r][c] != MapTileConverter.WALL && (bitmap.bitmapData.getPixel32(c, r + 1) == MapBitmap.LEDGE || layers[Map.BLOCKS][r + 1][c] == MapTileConverter.WALL)){
 						//trace(chestsByLevel[level][0].toXMLString());
-						layers[Map.ENTITIES][r][c] = convertXMLToEntity(c, r, chests.shift());
+						layers[Map.ENTITIES][r][c] = XMLToEntity(c, r, chests.shift());
 					}
 				}
 				if(questGems) dropQuestGems(questGems, layers, bitmap);
@@ -307,7 +307,7 @@
 					r = bitmap.height - 3;
 				}
 				while(areaContent[level].chests.length){
-					chest = convertXMLToEntity(0, 0, areaContent[level].chests.shift());
+					chest = XMLToEntity(0, 0, areaContent[level].chests.shift());
 					while(chest.contents.length){
 						item = chest.contents.shift();
 						c = minX + Map.random.range(maxX - minX);
@@ -672,7 +672,7 @@
 		 * All Entities have a toXML() method that allows a snapshot of the object to be taken for storage in the
 		 * game save, or as a template for copies of that object. This method converts the xml into objects for
 		 * use in the engine. */
-		public static function convertXMLToEntity(x:int, y:int, xml:XML):*{
+		public static function XMLToEntity(x:int, y:int, xml:XML):*{
 			var objectType:String = xml.name();
 			var i:int, children:XMLList, item:XML, mc:DisplayObject, obj:*;
 			var name:int, level:int, type:int;
@@ -682,7 +682,7 @@
 				children = xml.children();
 				items = new Vector.<Item>();
 				for each(item in children){
-					items.push(convertXMLToEntity(x, y, item));
+					items.push(XMLToEntity(x, y, item));
 				}
 				mc = new ChestMC();
 				obj = new Chest(mc, x * Game.SCALE + Game.SCALE * 0.5, (y + 1) * Game.SCALE, items);
@@ -718,7 +718,7 @@
 				if(xml.item.length()){
 					items = new Vector.<Item>();
 					for each(item in xml.item){
-						items.push(convertXMLToEntity(x, y, item));
+						items.push(XMLToEntity(x, y, item));
 					}
 				}
 				if(type == Character.MONSTER){

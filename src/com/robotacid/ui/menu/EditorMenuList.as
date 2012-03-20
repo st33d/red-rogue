@@ -196,7 +196,7 @@ package com.robotacid.ui.menu {
 					
 				} else if(list == raceList){
 					xml =<character characterNum={-1} name={raceList.selection} type={Character.MONSTER} level={dungeonLevelList.selection + 1} />;
-					entity = Content.convertXMLToEntity(mapX, mapY, xml);
+					entity = Content.XMLToEntity(mapX, mapY, xml);
 					converter.convertIndicesToObjects(mapX, mapY, entity);
 					
 				} else if(option == teleportMinionOption){

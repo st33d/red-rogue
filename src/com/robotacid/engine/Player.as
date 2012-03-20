@@ -73,7 +73,11 @@
 		public static const DOWN:int = 4;
 		public static const LEFT:int = 8;
 		
-		public static const XP_LEVELS:Array = [0, 10, 20, 40, 80, 160, 320, 640, 1280, 2560, 5120, 10240, 20480, 40960, 81920, 163840, 327680, 655360, 1310720, 2621440, int.MAX_VALUE];
+		public static const XP_LEVELS:Array = [
+			0, 10, 20, 40, 80, 160, 320, 640, 1280, 2560,
+			5120, 10240, 20480, 40960, 81920, 163840, 327680, 655360, 1310720, 2621440,
+			int.MAX_VALUE
+		];
 		
 		public static const DEFAULT_LIGHT_RADIUS:int = 5;
 		public static const SEARCH_DELAY:int = 2;
@@ -525,12 +529,19 @@
 		}
 		
 		public function addXP(n:Number):void{
+			if(level >= Game.MAX_LEVEL) return;
+			
 			// level up check
-			while(xp + n > XP_LEVELS[level]){
+			while(level < Game.MAX_LEVEL && xp + n > XP_LEVELS[level]){
 				levelUp();
 			}
-			xp += n;
-			game.playerXpBar.setValue(xp - XP_LEVELS[level - 1], XP_LEVELS[level] - XP_LEVELS[level - 1]);
+			if(level < Game.MAX_LEVEL){
+				xp += n;
+				game.playerXpBar.setValue(xp - XP_LEVELS[level - 1], XP_LEVELS[level] - XP_LEVELS[level - 1]);
+			} else {
+				game.playerXpBar.barCol = Game.DISABLED_BAR_COL;
+				game.playerXpBar.setValue(1, 1);
+			}
 		}
 		
 		override public function levelUp():void {

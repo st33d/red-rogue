@@ -143,7 +143,7 @@
 						} else {
 							if(monsterTotal){
 								monsterTotal--;
-								monster = Content.convertXMLToEntity(mapX, mapY, monsterTemplate);
+								monster = Content.XMLToEntity(mapX, mapY, monsterTemplate);
 								game.entities.push(monster);
 								Brain.monsterCharacters.push(monster);
 								monster.enterLevel(this);
