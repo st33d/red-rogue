@@ -464,7 +464,7 @@
 		
 		override public function executeSelection():void {
 			var option:MenuOption = currentMenuList.options[selection];
-			var item:Item, n:int, i:int, effect:Effect, prevItem:Item, character:Character;
+			var item:Item, n:int, i:int, effect:Effect, prevItem:Item, character:Character, throwing:Boolean;
 			
 			// equipping items on the player - toggle logic follows
 			if(
@@ -483,7 +483,7 @@
 					option == inventoryList.equipOption
 				) ? game.player : game.minion;
 				
-				var throwing:Boolean = (
+				throwing = (
 					option == inventoryList.equipThrowOption ||
 					option == inventoryList.equipMinionThrowOption
 				);
@@ -643,12 +643,16 @@
 				// items need to be unequipped and then equipped again to apply their new settings to a Character
 				var user:Character = item.user;
 				var originalType:int = item.type;
-				if(user) item = user.unequip(item);
+				throwing = false;
+				if(user){
+					throwing = user.throwable == item
+					item = user.unequip(item);
+				}
 				
 				item = effect.enchant(item, inventoryList, user ? user : game.player);
 				
 				// don't re-equip items that have changed function
-				if(user && item.location == Item.INVENTORY && item.type == originalType) item = user.equip(item);
+				if(user && item.location == Item.INVENTORY && item.type == originalType) item = user.equip(item, throwing);
 				
 				rune = inventoryList.removeItem(rune);
 			
