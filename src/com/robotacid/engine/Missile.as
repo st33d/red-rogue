@@ -9,6 +9,7 @@
 	import com.robotacid.sound.SoundManager;
 	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
+	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	
 	/**
@@ -34,6 +35,8 @@
 		private var catchable:Boolean;
 		
 		protected static var target:Character;
+		
+		public static const LIGHTNING_DAMAGE_RATIO:Number = 1 / 8;
 		
 		// missile names
 		public static const ITEM:int = 1;
@@ -163,12 +166,18 @@
 				// repair contact filter from failed hits
 				collider.ignoreProperties &= ~(Collider.SOLID);
 				
-				// check for collision with sender if reflective, allowing them to catch the item
-				if(catchable && sender && sender.active){
-					if(sender.collider.intersects(collider)){
-						kill();
-						if(item){
-							item.collect(sender);
+				if(sender && sender.active){
+					// lightning cast quickening lightning around it
+					if(item && item.name == Item.LIGHTNING){
+						quickening();
+					}
+					if(catchable){
+						// check for collision with sender if reflective, allowing them to catch the item
+						if(sender.collider.intersects(collider)){
+							kill();
+							if(item){
+								item.collect(sender);
+							}
 						}
 					}
 				}
@@ -375,6 +384,52 @@
 						hitCharacter(target);
 						break;
 					}
+				}
+			}
+		}
+		
+		/* The lightning effect that issues from the lightning throwable */
+		public function quickening():void{
+			var node:Character;
+			var tx:Number, ty:Number;
+			var points:Array = [new Point(collider.x, dx > 0 ? collider.y : collider.y + collider.height - 1), new Point(collider.x + collider.width - 1, dx > 0 ? collider.y + collider.height - 1 : collider.y)];
+			var p:Point;
+			for(var i:int = 0; i < points.length; i++){
+				p = points[i];
+				if(type == Character.MINION || type == Character.PLAYER){
+					if(Brain.monsterCharacters.length){
+						node = Brain.monsterCharacters[game.random.rangeInt(Brain.monsterCharacters.length)];
+					}
+				} else if(type == Character.MONSTER){
+					if(Brain.playerCharacters.length){
+						node = Brain.playerCharacters[game.random.rangeInt(Brain.playerCharacters.length)];
+					}
+				}
+				
+				if(
+					!node || !node.active || node.state == Character.QUICKENING ||
+					node.state == Character.ENTERING || node.state == Character.EXITING ||
+					(
+						// left wards
+						i == 0 &&
+						node.collider.x + node.collider.width * 0.5 > collider.x + collider.width * 0.5
+					) ||
+					(
+						// right wards
+						i == 1 &&
+						node.collider.x + node.collider.width * 0.5 < collider.x + collider.width * 0.5
+					)
+				){
+					node = null;
+					tx = i == 0 ? 0 : game.mapTileManager.width * SCALE;
+					ty = game.random.range(game.mapTileManager.height) * SCALE;
+				} else {
+					tx = node.collider.x + node.collider.width * 0.5;
+					ty = node.collider.y + node.collider.height * 0.5;
+				}
+				if(game.lightning.strike(renderer.lightningShape.graphics, game.world.map, p.x, p.y, tx, ty) && node && sender.enemy(node.collider.userData)){
+					node.applyDamage(game.random.value() * LIGHTNING_DAMAGE_RATIO * item.damage, "lightning");
+					renderer.createDebrisSpurt(tx, ty, 5, i == 0 ? -5 : 5, node.debrisType);
 				}
 			}
 		}

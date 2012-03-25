@@ -194,6 +194,7 @@
 		public static const SMITED_SPEED:Number = 8;
 		public static const SMITE_DAMAGE_RATIO:Number = 1.5;
 		public static const SMITE_PER_LEVEL:Number = 0.05;
+		public static const QUICKENING_PER_LEVEL:Number = 0.5;
 		
 		public static const DEFAULT_COL:ColorTransform = new ColorTransform();
 		public static const INFRAVISION_COLS:Vector.<ColorTransform> = Vector.<ColorTransform>([DEFAULT_COL, new ColorTransform(1, 0, 0, 1, 255), new ColorTransform(1, 0.7, 0.7, 1, 50)]);
@@ -605,7 +606,7 @@
 							node = Brain.playerCharacters[game.random.rangeInt(Brain.playerCharacters.length)];
 						}
 					}
-					if(!node || !node.active || node.collider.x + node.collider.width * 0.5 < collider.x + collider.width * 0.5){
+					if(!node || !node.active || node.state == QUICKENING || node.state == ENTERING || node.state == EXITING || node.collider.x + node.collider.width * 0.5 < collider.x + collider.width * 0.5){
 						node = null;
 						tx = game.mapTileManager.width * SCALE;
 						ty = game.random.range(game.mapTileManager.height) * SCALE;
@@ -614,7 +615,7 @@
 						ty = node.collider.y + node.collider.height * 0.5;
 					}
 					if(game.lightning.strike(renderer.lightningShape.graphics, game.world.map, p.x, p.y, tx, ty) && node && enemy(node.collider.userData)){
-						node.applyDamage(game.random.value(), "quickening");
+						node.applyDamage(game.random.value() * QUICKENING_PER_LEVEL * level, "quickening");
 						renderer.createDebrisSpurt(tx, ty, 5, 5, node.debrisType);
 					}
 					// lightning from the left hand
@@ -630,7 +631,7 @@
 							node = Brain.playerCharacters[game.random.rangeInt(Brain.playerCharacters.length)];
 						}
 					}
-					if(!node || !node.active || node.collider.x + node.collider.width * 0.5 > collider.x + collider.width * 0.5){
+					if(!node || !node.active || node.state == QUICKENING || node.state == ENTERING || node.state == EXITING || node.collider.x + node.collider.width * 0.5 > collider.x + collider.width * 0.5){
 						node = null;
 						tx = 0;
 						ty = game.random.range(game.mapTileManager.height) * SCALE;
@@ -639,7 +640,7 @@
 						ty = node.collider.y + node.collider.height * 0.5;
 					}
 					if(game.lightning.strike(renderer.lightningShape.graphics, game.world.map, p.x, p.y, tx, ty) && node && enemy(node.collider.userData)){
-						node.applyDamage(game.random.value(), "quickening");
+						node.applyDamage(game.random.value() * QUICKENING_PER_LEVEL * level, "quickening");
 						renderer.createDebrisSpurt(tx, ty, -5, 5, node.debrisType);
 					}
 				}
