@@ -20,7 +20,8 @@
 		// Heart items are this game's equivalent of health potions
 		// they are harvested randomly during a kill
 		// more likely is it that a bare handed player will pluck a heart
-		public static const BUTCHER_CHANCE:Number = 0.1;
+		public static const PLAYER_BUTCHER_CHANCE:Number = 0.1;
+		public static const MINION_BUTCHER_CHANCE:Number = 0.05;
 		public static const BARE_HANDED_BUTCHER_BONUS:Number = 0.15;
 		
 		public function Monster(gfx:DisplayObject, x:Number, y:Number, name:int, level:int, items:Vector.<Item>){
@@ -99,14 +100,18 @@
 			game.enemyHealthBar.deactivate();
 			
 			// determine if the player manages to pluck out the monster's heart
-			if(aggressor == game.player){
-				var surgeryChance:Number = BUTCHER_CHANCE + (aggressor.weapon == null ? BARE_HANDED_BUTCHER_BONUS : aggressor.weapon.butcher);
+			if(aggressor && (aggressor == game.player || aggressor == game.minion)){
+				var surgeryChance:Number = (
+					(aggressor == game.player ? PLAYER_BUTCHER_CHANCE : MINION_BUTCHER_CHANCE) + 
+					(aggressor.weapon == null ? BARE_HANDED_BUTCHER_BONUS : aggressor.weapon.butcher)
+				);
 				if(game.random.value() < surgeryChance){
 					var heartMc:Sprite = new HeartMC();
 					var heart:Item = new Item(heartMc, name, Item.HEART, 0);
-					heart.collect(game.player, false);
+					if(aggressor == game.player) heart.collect(game.player, false);
+					else if(aggressor == game.minion) heart.dropToMap(mapX, mapY);
 					var victimName:String = Character.stats["names"][name];
-					game.console.print("rogue tore out a" + ((victimName.charAt(0).search(/[aeiou]/i) == 0) ? "n " : " ") + heart.nameToString());
+					game.console.print(aggressor.nameToString() + " tore out a" + ((victimName.charAt(0).search(/[aeiou]/i) == 0) ? "n " : " ") + heart.nameToString());
 				}
 			}
 			

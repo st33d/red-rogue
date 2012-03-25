@@ -101,7 +101,7 @@
 		public static const DEFAULT_LOS_BORDER:Number = 100;
 		public static const INFRAVISION_LOS_BORDER_BONUS:Number = 200;
 		
-		public static const FOLLOW_CHASE_EDGE:Number = Game.SCALE * 1.5;
+		public static const FOLLOW_CHASE_EDGE:Number = Game.SCALE * 1.7;
 		public static const FOLLOW_FLEE_EDGE:Number = Game.SCALE * 1;
 		public static const FOLLOW_CHASE_EDGE_SQ:Number = FOLLOW_CHASE_EDGE * FOLLOW_CHASE_EDGE;
 		public static const FOLLOW_FLEE_EDGE_SQ:Number = FOLLOW_FLEE_EDGE * FOLLOW_FLEE_EDGE;

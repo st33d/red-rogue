@@ -263,6 +263,15 @@
 						count = (21 - level) * ARMOUR_COUNTDOWN_STEP;
 					}
 				}
+			} else if(name == CHAOS){
+				// chaos armour is similar to teleport armour in that casts chaos on the target periodically
+				if(count) count--;
+				else {
+					if(target.state == Character.WALKING){
+						var effect:Effect = new Effect(CHAOS, game.random.rangeInt(Game.MAX_LEVEL), EATEN, target);
+						count = (21 - level) * ARMOUR_COUNTDOWN_STEP;
+					}
+				}
 			}
 		}
 		
@@ -398,31 +407,7 @@
 			}
 			
 			// this is the embedding routine
-			// repeat enchants must upgrade existing effects or risk a clusterfuck of effects firing all the time
-			if(item.effects){
-				var effect:Effect;
-				for(var i:int = 0; i < item.effects.length; i++){
-					effect = item.effects[i];
-					if(effect.name == name){
-						if(effect.level < Game.MAX_LEVEL){
-							while(level-- && effect.level < Game.MAX_LEVEL){
-								effect.level++;
-							}
-							break;
-						}
-					}
-				}
-				if(i == item.effects.length){
-					// wizard hats double their first enchantment
-					if(item.type == Item.ARMOUR && item.name == Item.WIZARD_HAT) level++;
-					item.effects.push(this);
-				}
-			} else {
-				item.effects = new Vector.<Effect>();
-				// wizard hats double their first enchantment
-				if(item.type == Item.ARMOUR && item.name == Item.WIZARD_HAT) level++;
-				item.effects.push(this);
-			}
+			addToItem(item);
 			
 			// non-applicable enchantments merely alter a stat on an item, they don't transmit effect objects to the target
 			if(name == LEECH){
@@ -456,6 +441,35 @@
 			}
 			
 			return item;
+		}
+		
+		/* Add an effect to an item's effect list or creates the effect list */
+		public function addToItem(item:Item):void{
+			// repeat enchants must upgrade existing effects or risk a clusterfuck of effects firing all the time
+			if(item.effects){
+				var effect:Effect;
+				for(var i:int = 0; i < item.effects.length; i++){
+					effect = item.effects[i];
+					if(effect.name == name){
+						if(effect.level < Game.MAX_LEVEL){
+							while(level-- && effect.level < Game.MAX_LEVEL){
+								effect.level++;
+							}
+							break;
+						}
+					}
+				}
+				if(i == item.effects.length){
+					// wizard hats double their first enchantment
+					if(item.type == Item.ARMOUR && item.name == Item.WIZARD_HAT) level++;
+					item.effects.push(this);
+				}
+			} else {
+				item.effects = new Vector.<Effect>();
+				// wizard hats double their first enchantment
+				if(item.type == Item.ARMOUR && item.name == Item.WIZARD_HAT) level++;
+				item.effects.push(this);
+			}
 		}
 		
 		/* Activates this effect on the target
@@ -720,10 +734,15 @@
 				return;
 				
 			} else if(name == CHAOS){
-				// change to a random name and re-apply
-				while(name == CHAOS) name = game.random.rangeInt(Game.MAX_LEVEL);
-				apply(target, count, racial);
-				return;
+				if(source == ARMOUR){
+					count = (21 - level) * ARMOUR_COUNTDOWN_STEP;
+					callMain = true;
+				} else {
+					// change to a random name and re-apply
+					while(name == CHAOS) name = game.random.rangeInt(Game.MAX_LEVEL);
+					apply(target, count, racial);
+					return;
+				}
 			}
 			
 			// racial effects are managed by the character class internally

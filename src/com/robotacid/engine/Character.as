@@ -953,7 +953,7 @@
 			}
 		}
 		
-		/* Loose a missile, could be an arrow or a rune */
+		/* Loose a missile, could be a throwable, weapon projectile or a rune */
 		public function shoot(type:int, effect:Effect = null, rune:Item = null):void{
 			if(attackCount < 1) return;
 			state = LUNGING;
@@ -962,7 +962,22 @@
 			var item:Item;
 			var reflections:int = 0;
 			var alchemical:Boolean = false;
-			if(type == Missile.ITEM){
+			
+			// check for chaos wand and create chaos spell
+			if(type == Missile.ITEM && !throwable){
+				type = Missile.RUNE;
+				effect = new Effect(Item.CHAOS, weapon.level, Effect.THROWN);
+			}
+			
+			// create missile
+			if(type == Missile.RUNE){
+				missileMc = new ThrownRuneMC();
+				item = rune;
+				alchemical = (
+					effect.name == Item.HEAL ||
+					effect.name == Item.XP
+				);
+			} else if(type == Missile.ITEM){
 				if(throwable){
 					item = unequip(throwable);
 					if(this == game.player || this == game.minion) item = game.menu.inventoryList.removeItem(item);
@@ -979,13 +994,6 @@
 					missileMc = new weapon.missileGfxClass();
 					item = weapon;
 				}
-			} else if(type == Missile.RUNE){
-				missileMc = new ThrownRuneMC();
-				item = rune;
-				alchemical = (
-					item.name == Item.HEAL ||
-					item.name == Item.XP
-				);
 			}
 			if(type == Missile.ITEM) {
 				game.soundQueue.add("bowShoot");

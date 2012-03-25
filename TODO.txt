@@ -1,4 +1,4 @@
-Change log: fixed bug with enchanting throwing weapons in hand
+Change log: fixed minion not unequiping throwable on death, added chaos helm, added chaos wand, new assets.swc, increased minion chase edge to reduce follow/chase dither, added mimic - chests are now mimic generators, refactored Content.populate level to fit mapType mapLevel terminology
 
 Bug hunt
 	can crash graph renderer by changing level
@@ -6,18 +6,24 @@ Bug hunt
 	minion summon after death? - unreproducable
 	combo bug: minion, indifference, level 21, identify monster twice, minion portal - unreproducable
 	undead respawn causes issue - unreproducable
+	
+	*characters not unequipping throwable on death
+	throwable can crash menu
 
 need the ability to block effect apply printouts
 
+fix help text - refers to deprecated rules
+
 mimic
-	create mimic trap - creates the mimic character
-		insert clause into content generator
+	set chests as mimic chance from level 6 onwards
+	set mimics and wandering spawned mimics
+		mimic special ability: death item
+			minion death item item is always undead enchanted
 
 wraith
 	create filtered collider
 		upon detecting a given property will interpret that block as something else - like a ledge or ladder ledge for a wall
 	create wraith graph
-	
 
 save and quit
 

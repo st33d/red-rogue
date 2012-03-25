@@ -131,8 +131,10 @@
 		override public function death(cause:String = "crushing", decapitation:Boolean = false, aggressor:Character = null):void {
 			if(!active) return;
 			var temp_weapon:Item;
+			var temp_throwable:Item;
 			var temp_armour:Item;
 			if(weapon) temp_weapon = unequip(weapon);
+			if(throwable) temp_throwable = unequip(throwable);
 			if(armour) temp_armour = unequip(armour);
 			super.death(cause, decapitation);
 			if(!active){
@@ -144,6 +146,7 @@
 				minimapFX.active = false;
 			} else {
 				if(temp_weapon) equip(temp_weapon);
+				if(temp_throwable) equip(temp_throwable);
 				if(temp_armour) equip(temp_armour);
 			}
 		}

@@ -342,12 +342,12 @@
 				// a good dungeon needs to be full of loot and monsters
 				// in comes the content manager to mete out a decent amount of action and reward per level
 				// content manager stocks are limited to avoid scumming
-				completionCount += game.content.populateLevel(level, bitmap, layers, type);
+				completionCount += game.content.populateLevel(type, level, bitmap, layers);
 				
 			} else if(type == ITEM_DUNGEON){
 				portalType = portalXMLs[0].@type;
 				createAccessPoint(portalType, sortRoomsTopWards, portalXMLs[0]);
-				completionCount += game.content.populateLevel(level, bitmap, layers, type);
+				completionCount += game.content.populateLevel(type, level, bitmap, layers);
 			}
 			
 			// now add some flavour
@@ -395,7 +395,7 @@
 			setStairsDown(12, height - 2);
 			
 			// the player may have left content on the overworld as a sort of bank
-			game.content.populateLevel(0, bitmap, layers, type);
+			game.content.populateLevel(type, 0, bitmap, layers);
 		}
 		
 		/* Create the underworld
@@ -428,7 +428,7 @@
 			}
 			
 			// the player may have left content on the underworld as a sort of bank
-			game.content.populateLevel(0, bitmap, layers, type);
+			game.content.populateLevel(type, 0, bitmap, layers);
 			
 			// create sensors to resolve any contact with the waters
 			var waterSensor:ColliderEntitySensor = new ColliderEntitySensor(

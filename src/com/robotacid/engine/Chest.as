@@ -1,5 +1,6 @@
 ﻿package com.robotacid.engine {
 	import com.robotacid.dungeon.Content;
+	import com.robotacid.dungeon.Map;
 	import com.robotacid.phys.Collider;
 	import com.robotacid.sound.SoundManager;
 	import flash.display.DisplayObject;
@@ -8,6 +9,8 @@
 	
 	/**
 	 * Item container
+	 * 
+	 * On later levels becomes a random trap that spawns a MIMIC Monster
 	 *
 	 * @author Aaron Steed, robotacid.com
 	 */
@@ -16,10 +19,20 @@
 		public var twinkleCount:int;
 		public var rect:Rectangle;
 		public var contents:Vector.<Item>;
+		public var mimicState:int;
+		
+		private var count:int;
 		
 		public static const TWINKLE_DELAY:int = 20;
 		public static const OPEN_ID:int = 53;
 		public static const GNOLL_SCAVENGER_RATE:Number = 1.0 / 20;
+		public static const MIMIC_RATE:Number = 1.0 / 20;
+		public static const TRANSFORM_DELAY:int = 9;
+		
+		// mimic states
+		public static const NONE:int = 0;
+		public static const WAITING:int = 1;
+		public static const TRANSFORM:int = 2;
 		
 		public function Chest(mc:DisplayObject, x:Number, y:Number, items:Vector.<Item>) {
 			super(mc, false, false);
@@ -27,8 +40,9 @@
 			mc.x = x;
 			mc.y = y;
 			
-			mapX = x * Game.INV_SCALE;
-			mapY = y * Game.INV_SCALE;
+			mapX = x * INV_SCALE;
+			mapY = (y - 1) * INV_SCALE;
+			mapZ = MapTileManager.ENTITY_LAYER;
 			
 			// for the sake of brevity - an open chest is an empty chest
 			if(items){
@@ -39,22 +53,52 @@
 				callMain = true;
 			}
 			(mc as MovieClip).gotoAndStop(contents ? "closed" : "open");
+			
+		}
+		
+		/* Initialise whether the chest is a mimic or not during level population */
+		public function mimicInit(mapType:int, mapLevel:int):void{
+			if((mapType == Map.MAIN_DUNGEON || mapType == Map.ITEM_DUNGEON) && mapLevel >= 6){
+				mimicState = (game.random.value() < MIMIC_RATE) ? WAITING : NONE;
+				if(mimicState == WAITING){
+					rect.x = (mapX - 1) * SCALE;
+					rect.y = (mapY - 1) * SCALE;
+					rect.width = 3 * SCALE;
+					rect.height = 3 * SCALE;
+				}
+			}
 		}
 		
 		override public function main():void {
-			// concealing the twinkle in the dark will help avoid showing a clipped effect on the edge
-			// of the light map
-			if(game.lightMap.darkImage.getPixel32(mapX, mapY) != 0xFF000000){
-				// create a twinkle twinkle effect so the player knows this is a collectable
-				if(twinkleCount-- <= 0){
-					renderer.addFX(rect.x + game.random.range(rect.width), rect.y + game.random.range(rect.height), renderer.twinkleBlit);
-					twinkleCount = TWINKLE_DELAY + game.random.range(TWINKLE_DELAY);
-				}
-			}
 			
-			// check for collection by player
-			if((game.player.actions & Collider.UP) && rect.intersects(game.player.collider) && !game.player.indifferent){
-				collect(game.player);
+			if(mimicState == TRANSFORM){
+				count--;
+				if(count <= 0) createMimic();
+				
+			} else {
+				// concealing the twinkle in the dark will help avoid showing a clipped effect on the edge
+				// of the light map
+				if(game.lightMap.darkImage.getPixel32(mapX, mapY) != 0xFF000000){
+					// create a twinkle twinkle effect so the player knows this is a collectable
+					if(twinkleCount-- <= 0){
+						renderer.addFX(rect.x + game.random.range(rect.width), rect.y + game.random.range(rect.height), renderer.twinkleBlit);
+						twinkleCount = TWINKLE_DELAY + game.random.range(TWINKLE_DELAY);
+					}
+					// detect the player for transform
+					if(mimicState == WAITING){
+						if(rect.intersects(game.player.collider) && !game.player.indifferent){
+							mimicState = TRANSFORM;
+							(gfx as MovieClip).gotoAndPlay("mimic");
+							game.soundQueue.add("chestOpen");
+							count = TRANSFORM_DELAY;
+						}
+					}
+				}
+				
+				// check for collection by player
+				if(mimicState == NONE && (game.player.actions & Collider.UP) && rect.intersects(game.player.collider) && !game.player.indifferent){
+					collect(game.player);
+				}
 			}
 		}
 		
@@ -75,6 +119,19 @@
 			contents = null;
 			callMain = false;
 			if(--game.map.completionCount == 0) game.levelCompleteMsg();
+		}
+		
+		/* Replaces this Entity with a Monster */
+		public function createMimic():void{
+			var monsterTemplate:XML =<character characterNum={-1} name={Character.MIMIC} type={Character.MONSTER} level={game.map.level} />;
+			for(var i:int = 0; i < contents.length; i++){
+				monsterTemplate.appendChild(contents[i].toXML());
+			}
+			var n:int = game.items.indexOf(this);
+			if(n > -1) game.items.splice(n, 1);
+			game.mapTileManager.removeTile(this, mapX, mapY, mapZ);
+			var monster:Monster = Content.XMLToEntity(mapX, mapY, monsterTemplate);
+			game.mapTileManager.converter.convertIndicesToObjects(mapX, mapY, monster);
 		}
 		
 		override public function nameToString():String {

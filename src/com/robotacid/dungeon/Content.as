@@ -239,24 +239,28 @@
 		/* Distributes content across a level
 		 * 
 		 * Portals we leave alone for the Map to request when it needs to create access points */
-		public function populateLevel(level:int, bitmap:MapBitmap, layers:Array, mapType:int):int{
+		public function populateLevel(mapType:int, mapLevel:int, bitmap:MapBitmap, layers:Array):int{
 			var r:int, c:int;
 			var i:int;
+			var chest:Chest;
+			var item:Item;
+			var list:Array;
+			var minX:int, maxX:int;
 			var monsters:Vector.<XML>;
 			var chests:Vector.<XML>;
 			var questGems:int = 0;
 			var completionCount:int = 0;
 			if(mapType == Map.MAIN_DUNGEON){
-				if(level < monstersByLevel.length){
-					monsters = monstersByLevel[level];
-					chests = chestsByLevel[level];
-					questGems = questGemsByLevel[level];
-					questGemsByLevel[level] = 0;
+				if(mapLevel < monstersByLevel.length){
+					monsters = monstersByLevel[mapLevel];
+					chests = chestsByLevel[mapLevel];
+					questGems = questGemsByLevel[mapLevel];
+					questGemsByLevel[mapLevel] = 0;
 				} else {
-					var obj:Object = getLevelContent(level);
-					monsters = monstersByLevel[level] = obj.monsters;
-					chests = chestsByLevel[level] = obj.chests;
-					questGemsByLevel[level] = 0;
+					var obj:Object = getLevelContent(mapLevel);
+					monsters = monstersByLevel[mapLevel] = obj.monsters;
+					chests = chestsByLevel[mapLevel] = obj.chests;
+					questGemsByLevel[mapLevel] = 0;
 				}
 			} else if(mapType == Map.ITEM_DUNGEON){
 				monsters = itemDungeonContent.monsters;
@@ -286,28 +290,26 @@
 					c = 1 + Map.random.range(bitmap.width - 2);
 					if(!layers[Map.ENTITIES][r][c] && layers[Map.BLOCKS][r][c] != MapTileConverter.WALL && (bitmap.bitmapData.getPixel32(c, r + 1) == MapBitmap.LEDGE || layers[Map.BLOCKS][r + 1][c] == MapTileConverter.WALL)){
 						//trace(chestsByLevel[level][0].toXMLString());
-						layers[Map.ENTITIES][r][c] = XMLToEntity(c, r, chests.shift());
+						chest = XMLToEntity(c, r, chests.shift());
+						chest.mimicInit(mapType, mapLevel);
+						layers[Map.ENTITIES][r][c] = chest;
 					}
 				}
 				if(questGems) dropQuestGems(questGems, layers, bitmap);
 				
 			} else {
 				// on areas we just scatter objects left up there
-				var chest:Chest;
-				var item:Item;
-				var list:Array;
-				var minX:int, maxX:int;
-				if(level == Map.OVERWORLD){
+				if(mapLevel == Map.OVERWORLD){
 					minX = 2;
 					maxX = bitmap.width - 2;
 					r = bitmap.height - 2;
-				} else if(level == Map.UNDERWORLD){
+				} else if(mapLevel == Map.UNDERWORLD){
 					minX = Map.UNDERWORLD_BOAT_MIN;
 					maxX = Map.UNDERWORLD_BOAT_MAX;
 					r = bitmap.height - 3;
 				}
-				while(areaContent[level].chests.length){
-					chest = XMLToEntity(0, 0, areaContent[level].chests.shift());
+				while(areaContent[mapLevel].chests.length){
+					chest = XMLToEntity(0, 0, areaContent[mapLevel].chests.shift());
 					while(chest.contents.length){
 						item = chest.contents.shift();
 						c = minX + Map.random.range(maxX - minX);
@@ -643,7 +645,7 @@
 					}
 				}
 			}
-			// skull armour and fireflies always start with a free enchantment
+			// skull, chaos helm and fireflies always start with a free enchantment
 			var enchantXMLList:XMLList;
 			if(type == Item.ARMOUR){
 				if(name == Item.FIRE_FLIES){
@@ -660,6 +662,14 @@
 						enchantXMLList[0].@level = int(enchantXMLList[0].@level) + 1;
 					} else {
 						effectXML =<effect name={Effect.UNDEAD} level="1" />
+						itemXML.appendChild(effectXML);
+					}
+				} else if(name == Item.CHAOS_HELM){
+					enchantXMLList = itemXML..effect.(@["name"] == Effect.CHAOS)
+					if(enchantXMLList.length()){
+						enchantXMLList[0].@level = int(enchantXMLList[0].@level) + 1;
+					} else {
+						effectXML =<effect name={Effect.CHAOS} level="1" />
 						itemXML.appendChild(effectXML);
 					}
 				}
@@ -702,7 +712,13 @@
 				var effect:Effect;
 				for each(var enchantment:XML in xml.effect){
 					effect = new Effect(enchantment.@name, enchantment.@level);
-					obj = effect.enchant(obj);
+					// chaos items use a loop hole in the enchant system to create a chaos effect spawner
+					if(effect.name == Effect.CHAOS){
+						effect.source = type;
+						effect.addToItem(obj);
+					} else {
+						obj = effect.enchant(obj);
+					}
 				}
 				
 				// is this item cursed or blessed?
