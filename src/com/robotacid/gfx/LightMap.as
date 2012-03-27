@@ -3,6 +3,7 @@
 	import com.robotacid.engine.Character;
 	import com.robotacid.engine.Entity;
 	import com.robotacid.engine.Entity;
+	import com.robotacid.engine.Explosion;
 	import com.robotacid.engine.Player;
 	import com.robotacid.util.Bresenham;
 	import com.robotacid.util.HiddenInt;
@@ -126,10 +127,12 @@
 				}
 			}
 		}
+		
 		/* Blacks out the entire lightmap, used for teleport */
 		public function blackOut():void{
 			darkImage.fillRect(darkImage.rect, 0xFF000000);
 		}
+		
 		/* Executes the lighting routine on the Entity */
 		public function light(entity:Entity):void{
 			var updateMinimap:Boolean = entity is Player;

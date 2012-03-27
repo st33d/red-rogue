@@ -347,8 +347,12 @@
 			collider.world.removeCollider(collider);
 			active = false;
 			if(item && (item.range & Item.THROWN)){
-				gfx.scaleX = 1;
-				item.dropToMap(mapX, mapY);
+				if(item.name == Item.BOMB){
+					var explosion:Explosion = new Explosion(0, mapX, mapY, 1 + Math.ceil(item.level / 4), item.damage, item.effects);
+				} else {
+					gfx.scaleX = 1;
+					item.dropToMap(mapX, mapY);
+				}
 			}
 		}
 		

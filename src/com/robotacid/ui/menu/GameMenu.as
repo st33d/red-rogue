@@ -63,6 +63,7 @@
 		public var searchOption:MenuOption;
 		public var disarmTrapOption:MenuOption;
 		public var missileOption:ToggleMenuOption;
+		public var jumpOption:MenuOption;
 		
 		public var screenshotOption:MenuOption;
 		public var editorOption:MenuOption;
@@ -177,6 +178,8 @@
 			missileOption = new ToggleMenuOption(["shoot", "throw"], null, false);
 			missileOption.help = "shoot/throw a missile using one's equipped weapon";
 			missileOption.context = "missile";
+			jumpOption = new MenuOption("jump", null, false);
+			jumpOption.help = "makes the player leap into the air";
 			
 			initChangeKeysMenuOption();
 			changeKeysOption.help = "change the movement keys, menu key and hot keys"
@@ -231,6 +234,7 @@
 			actionsList.options.push(summonOption);
 			actionsList.options.push(disarmTrapOption);
 			actionsList.options.push(missileOption);
+			actionsList.options.push(jumpOption);
 			
 			optionsList.options.push(soundOption);
 			optionsList.options.push(fullScreenOption);
@@ -294,6 +298,10 @@
 				<hotKey>
 				  <branch selection="1" name="actions" context="null"/>
 				  <branch selection="1" name="summon" context="null"/>
+				</hotKey>,
+				<hotKey>
+				  <branch selection="1" name="actions" context="null"/>
+				  <branch selection="4" name="jump" context="null"/>
 				</hotKey>
 			];
 			var hotKeyMap:HotKeyMap;
@@ -338,6 +346,7 @@
 					
 					// cursed items disable equipping items of that type, they cannot be dropped either (but undead are immune to curses)
 					inventoryList.equipMainOption.active = (
+						(item.range & (Item.MELEE | Item.MISSILE)) &&
 						!(item.user && item.holyState == Item.CURSE_REVEALED && !item.user.undead) &&
 						!(game.player.weapon && game.player.weapon.holyState == Item.CURSE_REVEALED && !game.player.undead)
 					);
@@ -348,6 +357,7 @@
 					);
 					inventoryList.equipMinionMainOption.active = (
 						game.minion &&
+						(item.range & (Item.MELEE | Item.MISSILE)) &&
 						!(item.user && item.holyState == Item.CURSE_REVEALED && !item.user.undead) &&
 						!(game.minion.weapon && game.minion.weapon.holyState == Item.CURSE_REVEALED && !game.minion.undead)
 					);
@@ -674,6 +684,10 @@
 			// missile weapons
 			} else if(option == missileOption){
 				game.player.shoot(Missile.ITEM);
+			
+			// jumping
+			} else if(option == jumpOption){
+				game.player.jump();
 			
 			// creating an item
 			} else if(option == giveItemList.createOption){

@@ -9,6 +9,7 @@
 	import com.robotacid.engine.ChaosWall;
 	import com.robotacid.engine.Character;
 	import com.robotacid.engine.Effect;
+	import com.robotacid.engine.Explosion;
 	import com.robotacid.engine.Minion;
 	import com.robotacid.engine.Portal;
 	import com.robotacid.engine.Entity;
@@ -83,7 +84,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 341;
+		public static const BUILD_NUM:int = 342;
 		
 		public static const TEST_BED_INIT:Boolean = false;
 		
@@ -136,6 +137,7 @@
 		public var effects:Vector.<Effect>;
 		public var portals:Vector.<Portal>;
 		public var chaosWalls:Vector.<ChaosWall>;
+		public var explosions:Vector.<Explosion>;
 		
 		// states
 		public var state:int;
@@ -403,7 +405,7 @@
 			// KEYS INIT
 			if(!Key.initialized){
 				Key.init(stage);
-				Key.custom = [Key.W, Key.S, Key.A, Key.D, Keyboard.SPACE, Key.F, Key.Z, Key.X, Key.C, Key.NUMBER_1, Key.NUMBER_2, Key.NUMBER_3, Key.NUMBER_4, Key.NUMBER_5, Key.NUMBER_6];
+				Key.custom = [Key.W, Key.S, Key.A, Key.D, Keyboard.SPACE, Key.F, Key.Z, Key.X, Key.C, Key.V, Key.NUMBER_1, Key.NUMBER_2, Key.NUMBER_3, Key.NUMBER_4];
 				Key.hotKeyTotal = 10;
 			}
 			
@@ -542,6 +544,7 @@
 			effects = new Vector.<Effect>();
 			portals = new Vector.<Portal>();
 			chaosWalls = new Vector.<ChaosWall>();
+			explosions = new Vector.<Explosion>();
 			portalHash = {};
 			
 			Item.runeNames = [];
@@ -568,6 +571,8 @@
 			renderer.blockBitmapData = mapTileManager.layerToBitmapData(MapTileManager.BLOCK_LAYER, renderer.blockBitmapData);
 			world = new CollisionWorld(map.width, map.height, SCALE);
 			world.map = createPropertyMap(mapTileManager.mapLayers[MapTileManager.BLOCK_LAYER]);
+			
+			Explosion.initMap(map.width, map.height);
 			
 			//world.debug = debug;
 			
@@ -689,6 +694,7 @@
 			renderer.fx.length = 0;
 			portals.length = 0;
 			chaosWalls.length = 0;
+			explosions.length = 0;
 			portalHash = {};
 			
 			Brain.monsterCharacters = new Vector.<Character>();
@@ -720,6 +726,8 @@
 			
 			world = new CollisionWorld(map.width, map.height, SCALE);
 			world.map = createPropertyMap(mapTileManager.mapLayers[MapTileManager.BLOCK_LAYER]);
+			
+			Explosion.initMap(map.width, map.height);
 			
 			renderer.sceneManager = SceneManager.getSceneManager(map.level, map.type);
 			
@@ -832,16 +840,6 @@
 			//info.text = game.player.mapX + " " + game.player.mapY;
 			//info.appendText("pixels" + (getTimer() - t) + "\n"); t = getTimer();
 			
-			//var mouseMapX:int = INV_SCALE * canvas.mouseX;
-			//var mouseMapY:int = INV_SCALE * canvas.mouseY;
-			//if(Brain.dungeonGraph.nodes[mouseMapY][mouseMapX] && Brain.dungeonGraph.nodes[player.mapY][player.mapX]){
-				//var path:Vector.<Node> = Brain.dungeonGraph.getPath(Brain.dungeonGraph.nodes[player.mapY][player.mapX], Brain.dungeonGraph.nodes[mouseMapY][mouseMapX], 100);
-				//if(path){
-					//if(path.length == 0) trace(game.frameCount);
-					//Brain.dungeonGraph.drawPath(path, debug, SCALE);
-				//}
-			//}
-			//Brain.dungeonGraph.drawGraph(debug, SCALE);
 			
 			if(state == GAME) {
 				
@@ -908,6 +906,16 @@
 						}
 					}
 					
+					// update explosions
+					for(i = explosions.length - 1; i > -1; i--){
+						entity = explosions[i];
+						if(entity.active){
+							entity.main();
+						} else {
+							explosions.splice(i, 1);
+						}
+					}
+					
 					// apply effects
 					for(i = effects.length - 1; i > -1; i--){
 						effect = effects[i];
@@ -936,6 +944,12 @@
 					
 					if(editor.active) editor.main();
 					
+					/*var mx:int = renderer.canvas.mouseX * INV_SCALE;
+					var my:int = renderer.canvas.mouseY * INV_SCALE;
+					if(mousePressedCount == frameCount){
+						var explosion:Explosion = new Explosion(0, mx, my, 5, 0);
+					}*/
+					
 					frameCount++;
 					if(Brain.voiceCount) Brain.voiceCount--;
 					if(HorrorBrain.horrorVoiceCount) HorrorBrain.horrorVoiceCount--;
@@ -946,14 +960,6 @@
 						addLife();
 						Key.keyLogString = "";
 					}
-					
-					var mx:int = renderer.canvas.mouseX * INV_SCALE;
-					var my:int = renderer.canvas.mouseY * INV_SCALE;
-					
-					//if(mx >= 0 && my >= 0 && mx < Brain.dungeonGraph.width && my < Brain.dungeonGraph.height){
-					//var path:Vector.<Node> = Brain.dungeonGraph.getEscapePath(Brain.dungeonGraph.nodes[my][mx], Brain.dungeonGraph.nodes[player.mapY][player.mapX], 50);
-					//if(path) Brain.dungeonGraph.drawPath(path, debug, SCALE);
-					//}
 				
 				}
 				
@@ -1064,6 +1070,9 @@
 			if(Key.lockOut) return;
 			if(Key.customDown(MENU_KEY) && !Game.dialog){
 				pauseGame();
+			}
+			if(Key.isDown(Key.K)){
+				player.jump();
 			}
 			/*if(Key.isDown(Key.T)){
 				if(!Game.dialog){

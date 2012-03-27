@@ -66,6 +66,7 @@
 		public var characterNum:int;
 		public var missileFilter:int;
 		public var quickenQueued:Boolean;
+		public var canJump:Boolean;
 		public var voice:Array;
 		
 		// stats
@@ -195,6 +196,7 @@
 		public static const SMITE_DAMAGE_RATIO:Number = 1.5;
 		public static const SMITE_PER_LEVEL:Number = 0.05;
 		public static const QUICKENING_PER_LEVEL:Number = 0.5;
+		public static const JUMP_VELOCITY:Number = -7;
 		
 		public static const DEFAULT_COL:ColorTransform = new ColorTransform();
 		public static const INFRAVISION_COLS:Vector.<ColorTransform> = Vector.<ColorTransform>([DEFAULT_COL, new ColorTransform(1, 0, 0, 1, 255), new ColorTransform(1, 0.7, 0.7, 1, 50)]);
@@ -229,6 +231,7 @@
 			quickenQueued = false;
 			missileIgnore = Collider.LADDER | Collider.LEDGE | Collider.CORPSE | Collider.ITEM | Collider.HEAD | Collider.HORROR;
 			uniqueNameStr = null;
+			canJump = false;
 			
 			setStats();
 			
@@ -868,6 +871,7 @@
 			}
 			if(item.type == Item.ARMOUR){
 				armour = item;
+				canJump = item.name == Item.YENDOR;
 				if(item.effects){
 					var effect:Effect;
 					for(var i:int = 0; i < item.effects.length; i++){
@@ -881,6 +885,7 @@
 			item.addBuff(this);
 			
 			if(throwing) (gfx as Sprite).addChildAt(item.gfx, 0);
+			else if(item.name == Item.YENDOR && item.type == Item.ARMOUR) (gfx as Sprite).addChildAt(item.gfx, 0);
 			else (gfx as Sprite).addChild(item.gfx);
 			if(item.gfx is ItemMovieClip) (item.gfx as ItemMovieClip).setEquipRender();
 			return item;
@@ -906,6 +911,7 @@
 						if(effect.applicable) effect.dismiss();
 					}
 				}
+				canJump = false;
 				armour = null;
 			}
 			if(item == weapon) weapon = null;
@@ -1010,6 +1016,15 @@
 		public function catchThrowable(item:Item):void{
 			item.collect(this, true, true);
 			if(!throwable && !(weapon && weapon.range & Item.THROWN)) equip(item, true);
+		}
+		
+		/* The most ironic method ever to appear in what is advertised as a platform game */
+		public function jump():void{
+			if(state != WALKING || collider.state == Collider.FALL) return;
+			collider.divorce();
+			collider.state = Collider.FALL;
+			collider.vy = JUMP_VELOCITY;
+			game.soundQueue.add("jump");
 		}
 		
 		/* Adds damage to the Character */

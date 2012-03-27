@@ -1,4 +1,4 @@
-Change log: added increased quickening damage per character level, changed quickening to not target characters entering or quickening, added quickening to lightning missile
+Change log: added bomb explosions - self replicating floodfill style objects, added jump ability to amulet of yendor - included jump added to actions menu and hot key setup
 
 Bug hunt
 	can crash graph renderer by changing level
@@ -14,9 +14,11 @@ need the ability to block effect apply printouts
 
 fix help text - refers to deprecated rules
 
-bomb
-	create explosion effect
-		circular or spread?
+yendor
+	jumping
+		add jump to options
+		hotkey the option
+		add jump to character
 
 wraith
 	create filtered collider

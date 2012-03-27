@@ -462,6 +462,9 @@
 				if(game.menu.missileOption.active){
 					game.menu.missileOption.state = throwable ? GameMenu.THROW : GameMenu.SHOOT;
 				}
+			} else if(item.type == Item.ARMOUR){
+				// update the menu if jumping is unlocked
+				game.menu.jumpOption.active = canJump;
 			}
 			inventory.updateItem(item);
 			return item;
@@ -471,6 +474,9 @@
 		override public function unequip(item:Item):Item{
 			if(item == throwable || (item.type == Item.WEAPON && item.range & Item.MISSILE)) game.menu.missileOption.active = false;
 			super.unequip(item);
+			if(item.type == Item.ARMOUR){
+				game.menu.jumpOption.active = canJump;
+			}
 			inventory.updateItem(item);
 			return item;
 		}
