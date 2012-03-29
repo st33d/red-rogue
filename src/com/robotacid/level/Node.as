@@ -1,4 +1,4 @@
-﻿package com.robotacid.dungeon {
+﻿package com.robotacid.level {
 	/**
 	 * This is a graph vertex
 	 * 

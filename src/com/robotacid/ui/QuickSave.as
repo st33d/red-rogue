@@ -1,6 +1,6 @@
 package com.robotacid.ui {
 	import com.robotacid.ai.Brain;
-	import com.robotacid.dungeon.Content;
+	import com.robotacid.level.Content;
 	import com.robotacid.engine.Character;
 	import com.robotacid.engine.Effect;
 	import com.robotacid.engine.Item;

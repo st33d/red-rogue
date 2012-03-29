@@ -1,4 +1,4 @@
-﻿package com.robotacid.dungeon {
+﻿package com.robotacid.level {
 	import com.robotacid.engine.ChaosWall;
 	import com.robotacid.engine.Character;
 	import com.robotacid.engine.ColliderEntity;
@@ -26,7 +26,7 @@
 	/**
 	 * This is the random map generator
 	 *
-	 * The layout for every dungeon is calculated in here.
+	 * The layout for every level is calculated in here.
 	 * 
 	 * MapBitmap creates the passage ways and creates a connectivity graph to place ladders and ledges
 	 * the convertMapBitmap method converts that data into references to graphics and entities
@@ -164,7 +164,7 @@
 			zone = (game.menu.editorList.dungeonLevelList.selection) / LEVELS_PER_ZONE;
 		}
 		
-		/* This is where we convert our map template into a dungeon proper made of tileIds and other
+		/* This is where we convert our map template into a level proper made of tileIds and other
 		 * information
 		 */
 		public function convertMapBitmap(bitmapData:BitmapData):void{
@@ -702,7 +702,8 @@
 							pixels[(i + width) + 1] == MapBitmap.WALL
 						)
 					){
-						if(random.value() < 0.4 && !layers[ENTITIES][r][c]){
+						//if(random.value() < 0.4 && !layers[ENTITIES][r][c]){
+						if(random.value() < 1 && !layers[ENTITIES][r][c]){
 							layers[ENTITIES][r][c] = new ChaosWall(c, r);
 							layers[BLOCKS][r][c] = MapTileConverter.WALL;
 						}
@@ -793,7 +794,10 @@
 		
 		/* Creates a secret wall that can be broken through */
 		public function createSecretWall(x:int, y:int):void{
-			var wall:Stone = new Stone(x * Game.SCALE, y * Game.SCALE, Stone.SECRET_WALL);
+			var side:int;
+			if(x > width * 0.5) side = Collider.RIGHT;
+			else side = Collider.LEFT;
+			var wall:Stone = new Stone(x * Game.SCALE, y * Game.SCALE, Stone.SECRET_WALL, side);
 			wall.mapX = x;
 			wall.mapY = y;
 			wall.mapZ = MapTileManager.ENTITY_LAYER;

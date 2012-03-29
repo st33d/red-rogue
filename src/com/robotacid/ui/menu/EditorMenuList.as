@@ -1,7 +1,7 @@
 package com.robotacid.ui.menu {
-	import com.robotacid.dungeon.Content;
-	import com.robotacid.dungeon.MapBitmap;
-	import com.robotacid.dungeon.Map;
+	import com.robotacid.level.Content;
+	import com.robotacid.level.MapBitmap;
+	import com.robotacid.level.Map;
 	import com.robotacid.engine.Character;
 	import com.robotacid.engine.Effect;
 	import com.robotacid.engine.Entity;
@@ -36,6 +36,7 @@ package com.robotacid.ui.menu {
 		
 		public var renderCollisionList:MenuList;
 		public var renderAIGraphList:MenuList;
+		public var renderAIWallWalkGraphList:MenuList;
 		public var renderAIPathsList:MenuList;
 		public var lightList:MenuList;
 		
@@ -71,6 +72,7 @@ package com.robotacid.ui.menu {
 			renderList = new MenuList();
 			renderCollisionList = new MenuList();
 			renderAIGraphList = new MenuList();
+			renderAIWallWalkGraphList = new MenuList();
 			renderAIPathsList = new MenuList();
 			lightList = new MenuList();
 			
@@ -96,6 +98,7 @@ package com.robotacid.ui.menu {
 			
 			var renderCollisionOption:MenuOption = new MenuOption("collision", renderCollisionList);
 			var renderAIGraphOption:MenuOption = new MenuOption("ai graph", renderAIGraphList);
+			var renderAIWallWalkGraphOption:MenuOption = new MenuOption("ai wall walk graph", renderAIWallWalkGraphList);
 			var renderAIPathsOption:MenuOption = new MenuOption("ai paths", renderAIPathsList);
 			var lightOption:MenuOption = new MenuOption("light", lightList);
 			
@@ -135,6 +138,7 @@ package com.robotacid.ui.menu {
 			// render settings
 			renderList.options.push(renderCollisionOption);
 			renderList.options.push(renderAIGraphOption);
+			renderList.options.push(renderAIWallWalkGraphOption);
 			renderList.options.push(renderAIPathsOption);
 			renderList.options.push(lightOption);
 			
@@ -142,6 +146,8 @@ package com.robotacid.ui.menu {
 			renderCollisionList.options.push(onOption);
 			renderAIGraphList.options.push(offOption);
 			renderAIGraphList.options.push(onOption);
+			renderAIWallWalkGraphList.options.push(offOption);
+			renderAIWallWalkGraphList.options.push(onOption);
 			renderAIPathsList.options.push(offOption);
 			renderAIPathsList.options.push(onOption);
 			lightList.options.push(offOption);

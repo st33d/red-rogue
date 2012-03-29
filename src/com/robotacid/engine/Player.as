@@ -2,7 +2,7 @@
 	
 	import com.robotacid.ai.Brain;
 	import com.robotacid.ai.PlayerBrain;
-	import com.robotacid.dungeon.Map;
+	import com.robotacid.level.Map;
 	import com.robotacid.engine.Effect;
 	import com.robotacid.engine.Item;
 	import com.robotacid.engine.Portal;
@@ -11,6 +11,7 @@
 	import com.robotacid.phys.Cast;
 	import com.robotacid.engine.Character;
 	import com.robotacid.phys.Collider;
+	import com.robotacid.phys.FilterCollider;
 	import com.robotacid.sound.SoundManager;
 	import com.robotacid.ui.Dialog;
 	import com.robotacid.ui.Key;

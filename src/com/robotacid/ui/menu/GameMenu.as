@@ -1,6 +1,6 @@
 ﻿package com.robotacid.ui.menu {
 	import com.robotacid.ai.Brain;
-	import com.robotacid.dungeon.Map;
+	import com.robotacid.level.Map;
 	import com.robotacid.engine.Character;
 	import com.robotacid.engine.Effect;
 	import com.robotacid.engine.Face;
@@ -741,7 +741,7 @@
 				
 			// remapping the ai graph
 			} else if(option == editorList.remapAIGraphOption){
-				Brain.initDungeonGraph(game.map.bitmap);
+				Brain.initMapGraph(game.map.bitmap);
 				for(i = 0; i < Brain.monsterCharacters.length; i++){
 					character = Brain.monsterCharacters[i];
 					character.brain.clear();

@@ -1,5 +1,5 @@
 package com.robotacid.engine {
-	import com.robotacid.dungeon.Content;
+	import com.robotacid.level.Content;
 	import com.robotacid.gfx.Renderer;
 	import com.robotacid.phys.Collider;
 	import flash.display.DisplayObject;

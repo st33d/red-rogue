@@ -1,4 +1,4 @@
-﻿package com.robotacid.dungeon {
+﻿package com.robotacid.level {
 	import com.robotacid.geom.Pixel;
 	import com.robotacid.util.array.randomiseArray;
 	import flash.display.Bitmap;
@@ -8,7 +8,7 @@
 	import flash.geom.Point;
 	
 	/**
-	 * This class creates the dungeon layout as a bitmap
+	 * This class creates the level layout as a bitmap
 	 *
 	 * This gives us the advantage of testing connectivity using the floodFill method and it
 	 * means in the event of debugging, it's a simple task to see what state the level is in
@@ -38,7 +38,7 @@
 		// temp variables
 		private var i:int, j:int, k:int, n:int, r:int, c:int, node:Node, room:Room;
 		
-		// pacing variables - these keep a consistent scale for the dungeon
+		// pacing variables - these keep a consistent scale for the level
 		public var vertPace:int;
 		public var horizPace:int;
 		public var roominess:int;
@@ -53,7 +53,7 @@
 		public static const LEDGINESS:Number = 0.4;
 		public static const LADDERINESS:Number = 0.1;
 		
-		// All features in the dungeon are represented by colours
+		// All features in the level are represented by colours
 		public static const PATH:uint = 0xFFFFFF88;
 		public static const NODE:uint = 0xFFFF00FF;
 		public static const WALL:uint = 0xFFFF0000;
@@ -175,7 +175,7 @@
 		/* This plots the size, number of rooms and how those rooms are connected */
 		public function createRoomsAndTunnels():BitmapData{
 			
-			// sometimes the generator will fail - then we recreate the dungeon
+			// sometimes the generator will fail - then we recreate the level
 			
 			do{
 				var goodLevel:Boolean = true;
@@ -442,7 +442,7 @@
 			}
 			
 			// here's comes the graph to reduce the number of routes and give us a more
-			// tricky dungeon to navigate
+			// tricky level to navigate
 			
 			var graph:Vector.<Node> = new Vector.<Node>();
 			
@@ -714,7 +714,7 @@
 			}
 			
 			// It is possible for the route planning to go awry.
-			// Double check that the dungeon has full connectivity
+			// Double check that the level has full connectivity
 			var connectionBitmapData:BitmapData = new BitmapData(width * 2, height * 2, true, 0xFFFFFFFF);
 			var connectionPixels:Vector.<uint> = connectionBitmapData.getVector(connectionBitmapData.rect);
 			var connectionMapWidth:int = mapWidth * 2;

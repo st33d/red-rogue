@@ -4,8 +4,9 @@
 	import com.robotacid.ai.HorrorBrain;
 	import com.robotacid.ai.Node;
 	import com.robotacid.ai.PlayerBrain;
-	import com.robotacid.dungeon.Content;
-	import com.robotacid.dungeon.MapBitmap;
+	import com.robotacid.level.Content;
+	import com.robotacid.level.MapBitmap;
+	import com.robotacid.level.Map;
 	import com.robotacid.engine.ChaosWall;
 	import com.robotacid.engine.Character;
 	import com.robotacid.engine.Effect;
@@ -45,7 +46,6 @@
 	import com.robotacid.util.misc.onScreen;
 	import com.robotacid.util.LZW;
 	import com.robotacid.util.RLE;
-	import com.robotacid.dungeon.Map;
 	import com.robotacid.util.XorRandom;
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
@@ -564,7 +564,7 @@
 			
 			// DEBUG HERE ==========================================================================================
 			map = new Map(1);
-			Brain.initDungeonGraph(map.bitmap);
+			Brain.initMapGraph(map.bitmap);
 			mapTileManager = new MapTileManager(this, renderer.canvas, SCALE, map.width, map.height, WIDTH, HEIGHT);
 			mapTileManager.setLayers(map.layers);
 			renderer.blockBitmapData = mapTileManager.layerToBitmapData(MapTileManager.BACKGROUND_LAYER);
@@ -714,7 +714,7 @@
 			
 			map = new Map(n, mapType);
 			
-			Brain.initDungeonGraph(map.bitmap);
+			Brain.initMapGraph(map.bitmap);
 			
 			mapTileManager.newMap(map.width, map.height, map.layers);
 			renderer.blockBitmapData = mapTileManager.layerToBitmapData(MapTileManager.BACKGROUND_LAYER);

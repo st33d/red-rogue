@@ -1,6 +1,6 @@
 ﻿package com.robotacid.engine {
 	import com.robotacid.ai.Brain;
-	import com.robotacid.dungeon.Map;
+	import com.robotacid.level.Map;
 	import com.robotacid.engine.Character;
 	import com.robotacid.gfx.Renderer;
 	import com.robotacid.phys.Collider;
@@ -21,6 +21,7 @@
 	 */
 	public class Stone extends Character{
 		
+		public var side:int;
 		public var revealed:Boolean;
 		
 		private var minimapFeature:MinimapFX;
@@ -61,6 +62,7 @@
 			gfx.x = x;
 			gfx.y = y;
 			super(gfx, x, y, name, STONE, 0, false);
+			this.side = side;
 			health = STONE_NAME_HEALTHS[name];
 			defence = 0;
 			callMain = false;
@@ -142,10 +144,10 @@
 			game.mapTileManager.removeTile(this, mapX, mapY, mapZ);
 			renderer.blockBitmapData.fillRect(new Rectangle(mapX * SCALE, mapY * SCALE, SCALE, SCALE), 0x00000000);
 			// adjust the mapRect to show new content
-			if(mapX < game.player.mapX){
+			if(side == LEFT){
 				game.mapTileManager.mapRect.x = 0;
 				game.mapTileManager.mapRect.width += game.map.bitmap.leftSecretWidth;
-			} else if(mapX > game.player.mapX){
+			} else if(side == RIGHT){
 				game.mapTileManager.mapRect.width += game.map.bitmap.rightSecretWidth;
 			}
 			if(minimapFeature) {
@@ -160,13 +162,10 @@
 		/* A search action can reveal to the player where a secret wall is */
 		public function reveal():void{
 			var revealedGfx:MovieClip = new SecretMC();
-			var side:int;
-			if(mapX * SCALE >= game.mapTileManager.mapRect.x + game.mapTileManager.mapRect.width * 0.5){
-				side = RIGHT;
+			if(side == RIGHT){
 				revealedGfx.scaleX = -1;
 				renderer.addFX(gfx.x - SCALE, gfx.y, renderer.secretRevealRightBlit);
-			} else {
-				side = LEFT;
+			} else if(side == LEFT){
 				revealedGfx.x = SCALE;
 				renderer.addFX(gfx.x + SCALE, gfx.y, renderer.secretRevealLeftBlit);
 			}

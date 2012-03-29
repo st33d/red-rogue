@@ -1,6 +1,6 @@
 package com.robotacid.ui {
 	import com.robotacid.ai.Brain;
-	import com.robotacid.ai.DungeonGraph;
+	import com.robotacid.ai.MapGraph;
 	import com.robotacid.ai.Node;
 	import com.robotacid.engine.Character;
 	import com.robotacid.geom.Pixel;
@@ -92,7 +92,8 @@ package com.robotacid.ui {
 			var i:int, r:int, c:int;
 			var node:Node, character:Character;
 			var gfx:Graphics = sprite.graphics;
-			var graph:DungeonGraph = Brain.dungeonGraph;
+			var graph:MapGraph = Brain.mapGraph;
+			var wallWalkGraph:MapGraph = Brain.walkWalkGraph;
 			var rect:Rectangle = new Rectangle();
 			
 			bitmapData.fillRect(bitmapData.rect, 0x00000000);
@@ -120,6 +121,12 @@ package com.robotacid.ui {
 				gfx.clear();
 				gfx.lineStyle(2, 0xFFFF00, 0.4);
 				graph.drawGraph(gfx, Game.SCALE, topLeft, bottomRight);
+				bitmapData.draw(sprite, new Matrix(1, 0, 0, 1, -renderer.bitmap.x, -renderer.bitmap.y));
+			}
+			if(menuList.renderAIWallWalkGraphList.selection == EditorMenuList.ON){
+				gfx.clear();
+				gfx.lineStyle(2, 0xFFFF00, 0.4);
+				wallWalkGraph.drawGraph(gfx, Game.SCALE, topLeft, bottomRight);
 				bitmapData.draw(sprite, new Matrix(1, 0, 0, 1, -renderer.bitmap.x, -renderer.bitmap.y));
 			}
 			if(menuList.renderAIPathsList.selection == EditorMenuList.ON){

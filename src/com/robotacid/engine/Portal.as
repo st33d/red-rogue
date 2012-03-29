@@ -1,7 +1,7 @@
 ﻿package com.robotacid.engine {
 	import com.robotacid.ai.Brain;
-	import com.robotacid.dungeon.Content;
-	import com.robotacid.dungeon.Map;
+	import com.robotacid.level.Content;
+	import com.robotacid.level.Map;
 	import com.robotacid.engine.Entity;
 	import com.robotacid.gfx.BlitClip;
 	import com.robotacid.phys.Collider;

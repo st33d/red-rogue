@@ -1,6 +1,6 @@
 ﻿package com.robotacid.engine {
 	import com.robotacid.ai.Brain;
-	import com.robotacid.dungeon.Map;
+	import com.robotacid.level.Map;
 	import com.robotacid.gfx.BlitRect;
 	import com.robotacid.gfx.BlitSprite;
 	import com.robotacid.gfx.Renderer;

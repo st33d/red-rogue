@@ -1,6 +1,6 @@
 package com.robotacid.ui.menu {
 	import com.robotacid.ai.Brain;
-	import com.robotacid.dungeon.Map;
+	import com.robotacid.level.Map;
 	import com.robotacid.engine.Character;
 	import com.robotacid.engine.Item;
 	import com.robotacid.ui.Dialog;

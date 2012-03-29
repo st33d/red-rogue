@@ -1,7 +1,7 @@
 package com.robotacid.engine {
 	import adobe.utils.CustomActions;
-	import com.robotacid.dungeon.Content;
-	import com.robotacid.dungeon.Map;
+	import com.robotacid.level.Content;
+	import com.robotacid.level.Map;
 	import com.robotacid.geom.Pixel;
 	import com.robotacid.gfx.BlitRect;
 	import com.robotacid.gfx.FadingBlitRect;

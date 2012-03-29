@@ -1,5 +1,5 @@
 ﻿package com.robotacid.ai {
-	import com.robotacid.dungeon.MapBitmap;
+	import com.robotacid.level.MapBitmap;
 	import com.robotacid.engine.Character;
 	import com.robotacid.engine.Item;
 	import com.robotacid.engine.Minion;
@@ -39,6 +39,7 @@
 		public var leader:Character;
 		public var path:Vector.<Node>;
 		public var altNode:Node;
+		public var wallWalker:Boolean;
 		
 		public var state:int;
 		public var count:int;
@@ -58,7 +59,8 @@
 		
 		public static var playerCharacters:Vector.<Character>;
 		public static var monsterCharacters:Vector.<Character>;
-		public static var dungeonGraph:DungeonGraph;
+		public static var mapGraph:MapGraph;
+		public static var walkWalkGraph:WallWalkGraph;
 		public static var voiceCount:int;
 		
 		protected static var start:Node;
@@ -115,8 +117,9 @@
 			playerCharacters = new Vector.<Character>();
 			monsterCharacters = new Vector.<Character>();
 		}
-		public static function initDungeonGraph(bitmap:MapBitmap):void{
-			dungeonGraph = new DungeonGraph(bitmap);
+		public static function initMapGraph(bitmap:MapBitmap):void{
+			mapGraph = new MapGraph(bitmap);
+			walkWalkGraph = new WallWalkGraph(bitmap);
 		}
 		
 		public function Brain(char:Character, allegiance:int, leader:Character = null) {
@@ -142,6 +145,8 @@
 				ignore |= Collider.MONSTER;
 				searchSteps = MONSTER_SEARCH_STEPS;
 			}
+			// assign the correct graph for the brain to use
+			wallWalker = char.name == Character.WRAITH;
 		}
 		
 		public function main():void{
@@ -358,6 +363,7 @@
 			var i:int;
 			var targetX:Number = target.collider.x + target.collider.width * 0.5;
 			var targetY:Number = target.collider.y + target.collider.height * 0.5;
+			var graph:MapGraph = wallWalker ? walkWalkGraph : mapGraph;
 			
 			// are we in the same tile?
 			if(target.mapX == char.mapX && target.mapY == char.mapY){
@@ -379,12 +385,12 @@
 			
 			// perform an A* search to locate the target
 			} else {
-				start = dungeonGraph.nodes[char.mapY][char.mapX];
+				start = graph.nodes[char.mapY][char.mapX];
 				
 				// no node means the character must be falling or clipping a ledge
 				if(start){
 					
-					path = dungeonGraph.getPathTo(start, dungeonGraph.nodes[target.mapY][target.mapX], searchSteps);
+					path = graph.getPathTo(start, graph.nodes[target.mapY][target.mapX], searchSteps);
 					
 					if(path){
 						
@@ -399,7 +405,7 @@
 									if(charPos.x < char.tileCenter) char.actions |= RIGHT;
 									else if(charPos.x > char.tileCenter) char.actions |= LEFT;
 								} else {
-									altNode = dungeonGraph.getRandomNode(start, game.random);
+									altNode = graph.getRandomNode(start, game.random);
 								}
 							}
 							if(altNode) node = altNode;
@@ -493,6 +499,7 @@
 			var i:int;
 			var targetX:Number = target.collider.x + target.collider.width * 0.5;
 			var targetY:Number = target.collider.y + target.collider.height * 0.5;
+			var graph:MapGraph = wallWalker ? walkWalkGraph : mapGraph;
 			
 			// are we in the same tile?
 			if(target.mapX == char.mapX && target.mapY == char.mapY){
@@ -504,12 +511,12 @@
 			
 			// perform an Brown* search to escape the target
 			} else {
-				start = dungeonGraph.nodes[char.mapY][char.mapX];
+				start = graph.nodes[char.mapY][char.mapX];
 				
 				// no node means the character must be falling or clipping a ledge
 				if(start){
 					// dive nodes confuse the Brown* algorithm, so we can't use them
-					path = dungeonGraph.getPathAway(start, dungeonGraph.nodes[target.mapY][target.mapX], searchSteps, false);
+					path = graph.getPathAway(start, graph.nodes[target.mapY][target.mapX], searchSteps, false);
 					
 					if(path){
 						

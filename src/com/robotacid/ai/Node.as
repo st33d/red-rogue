@@ -1,7 +1,7 @@
 package com.robotacid.ai {
 	import com.robotacid.geom.Pixel;
 	/**
-	 * A search node of the DungeonGraph.
+	 * A search node of the MapGraph.
 	 *
 	 * Contains methods and properties used for A* pathfinding
 	 *

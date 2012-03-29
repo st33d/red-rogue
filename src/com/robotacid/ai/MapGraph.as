@@ -1,5 +1,5 @@
 package com.robotacid.ai {
-	import com.robotacid.dungeon.MapBitmap;
+	import com.robotacid.level.MapBitmap;
 	import com.robotacid.geom.Pixel;
 	import com.robotacid.util.XorRandom;
 	import flash.display.Graphics;
@@ -8,7 +8,7 @@ package com.robotacid.ai {
 	 *
 	 * @author Aaron Steed, robotacid.com
 	 */
-	public class DungeonGraph{
+	public class MapGraph{
 		
 		public var width:int;
 		public var height:int;
@@ -22,12 +22,12 @@ package com.robotacid.ai {
 		private var node:Node;
 		private var adjacentTile:Node;
 		
-		public function DungeonGraph(bitmap:MapBitmap) {
+		public function MapGraph(bitmap:MapBitmap) {
 			searchId = 0;
 			nodes = new Vector.<Vector.<Node>>();
 			width = bitmap.bitmapData.width;
 			height = bitmap.bitmapData.height;
-			var r:int, c:int;
+			var r:int, c:int, i:int;
 			for(r = 0; r < height; r++){
 				nodes.push(new Vector.<Node>());
 				for(c = 0; c < width; c++){
@@ -36,7 +36,6 @@ package com.robotacid.ai {
 			}
 			// there is a node on every surface and ladder
 			var pixels:Vector.<uint> = bitmap.bitmapData.getVector(bitmap.bitmapData.rect);
-			var i:int;
 			for(i = width; i < pixels.length - width; i++){
 				if(
 					(pixels[i] != MapBitmap.WALL && (
@@ -52,8 +51,13 @@ package com.robotacid.ai {
 					nodes[r][c] = new Node(c, r);
 				}
 			}
+			connectNodes(pixels);
+		}
+		
+		/* Create connections between the nodes based on the navigation behaviour desired */
+		public function connectNodes(pixels:Vector.<uint>):void{
 			// connect the nodes
-			var n:int;
+			var r:int, c:int, n:int, i:int;
 			for(r = 1; r < height - 1; r++){
 				for(c = 1; c < width - 1; c++){
 					if(nodes[r][c]){
@@ -131,7 +135,6 @@ package com.robotacid.ai {
 					}
 				}
 			}
-			
 		}
 		
 		/* Returns a vector of nodes describing a route from the start Node to the finish Node

@@ -1,9 +1,10 @@
 ﻿package com.robotacid.engine {
 	import com.robotacid.ai.Brain;
-	import com.robotacid.dungeon.Map;
+	import com.robotacid.level.Map;
 	import com.robotacid.gfx.ItemMovieClip;
 	import com.robotacid.gfx.Renderer;
 	import com.robotacid.phys.Collider;
+	import com.robotacid.phys.FilterCollider;
 	import com.robotacid.sound.SoundManager;
 	import com.robotacid.ui.menu.QuestMenuOption;
 	import com.robotacid.util.clips.localToLocal;
@@ -344,7 +345,13 @@
 			// characters are thinner than their graphics, so we have to read their widths from the stats
 			var bounds:Rectangle = gfx.getBounds(gfx);
 			var w:Number = stats["widths"][name];
-			collider = new Collider(x - w * 0.5, y - bounds.height, w, bounds.height, Game.SCALE, properties, ignoreProperties, state);
+			// wraiths can wall walk
+			if(name == WRAITH){
+				collider = new FilterCollider(x - w * 0.5, y - bounds.height, w, bounds.height, Game.SCALE, properties, ignoreProperties, state);
+				(collider as FilterCollider).setFilter(Collider.WALL, Collider.WALL | Collider.UP | Collider.DOWN);
+			} else {
+				collider = new Collider(x - w * 0.5, y - bounds.height, w, bounds.height, Game.SCALE, properties, ignoreProperties, state);
+			}
 			collider.userData = this;
 			mapX = (collider.x + collider.width * 0.5) * Game.INV_SCALE;
 			mapY = (collider.y + collider.height * 0.5) * Game.INV_SCALE;
@@ -696,7 +703,7 @@
 			if(dir) collider.awake = Collider.AWAKE_DELAY;
 		}
 		
-		private function stompCallback(stomper:Collider):void{
+		protected function stompCallback(stomper:Collider):void{
 			if(state == QUICKENING || state == SMITED || !active) return;
 			applyStun(0.5);
 			var center:Number = collider.x + collider.width * 0.5;
@@ -1169,6 +1176,8 @@
 		public function changeName(name:int, gfx:MovieClip = null):void{
 			if(this.name == name && !gfx) return;
 			
+			var previousName:int = this.name;
+			
 			// change gfx
 			this.name = name;
 			if(!gfx){
@@ -1186,8 +1195,15 @@
 			createCollider(collider.x + collider.width * 0.5, collider.y + collider.height, collider.properties, collider.ignoreProperties, Collider.FALL);
 			if(restore){
 				game.world.restoreCollider(collider);
-				collider.resolveMapInsertion();
+				if(name != WRAITH) collider.resolveMapInsertion();
+				// if a character ceases to be a wraith whilst wall-walking, teleport them out
+				if(previousName == WRAITH && (game.world.map[mapY][mapX] & Collider.WALL)){
+					Effect.teleportCharacter(this, Effect.getTeleportTarget(mapX, mapY, game.world.map, game.mapTileManager.mapRect));
+				}
 			}
+			
+			// set the correct ai graph for the character's brain
+			brain.wallWalker = name == WRAITH;
 			
 			// change stats - items will be equipped to the new graphic in the setStats method
 			var originalHealthRatio:Number = health / totalHealth;

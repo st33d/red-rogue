@@ -1,6 +1,6 @@
 ﻿package com.robotacid.engine {
-	import com.robotacid.dungeon.Content;
-	import com.robotacid.dungeon.Map;
+	import com.robotacid.level.Content;
+	import com.robotacid.level.Map;
 	import com.robotacid.phys.Collider;
 	import com.robotacid.sound.SoundManager;
 	import flash.display.DisplayObject;

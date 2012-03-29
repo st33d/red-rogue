@@ -1,7 +1,7 @@
 ﻿package com.robotacid.engine {
 	import com.robotacid.ai.Brain;
 	import com.robotacid.ai.PlayerBrain;
-	import com.robotacid.dungeon.Map;
+	import com.robotacid.level.Map;
 	import com.robotacid.geom.Pixel;
 	import com.robotacid.gfx.ItemMovieClip;
 	import com.robotacid.gfx.Renderer;
@@ -431,7 +431,7 @@
 			
 			if(name == TELEPORT && inventoryList){
 				// this is possibly the biggest pisstake of all the spells, casting teleport on an item
-				// in your inventory (suprise, surprise) teleports it to another location in the dungeon
+				// in your inventory (suprise, surprise) teleports it to another location in the level
 				// at least if it was cursed this is a good thing
 				if(user) renderer.createTeleportSparkRect(user.collider, 10);
 				item = inventoryList.removeItem(item);

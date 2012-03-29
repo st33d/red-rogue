@@ -1,288 +1,26 @@
 package com.robotacid.phys {
-
-	import com.robotacid.engine.Missile;
-	import flash.display.Graphics;
 	import flash.geom.Rectangle;
-	
 	/**
-	 * A crate-like collision object.
-	 *
-	 * Movement is separated into X axis and Y axis separately for speed and sanity
-	 *
-	 * Collisions are handled recursively, allowing the Collider to push queues of Colliders.
-	 *
-	 * The Collider has several states to reflect how it may need to be handled.
-	 *
-	 * The stackCallback is for assigning to a function that signals a Collider has hit the floor.
-	 *
-	 * The crushCallback is for assigning to a function that signals a Collider has been crushed. A crush
-	 * callback must call CollisionWorld.removeCollider as it is assumed the callback will want access to
-	 * the world before the collider is destroyed
-	 *
+	 * ...
 	 * @author Aaron Steed, robotacid.com
 	 */
-	public class Collider extends Rectangle {
+	public class FilterCollider extends Collider {
 		
-		public var world:CollisionWorld;
-		public var parent:Collider;
-		public var mapCollider:Collider;
-		public var children:Vector.<Collider>;
-		public var userData:*;
-		public var stackCallback:Function;
-		public var crushCallback:Function;
-		public var stompCallback:Function;
-		public var upContact:Collider;
-		public var rightContact:Collider;
-		public var downContact:Collider;
-		public var leftContact:Collider;
+		public var mapTarget:int;
+		public var mapResult:int;
 		
-		public var state:int;
-		public var properties:int;
-		public var ignoreProperties:int;
-		public var stompProperties:int;
-		public var vx:Number;
-		public var vy:Number;
-		public var gravity:Number;
-		public var dampingX:Number;
-		public var dampingY:Number;
-		public var pushDamping:Number;
-		public var pressure:int;
-		public var crushed:Boolean;
-		public var awake:int;
-		public var boundsPressure:Boolean;
-		
-		/* Establishes a minimum movement policy */
-		public static const MOVEMENT_TOLERANCE:Number = 0.0001;
-		
-		/* Used for compensate for floating point value drift */
-		public static const INTERVAL_TOLERANCE:Number = CollisionWorld.INTERVAL_TOLERANCE;
-		
-		/* Echoing Box2D, colliders sleep when inactive to prevent method calls that aren't needed */
-		public static var AWAKE_DELAY:int = 3;
-		
-		protected static var tempCollider:Collider;
-		
-		public static const DEFAULT_GRAVITY:Number = 0.8;
-		public static const DEFAULT_DAMPING_X:Number = 0.45;
-		public static const DEFAULT_DAMPING_Y:Number = 0.99;
-		public static const DEFAULT_PUSH_DAMPING:Number = 1;
-		
-		// states
-		public static const FALL:int = 0;
-		public static const STACK:int = 1;
-		public static const HOVER:int = 2;
-		public static const MAP_COLLIDER:int = 3;
-		
-		/* No block here */
-		public static const EMPTY:int = 0;
-		
-		// properties 0 to 3 are the sides of a Rectangle
-		public static const UP:int = 1 << 0;
-		public static const RIGHT:int = 1 << 1;
-		public static const DOWN:int = 1 << 2;
-		public static const LEFT:int = 1 << 3;
-		// equivalent to (UP | RIGHT | LEFT | DOWN) the compiler won't allow calculated constants as default params
-		public static const SOLID:int = 15;
-		
-		/* A Collider that doesn't move */
-		public static const STATIC:int = 1 << 4;
-		/* A Collider that can break */
-		public static const BREAKABLE:int = 1 << 5;
-		/* A free moving crate style Collider - for puzzles */
-		public static const FREE:int = 1 << 6;
-		/* A Collider that moves on its own */
-		public static const MOVING:int = 1 << 7;
-		/* This Collider is the collision space of a monster */
-		public static const MONSTER:int = 1 << 8;
-		/* This Collider is the collision space of the player */
-		public static const PLAYER:int = 1 << 9;
-		/* A Collider whose upper edge resists colliders moving down but not in any other direction */
-		public static const LEDGE:int = 1 << 10;
-		/* Dungeon walls */
-		public static const WALL:int = 1 << 11;
-		/* This Collider is either a monster or the player */
-		public static const CHARACTER:int = 1 << 12;
-		/* This Collider is a decapitated head */
-		public static const HEAD:int = 1 << 13;
-		/* This is an area that is a ladder */
-		public static const LADDER:int = 1 << 14;
-		/* This Collider is a slave of the player */
-		public static const MINION:int = 1 << 15;
-		/* This Collider is an animation for the decapitation of Characters */
-		public static const CORPSE:int = 1 << 16;
-		/* This Collider is a projectile */
-		public static const MISSILE:int = 1 << 17;
-		/* This Collider is a collectable item */
-		public static const ITEM:int = 1 << 18;
-		/* This Collider is a wall that can be attacked */
-		public static const STONE:int = 1 << 19;
-		/* This Collider is a wall that moves randomly */
-		public static const CHAOS:int = 1 << 20;
-		/* This Collider is a missile of the player team */
-		public static const PLAYER_MISSILE:int = 1 << 21;
-		/* This Collider is a missile of the monster team */
-		public static const MONSTER_MISSILE:int = 1 << 22;
-		/* This Collider is a horror creature */
-		public static const HORROR:int = 1 << 23;
-		
-		public function Collider(x:Number = 0, y:Number = 0, width:Number = 0, height:Number = 0, scale:Number = 0, properties:int = SOLID, ignoreProperties:int = 0, state:int = 0){
-			super(x, y, width, height);
-			this.properties = properties;
-			this.ignoreProperties = ignoreProperties;
-			this.state = state;
+		public function FilterCollider(x:Number = 0, y:Number = 0, width:Number = 0, height:Number = 0, scale:Number = 0, properties:int = SOLID, ignoreProperties:int = 0, state:int = 0) {
+			super(x, y, width, height, scale, properties, ignoreProperties, state);
 			
-			vx = vy = 0;
-			gravity = DEFAULT_GRAVITY;
-			dampingX = DEFAULT_DAMPING_X;
-			dampingY = DEFAULT_DAMPING_Y;
-			pushDamping = DEFAULT_PUSH_DAMPING;
-			awake = AWAKE_DELAY;
-			boundsPressure = false;
-			
-			children = new Vector.<Collider>();
-			
-			if(state != MAP_COLLIDER){
-				// create a dummy surface for interacting with the map
-				mapCollider = new Collider(0, 0, scale, scale, scale, SOLID, 0, MAP_COLLIDER);
-			}
 		}
 		
-		public function main():void{
-			if(state == STACK || state == FALL){
-				
-				vx *= dampingX;
-				if((vx > 0 ? vx : -vx) > MOVEMENT_TOLERANCE) moveX(vx);
-				
-				// check for ignoring parent
-				if(parent && (parent.properties & ignoreProperties)){
-					parent.removeChild(this);
-				}
-				
-				if(!parent || vy < -MOVEMENT_TOLERANCE){
-					vy = vy * dampingY + gravity;
-					if((vy > 0 ? vy : -vy) > MOVEMENT_TOLERANCE) moveY(vy);
-				} else if(vy > MOVEMENT_TOLERANCE){
-					vy = 0;
-				}
-				
-				if(parent){
-					if(state != STACK){
-						state = STACK;
-						if(Boolean(stackCallback)) stackCallback();
-					}
-					
-				} else if(state != FALL){
-					state = FALL;
-				}
-				
-			} else if(state == HOVER){
-				
-				vx *= dampingX;
-				vy *= dampingY;
-				if((vx > 0 ? vx : -vx) > MOVEMENT_TOLERANCE) moveX(vx);
-				if((vy > 0 ? vy : -vy) > MOVEMENT_TOLERANCE) moveY(vy);
-				
-			} else if(state == MAP_COLLIDER){
-				
-				if((vx > 0 ? vx : -vx) > MOVEMENT_TOLERANCE) moveX(vx);
-				if((vy > 0 ? vy : -vy) > MOVEMENT_TOLERANCE) moveY(vy);
-			}
-			
-			// will put the collider to sleep if it doesn't move
-			if((vx > 0 ? vx : -vx) < MOVEMENT_TOLERANCE && (vy > 0 ? vy : -vy) < MOVEMENT_TOLERANCE && (awake)) awake--;
+		/* Sets this collider to interpret any map position with a property in mapTarget as mapResult */
+		public function setFilter(mapTarget:int, mapResult:int):void{
+			this.mapTarget = mapTarget;
+			this.mapResult = mapResult;
 		}
 		
-		public function drag(vx:Number, vy:Number):void{
-			moveX(vx);
-			moveY(vy);
-		}
-		
-		/* =================================================================
-		 * Sorting callbacks for colliding with objects in the correct order
-		 * =================================================================
-		 */
-		public static function sortLeftWards(a:Collider, b:Collider):Number{
-			if(a.x < b.x) return -1;
-			else if(a.x > b.x) return 1;
-			return 0;
-		}
-		
-		public static function sortRightWards(a:Collider, b:Collider):Number{
-			if(a.x > b.x) return -1;
-			else if(a.x < b.x) return 1;
-			return 0;
-		}
-		
-		public static function sortTopWards(a:Collider, b:Collider):Number{
-			if(a.y < b.y) return -1;
-			else if(a.y > b.y) return 1;
-			return 0;
-		}
-		
-		public static function sortBottomWards(a:Collider, b:Collider):Number{
-			if(a.y > b.y) return -1;
-			else if(a.y < b.y) return 1;
-			return 0;
-		}
-		
-		/* add a child Collider to this Collider - it will move when this collider moves */
-		public function addChild(collider:Collider):void{
-			collider.parent = this;
-			collider.vy = 0;
-			// optimisation:
-			// children must be ordered leftwards so their parent can
-			// move them with out them colliding into each other
-			if(children.length){
-				if(children.length == 1){
-					if(collider.x < children[0].x){
-						children.unshift(collider);
-					} else {
-						children.push(collider);
-					}
-				} else {
-					children.push(collider);
-					children.sort(sortLeftWards);
-				}
-			} else {
-				children[0] = collider;
-			}
-		}
-		
-		/* remove a child collider from children */
-		public function removeChild(collider:Collider):void{
-			collider.parent = null;
-			children.splice(children.indexOf(collider), 1);
-			collider.awake = AWAKE_DELAY;
-		}
-		
-		/* Get rid of children and parent - used to remove the collider from the game and clear current interaction */
-		public function divorce():void{
-			if(parent){
-				parent.removeChild(this);
-				vy = 0;
-			}
-			var collider:Collider;
-			for(var i:int = 0; i < children.length; i++){
-				collider = children[i];
-				collider.parent = null;
-				collider.vy = 0;
-				collider.awake = AWAKE_DELAY;
-			}
-			pressure = 0;
-			children.length = 0;
-			awake = AWAKE_DELAY;
-		}
-		
-		/* Creates a parent Collider out of thin air for this Collider - there are edge cases where this is desirable */
-		public function createParent(properties:int):void{
-			if(parent) parent.removeChild(this);
-			mapCollider.x = x - width * 0.5;
-			mapCollider.y = world.bounds.y + world.bounds.height;
-			mapCollider.properties = properties;
-			mapCollider.addChild(this);
-		}
-		
-		public function moveX(vx:Number, source:Collider = null):Number{
+		override public function moveX(vx:Number, source:Collider = null):Number{
 			if((vx > 0 ? vx : -vx) < MOVEMENT_TOLERANCE) return 0;
 			var i:int;
 			var obstacles:Vector.<Collider>;
@@ -317,6 +55,9 @@ package com.robotacid.phys {
 					for(mapX = minX; mapX <= maxX; mapX++){
 						for(mapY = minY; mapY <= maxY; mapY++){
 							property = world.map[mapY][mapX];
+							
+							if(property & mapTarget) property = mapResult;
+							
 							if(mapX * world.scale < (x + width - INTERVAL_TOLERANCE) + vx && (property & LEFT) && !(property & ignoreProperties)){
 								vx -= (x + width + vx) - mapX * world.scale;
 								this.vx = 0;
@@ -404,6 +145,9 @@ package com.robotacid.phys {
 					for(mapX = minX; mapX >= maxX; mapX--){
 						for(mapY = minY; mapY <= maxY; mapY++){
 							property = world.map[mapY][mapX];
+							
+							if(property & mapTarget) property = mapResult;
+							
 							if((mapX + 1) * world.scale - INTERVAL_TOLERANCE > x + vx && (property & RIGHT) && !(property & ignoreProperties)){
 								vx -= (x + vx) - (mapX + 1) * world.scale;
 								this.vx = 0;
@@ -497,7 +241,7 @@ package com.robotacid.phys {
 			return vx;
 		}
 		
-		public function moveY(vy:Number, source:Collider = null):Number{
+		override public function moveY(vy:Number, source:Collider = null):Number{
 			if((vy > 0 ? vy : -vy) < MOVEMENT_TOLERANCE) return 0;
 			var i:int, j:int;
 			var obstacles:Vector.<Collider>;
@@ -532,6 +276,9 @@ package com.robotacid.phys {
 					for(mapY = minY; mapY <= maxY; mapY++){
 						for(mapX = minX; mapX <= maxX; mapX++){
 							property = world.map[mapY][mapX];
+							
+							if(property & mapTarget) property = mapResult;
+							
 							if(mapY * world.scale < y + height + vy && (property & UP) && !(property & ignoreProperties)){
 								vy -= (y + height + vy) - mapY * world.scale;
 								this.vy = 0;
@@ -663,6 +410,9 @@ package com.robotacid.phys {
 					for(mapY = minY; mapY >= maxY; mapY--){
 						for(mapX = minX; mapX <= maxX; mapX++){
 							property = world.map[mapY][mapX];
+							
+							if(property & mapTarget) property = mapResult;
+							
 							if((mapY + 1) * world.scale > y + vy && (property & DOWN) && !(property & ignoreProperties)){
 								vy -= (y + vy) - ((mapY + 1) * world.scale);
 								this.vy = 0;
@@ -762,100 +512,6 @@ package com.robotacid.phys {
 			awake = AWAKE_DELAY;
 			return vy;
 		}
-		
-		/* Return a recent contact */
-		public function getContact():Collider{
-			if(upContact) return upContact;
-			else if(rightContact) return rightContact;
-			else if(downContact) return downContact;
-			else if(leftContact) return leftContact;
-			return null
-		}
-		
-		/* Pushes a collider out of any map surfaces it overlaps - used to resolve changing a collider's shape */
-		public function resolveMapInsertion():void{
-			var mapX:int, mapY:int;
-			
-			mapY = (y + height * 0.5) * world.invScale;
-			
-			mapX = x * world.invScale;
-			if((world.map[mapY][mapX] & RIGHT) && x >= (mapX + 0.5) * world.scale) x = (mapX + 1) * world.scale;
-			
-			mapX = (x + width - INTERVAL_TOLERANCE) * world.invScale;
-			if((world.map[mapY][mapX] & LEFT) && x + width - INTERVAL_TOLERANCE <= (mapX + 0.5) * world.scale) x = mapX * world.scale-width;
-			
-			mapX = (x + width * 0.5) * world.invScale;
-			
-			mapY = y * world.invScale;
-			if((world.map[mapY][mapX] & DOWN) && y >= (mapY + 0.5) * world.scale) y = (mapY + 1) * world.scale;
-			
-			mapY = (y + height - INTERVAL_TOLERANCE) * world.invScale;
-			if((world.map[mapY][mapX] & UP) && y + height - INTERVAL_TOLERANCE <= (mapY + 0.5) * world.scale) y = mapY * world.scale-height;
-			
-		}
-		
-		/* Draw debug diagram */
-		public function draw(gfx:Graphics):void{
-			gfx.lineStyle(1, 0x33AA66);
-			gfx.drawRect(x, y, width, height);
-			if(awake){
-				gfx.drawRect(x + width * 0.4, y + height * 0.4, width * 0.2, height * 0.2);
-			}
-			if(parent != null){
-				gfx.moveTo(x + width * 0.5, y + height * 0.5);
-				gfx.lineTo(parent.x + parent.width * 0.5, parent.y + parent.height * 0.5);
-			}
-			if(state == STACK){
-				gfx.drawCircle(x + width * 0.5, y + height - height * 0.25, Math.min(width, height) * 0.25);
-			} else if(state == FALL){
-				gfx.drawCircle(x + width * 0.5, y + height * 0.5, Math.min(width, height) * 0.25);
-			}
-			if(pressure){
-				if(pressure & UP){
-					gfx.moveTo(x + width * 0.2, y + height * 0.2);
-					gfx.lineTo(x + width * 0.8, y + height * 0.2);
-				}
-				if(pressure & RIGHT){
-					gfx.moveTo(x + width * 0.8, y + height * 0.2);
-					gfx.lineTo(x + width * 0.8, y + height * 0.8);
-				}
-				if(pressure & DOWN){
-					gfx.moveTo(x + width * 0.2, y + height * 0.8);
-					gfx.lineTo(x + width * 0.8, y + height * 0.8);
-				}
-				if(pressure & LEFT){
-					gfx.moveTo(x + width * 0.2, y + height * 0.2);
-					gfx.lineTo(x + width * 0.2, y + height * 0.8);
-				}
-			}
-		}
-		
-		override public function toString():String {
-			return "(x:"+x+" y:"+y+" width:"+width+" height:"+height+" type:"+propertiesToString(properties)+")";
-		}
-		
-		/* Returns all properties of this block as a string */
-		public static function propertiesToString(type:int):String{
-			if (type == EMPTY) return "EMPTY";
-			var n:int, s:String = "";
-			for (var i:int = 0; i < 12; i++){
-				n = type & (1 << i);
-				if (s == "UP|RIGHT|DOWN|LEFT|") s = "SOLID|";
-				if (n == UP) s += "UP|";
-				else if (n == RIGHT) s += "RIGHT|";
-				else if (n == DOWN) s += "DOWN|";
-				else if (n == LEFT) s += "LEFT|";
-				else if (n == STATIC) s += "STATIC|";
-				else if (n == BREAKABLE) s += "BREAKABLE|";
-				else if (n == FREE) s += "FREE|";
-				else if (n == MOVING) s += "MOVING|";
-				else if (n == MONSTER) s += "MONSTER|";
-				else if (n == PLAYER) s += "PLAYER|";
-				else if (n == LEDGE) s += "LEDGE|";
-				else if (n == WALL) s += "WALL|";
-				else if (n == CHARACTER) s += "CHARACTER|";
-			}
-			return s.substr(0, s.length - 1);
-		}
 	}
+
 }

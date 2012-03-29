@@ -1,4 +1,4 @@
-Change log: added bomb explosions - self replicating floodfill style objects, added jump ability to amulet of yendor - included jump added to actions menu and hot key setup
+Change log: refactored how secret walls determine which side they are on, created FilterCollider for wraiths, DungeonGraph refactored to MapGraph, refactored "dungeon" package to "level" (the aim is to make the code more universal)
 
 Bug hunt
 	can crash graph renderer by changing level
@@ -6,9 +6,7 @@ Bug hunt
 	minion summon after death? - unreproducable
 	combo bug: minion, indifference, level 21, identify monster twice, minion portal - unreproducable
 	undead respawn causes issue - unreproducable
-	
-	*characters not unequipping throwable on death
-	throwable can crash menu
+	halted chaos wall - why?
 
 need the ability to block effect apply printouts
 
@@ -16,14 +14,19 @@ fix help text - refers to deprecated rules
 
 yendor
 	jumping
-		add jump to options
-		hotkey the option
-		add jump to character
+		jumping ai
+
+balrog
+	smite?
+		set up holy weapon perhaps
 
 wraith
 	create filtered collider
-		upon detecting a given property will interpret that block as something else - like a ledge or ladder ledge for a wall
+		alter character collider creation to account for new walk-walk collider
+			when changing name, check if inside a wall - then teleport out if inside
 	create wraith graph
+		test minion follow as wraith
+		test all monsters as wraiths
 
 save and quit
 

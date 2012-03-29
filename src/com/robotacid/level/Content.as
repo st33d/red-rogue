@@ -1,4 +1,4 @@
-﻿package com.robotacid.dungeon {
+﻿package com.robotacid.level {
 	import com.robotacid.engine.Character;
 	import com.robotacid.engine.Chest;
 	import com.robotacid.engine.ColliderEntity;
@@ -210,7 +210,7 @@
 			return Math.random() * uint.MAX_VALUE;
 		}
 		
-		/* Creates content for the enchanted item side-dungeon */
+		/* Creates content for the enchanted item side-level */
 		public function setItemDungeonContent(item:Item, level:int):void{
 			itemDungeonContent = getLevelContent(level, item.toXML());
 			itemDungeonContent.portals = Vector.<XML>([<portal type={Portal.ITEM_RETURN} targetLevel={level} />]);
@@ -385,7 +385,7 @@
 			}
 		}
 		
-		/* Returns the amount of secrets in this part of the dungeon */
+		/* Returns the amount of secrets in this part of the level */
 		public function getSecrets(dungeonLevel:int, dungeonType:int):int{
 			if(dungeonType == Map.MAIN_DUNGEON){
 				while(dungeonLevel >= secretsByLevel.length) secretsByLevel.push(2);
@@ -396,7 +396,7 @@
 			return 0;
 		}
 		
-		/* Returns the amount of traps in this part of the dungeon */
+		/* Returns the amount of traps in this part of the level */
 		public function getTraps(dungeonLevel:int, dungeonType:int):int{
 			if(dungeonType == Map.MAIN_DUNGEON){
 				while(dungeonLevel >= trapsByLevel.length) trapsByLevel.push(TOTAL_LEVELS * 2);
@@ -472,7 +472,7 @@
 					}
 				}
 			}
-			//trace("recycling..." + game.dungeon.level);
+			//trace("recycling..." + game.map.level);
 			//for(i = 0; i < monstersByLevel[level].length; i++){
 				//trace(monstersByLevel[level][i].toXMLString());
 			//}

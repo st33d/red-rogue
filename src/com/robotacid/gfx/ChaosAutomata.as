@@ -1,5 +1,5 @@
 package com.robotacid.gfx {
-	import com.robotacid.dungeon.Map;
+	import com.robotacid.level.Map;
 	import com.robotacid.phys.Collider;
 	import flash.display.BitmapData;
 	/**

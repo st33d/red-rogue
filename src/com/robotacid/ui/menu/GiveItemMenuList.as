@@ -1,5 +1,5 @@
 package com.robotacid.ui.menu {
-	import com.robotacid.dungeon.Content;
+	import com.robotacid.level.Content;
 	import com.robotacid.engine.Character;
 	import com.robotacid.engine.Item;
 	/**

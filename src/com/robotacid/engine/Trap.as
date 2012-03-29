@@ -1,7 +1,7 @@
 ﻿package com.robotacid.engine {
 	import com.robotacid.ai.Brain;
-	import com.robotacid.dungeon.Content;
-	import com.robotacid.dungeon.Map;
+	import com.robotacid.level.Content;
+	import com.robotacid.level.Map;
 	import com.robotacid.geom.Pixel;
 	import com.robotacid.gfx.BlitSprite;
 	import com.robotacid.gfx.Renderer;
@@ -134,12 +134,13 @@
 					game.player.removeDisarmableTrap(this);
 				}
 				disarmingRect = new Rectangle(0, 0, 1, 1);
-				// the dungeon graph is currently unaware of a new route
+				// the map graph is currently unaware of a new route
 				// we need to educate it by looking down from the node that must be above the
 				// pit to the node that must be below it
 				for(var r:int = mapY; r < game.map.height; r++){
-					if(Brain.dungeonGraph.nodes[r][mapX]){
-						Brain.dungeonGraph.nodes[mapY - 1][mapX].connections.push(Brain.dungeonGraph.nodes[r][mapX]);
+					if(Brain.mapGraph.nodes[r][mapX]){
+						Brain.mapGraph.nodes[mapY - 1][mapX].connections.push(Brain.mapGraph.nodes[r][mapX]);
+						Brain.walkWalkGraph.nodes[mapY - 1][mapX].connections.push(Brain.walkWalkGraph.nodes[r][mapX]);
 						break;
 					}
 				}
