@@ -638,9 +638,12 @@
 			
 			// throwing runes
 			} else if(option == inventoryList.throwRuneOption){
-				item = previousMenuList.options[previousMenuList.selection].userData;
-				item = inventoryList.removeItem(item);
-				game.player.shoot(Missile.RUNE, new Effect(item.name, 20, Effect.THROWN), item);
+				if(game.player.mapProperties & Collider.WALL) game.console.print("the stone around you resists...");
+				else {
+					item = previousMenuList.options[previousMenuList.selection].userData;
+					item = inventoryList.removeItem(item);
+					game.player.shoot(Missile.RUNE, new Effect(item.name, 20, Effect.THROWN), item);
+				}
 			
 			// enchanting items
 			} else if(currentMenuList == inventoryList.enchantableWeaponsList || currentMenuList == inventoryList.enchantableArmourList){
