@@ -11,8 +11,8 @@ package com.robotacid.ai {
 	public class HorrorBrain extends Brain {
 		
 		public static var horrorVoiceCount:int;
-		public static const VOICE:Array = ["horror1", "horror2", "horror3", "horror4"];
-		public static const HORROR_VOICE_DELAY:int = 120;
+		public static const VOICE:Array = ["horror1", "horror2", "horror3", "horror4", "horror5", "horror6"];
+		public static const HORROR_VOICE_DELAY:int = 70;
 		
 		public function HorrorBrain(char:Character, target:Character) {
 			super(char, NONE, null);

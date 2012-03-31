@@ -1,4 +1,4 @@
-Change log: added smite ability to balrog, discovered null-target bug in Brain class - refactored to clear() Brain when target is lost, refactored bomb to filter sender from damage, added blessed bombs (holy hand-grenade), leech bombs now possible, protection modifier now protects against explosion damage
+Change log: blocked the ability to do missile attacks whilst wall-walking, new Horror sfx
 
 Bug hunt
 	can crash graph renderer by changing level
@@ -16,8 +16,6 @@ yendor
 	jumping
 		jumping ai
 
-bomb
-	add sender to explosion class so leech enchantment can be effective
 
 save and quit
 

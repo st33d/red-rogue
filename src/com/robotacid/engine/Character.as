@@ -971,7 +971,7 @@
 		
 		/* Loose a missile, could be a throwable, weapon projectile or a rune */
 		public function shoot(type:int, effect:Effect = null, rune:Item = null):void{
-			if(attackCount < 1) return;
+			if(attackCount < 1 || (mapProperties & Collider.WALL)) return;
 			state = LUNGING;
 			attackCount = 0;
 			var missileMc:DisplayObject;

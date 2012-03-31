@@ -13,6 +13,7 @@
 	import com.robotacid.geom.Pixel;
 	import com.robotacid.gfx.PNGEncoder;
 	import com.robotacid.gfx.Renderer;
+	import com.robotacid.phys.Collider;
 	import com.robotacid.sound.SoundManager;
 	import com.robotacid.ui.Dialog;
 	import com.robotacid.ui.Editor;
@@ -683,7 +684,8 @@
 			
 			// missile weapons
 			} else if(option == missileOption){
-				game.player.shoot(Missile.ITEM);
+				if(game.player.mapProperties & Collider.WALL) game.console.print("the stone around you resists...");
+				else game.player.shoot(Missile.ITEM);
 			
 			// jumping
 			} else if(option == jumpOption){
