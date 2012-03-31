@@ -698,14 +698,26 @@
 			patrolMaxX = patrolMinX = (char.mapX + 0.5) * Game.SCALE;
 			while(
 				patrolMinX > Game.SCALE * 0.5 &&
-				!(map[char.mapY][((patrolMinX - Game.SCALE) * Game.INV_SCALE) >> 0] & Collider.WALL) &&
+				(
+					!(map[char.mapY][((patrolMinX - Game.SCALE) * Game.INV_SCALE) >> 0] & Collider.WALL) ||
+					(
+						char.name == Character.WRAITH &&
+						!(map[char.mapY][((patrolMinX - Game.SCALE) * Game.INV_SCALE) >> 0] & Collider.MAP_EDGE)
+					)
+				) &&
 				(map[char.mapY + 1][((patrolMinX - Game.SCALE) * Game.INV_SCALE) >> 0] & UP)
 			){
 				patrolMinX -= Game.SCALE;
 			}
 			while(
 				patrolMaxX < (map[0].length - 0.5) * Game.SCALE &&
-				!(map[char.mapY][((patrolMaxX + Game.SCALE) * Game.INV_SCALE) >> 0] & Collider.WALL) &&
+				(
+					!(map[char.mapY][((patrolMaxX + Game.SCALE) * Game.INV_SCALE) >> 0] & Collider.WALL) ||
+					(
+						char.name == Character.WRAITH &&
+						!(map[char.mapY][((patrolMaxX + Game.SCALE) * Game.INV_SCALE) >> 0] & Collider.MAP_EDGE)
+					)
+				)&&
 				(map[char.mapY + 1][((patrolMaxX + Game.SCALE) * Game.INV_SCALE) >> 0] & UP)
 			){
 				patrolMaxX += Game.SCALE;

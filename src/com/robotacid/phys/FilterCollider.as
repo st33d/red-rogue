@@ -8,6 +8,7 @@ package com.robotacid.phys {
 		
 		public var mapTarget:int;
 		public var mapResult:int;
+		public var targetIgnore:int;
 		
 		public function FilterCollider(x:Number = 0, y:Number = 0, width:Number = 0, height:Number = 0, scale:Number = 0, properties:int = SOLID, ignoreProperties:int = 0, state:int = 0) {
 			super(x, y, width, height, scale, properties, ignoreProperties, state);
@@ -15,9 +16,10 @@ package com.robotacid.phys {
 		}
 		
 		/* Sets this collider to interpret any map position with a property in mapTarget as mapResult */
-		public function setFilter(mapTarget:int, mapResult:int):void{
+		public function setFilter(mapTarget:int, mapResult:int, targetIgnore:int = 0):void{
 			this.mapTarget = mapTarget;
 			this.mapResult = mapResult;
+			this.targetIgnore = targetIgnore;
 		}
 		
 		override public function moveX(vx:Number, source:Collider = null):Number{
@@ -56,7 +58,7 @@ package com.robotacid.phys {
 						for(mapY = minY; mapY <= maxY; mapY++){
 							property = world.map[mapY][mapX];
 							
-							if(property & mapTarget) property = mapResult;
+							if((property & mapTarget) && !(property & targetIgnore)) property = mapResult;
 							
 							if(mapX * world.scale < (x + width - INTERVAL_TOLERANCE) + vx && (property & LEFT) && !(property & ignoreProperties)){
 								vx -= (x + width + vx) - mapX * world.scale;
@@ -146,7 +148,7 @@ package com.robotacid.phys {
 						for(mapY = minY; mapY <= maxY; mapY++){
 							property = world.map[mapY][mapX];
 							
-							if(property & mapTarget) property = mapResult;
+							if((property & mapTarget) && !(property & targetIgnore)) property = mapResult;
 							
 							if((mapX + 1) * world.scale - INTERVAL_TOLERANCE > x + vx && (property & RIGHT) && !(property & ignoreProperties)){
 								vx -= (x + vx) - (mapX + 1) * world.scale;
@@ -277,7 +279,7 @@ package com.robotacid.phys {
 						for(mapX = minX; mapX <= maxX; mapX++){
 							property = world.map[mapY][mapX];
 							
-							if(property & mapTarget) property = mapResult;
+							if((property & mapTarget) && !(property & targetIgnore)) property = mapResult;
 							
 							if(mapY * world.scale < y + height + vy && (property & UP) && !(property & ignoreProperties)){
 								vy -= (y + height + vy) - mapY * world.scale;
@@ -411,7 +413,7 @@ package com.robotacid.phys {
 						for(mapX = minX; mapX <= maxX; mapX++){
 							property = world.map[mapY][mapX];
 							
-							if(property & mapTarget) property = mapResult;
+							if((property & mapTarget) && !(property & targetIgnore)) property = mapResult;
 							
 							if((mapY + 1) * world.scale > y + vy && (property & DOWN) && !(property & ignoreProperties)){
 								vy -= (y + vy) - ((mapY + 1) * world.scale);

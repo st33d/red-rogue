@@ -124,6 +124,8 @@ package com.robotacid.phys {
 		public static const MONSTER_MISSILE:int = 1 << 22;
 		/* This Collider is a horror creature */
 		public static const HORROR:int = 1 << 23;
+		/* This Collider is a wall on the edge of the map */
+		public static const MAP_EDGE:int = 1 << 24;
 		
 		public function Collider(x:Number = 0, y:Number = 0, width:Number = 0, height:Number = 0, scale:Number = 0, properties:int = SOLID, ignoreProperties:int = 0, state:int = 0){
 			super(x, y, width, height);

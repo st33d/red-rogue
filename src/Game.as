@@ -84,7 +84,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 342;
+		public static const BUILD_NUM:int = 344;
 		
 		public static const TEST_BED_INIT:Boolean = false;
 		
@@ -992,6 +992,11 @@
 				idMap[r] = new Vector.<int>(mapTileManager.width, true);
 				for(c = 0; c < mapTileManager.width; c++){
 					idMap[r][c] = MapTileConverter.getMapProperties(map[r][c]);
+					
+					// mark out edges so wall walkers can't go into them
+					if(c == 0 || r == 0 || c == mapTileManager.width - 1 || r == mapTileManager.height - 1){
+						idMap[r][c] |= Collider.MAP_EDGE;
+					}
 				}
 			}
 			return idMap;

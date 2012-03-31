@@ -348,7 +348,7 @@
 			// wraiths can wall walk
 			if(name == WRAITH){
 				collider = new FilterCollider(x - w * 0.5, y - bounds.height, w, bounds.height, Game.SCALE, properties, ignoreProperties, state);
-				(collider as FilterCollider).setFilter(Collider.WALL, Collider.WALL | Collider.UP | Collider.DOWN);
+				(collider as FilterCollider).setFilter(Collider.WALL, Collider.WALL | Collider.UP | Collider.DOWN, Collider.MAP_EDGE);
 			} else {
 				collider = new Collider(x - w * 0.5, y - bounds.height, w, bounds.height, Game.SCALE, properties, ignoreProperties, state);
 			}

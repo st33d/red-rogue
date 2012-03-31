@@ -1,4 +1,4 @@
-Change log: refactored how secret walls determine which side they are on, created FilterCollider for wraiths, DungeonGraph refactored to MapGraph, refactored "dungeon" package to "level" (the aim is to make the code more universal)
+Change log: fixed minor bug with ai graph rendering, created new wall-walk graph generator, created MAP_EDGE Collider property to stop player wall-walkers hiding in map edges, completed work on wraith wall walking
 
 Bug hunt
 	can crash graph renderer by changing level
@@ -18,15 +18,7 @@ yendor
 
 balrog
 	smite?
-		set up holy weapon perhaps
-
-wraith
-	create filtered collider
-		alter character collider creation to account for new walk-walk collider
-			when changing name, check if inside a wall - then teleport out if inside
-	create wraith graph
-		test minion follow as wraith
-		test all monsters as wraiths
+		set up holy weapon effect perhaps
 
 save and quit
 
@@ -60,6 +52,7 @@ AI problems:
 help on menu has not been fully written out
 
 level generator overhaul:
+	create a list of legal floor positions for portals, exits and traps during level generation
 	distribution tactics -
 		expand room defined areas
 		drop monsters into rooms only (or in certain zones - other areas as well)

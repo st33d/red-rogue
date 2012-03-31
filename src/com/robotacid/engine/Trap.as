@@ -137,9 +137,16 @@
 				// the map graph is currently unaware of a new route
 				// we need to educate it by looking down from the node that must be above the
 				// pit to the node that must be below it
-				for(var r:int = mapY; r < game.map.height; r++){
+				var r:int;
+				for(r = mapY; r < game.map.height; r++){
 					if(Brain.mapGraph.nodes[r][mapX]){
 						Brain.mapGraph.nodes[mapY - 1][mapX].connections.push(Brain.mapGraph.nodes[r][mapX]);
+						break;
+					}
+				}
+				// the wall walk graph needs connecting separately - its nodes are different
+				for(r = mapY; r < game.map.height; r++){
+					if(Brain.walkWalkGraph.nodes[r][mapX]){
 						Brain.walkWalkGraph.nodes[mapY - 1][mapX].connections.push(Brain.walkWalkGraph.nodes[r][mapX]);
 						break;
 					}

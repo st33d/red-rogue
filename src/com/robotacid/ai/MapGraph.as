@@ -322,7 +322,7 @@ package com.robotacid.ai {
 		public function drawGraph(gfx:Graphics, scale:Number, topLeft:Pixel, bottomRight:Pixel):void{
 			var r:int, c:int, i:int;
 			for(r = topLeft.y; r <= bottomRight.y; r++){
-				for(c = topLeft.x; c < bottomRight.x; c++){
+				for(c = topLeft.x; c <= bottomRight.x; c++){
 					if(nodes[r][c]){
 						node = nodes[r][c];
 						gfx.drawCircle((node.x + 0.5) * scale, (node.y + 0.5) * scale, scale * 0.1);
