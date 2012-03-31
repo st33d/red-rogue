@@ -348,7 +348,7 @@
 			active = false;
 			if(item && (item.range & Item.THROWN)){
 				if(item.name == Item.BOMB){
-					var explosion:Explosion = new Explosion(0, mapX, mapY, 1 + Math.ceil(item.level / 4), item.damage, item.effects);
+					var explosion:Explosion = new Explosion(0, mapX, mapY, 1 + Math.ceil(item.level / 4), item.damage, sender, item, collider.ignoreProperties);
 				} else {
 					gfx.scaleX = 1;
 					item.dropToMap(mapX, mapY);

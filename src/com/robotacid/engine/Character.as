@@ -198,6 +198,7 @@
 		public static const SMITE_PER_LEVEL:Number = 0.05;
 		public static const QUICKENING_PER_LEVEL:Number = 0.5;
 		public static const JUMP_VELOCITY:Number = -7;
+		public static const BALROG_SMITE_DAMAGE_PER_LEVEL:Number = 1 / 40;
 		
 		public static const DEFAULT_COL:ColorTransform = new ColorTransform();
 		public static const INFRAVISION_COLS:Vector.<ColorTransform> = Vector.<ColorTransform>([DEFAULT_COL, new ColorTransform(1, 0, 0, 1, 255), new ColorTransform(1, 0.7, 0.7, 1, 50)]);
@@ -331,7 +332,8 @@
 				name == UMBER_HULK ||
 				name == BANSHEE ||
 				name == MIND_FLAYER ||
-				name == RAKSHASA;
+				name == RAKSHASA ||
+				name == BALROG;
 			
 			indifferent = false;
 			
@@ -1169,6 +1171,10 @@
 			// chaos attack
 			} else if(name == RAKSHASA){
 				effect = new Effect(Effect.CHAOS, level, Effect.THROWN, target);
+				
+			// smite
+			} else if(name == BALROG){
+				target.smite(looking, target.totalHealth * BALROG_SMITE_DAMAGE_PER_LEVEL * level);
 			}
 		}
 		

@@ -253,18 +253,9 @@
 				}
 			} else if(state == ATTACK){
 				
-				if(char.throwable || (char.weapon && (char.weapon.range & Item.MISSILE))){
-					snipe(target);
-				} else {
-					chase(target);
-					// commute allies to the target
-					if(charContact && target.active && !char.enemy(charContact) && charContact.brain) charContact.brain.copyState(this);
-				}
-				
 				if(!target || !target.active){
 					clear();
 					
-				// if the target is directly above, get the hell out of there
 				} else if(
 					char.collider.y >= target.collider.y + target.collider.height &&
 					!(
@@ -273,28 +264,46 @@
 					)
 				){
 					flee(target);
+				} else {
+					if(char.throwable || (char.weapon && (char.weapon.range & Item.MISSILE))){
+						snipe(target);
+					} else {
+						chase(target);
+						// commute allies to the target
+						if(charContact && target.active && !char.enemy(charContact) && charContact.brain) charContact.brain.copyState(this);
+					}
 				}
 				
 			} else if(state == FLEE){
 				
-				avoid(target);
-				// commute allies away from the target
-				if(charContact && target.active && !char.enemy(charContact) && charContact.brain) charContact.brain.copyState(this);
-				if(count-- <= 0){
-					if(char.inTheDark){
-						// we want fleeing characters in the dark to go back to patrolling
-						// but not if they're on a ladder
-						if(char.collider.state == Collider.HOVER){
-							count = 1 + game.random.range(delay);
+				if(!target || !target.active){
+					clear();
+					// drop from ladder
+					if(char.collider.state == Collider.HOVER){
+						char.collider.state = Collider.FALL;
+						char.collider.divorce();
+					}
+					
+				} else {
+					avoid(target);
+					// commute allies away from the target
+					if(charContact && target.active && !char.enemy(charContact) && charContact.brain) charContact.brain.copyState(this);
+					if(count-- <= 0){
+						if(char.inTheDark){
+							// we want fleeing characters in the dark to go back to patrolling
+							// but not if they're on a ladder
+							if(char.collider.state == Collider.HOVER){
+								count = 1 + game.random.range(delay);
+							} else {
+								clear();
+							}
 						} else {
-							clear();
+							attack(target);
 						}
-					} else {
+					}
+					if(charContact && char.enemy(charContact)){
 						attack(target);
 					}
-				}
-				if(charContact && char.enemy(charContact)){
-					attack(target);
 				}
 			}
 			

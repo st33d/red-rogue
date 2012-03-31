@@ -734,6 +734,7 @@
 				return;
 				
 			} else if(name == CHAOS){
+				// chaos armour is a hack-effect for giving the chaos-helm an ability via this class
 				if(source == ARMOUR){
 					count = (21 - level) * ARMOUR_COUNTDOWN_STEP;
 					callMain = true;

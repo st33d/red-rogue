@@ -16,7 +16,9 @@ package com.robotacid.engine {
 		
 		public var id:int;
 		public var damage:Number;
-		public var effects:Vector.<Effect>;
+		public var sender:Character;
+		public var item:Item;
+		public var ignore:int;
 		
 		private var count:int;
 		private var dirs:int;
@@ -42,7 +44,9 @@ package com.robotacid.engine {
 		public static const DOWN:int = 4;
 		public static const LEFT:int = 8;
 		
-		public function Explosion(id:int, mapX:int, mapY:int, delay:int, damage:Number, effects:Vector.<Effect> = null) {
+		public static const SOUNDS:Array = ["star1", "star2", "star3", "star4"];
+		
+		public function Explosion(id:int, mapX:int, mapY:int, delay:int, damage:Number, sender:Character = null, item:Item = null, ignore:int = 0) {
 			super(null, true, false);
 			
 			// initial blasts are submitted with the id:0 and generate light
@@ -56,7 +60,9 @@ package com.robotacid.engine {
 			map[mapY][mapX] = id;
 			count = delay;
 			this.damage = damage;
-			this.effects = effects;
+			this.sender = sender;
+			this.item = item;
+			this.ignore = ignore;
 			expandFrame = 0;
 			callMain = true;
 			active = true;
@@ -71,21 +77,48 @@ package com.robotacid.engine {
 			// apply effects / damage to characters in tile
 			pushRect.x = mapX * SCALE;
 			pushRect.y = mapY * SCALE;
-			var colliders:Vector.<Collider> = game.world.getCollidersIn(pushRect, null, Collider.CHARACTER, Collider.HEAD | Collider.STONE | Collider.CHAOS);
-			var character:Character, effect:Effect, j:int;
+			var colliders:Vector.<Collider> = game.world.getCollidersIn(pushRect, null, Collider.CHARACTER, Collider.HEAD | Collider.STONE | Collider.CHAOS | ignore);
+			var character:Character, effect:Effect;
 			for(i = 0; i < colliders.length; i++){
 				character = colliders[i].userData as Character;
-				if(character && character.active && character.state != Character.QUICKENING && character.state != Character.ENTERING && character.state != Character.EXITING){
-					if(effects){
-						for(j = 0; j < effects.length; j++){
-							effect = effects[j].copy();
-							effect.apply(character);
-						}
+				if(
+					character &&
+					character.active &&
+					character.state != Character.QUICKENING &&
+					character.state != Character.ENTERING &&
+					character.state != Character.EXITING
+				){
+					if(item && item.effects && character.active){
+						character.applyWeaponEffects(item);
 					}
-					character.applyDamage(damage, "bomb");
+					// damage
+					var hitDamage:Number = damage;
+					if(character.protectionModifier < 1){
+						hitDamage *= character.protectionModifier < Character.MIN_PROTECTION_MODIFIER ? Character.MIN_PROTECTION_MODIFIER : character.protectionModifier;
+					}
+					// blessed weapon? roll for smite
+					if(item && item.holyState == Item.BLESSED && game.random.value() < Character.SMITE_PER_LEVEL * item.level){
+						character.smite((character.looking & Collider.LEFT) ? Collider.RIGHT : Collider.LEFT, hitDamage * 0.5);
+						// half of hitDamage is transferred to the smite state
+						hitDamage *= 0.5;
+					}
+					// leech
+					if(sender && (sender.leech || (item && item.leech)) && !(character.armour && character.armour.name == Item.BLOOD)){
+						var leechValue:Number = sender.leech + (item ? item.leech : 0);
+						if(leechValue > 1) leechValue = 1;
+						leechValue *= hitDamage;
+						if(leechValue > character.health) leechValue = character.health;
+						sender.applyHealth(leechValue);
+					}
+					// apply damage
+					character.applyDamage(item.damage, "explosion", 0, false, sender);
+					// blood
+					renderer.createDebrisRect(character.collider, 0, 20, character.debrisType);
 				}
 			}
 			game.explosions.push(this);
+			renderer.shake(0, 5);
+			game.soundQueue.addRandom("smite", SOUNDS, 10);
 		}
 		
 		override public function main():void {
@@ -160,10 +193,10 @@ package com.robotacid.engine {
 					// create new explosions
 					if(expandFrame == EXPAND_SPAWN){
 						var explosion:Explosion;
-						if(dirs & UP) explosion = new Explosion(id, mapX, mapY - 1, count - 1, damage, effects);
-						if(dirs & RIGHT) explosion = new Explosion(id, mapX + 1, mapY, count - 1, damage, effects);
-						if(dirs & DOWN) explosion = new Explosion(id, mapX, mapY + 1, count - 1, damage, effects);
-						if(dirs & LEFT) explosion = new Explosion(id, mapX - 1, mapY, count - 1, damage, effects);
+						if(dirs & UP) explosion = new Explosion(id, mapX, mapY - 1, count - 1, damage, sender, item, ignore);
+						if(dirs & RIGHT) explosion = new Explosion(id, mapX + 1, mapY, count - 1, damage, sender, item, ignore);
+						if(dirs & DOWN) explosion = new Explosion(id, mapX, mapY + 1, count - 1, damage, sender, item, ignore);
+						if(dirs & LEFT) explosion = new Explosion(id, mapX - 1, mapY, count - 1, damage, sender, item, ignore);
 					}
 				}
 				expandFrame++;

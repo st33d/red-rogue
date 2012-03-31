@@ -1,4 +1,4 @@
-Change log: fixed minor bug with ai graph rendering, created new wall-walk graph generator, created MAP_EDGE Collider property to stop player wall-walkers hiding in map edges, completed work on wraith wall walking
+Change log: added smite ability to balrog, discovered null-target bug in Brain class - refactored to clear() Brain when target is lost, refactored bomb to filter sender from damage, added blessed bombs (holy hand-grenade), leech bombs now possible, protection modifier now protects against explosion damage
 
 Bug hunt
 	can crash graph renderer by changing level
@@ -16,9 +16,8 @@ yendor
 	jumping
 		jumping ai
 
-balrog
-	smite?
-		set up holy weapon effect perhaps
+bomb
+	add sender to explosion class so leech enchantment can be effective
 
 save and quit
 
