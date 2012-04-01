@@ -1,4 +1,4 @@
-Change log: blocked the ability to do missile attacks whilst wall-walking, new Horror sfx
+Change log: bug with all missile weapons firing chaos runes fixed, added different voices for fury horrors, added wall-walking ability to horrors
 
 Bug hunt
 	can crash graph renderer by changing level

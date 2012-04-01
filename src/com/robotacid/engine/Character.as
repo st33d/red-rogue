@@ -980,7 +980,7 @@
 			var alchemical:Boolean = false;
 			
 			// check for chaos wand and create chaos spell
-			if(type == Missile.ITEM && !throwable){
+			if(type == Missile.ITEM && weapon && weapon.name == Item.CHAOS_WAND){
 				type = Missile.RUNE;
 				effect = new Effect(Item.CHAOS, weapon.level, Effect.THROWN);
 			}

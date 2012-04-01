@@ -3,6 +3,7 @@ package com.robotacid.engine {
 	import com.robotacid.geom.Pixel;
 	import com.robotacid.gfx.Renderer;
 	import com.robotacid.phys.Collider;
+	import com.robotacid.phys.FilterCollider;
 	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
 	import flash.geom.ColorTransform;
@@ -30,6 +31,10 @@ package com.robotacid.engine {
 		public static const SPAWN_SPEED:Number = 1;
 		public static const MIN_SPAWN_DIST:int = 5;
 		public static const MAX_SPAWN_DIST:int = 15;
+		public static const VOICES:Array = [
+			["horror1", "horror2", "horror3", "horror4", "horror5", "horror6"],
+			["fury1", "fury2", "fury3", "fury4", "fury5", "fury6"]
+		];
 		
 		public function Horror(character:Character, count:int) {
 			// the victim reference that is usually used for tracking the last character hit is used here
@@ -44,21 +49,40 @@ package com.robotacid.engine {
 			speed *= SPEED_MULTIPLIER;
 			damage = victim.totalHealth * DRAIN_RATE;
 			debrisType = (character == game.player || character == game.minion) ? Renderer.STONE : Renderer.BLOOD;
-			collider.ignoreProperties |= Collider.CHARACTER | Collider.MONSTER_MISSILE | Collider.PLAYER_MISSILE | Collider.HORROR;
-			collider.properties |= Collider.HORROR;
+			
 			spawnRect = collider.clone();
 			spawnRect.y += collider.height - SPAWN_SPEED;
 			spawnRect.height = SPAWN_SPEED;
-			if(character == game.player || character == game.minion) game.console.print("he comes...");
-			else game.console.print("your fury takes form...");
+			if(character == game.player || character == game.minion){
+				game.console.print("he comes...");
+				voice = VOICES[0];
+			} else {
+				game.console.print("your fury takes form...");
+				voice = VOICES[1];
+			}
 			state = SPAWNING;
 			brain = new HorrorBrain(this, victim);
+		}
+		
+		override public function createCollider(x:Number, y:Number, properties:int, ignoreProperties:int, state:int = 0, positionByBase:Boolean = true):void {
+			// characters are thinner than their graphics, so we have to read their widths from the stats
+			var bounds:Rectangle = gfx.getBounds(gfx);
+			var w:Number = stats["widths"][name];
+			// horrors can wall walk
+			collider = new FilterCollider(x - w * 0.5, y - bounds.height, w, bounds.height, Game.SCALE, properties, ignoreProperties, state);
+			(collider as FilterCollider).setFilter(Collider.WALL, Collider.WALL | Collider.UP | Collider.DOWN, Collider.MAP_EDGE);
+			collider.userData = this;
+			mapX = (collider.x + collider.width * 0.5) * Game.INV_SCALE;
+			mapY = (collider.y + collider.height * 0.5) * Game.INV_SCALE;
+			collider.ignoreProperties |= Collider.CHARACTER | Collider.MONSTER_MISSILE | Collider.PLAYER_MISSILE | Collider.HORROR;
+			collider.properties |= Collider.HORROR;
 		}
 		
 		override public function main():void {
 			
 			tileCenter = (mapX + 0.5) * SCALE;
 			if(state == WALKING) brain.main();
+			
 			super.main();
 			
 			renderer.addDripFX(spawnRect, 3, debrisType);

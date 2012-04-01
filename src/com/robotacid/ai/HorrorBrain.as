@@ -11,7 +11,6 @@ package com.robotacid.ai {
 	public class HorrorBrain extends Brain {
 		
 		public static var horrorVoiceCount:int;
-		public static const VOICE:Array = ["horror1", "horror2", "horror3", "horror4", "horror5", "horror6"];
 		public static const HORROR_VOICE_DELAY:int = 70;
 		
 		public function HorrorBrain(char:Character, target:Character) {
@@ -19,7 +18,7 @@ package com.robotacid.ai {
 			searchSteps = MONSTER_SEARCH_STEPS;
 			this.target = target;
 			target.brain.flee(char);
-			
+			wallWalker = true;
 		}
 		
 		override public function main():void {
@@ -38,10 +37,9 @@ package com.robotacid.ai {
 			
 			if(horrorVoiceCount <= 0){
 				voiceDist = Math.abs(game.player.mapX - char.mapX) + Math.abs(game.player.mapY - char.mapY);
-				if(voiceDist < VOICE_DIST_MAX) speak(VOICE, voiceDist);
+				if(voiceDist < VOICE_DIST_MAX) speak(char.voice, voiceDist);
 			}
 		}
-		
 		
 		/* Triggers a sample representing horrors */
 		override public function speak(voice:Array, dist:Number):void{

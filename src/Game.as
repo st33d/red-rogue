@@ -84,7 +84,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 346;
+		public static const BUILD_NUM:int = 347;
 		
 		public static const TEST_BED_INIT:Boolean = false;
 		
@@ -320,6 +320,12 @@
 			SoundManager.addSound(new HorrorSound04, "horror4", 0.5);
 			SoundManager.addSound(new HorrorSound05, "horror5", 0.5);
 			SoundManager.addSound(new HorrorSound06, "horror6", 0.5);
+			SoundManager.addSound(new HorrorSound1, "fury1", 0.4);
+			SoundManager.addSound(new HorrorSound2, "fury2", 0.4);
+			SoundManager.addSound(new HorrorSound3, "fury3", 0.4);
+			SoundManager.addSound(new HorrorSound4, "fury4", 0.4);
+			SoundManager.addSound(new HorrorSound5, "fury5", 0.4);
+			SoundManager.addSound(new HorrorSound6, "fury6", 0.4);
 			
 			// voices
 			SoundManager.addSound(new BansheeSound01, "Balrog1", 0.4);
