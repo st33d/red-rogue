@@ -759,6 +759,16 @@
 		/* Removes the effect from the target */
 		public function dismiss(buffer:Boolean = false):void{
 			
+			active = false;
+			var n:int = target.effects.indexOf(this);
+			if(n > -1) target.effects.splice(n, 1);
+			if(target.effects.length == 0) target.effects = null;
+			
+			if(buffer){
+				if(!target.effectsBuffer) target.effectsBuffer = new Vector.<Effect>()
+				target.effectsBuffer.push(this);
+			}
+			
 			var i:int;
 			
 			var callMain:Boolean = false;
@@ -835,19 +845,6 @@
 				}
 				
 			}
-			active = false;
-			
-			var n:int = target.effects.indexOf(this);
-			if(n > -1) target.effects.splice(n, 1);
-			if(target.effects.length == 0) target.effects = null;
-			
-			if(buffer){
-				if(!target.effectsBuffer) target.effectsBuffer = new Vector.<Effect>()
-				target.effectsBuffer.push(this);
-			}
-			
-			n = game.effects.indexOf(this);
-			if(n > -1) game.effects.splice(n, 1);
 			
 			target = null;
 		}

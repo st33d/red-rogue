@@ -73,6 +73,7 @@
 		public var changeRogueRaceOption:MenuOption;
 		public var changeMinionRaceOption:MenuOption;
 		public var portalTeleportOption:MenuOption;
+		public var giveDebugEquipmentOption:MenuOption;
 		public var quitToTitleOption:MenuOption;
 		public var newGameOption:MenuOption;
 		public var seedOption:MenuOption;
@@ -164,6 +165,8 @@
 			portalTeleportOption = new MenuOption("teleport", portalTeleportList);
 			portalTeleportOption.help = "teleport to a portal - invalid locations will not effect a teleport, this is a debugging feature.";
 			portalTeleportOption.recordable = false;
+			giveDebugEquipmentOption = new MenuOption("give debug equipment");
+			giveDebugEquipmentOption.help = "gives items for investigating bugs.";
 			
 			stairsUpPortalOption = new MenuOption("stairs up");
 			stairsDownPortalOption = new MenuOption("stairs down");
@@ -252,6 +255,7 @@
 			debugList.options.push(changeRogueRaceOption);
 			debugList.options.push(changeMinionRaceOption);
 			debugList.options.push(portalTeleportOption);
+			debugList.options.push(giveDebugEquipmentOption);
 			
 			for(i = 0; i < Character.stats["names"].length; i++){
 				changeRaceList.options.push(new MenuOption(Character.stats["names"][i]));
@@ -701,6 +705,10 @@
 			} else if(option == giveItemList.createOption){
 				giveItemList.createItem();
 			
+			// giving debug equipment
+			} else if(option == giveDebugEquipmentOption){
+				giveDebugEquipment();
+			
 			// credits
 			} else if(option == steedOption){
 				navigateToURL(new URLRequest("http://robotacid.com"), "_blank");
@@ -856,6 +864,30 @@
 						return;
 					}
 				}
+			}
+		}
+		
+		private function giveDebugEquipment():void{
+			var xmls:Array = [
+				<item type={Item.ARMOUR} name={Item.INDIFFERENCE} level={20}>
+					<effect name={Effect.LIGHT} level={20} />
+				</item>,
+				<item type={Item.ARMOUR} name={Item.INDIFFERENCE} level={20}>
+					<effect name={Effect.LIGHT} level={20} />
+				</item>,
+				<item type={Item.ARMOUR} name={Item.HELMET} level={20}>
+					<effect name={Effect.LIGHT} level={20} />
+					<effect name={Effect.HEAL} level={20} />
+					<effect name={Effect.UNDEAD} level={20} />
+				</item>,
+				<item type={Item.ARMOUR} name={Item.HELMET} level={20}>
+					<effect name={Effect.LIGHT} level={20} />
+					<effect name={Effect.HEAL} level={20} />
+					<effect name={Effect.UNDEAD} level={20} />
+				</item>
+			];
+			for(var i:int = 0; i < xmls.length; i++){
+				inventoryList.addItemFromXML(xmls[i]);
 			}
 		}
 		

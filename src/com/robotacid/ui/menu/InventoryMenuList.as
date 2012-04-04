@@ -1,5 +1,6 @@
 ﻿package com.robotacid.ui.menu {
 	import com.robotacid.engine.Character;
+	import com.robotacid.level.Content;
 	import flash.utils.Dictionary;
 	import com.robotacid.engine.Item;
 	
@@ -281,6 +282,13 @@
 			}
 			
 			menu.update();
+			return item;
+		}
+		
+		/* Inserts an item into the inventory using an XML */
+		public function addItemFromXML(itemXML:XML):Item{
+			var item:Item = Content.XMLToEntity(0, 0, itemXML);
+			item.collect(game.player);
 			return item;
 		}
 		

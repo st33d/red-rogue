@@ -41,8 +41,6 @@
 			mapInitialised = false;
 			
 			if(items) loot = items;
-			
-			if(name == MIMIC) trace("mimic", game.frameCount);
 		}
 		
 		/* Called when the MapTileManager activates this monster for the first time */

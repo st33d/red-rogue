@@ -134,7 +134,6 @@
 			game.mapTileManager.removeTile(this, mapX, mapY, mapZ);
 			var monster:Monster = Content.XMLToEntity(mapX, mapY, monsterTemplate);
 			game.mapTileManager.converter.convertIndicesToObjects(mapX, mapY, monster);
-			trace("create", game.frameCount);
 		}
 		
 		override public function nameToString():String {

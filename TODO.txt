@@ -1,4 +1,4 @@
-Change log: added kobold ability of random stat bonuses, updated help text, added new item names, added standalone player detection to screenshot and fullscreen requests (no dialog is necessary in standalone), refactored Critter to create COG types of all critters, added CHAOS missiles to 1:20 COGS
+Change log: successful NYMPH steal calls Brain.flee, bug observed trying to dismiss effects - refactored Effect.dismiss to let Game handle game.effects and splice character.effects before resolving name of dismiss, corrupted library with missing MimicMC causing crashes - new library, stunCount cleared when smited, added debug equipment option, added dead dropping to monsters trying to set patrol area in mid air, nerfed werewolf speed
 
 Bug hunt
 	can crash graph renderer by changing level
@@ -8,7 +8,9 @@ Bug hunt
 	undead respawn causes issue - unreproducable
 	halted chaos wall - why?
 	
-	mimic created off map - breaks game
+	chaos wall colliders can parent a character and pull it into a wall - how?
+	
+	null Monster collider.world spotted - why?
 
 need the ability to block effect apply printouts
 
@@ -21,15 +23,12 @@ save and quit
 	unlocking minion lore permanently alters all references to "the minion"
 
 expandable info menu
-
-successful steal is followed by flee instantly
+	add size states to info menu render
+	add rendering to InfoMenuList?
 
 refactor MapTileManager to EntityManager - move Entity control to EntityManager
 	refactor MapTileConverter to EntityConverter
 		make graphics commands more transparent
-
-cogs shoot chaos runes
-	cogs instead of normal critter sprites?
 
 title screen
 

@@ -830,6 +830,7 @@
 				collider.divorce();
 				this.dir = dir;
 				smiteDamage = damage * SMITE_DAMAGE_RATIO;
+				stunCount = 0;
 			}
 			if(dir & RIGHT){
 				looking = LEFT;
@@ -1132,6 +1133,7 @@
 					}
 					target.dropItem(item);
 					item.collect(this, false);
+					if(brain) brain.flee(target);
 					game.console.print(nameToString() + " stole " + item.nameToString());
 				}
 				

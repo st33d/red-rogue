@@ -50,7 +50,6 @@
 		public var holder:DisplayObjectContainer;
 		public var textHolder:Sprite;
 		public var help:TextBox;
-		public var selection:int;
 		public var selectionWindow:Bitmap;
 		public var selectionWindowTaperPrevious:Bitmap;
 		public var selectionWindowTaperNext:Bitmap;
@@ -60,7 +59,10 @@
 		public var infoTextBox:TextBox;
 		public var capture:CaptureBitmap;
 		public var selectionCopyBitmap:Bitmap;
+		
+		public var selection:int;
 		public var hideChangeSelection:Boolean;
+		public var infoTextBoxState:int;
 		
 		public var branch:Vector.<MenuList>;
 		public var branchStringCurrentOption:String;
@@ -131,6 +133,11 @@
 		public static const RIGHT_KEY:int = 3;
 		public static const MENU_KEY:int = 4;
 		
+		// infoTextBox states
+		public static const HIDDEN:int = 0;
+		public static const PREVIEW:int = 1;
+		public static const EXPANDED:int = 2;
+		
 		public static const HOT_KEY_OFFSET:int = 5;
 		
 		public static const UP:int = 1;
@@ -158,6 +165,7 @@
 			movementGuideCount = MOVEMENT_GUIDE_DELAY;
 			hideChangeSelection = false;
 			animatingSelection = false;
+			infoTextBoxState = HIDDEN;
 			
 			// initialise NOT_VISITED_COLS
 			initNotVisitedCols();

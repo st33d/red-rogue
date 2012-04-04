@@ -196,7 +196,9 @@
 					if(allegiance == MONSTER){
 						if(patrolAreaSet){
 							patrol();
-						} else (setPatrolArea(game.world.map));
+						} else {
+							setPatrolArea(game.world.map);
+						}
 						
 						if(count-- <= 0){
 							count = delay + game.random.range(delay);
@@ -700,8 +702,15 @@
 		 */
 		public function setPatrolArea(map:Vector.<Vector.<int>>):void{
 			// setting your patrol area in mid air is a tad silly
-			if(!(map[char.mapY + 1][char.mapX] & UP)){
+			if(char.collider.parent != char.collider.mapCollider){
 				patrolAreaSet = false;
+				// perform a dead drop
+				if(char.collider.state == Collider.HOVER){
+					char.collider.state = Collider.FALL;
+					char.dir &= ~(UP | DOWN);
+					char.collider.vy = 0;
+					char.collider.awake = Collider.AWAKE_DELAY;
+				}
 				return;
 			}
 			patrolMaxX = patrolMinX = (char.mapX + 0.5) * Game.SCALE;
