@@ -134,6 +134,9 @@ package com.robotacid.ui.menu {
 			critterList.options.push(new MenuOption("rat", null, false));
 			critterList.options.push(new MenuOption("bat", null, false));
 			critterList.options.push(new MenuOption("cog", null, false));
+			critterList.options.push(new MenuOption("cog_spider", null, false));
+			critterList.options.push(new MenuOption("cog_rat", null, false));
+			critterList.options.push(new MenuOption("cog_bat", null, false));
 			
 			// render settings
 			renderList.options.push(renderCollisionOption);
@@ -198,6 +201,9 @@ package com.robotacid.ui.menu {
 					else if(option.name == "rat") id = MapTileConverter.RAT;
 					else if(option.name == "bat") id = MapTileConverter.BAT;
 					else if(option.name == "cog") id = MapTileConverter.COG;
+					else if(option.name == "cog_spider") id = MapTileConverter.COG_SPIDER;
+					else if(option.name == "cog_rat") id = MapTileConverter.COG_RAT;
+					else if(option.name == "cog_bat") id = MapTileConverter.COG_BAT;
 					converter.convertIndicesToObjects(mapX, mapY, id);
 					
 				} else if(list == raceList){

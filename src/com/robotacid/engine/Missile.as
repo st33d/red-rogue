@@ -37,11 +37,15 @@
 		protected static var target:Character;
 		
 		public static const LIGHTNING_DAMAGE_RATIO:Number = 1 / 8;
+		public static const CHAKRAM_REFLECTIONS:int = 10;
+		public static const RUNE_REFLECTIONS:int = 5;
+		public static const CHAOS_MISSILE_RADIUS:Number = 3;
 		
 		// missile names
 		public static const ITEM:int = 1;
 		public static const RUNE:int = 2;
 		public static const DART:int = 3;
+		public static const CHAOS:int = 4;
 		
 		public function Missile(
 			mc:DisplayObject, x:Number, y:Number, type:int, sender:Character, dx:Number, dy:Number, speed:Number,
@@ -64,6 +68,13 @@
 			offsetY = 0;
 			
 			createCollider(x, y, Collider.LEFT | Collider.RIGHT | Collider.MISSILE | firingTeam, ignore, Collider.HOVER, false);
+			if(type == CHAOS){
+				collider.x = x - CHAOS_MISSILE_RADIUS;
+				collider.y = y - CHAOS_MISSILE_RADIUS;
+				collider.width = CHAOS_MISSILE_RADIUS * 2;
+				collider.height = CHAOS_MISSILE_RADIUS * 2;
+			}
+			
 			if(sender){
 				// adjust the collider to make it fly nicely out of the sender
 				// - it won't matter to the physics engine as we have to do a ghosting check anyway
@@ -79,7 +90,7 @@
 			game.world.restoreCollider(collider);
 			
 			// runes glow when they are converted to missiles
-			if(type == RUNE){
+			if(type == RUNE || type == CHAOS){
 				game.lightMap.setLight(this, 3, 112);
 				
 			}
@@ -316,6 +327,15 @@
 				game.console.print(effect.nameToString() + " dart hits " + character.nameToString());
 				effect.apply(character);
 				game.soundQueue.add("runeHit");
+				
+			} else if(type == CHAOS){
+				if(character.type & Character.STONE){
+					kill();
+					return;
+				}
+				game.console.print("? hits " + character.nameToString());
+				effect.apply(character);
+				game.soundQueue.add("runeHit");
 			}
 			kill();
 		}
@@ -323,7 +343,7 @@
 		/* Bounces the missile and sends it in the opposite direction */
 		public function reflect():void{
 			if(reflections) reflections--;
-			if(type == RUNE || type == DART){
+			if(type == RUNE || type == DART || type == CHAOS){
 				renderer.createSparks(collider.x + collider.width * 0.5, collider.y + collider.height * 0.5, -dx, -dy, 10);
 			}
 			if(dx){
@@ -341,7 +361,7 @@
 		
 		public function kill():void{
 			if(!active) return;
-			if(type == RUNE || type == DART){
+			if(type == RUNE || type == DART || type == CHAOS){
 				renderer.createSparks(collider.x + collider.width * 0.5, collider.y + collider.height * 0.5, -dx, -dy, 10);
 			}
 			collider.world.removeCollider(collider);
@@ -360,7 +380,7 @@
 		 * this is checked for here and corrections are made to the physics to accomodate the situation */
 		public function ghostCheck():void{
 			// resolve out of walls
-			if(type != DART){
+			if(!(type == DART || type == CHAOS)){
 				var map:Vector.<Vector.<int>> = collider.world.map;
 				var mapX:int, mapY:int;
 				mapX = collider.x * INV_SCALE;

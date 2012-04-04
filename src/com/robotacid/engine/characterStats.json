@@ -7,9 +7,9 @@
 		"balrog", "skeleton"
 	],
 	"unique names":[
-		["rogue"], ["skree", "krilitz", "krellax"], ["yubnub", "noobub", "gilbub"] , ["grom", "hrash", "thogar"], ["goom", "hoor", "boor"],
-		["rofl", "lol", "flol"], ["drizzt", "traxex"], ["spike", "ge-ka", "saboten"] , ["calypso", "creusa", "echo", "harmonia", "arethusa"], ["bram", "dracula", "vlad", "edward", "alucard", "demitri"],
-		["talbot", "talbain"], ["bridget", "xana"], ["hissa", "sri", "astika", "vasuki"], ["medusa", "stheno", "euryale"], ["xit't't'k", "k'tch'k", "xt'chk't"],
+		["rogue"], ["skree", "krilitz", "krellax", "pun pun son"], ["yubnub", "noobub", "gilbub"] , ["grom", "hrash", "thogar"], ["goom", "hoor", "boor"],
+		["rofl", "lol", "flol"], ["drizzt", "traxex", "crowleyson"], ["spike", "ge-ka", "saboten"] , ["calypso", "creusa", "echo", "harmonia", "arethusa"], ["bram", "dracula", "vlad", "alucard", "demitri"],
+		["talbot", "talbain", "plague"], ["bridget", "xana"], ["hissa", "sri", "astika", "vasuki"], ["medusa", "stheno", "euryale"], ["xit't't'k", "k'tch'k", "xt'chk't"],
 		["emet", "met"], ["sadako", "eevul", "maeveen"], ["gul", "khamul", "ulaire"], ["rlyeh", "ph'nglui", "wgah'nagl", "fhtagri"], ["alamvusha", "bakasura", "kirmira", "virakshi"],
 		["diablo", "azazel", "beelzebub", "mestopheles"], ["@"]
 	],
@@ -21,7 +21,7 @@
 		0.4, 0.15
 	],
 	"attack levels":[
-		0.05, 0.07, 0.04, 0.06, 0.03,
+		0.05, 0.04, 0.04, 0.06, 0.03,
 		0.03, 0.04, 0.04, 0.05, 0.05,
 		0.05, 0.04, 0.05, 0.05, 0.05,
 		0.05, 0.05, 0.05, 0.05, 0.05,
@@ -56,21 +56,21 @@
 		1.5, 0.5
 	],
 	"damages":[
-		1, 0.3, 0.5, 1.1, 1,
+		1, 0.5, 0.5, 1.1, 1,
 		1, 0.8, 0.8, 0.3, 1,
 		1.1, 0.8, 1, 1, 1,
 		1.1, 1, 1, 0.8, 1,
 		1, 0.7
 	],
 	"damage levels":[
-		0.2, 0.1, 0.15, 0.21, 0.2,
+		0.2, 0.13, 0.15, 0.21, 0.2,
 		0.2, 0.08, 0.08, 0.03, 0.2,
 		0.2, 0.2, 0.2, 0.2, 0.2,
 		0.21, 0.2, 0.2, 0.2, 0.2,
 		0.2, 0.15
 	],
 	"attack speeds":[
-		0.05, 0.02, 0.06, 0.03, 0.03,
+		0.05, 0.028, 0.06, 0.03, 0.03,
 		0.04, 0.055, 0.04, 0.06, 0.05,
 		0.07, 0.04, 0.04, 0.04, 0.04,
 		0.02, 0.04, 0.04, 0.04, 0.04,
@@ -168,11 +168,11 @@
 		10, 6
 	],
 	"specials":[
-		"x2 backstab damage, superior search skill", "ugly duckling", "superior speed", "superior combat skills", "regenerates health",
+		"x2 backstab damage, superior search skill", "chaotic learner", "superior speed", "superior combat skills", "regenerates health",
 		"possible bonus chest items", "infravision", "damage reflection", "theft attack", "life steal, undead",
 		"superior speed and combat, infectious, insane", "form steal", "poison attack", "stupefy attack", "confuse attack",
 		"superior defence", "fear attack, undead", "wall walk, undead", "xp steal", "chaos attack",
-		"superior, possession", "poison immune, undead"
+		"blessed strike, possession", "poison immune, undead"
 	],
 	"descriptions":[
 		"widow to the thief adventurer named @", "reptile goblinoid", "true goblin", "greater goblin", "goblin protector",

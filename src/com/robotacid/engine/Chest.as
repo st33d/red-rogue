@@ -18,6 +18,7 @@
 		
 		public var twinkleCount:int;
 		public var rect:Rectangle;
+		public var twinkleRect:Rectangle;
 		public var contents:Vector.<Item>;
 		public var mimicState:int;
 		
@@ -50,6 +51,7 @@
 				rect = mc.getBounds(mc);
 				rect.x += x;
 				rect.y += y;
+				twinkleRect = rect.clone();
 				callMain = true;
 			}
 			(mc as MovieClip).gotoAndStop(contents ? "closed" : "open");
@@ -81,7 +83,7 @@
 				if(game.lightMap.darkImage.getPixel32(mapX, mapY) != 0xFF000000){
 					// create a twinkle twinkle effect so the player knows this is a collectable
 					if(twinkleCount-- <= 0){
-						renderer.addFX(rect.x + game.random.range(rect.width), rect.y + game.random.range(rect.height), renderer.twinkleBlit);
+						renderer.addFX(twinkleRect.x + game.random.range(twinkleRect.width), twinkleRect.y + game.random.range(twinkleRect.height), renderer.twinkleBlit);
 						twinkleCount = TWINKLE_DELAY + game.random.range(TWINKLE_DELAY);
 					}
 					// detect the player for transform
@@ -132,6 +134,7 @@
 			game.mapTileManager.removeTile(this, mapX, mapY, mapZ);
 			var monster:Monster = Content.XMLToEntity(mapX, mapY, monsterTemplate);
 			game.mapTileManager.converter.convertIndicesToObjects(mapX, mapY, monster);
+			trace("create", game.frameCount);
 		}
 		
 		override public function nameToString():String {

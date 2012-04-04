@@ -1,4 +1,4 @@
-Change log: bug with all missile weapons firing chaos runes fixed, added different voices for fury horrors, added wall-walking ability to horrors
+Change log: added kobold ability of random stat bonuses, updated help text, added new item names, added standalone player detection to screenshot and fullscreen requests (no dialog is necessary in standalone), refactored Critter to create COG types of all critters, added CHAOS missiles to 1:20 COGS
 
 Bug hunt
 	can crash graph renderer by changing level
@@ -7,10 +7,10 @@ Bug hunt
 	combo bug: minion, indifference, level 21, identify monster twice, minion portal - unreproducable
 	undead respawn causes issue - unreproducable
 	halted chaos wall - why?
+	
+	mimic created off map - breaks game
 
 need the ability to block effect apply printouts
-
-fix help text - refers to deprecated rules
 
 yendor
 	jumping
@@ -18,6 +18,18 @@ yendor
 
 
 save and quit
+	unlocking minion lore permanently alters all references to "the minion"
+
+expandable info menu
+
+successful steal is followed by flee instantly
+
+refactor MapTileManager to EntityManager - move Entity control to EntityManager
+	refactor MapTileConverter to EntityConverter
+		make graphics commands more transparent
+
+cogs shoot chaos runes
+	cogs instead of normal critter sprites?
 
 title screen
 
@@ -52,9 +64,22 @@ level generator overhaul:
 	create a list of legal floor positions for portals, exits and traps during level generation
 	distribution tactics -
 		expand room defined areas
+			rooms as exploding squares from nodes - RoomNode
 		drop monsters into rooms only (or in certain zones - other areas as well)
 		create context groups for monsters in packs
 			dramatis personae creator
+				unique named characters (set equipments?):
+					
+					create a level above current character - assign to levels initially according to roll
+					
+					crowley: regenerating drow - helmet and mace
+					the balrog: the boss - yendor and weapon
+					pun pun: max stats kobold - good armour and weapon?
+					edward: sparkling vampire - unequipped
+					golfimbul: a goblin that always suffers critcal hits
+					internet: a max regenerating troll
+					the bitch: a nymph that never fails a steal roll
+					
 		distribute 150% of level's worth of xp across monsters on one level instead of set xp for each monster
 
 plateauMc?

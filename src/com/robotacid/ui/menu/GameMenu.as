@@ -25,6 +25,7 @@
 	import flash.geom.Rectangle;
 	import flash.net.navigateToURL;
 	import flash.net.URLRequest;
+	import flash.system.Capabilities;
 	
 	/**
 	 * This is a situ-specific menu specially for this game
@@ -72,8 +73,7 @@
 		public var changeRogueRaceOption:MenuOption;
 		public var changeMinionRaceOption:MenuOption;
 		public var portalTeleportOption:MenuOption;
-		public var loadOption:MenuOption;
-		public var saveOption:MenuOption;
+		public var quitToTitleOption:MenuOption;
 		public var newGameOption:MenuOption;
 		public var seedOption:MenuOption;
 		public var dogmaticOption:MenuOption;
@@ -140,7 +140,7 @@
 			var optionsOption:MenuOption = new MenuOption("options", optionsList);
 			optionsOption.help = "change game settings";
 			actionsOption = new MenuOption("actions", actionsList, false);
-			actionsOption.help = "perform actions like searching for traps and going up and down stairs";
+			actionsOption.help = "perform actions like searching for traps and summoning the minion";
 			var loreOption:MenuOption = new MenuOption("lore", loreList);
 			loreOption.help = "information that has been gathered about the world.";
 			debugOption = new MenuOption("debug", debugList);
@@ -171,7 +171,7 @@
 			underworldPortalOption = new MenuOption("underworld");
 			
 			summonOption = new MenuOption("summon");
-			summonOption.help = "teleport your minion to your location";
+			summonOption.help = "teleport the minion to your location";
 			searchOption = new MenuOption("search");
 			searchOption.help = "search immediate area for traps and secret areas. the player must not move till the search is over, or it will be aborted";
 			disarmTrapOption = new MenuOption("disarm trap", null, false);
@@ -185,14 +185,14 @@
 			initChangeKeysMenuOption();
 			changeKeysOption.help = "change the movement keys, menu key and hot keys"
 			initHotKeyMenuOption(trunk);
-			hotKeyOption.help = "set up a key to perform a menu action the hot key will work even if the menu is hidden the hot key will also adapt to menu changes";
+			hotKeyOption.help = "set up a key to perform a menu action. the hot key will work even if the menu is hidden, the hot key will also adapt to menu changes";
 			
 			var soundOption:MenuOption = new MenuOption("sound", soundList);
 			soundOption.help = "toggle sound";
 			var sfxOption:MenuOption = new MenuOption("sfx", onOffList);
 			var musicOption:MenuOption = new MenuOption("music", onOffList);
 			var fullScreenOption:MenuOption = new MenuOption("fullscreen", onOffList);
-			fullScreenOption.help = "toggle fullscreen.\nthe flash player only allows use of the cursor keys and space when fullscreen.";
+			fullScreenOption.help = "toggle fullscreen.\nthe flash player only allows use of the cursor keys and space when fullscreen in a browser.";
 			screenshotOption = new MenuOption("screenshot");
 			screenshotOption.help = "take a screen shot of the game (making the menu temporarily invisible) and open a filebrowser to save the screenshot to the desktop.";
 			seedOption = new MenuOption("set rng seed", seedInputList);
@@ -203,10 +203,8 @@
 			menuMoveOption.help = "change the speed that the menu moves. lower values move the menu faster. simply move the selection to change the speed.";
 			consoleDirOption = new MenuOption("console scroll direction", upDownList);
 			consoleDirOption.help = "change the direction the console at the bottom of the screen scrolls";
-			loadOption = new MenuOption("load", sureList, false);
-			loadOption.help = "disabled whilst I work out how to continue a game from save and quit (permadeath)";
-			saveOption = new MenuOption("save", sureList, false);
-			saveOption.help = "disabled whilst I work out how permadeath and save and quit work";
+			quitToTitleOption = new MenuOption("quit", sureList, false);
+			quitToTitleOption.help = "currently disabled until title screen completed";
 			newGameOption = new MenuOption("new game", sureList);
 			newGameOption.help = "start a new game";
 			
@@ -246,8 +244,7 @@
 			optionsList.options.push(hotKeyOption);
 			optionsList.options.push(seedOption);
 			optionsList.options.push(dogmaticOption);
-			optionsList.options.push(loadOption);
-			optionsList.options.push(saveOption);
+			optionsList.options.push(quitToTitleOption);
 			optionsList.options.push(newGameOption);
 			
 			debugList.options.push(editorOption);
@@ -569,10 +566,8 @@
 			
 			// loading / saving / new game
 			} else if(option == sureOption){
-				if(previousMenuList.options[previousMenuList.selection] == loadOption){
-					QuickSave.load(game);
-				} else if(previousMenuList.options[previousMenuList.selection] == saveOption){
-					QuickSave.save(game);
+				if(previousMenuList.options[previousMenuList.selection] == quitToTitleOption){
+					//QuickSave.save(game);
 				} else if(previousMenuList.options[previousMenuList.selection] == newGameOption){
 					inventoryList.reset();
 					loreList.questsList.reset();
@@ -606,12 +601,16 @@
 				} else if(previousMenuList.options[previousMenuList.selection].name == "fullscreen"){
 					if(onOffOption.state == 1){
 						fullscreenOn = true;
-						if(!Game.dialog){
-							Game.dialog = new Dialog(
-								"activate fullscreen",
-								"flash's security restrictions require you to press the menu key to continue\n\nThese restrictions also limit keyboard input to cursor keys and space. Press Esc to exit fullscreen.",
-								fullscreen
-							);
+						if(Capabilities.playerType == "StandAlone"){
+							fullscreen();
+						} else {
+							if(!Game.dialog){
+								Game.dialog = new Dialog(
+									"activate fullscreen",
+									"flash's security restrictions require you to press the menu key to continue\n\nThese restrictions also limit keyboard input to cursor keys and space. Press Esc to exit fullscreen.",
+									fullscreen
+								);
+							}
 						}
 					} else {
 						fullscreenOn = false;
@@ -622,12 +621,16 @@
 			
 			// taking a screenshot
 			} else if(option == screenshotOption){
-				if(!Game.dialog){
-					Game.dialog = new Dialog(
-						"screenshot",
-						"flash's security restrictions require you to press the menu key to continue\n",
-						screenshot
-					);
+				if(Capabilities.playerType == "StandAlone"){
+					screenshot();
+				} else {
+					if(!Game.dialog){
+						Game.dialog = new Dialog(
+							"screenshot",
+							"flash's security restrictions require you to press the menu key to continue\n",
+							screenshot
+						);
+					}
 				}
 			
 			// changing the scrolling behaviour of the console

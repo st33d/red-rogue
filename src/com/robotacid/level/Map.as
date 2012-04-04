@@ -613,10 +613,10 @@
 			// the compiler won't let me create this as a constant so I have to drop it in here
 			// better than resorting to magic numbers I suppose
 			var ZONE_CRITTERS:Array = [
-				[MapTileConverter.SPIDER, MapTileConverter.SPIDER, MapTileConverter.SPIDER, MapTileConverter.SPIDER, MapTileConverter.BAT, MapTileConverter.RAT],
-				[MapTileConverter.RAT, MapTileConverter.RAT, MapTileConverter.RAT, MapTileConverter.RAT, MapTileConverter.BAT, MapTileConverter.SPIDER],
+				[MapTileConverter.SPIDER, MapTileConverter.SPIDER, MapTileConverter.BAT, MapTileConverter.RAT],
+				[MapTileConverter.RAT, MapTileConverter.RAT, MapTileConverter.RAT, MapTileConverter.RAT, MapTileConverter.SPIDER],
 				[MapTileConverter.BAT, MapTileConverter.BAT, MapTileConverter.BAT, MapTileConverter.BAT, MapTileConverter.RAT, MapTileConverter.SPIDER],
-				[MapTileConverter.COG, MapTileConverter.COG, MapTileConverter.COG, MapTileConverter.RAT, MapTileConverter.SPIDER, MapTileConverter.BAT]
+				[MapTileConverter.COG, MapTileConverter.COG_RAT, MapTileConverter.COG_SPIDER, MapTileConverter.COG_BAT]
 			];
 			
 			var critterPalette:Array = ZONE_CRITTERS[zone];
@@ -636,7 +636,10 @@
 					layers[BLOCKS][r][c] != 1 &&
 					(
 						(
-							critterId == MapTileConverter.RAT &&
+							(
+								critterId == MapTileConverter.RAT ||
+								critterId == MapTileConverter.COG_RAT
+							)&&
 							(
 								bitmap.bitmapData.getPixel32(c, r + 1) == MapBitmap.LEDGE ||
 								bitmap.bitmapData.getPixel32(c, r + 1) == MapBitmap.LADDER_LEDGE ||
@@ -644,7 +647,12 @@
 							)
 						) ||
 						(
-							(critterId == MapTileConverter.SPIDER || critterId == MapTileConverter.BAT) &&
+							(
+								critterId == MapTileConverter.SPIDER ||
+								critterId == MapTileConverter.BAT ||
+								critterId == MapTileConverter.COG_SPIDER ||
+								critterId == MapTileConverter.COG_BAT
+							) &&
 							(
 								layers[BLOCKS][r - 1][c] == MapTileConverter.WALL &&
 								bitmap.bitmapData.getPixel32(c, r - 1) != MapBitmap.PIT

@@ -84,7 +84,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 347;
+		public static const BUILD_NUM:int = 349;
 		
 		public static const TEST_BED_INIT:Boolean = false;
 		

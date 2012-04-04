@@ -159,21 +159,16 @@
 				if(--game.map.completionCount == 0) game.levelCompleteMsg();
 				
 			} else if(type == POISON_DART){
-				game.soundQueue.add("throw");
 				shootDart(new Effect(Effect.POISON, game.map.level < Game.MAX_LEVEL ? game.map.level : Game.MAX_LEVEL, Effect.THROWN));
 			} else if(type == STUN_DART){
-				game.soundQueue.add("throw");
 				shootDart(new Effect(Effect.STUN, game.map.level < Game.MAX_LEVEL ? game.map.level : Game.MAX_LEVEL, Effect.THROWN));
 			} else if(type == TELEPORT_DART){
-				game.soundQueue.add("throw");
 				shootDart(new Effect(Effect.TELEPORT, Game.MAX_LEVEL, Effect.THROWN));
 				
 			} else if(type == CONFUSION_DART){
-				game.soundQueue.add("throw");
 				shootDart(new Effect(Effect.CONFUSION, game.map.level < Game.MAX_LEVEL ? game.map.level : Game.MAX_LEVEL, Effect.THROWN));
 				
 			} else if(type == FEAR_DART){
-				game.soundQueue.add("throw");
 				shootDart(new Effect(Effect.FEAR, game.map.level < Game.MAX_LEVEL ? game.map.level : Game.MAX_LEVEL, Effect.THROWN));
 				
 			} else if(type == MONSTER_PORTAL){
@@ -219,6 +214,7 @@
 		
 		/* Launches a missile from the ceiling that bears a magic effect */
 		public function shootDart(effect:Effect):void{
+			game.soundQueue.add("throw");
 			var missileMc:DisplayObject = new DartMC();
 			var clipRect:Rectangle = new Rectangle(dartGun.x - Game.SCALE * 0.5, dartGun.y, Game.SCALE, (rect.y + 1) - dartGun.y);
 			var missile:Missile = new Missile(missileMc, dartGun.x, dartGun.y, Missile.DART, null, 0, 1, 5, Collider.LADDER | Collider.LEDGE | Collider.HEAD | Collider.ITEM | Collider.CORPSE, effect, null, clipRect);

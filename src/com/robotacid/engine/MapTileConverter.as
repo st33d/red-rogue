@@ -118,6 +118,9 @@
 		public static const SPIDER:int = 63;
 		public static const BAT:int = 64;
 		public static const COG:int = 65;
+		public static const COG_RAT:int = 66;
+		public static const COG_SPIDER:int = 67;
+		public static const COG_BAT:int = 68;
 		
 		// These references are technically illegal. Game.game doesn't even exist yet, but some how the
 		// compiler is letting the issue slide so long as I don't static reference Game
@@ -189,6 +192,9 @@
 			RatMC,
 			SpiderMC,
 			BatMC,
+			CogMC,
+			CogMC,
+			CogMC,
 			CogMC
 		];
 		
@@ -317,6 +323,12 @@
 				item = new Critter(mc, (x + 0.5) * Game.SCALE, y * Game.SCALE, Critter.BAT);
 			} else if(id == COG){
 				item = new Critter(mc, (x + 0.5) * Game.SCALE, (y + 0.5) * Game.SCALE, Critter.COG);
+			} else if(id == COG_RAT){
+				item = new Critter(mc, (x + 0.5) * Game.SCALE, (y + 1) * Game.SCALE, Critter.COG | Critter.RAT);
+			} else if(id == COG_SPIDER){
+				item = new Critter(mc, (x + 0.5) * Game.SCALE, (y + 0.5) * Game.SCALE, Critter.COG | Critter.SPIDER);
+			} else if(id == COG_BAT){
+				item = new Critter(mc, (x + 0.5) * Game.SCALE, y * Game.SCALE, Critter.COG | Critter.BAT);
 			}
 			
 			// just gfx?

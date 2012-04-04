@@ -81,13 +81,13 @@
 			// MENU OPTIONS
 			
 			weaponsOption = new MenuOption("weapons", weaponsList, false);
-			weaponsOption.help = "The list of weapons you and your minion can equip.";
+			weaponsOption.help = "The list of weapons you and the minion can equip.";
 			armourOption = new MenuOption("armour", armourList, false);
-			armourOption.help = "The list of armour you and your minion can equip.";
+			armourOption.help = "The list of armour you and the minion can equip.";
 			runesOption = new MenuOption("runes", runesList, false);
-			runesOption.help = "The list of runes that can be used on yourself, your minion, monsters and your equipment.";
+			runesOption.help = "The list of runes that can be used on yourself, the minion, monsters and your equipment.";
 			heartsOption = new MenuOption("hearts", heartsList, false);
-			heartsOption.help = "The list of hearts you can eat to regain health.";
+			heartsOption.help = "The list of hearts you and the minion can eat to regain health.";
 			sortOption = new MenuOption("sort equipment");
 			sortOption.selectionStep = 1;
 			sortOption.help = "sorts weapons and armour according to the highest stats. does not consider special abilities or enchantments.";

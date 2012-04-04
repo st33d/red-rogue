@@ -191,8 +191,6 @@
 		public static const MAX_SPEED_MODIFIER:Number = 2;
 		public static const MIN_SPEED_MODIFIER:Number = 0.5;
 		public static const MIN_PROTECTION_MODIFIER:Number = 0.5;
-		public static const CHAKRAM_REFLECTIONS:int = 10;
-		public static const RUNE_REFLECTIONS:int = 5;
 		public static const SMITED_SPEED:Number = 8;
 		public static const SMITE_DAMAGE_RATIO:Number = 1.5;
 		public static const SMITE_PER_LEVEL:Number = 0.05;
@@ -270,13 +268,12 @@
 			attackSpeedModifier = 1;
 			protectionModifier = 1;
 			
-			
+			// racial modifications
 			if(name == SKELETON){
 				debrisType = Renderer.BONE;
 			} else if(name == GOLEM){
 				debrisType = Renderer.STONE;
 			}
-			
 			if(name == DROW){
 				setInfravision(1);
 			} else {
@@ -291,6 +288,16 @@
 				thorns = Effect.THORNS_PER_LEVEL * level;
 			} else {
 				thorns = 0;
+			}
+			if(name == KOBOLD && level){
+				// kobolds have chaotic stat bonuses
+				health += stats["health levels"][name] * level * game.random.value();
+				totalHealth = health;
+				attack += stats["attack levels"][name] * level * game.random.value();
+				defence += stats["defence levels"][name] * level * game.random.value();
+				attackSpeed += stats["attack speed levels"][name] * level * game.random.value();
+				damage += stats["damage levels"][name] * level * game.random.value();
+				speed += stats["speed levels"][name] * level * game.random.value();
 			}
 			
 			// reapply effects
@@ -1003,7 +1010,7 @@
 					item.autoEquip = this.type;
 					if(item.gfx is ItemMovieClip) (item.gfx as ItemMovieClip).setThrowRender();
 					if(item.name == Item.CHAKRAM){
-						reflections = CHAKRAM_REFLECTIONS;
+						reflections = Missile.CHAKRAM_REFLECTIONS;
 					}
 				// we can only get here if the main weapon is a missile weapon
 				} else {
@@ -1015,7 +1022,7 @@
 				game.soundQueue.add("bowShoot");
 			} else if (type == Missile.RUNE){
 				game.soundQueue.add("throw");
-				reflections = RUNE_REFLECTIONS;
+				reflections = Missile.RUNE_REFLECTIONS;
 			}
 			missileMc.scaleX = (looking & RIGHT) ? 1 : -1;
 			var missile:Missile = new Missile(missileMc, collider.x + collider.width * 0.5, collider.y + collider.height * 0.5, type, this, (looking & RIGHT) ? 1 : -1, 0, 5, missileIgnore, effect, item, null, reflections, brain.firingTeam, alchemical);
