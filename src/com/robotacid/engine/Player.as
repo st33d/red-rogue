@@ -497,6 +497,7 @@
 				} else {
 					Brain.playerCharacters.splice(Brain.playerCharacters.indexOf(this), 1);
 					game.menu.death();
+					var deathLight:DeathLight = new DeathLight(mapX, mapY);
 					tidyUp();
 				}
 			}

@@ -47,6 +47,7 @@ package com.robotacid.ui.menu {
 		public var launchTestBedOption:MenuOption;
 		public var remapAIGraphOption:MenuOption;
 		public var teleportMinionOption:MenuOption;
+		public var enterDungeonLevelOption:MenuOption;
 		
 		public var deleteOption:MenuOption;
 		public var onOption:MenuOption;
@@ -82,6 +83,7 @@ package com.robotacid.ui.menu {
 			renderOption = new MenuOption("render", renderList);
 			launchTestBedOption = new MenuOption("launch test bed");
 			launchTestBedOption.selectionStep = 1;
+			enterDungeonLevelOption = new MenuOption("enter dungeon level");
 			remapAIGraphOption = new MenuOption("remap ai graph");
 			remapAIGraphOption.selectionStep = 1;
 			teleportMinionOption = new MenuOption("teleport minion", null, false);
@@ -111,6 +113,7 @@ package com.robotacid.ui.menu {
 			options.push(renderOption);
 			options.push(remapAIGraphOption);
 			options.push(teleportMinionOption);
+			options.push(enterDungeonLevelOption);
 			options.push(launchTestBedOption);
 			
 			createBlockList.options.push(deleteOption);

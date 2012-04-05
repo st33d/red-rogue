@@ -84,7 +84,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 350;
+		public static const BUILD_NUM:int = 351;
 		
 		public static const TEST_BED_INIT:Boolean = false;
 		
@@ -642,8 +642,9 @@
 			init();
 		}
 		
-		/* Enters the the testing area */
+		/* Enters the testing area */
 		public function launchTestBed():void{
+			editor.deactivate();
 			changeLevel( -1, Portal.STAIRS);
 			menu.editorList.setLight(menu.editorList.lightList.selection);
 		}

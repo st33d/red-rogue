@@ -142,6 +142,7 @@
 				roominess = ZONE_ROOMINESS[zone] + (level == 1 ? 1 : 0);
 				bitmapData = createRoomsAndTunnels();
 				
+				// view map generation debug
 				//var temp:Bitmap = new Bitmap(bitmapData.clone());
 				//temp.scaleX = temp.scaleY = 2;
 				//Game.game.addChild(temp);
@@ -240,16 +241,26 @@
 				
 				// place the rooms in their cells
 				for(i = 0; i < rooms.length; i++){
-					rooms[i].x = (rooms[i].gridNum % gridWidth) * cellWidth;
-					rooms[i].y = (rooms[i].gridNum / gridWidth);
-					rooms[i].y *= cellHeight;
+					room = rooms[i];
+					room.x = (room.gridNum % gridWidth) * cellWidth;
+					room.y = (room.gridNum / gridWidth);
+					room.y *= cellHeight;
 					// random offset the rooms
-					rooms[i].x += 1 + Map.random.range((cellWidth - 1) - rooms[i].width);
-					rooms[i].y += 1 + Map.random.range((cellHeight - 1) - rooms[i].height);
+					room.x += 1 + Map.random.range((cellWidth - 1) - room.width);
+					room.y += 1 + Map.random.range((cellHeight - 1) - room.height);
 					// draw the room:
 					data.fillRect(new Rectangle(
-						rooms[i].x, rooms[i].y, rooms[i].width, rooms[i].height
+						room.x, room.y, room.width, room.height
 					), DIGGING);
+					
+					
+					// round rooms:
+					//data.fillRect(new Rectangle(
+						//(room.x + room.width * 0.5) - (room.height * 0.5),
+						//(room.y + room.height * 0.5) - (room.width * 0.5),
+						//room.height,
+						//room.width
+					//), DIGGING);
 				}
 				
 				// now we have to connect the rooms to their siblings

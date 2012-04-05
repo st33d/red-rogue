@@ -755,6 +755,14 @@
 			} else if(option == editorList.launchTestBedOption){
 				game.launchTestBed();
 				
+			// entering a given dungeon level
+			} else if(option == editorList.enterDungeonLevelOption){
+				Player.previousLevel = editorList.dungeonLevelList.selection;
+				Player.previousPortalType = Portal.STAIRS;
+				Player.previousMapType = Map.MAIN_DUNGEON;
+				game.editor.deactivate();
+				game.changeLevel(editorList.dungeonLevelList.selection + 1, Portal.STAIRS);;
+				
 			// remapping the ai graph
 			} else if(option == editorList.remapAIGraphOption){
 				Brain.initMapGraph(game.map.bitmap);

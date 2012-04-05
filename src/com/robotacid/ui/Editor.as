@@ -52,7 +52,6 @@ package com.robotacid.ui {
 			bottomRight = new Pixel();
 			sprite = new Sprite();
 			textBox = new TextBox(100, 12, 0x00000000, 0x00000000);
-			
 			//active = true;
 		}
 		
@@ -89,6 +88,7 @@ package com.robotacid.ui {
 		}
 		
 		public function render():void{
+			
 			var i:int, r:int, c:int;
 			var node:Node, character:Character;
 			var gfx:Graphics = sprite.graphics;

@@ -1,4 +1,4 @@
-Change log: successful NYMPH steal calls Brain.flee, bug observed trying to dismiss effects - refactored Effect.dismiss to let Game handle game.effects and splice character.effects before resolving name of dismiss, corrupted library with missing MimicMC causing crashes - new library, stunCount cleared when smited, added debug equipment option, added dead dropping to monsters trying to set patrol area in mid air, nerfed werewolf speed
+Change log: fixed editor crash rendering ai paths from a previous level, added level skip option, added death-light to player death
 
 Bug hunt
 	can crash graph renderer by changing level
@@ -11,6 +11,8 @@ Bug hunt
 	chaos wall colliders can parent a character and pull it into a wall - how?
 	
 	null Monster collider.world spotted - why?
+	
+	diagonal down node by two steps causes error on ladder ledge
 
 need the ability to block effect apply printouts
 
@@ -31,6 +33,15 @@ refactor MapTileManager to EntityManager - move Entity control to EntityManager
 		make graphics commands more transparent
 
 title screen
+
+locks
+	keys?
+	pressure pads?
+	how to split the map
+		draw up or down from the edge of the map to a horizontal line
+		check for route fragmentation
+			flood fill from entrance to level for valid switch positions
+	
 
 Unique items
 	mokesmoe's bug
