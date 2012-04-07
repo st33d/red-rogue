@@ -4,6 +4,7 @@
 	import com.robotacid.engine.ColliderEntity;
 	import com.robotacid.engine.ColliderEntitySensor;
 	import com.robotacid.engine.Effect;
+	import com.robotacid.engine.Gate;
 	import com.robotacid.engine.Item;
 	import com.robotacid.engine.MapTileConverter;
 	import com.robotacid.engine.MapTileManager;
@@ -351,6 +352,7 @@
 			}
 			
 			// now add some flavour
+			if(bitmap.gates.length) createGates();
 			createChaosWalls(pixels);
 			createOtherTraps();
 			createCritters();
@@ -677,6 +679,16 @@
 				}
 				if((breaker++) > 1000) break;
 			}
+		}
+		
+		/* Create barriers in the dungeon */
+		public function createGates():void{
+			var site:Pixel = bitmap.gates[0];
+			var gate:Gate = new Gate(site.x * Game.SCALE, site.y * Game.SCALE, Gate.RAISE);
+			gate.mapX = site.x;
+			gate.mapY = site.y;
+			gate.mapZ = MapTileManager.ENTITY_LAYER;
+			layers[ENTITIES][site.y][site.x] = gate;
 		}
 		
 		/* Sprinkle on some chaos walls to make exploring weirder */

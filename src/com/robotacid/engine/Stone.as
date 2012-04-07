@@ -37,9 +37,9 @@
 		public static const DEATH_HITS:int = 3;
 		
 		public static const HEAL_STONE_HIT_SOUNDS:Array = ["healStoneHit1", "healStoneHit2", "healStoneHit3", "healStoneHit4"];
-		public static const STONE_DEATH_SOUNDS:Array = ["stoneDeath1", "stoneDeath2", "stoneDeath3", "stoneDeath4"];
+		public static const DEATH_SOUNDS:Array = ["stoneDeath1", "stoneDeath2", "stoneDeath3", "stoneDeath4"];
 		
-		public static const STONE_NAME_HEALTHS:Array = [
+		public static const NAME_HEALTHS:Array = [
 			5,
 			0,
 			0
@@ -63,7 +63,7 @@
 			gfx.y = y;
 			super(gfx, x, y, name, STONE, 0, false);
 			this.side = side;
-			health = STONE_NAME_HEALTHS[name];
+			health = NAME_HEALTHS[name];
 			defence = 0;
 			callMain = false;
 			if(name == HEAL) debrisType = Renderer.BLOOD;
@@ -138,7 +138,7 @@
 			renderer.createDebrisRect(collider, 0, 100, debrisType);
 			game.console.print("secret revealed");
 			renderer.shake(0, 3);
-			game.soundQueue.addRandom("stoneDeath", STONE_DEATH_SOUNDS);
+			game.soundQueue.addRandom("stoneDeath", DEATH_SOUNDS);
 			game.player.addXP(SECRET_XP_REWARD * game.map.level);
 			game.world.removeMapPosition(mapX, mapY);
 			game.mapTileManager.removeTile(this, mapX, mapY, mapZ);

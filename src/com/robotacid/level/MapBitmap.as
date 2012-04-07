@@ -27,6 +27,7 @@
 		public var pitTraps:int;
 		
 		public var rooms:Vector.<Room>;
+		public var gates:Vector.<Pixel>;
 		
 		public var leftSecretRoom:Room;
 		public var rightSecretRoom:Room;
@@ -98,10 +99,10 @@
 			4, 3, 4, 3
 		];
 		public static const ZONE_HORIZ_PACE:Array = [
-			3, 4, 3, 3
+			3, 4, 2, 3
 		];
 		public static const ZONE_VERT_PACE:Array = [
-			2, 1, 3, 2
+			2, 1, 2, 1
 		];
 		
 		/* Adobe don't provide this as a constant for some reason */
@@ -114,7 +115,7 @@
 			this.zone = zone;
 			
 			// directions has to be reinitialised to ensure seed consistency
-			directions = [new Pixel(0, -1), new Pixel(1, 0), new Pixel(0, 1), new Pixel( -1, 0)]
+			directions = [new Pixel(0, -1), new Pixel(1, 0), new Pixel(0, 1), new Pixel( -1, 0)];
 			
 			var bitmapData:BitmapData;
 			
@@ -151,9 +152,11 @@
 			super(bitmapData, "auto", false);
 			
 			if(type == MAIN_DUNGEON || type == ITEM_DUNGEON){
-				while(!createRoutes()){}
+				var connectionBitmapData:BitmapData = new BitmapData(bitmapData.width * 2, bitmapData.height * 2);
+				while(!createRoutes(connectionBitmapData)){}
 				createPits();
 				createSecrets();
+				createGates(connectionBitmapData);
 			}
 		}
 		
@@ -193,8 +196,8 @@
 					} while(pick == i);
 					rooms[i].siblings.push(rooms[pick]);
 				}
-				// add more siblings in sewers and chaos
-				if(zone == SEWERS || zone == CHAOS){					
+				// add more siblings in sewers
+				if(zone == SEWERS){
 					for(i = 0; i < rooms.length; i++){
 						for(j = 0; j < Map.random.rangeInt(3); j++){
 							do{
@@ -253,14 +256,24 @@
 						room.x, room.y, room.width, room.height
 					), DIGGING);
 					
+					// round rooms
+					if(zone == CAVES){
+						data.fillRect(new Rectangle(
+							(room.x + room.width * 0.5) - (room.height * 0.5),
+							(room.y + room.height * 0.5) - (room.width * 0.5),
+							room.height,
+							room.width
+						), DIGGING);
 					
-					// round rooms:
-					//data.fillRect(new Rectangle(
-						//(room.x + room.width * 0.5) - (room.height * 0.5),
-						//(room.y + room.height * 0.5) - (room.width * 0.5),
-						//room.height,
-						//room.width
-					//), DIGGING);
+					// T and + shaped rooms
+					} else if(zone == CHAOS){
+						data.fillRect(new Rectangle(
+							room.x + Map.random.range(room.width - room.height),
+							room.y - Map.random.range(room.width - room.height),
+							room.height,
+							room.width
+						), DIGGING);
+					}
 				}
 				
 				// now we have to connect the rooms to their siblings
@@ -351,8 +364,8 @@
 					}
 				}
 				
-				// create random crags on caves and chaos levels
-				if(zone == CAVES || zone == CHAOS){
+				// create random crags on caves levels
+				if(zone == CAVES){
 					for(i = 0; i < (data.width + data.height) * 3; i++){
 						c = 1 + Map.random.rangeInt(data.width - 1);
 						r = 1 + Map.random.rangeInt(data.height - 1);
@@ -408,7 +421,7 @@
 		 * ladders to navigate that network and be able to visit every corner of it
 		 * 
 		 * The route planner does a final check for connectivity, if this fails then route planner aborts, returning false */
-		public function createRoutes():Boolean{
+		public function createRoutes(connectionBitmapData:BitmapData):Boolean{
 			
 			// count all the cliffs that are in the level. A cliff is an L-shaped area where the
 			// character can fall off
@@ -726,7 +739,7 @@
 			
 			// It is possible for the route planning to go awry.
 			// Double check that the level has full connectivity
-			var connectionBitmapData:BitmapData = new BitmapData(width * 2, height * 2, true, 0xFFFFFFFF);
+			connectionBitmapData.fillRect(connectionBitmapData.rect, 0xFFFFFFFF);
 			var connectionPixels:Vector.<uint> = connectionBitmapData.getVector(connectionBitmapData.rect);
 			var connectionMapWidth:int = mapWidth * 2;
 			var floodSeed:Pixel;
@@ -959,6 +972,79 @@
 				rightSecretRoom = room;
 				mapWidth = bitmapData.width;
 			}
+		}
+		
+		/* Create obstructions the player has to pass by force other means */
+		public function createGates(connectionBitmapData:BitmapData):void{
+			gates = new Vector.<Pixel>();
+			
+			// find sites suitable for gates
+			
+			// agents are spawned randomly at the top and the bottom of the map
+			// they walk in until they find air and then check if the site is legal
+			// this favours gates to be identified early or late
+			var mapPixels:Vector.<uint> = bitmapData.getVector(bitmapData.rect);
+			var finders:Vector.<Pixel> = new Vector.<Pixel>();
+			var i:int, r:int, c:int, n:int, dir:int;
+			var range:int = (height - 1) * width
+			var width:int = bitmapData.width;
+			var height:int = bitmapData.height;
+			for(i = 0; i < 10; i++){
+				n = 1 + Map.random.range(width - 2);
+				if(Map.random.coinFlip()){
+					for(; n < range; n += width){
+						if(mapPixels[n] == EMPTY){
+							break;
+						}
+					}
+				} else {
+					n += range;
+					for(; n > width; n -= width){
+						if(mapPixels[n] == EMPTY){
+							break;
+						}
+					}
+				}
+				// did we strike air?
+				if(n > range || n < width) continue;
+				
+				// look for surrounding pixels to confirm valid gate site
+				// we want all walls above and all walls below with nothing in between
+				if(
+					mapPixels[n - (width + 1)] == WALL &&
+					mapPixels[n - (width - 1)] == WALL &&
+					mapPixels[n - width] == WALL &&
+					mapPixels[n + (width + 1)] == WALL &&
+					mapPixels[n + (width - 1)] == WALL &&
+					mapPixels[n + width] == WALL &&
+					mapPixels[n - 1] == EMPTY &&
+					mapPixels[n + 1] == EMPTY
+				){
+					c = n % width;
+					r = n / width;
+					gates.push(new Pixel(c, r));
+				}
+			}
+			// traverse map to test logic debug
+			//for(n = width + 1; n < range - 1; n++){
+				//if(
+					//mapPixels[n - (width + 1)] == WALL &&
+					//mapPixels[n - (width - 1)] == WALL &&
+					//mapPixels[n - width] == WALL &&
+					//mapPixels[n + (width + 1)] == WALL &&
+					//mapPixels[n + (width - 1)] == WALL &&
+					//mapPixels[n + width] == WALL &&
+					//mapPixels[n - 1] == EMPTY &&
+					//mapPixels[n + 1] == EMPTY &&
+					//mapPixels[n] == EMPTY
+				//){
+					//trace("+site found");
+					//c = n % width;
+					//r = n / width;
+					//gates.push(new Pixel(c, r));
+				//}
+			//}
+			trace("gate total", gates.length);
 		}
 		
 		/* is this pixel sitting on the edge of the map? it will likely cause me trouble if it is... */

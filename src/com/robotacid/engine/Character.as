@@ -103,6 +103,7 @@
 		public static const MINION:int = 1 << 2;
 		public static const STONE:int = 1 << 3;
 		public static const HORROR:int = 1 << 4;
+		public static const GATE:int = 1 << 5;
 		
 		// character names
 		public static const ROGUE:int = 0;
@@ -471,12 +472,12 @@
 									p.x = gfx.x + (mc.weapon ? mc.weapon.x : 0);
 									p.y = gfx.y + (mc.weapon ? mc.weapon.y : 0);
 									// nudge
-									if(!(target.type & STONE)) target.collider.pushDamping = 1;
+									if(!(target.type & (STONE | GATE))) target.collider.pushDamping = 1;
 									// effects
-									if(weapon && weapon.effects && target.active && !(target.type & STONE)){
+									if(weapon && weapon.effects && target.active && !(target.type & (STONE | GATE))){
 										target.applyWeaponEffects(weapon);
 									}
-									if(specialAttack && target.active && (!(target.type & STONE) || name == NYMPH)) racialAttack(target, hitResult);
+									if(specialAttack && target.active && (!(target.type & STONE) || name == NYMPH) && !(target.type & GATE)) racialAttack(target, hitResult);
 									var meleeWeapon:Boolean = Boolean(weapon && (weapon.range & Item.MELEE));
 									// knockback
 									var enduranceDamping:Number = 1.0 - (target.endurance + (target.armour ? target.armour.endurance : 0));
@@ -509,7 +510,7 @@
 										hitDamage *= 0.5;
 									}
 									// leech
-									if((leech || (weapon && weapon.leech)) && !(target.armour && target.armour.name == Item.BLOOD) && !(target.type & STONE)){
+									if((leech || (weapon && weapon.leech)) && !(target.armour && target.armour.name == Item.BLOOD) && !(target.type & (STONE | GATE))){
 										var leechValue:Number = leech + (weapon ? weapon.leech : 0);
 										if(leechValue > 1) leechValue = 1;
 										leechValue *= hitDamage;
@@ -822,7 +823,7 @@
 				);
 				return;
 			}
-			if(type & STONE){
+			if(type & (STONE | GATE)){
 				applyDamage(damage * SMITE_DAMAGE_RATIO, "smite", 0, true);
 			} else {
 				state = SMITED;
@@ -968,6 +969,8 @@
 		
 		/* Effect stun state on this character */
 		public function applyStun(delay:Number):void{
+			// inanimate objects can't be stunned
+			if((type == STONE && name != Stone.DEATH) || type == GATE) return;
 			// exit the quickening state if already in it
 			if(state == QUICKENING) finishQuicken();
 			stunCount = delay;
@@ -1075,7 +1078,7 @@
 		
 		public function enemy(target:Character):Boolean{
 			if(!target.active || target.state == QUICKENING || target.state == ENTERING || target.state == EXITING) return false;
-			if(type & (PLAYER | MINION)) return Boolean(target.type & (MONSTER | STONE));
+			if(type & (PLAYER | MINION)) return Boolean(target.type & (MONSTER | STONE | GATE));
 			else if(type & MONSTER) return Boolean(target.type & (PLAYER | MINION));
 			return false;
 		}

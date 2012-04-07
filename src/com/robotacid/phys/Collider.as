@@ -50,6 +50,7 @@ package com.robotacid.phys {
 		public var crushed:Boolean;
 		public var awake:int;
 		public var boundsPressure:Boolean;
+		public var stackable:Boolean;
 		
 		/* Establishes a minimum movement policy */
 		public static const MOVEMENT_TOLERANCE:Number = 0.0001;
@@ -126,6 +127,8 @@ package com.robotacid.phys {
 		public static const HORROR:int = 1 << 23;
 		/* This Collider is a wall on the edge of the map */
 		public static const MAP_EDGE:int = 1 << 24;
+		/* This Collider is a barrier that can be raised */
+		public static const GATE:int = 1 << 25;
 		
 		public function Collider(x:Number = 0, y:Number = 0, width:Number = 0, height:Number = 0, scale:Number = 0, properties:int = SOLID, ignoreProperties:int = 0, state:int = 0){
 			super(x, y, width, height);
@@ -140,6 +143,7 @@ package com.robotacid.phys {
 			pushDamping = DEFAULT_PUSH_DAMPING;
 			awake = AWAKE_DELAY;
 			boundsPressure = false;
+			stackable = true;
 			
 			children = new Vector.<Collider>();
 			
@@ -539,7 +543,7 @@ package com.robotacid.phys {
 								this.vy = 0;
 								pressure |= DOWN;
 								// create a dummy collider surface to stand on
-								if(parent != mapCollider){
+								if(stackable && parent != mapCollider){
 									if(parent) parent.removeChild(this);
 									mapCollider.x = mapX * world.scale;
 									mapCollider.y = mapY * world.scale;
@@ -624,7 +628,7 @@ package com.robotacid.phys {
 										pressure |= DOWN;
 									
 										// make this Collider a child of the obstacle
-										if(collider != parent){
+										if((stackable && collider.stackable) && collider != parent){
 											if(parent) parent.removeChild(this);
 											collider.addChild(this);
 										}
@@ -722,7 +726,7 @@ package com.robotacid.phys {
 									}
 								}
 								// make the obstacle a child of this Collider
-								if(collider.state != MAP_COLLIDER && collider.parent != this && collider.pushDamping > 0){
+								if((stackable && collider.stackable) && collider.state != MAP_COLLIDER && collider.parent != this && collider.pushDamping > 0){
 									if(collider.parent) collider.parent.removeChild(collider);
 									addChild(collider);
 								}

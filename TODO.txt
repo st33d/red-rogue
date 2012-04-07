@@ -1,4 +1,4 @@
-Change log: fixed editor crash rendering ai paths from a previous level, added level skip option, added death-light to player death
+Change log: new swc library with gates and chaos wall frame, changed chaos map generation to have sparse connected T and + rooms, changed caves map generation to create rounded rooms, added Gate class to create barriers in levels, modified AI to cope with targets not on a node, stopped Stones and Gates from being stunned
 
 Bug hunt
 	can crash graph renderer by changing level
@@ -12,7 +12,7 @@ Bug hunt
 	
 	null Monster collider.world spotted - why?
 	
-	diagonal down node by two steps causes error on ladder ledge
+	diagonal down ai node by two steps causes error on ladder ledge
 
 need the ability to block effect apply printouts
 
@@ -20,9 +20,20 @@ yendor
 	jumping
 		jumping ai
 
+	
+gates
+	Gate class
+		create cog renderer to ease load on chaos walls and add to gates
+	keys, pressure pads
+	how to split the map
+		draw up or down from the edge of the map to a horizontal line
+		check for route fragmentation
+			flood fill from entrance to level for valid switch positions
+
 
 save and quit
 	unlocking minion lore permanently alters all references to "the minion"
+	
 
 expandable info menu
 	add size states to info menu render
@@ -34,13 +45,6 @@ refactor MapTileManager to EntityManager - move Entity control to EntityManager
 
 title screen
 
-locks
-	keys?
-	pressure pads?
-	how to split the map
-		draw up or down from the edge of the map to a horizontal line
-		check for route fragmentation
-			flood fill from entrance to level for valid switch positions
 	
 
 Unique items
@@ -91,6 +95,10 @@ level generator overhaul:
 					the bitch: a nymph that never fails a steal roll
 					
 		distribute 150% of level's worth of xp across monsters on one level instead of set xp for each monster
+
+new xp system - floating point
+	xp required = level ^ (e * 0.5)
+		gap between levels distributed across a level's worth of content
 
 plateauMc?
 	new exit logic

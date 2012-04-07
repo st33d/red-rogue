@@ -250,7 +250,7 @@
 					renderer.addDebris(entity.collider.x + game.random.range(entity.collider.width), entity.collider.y - 1, blit, 0, -game.random.range(5), print, true);
 					renderer.addDebris(entity.collider.x - 1, entity.collider.y + game.random.range(entity.collider.height), blit, game.random.range(3), 0, print, true);
 				}
-				game.soundQueue.addRandom("alchemy", Stone.STONE_DEATH_SOUNDS);
+				game.soundQueue.addRandom("alchemy", Stone.DEATH_SOUNDS);
 				item = null;
 			}
 			kill();

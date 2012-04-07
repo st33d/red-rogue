@@ -300,7 +300,9 @@
 								clear();
 							}
 						} else {
-							attack(target);
+							// is the target a gate?
+							if(target.type == Character.GATE) clear();
+							else attack(target);
 						}
 					}
 					if(charContact && char.enemy(charContact)){
@@ -487,9 +489,9 @@
 							}
 						}
 					}
-					
+				}
 				// no path data to work with
-				} else {
+				if(!start || !path){
 					// character might be standing on the edge of a ledge - outside of a node
 					char.actions |= DOWN;
 					// chase the target blindly
@@ -612,7 +614,9 @@
 						}
 					}
 					
-				} else {
+				}
+				// no path data to work with
+				if(!start || !path){
 					// character might be standing on the edge of a ledge - outside of a node
 					char.actions |= DOWN;
 					// flee the target

@@ -79,7 +79,7 @@ package com.robotacid.engine {
 			}
 			cogDisplacement = 0;
 			gfx.visible = false;
-			createCollider(mapX * SCALE, mapY * SCALE, Collider.WALL | Collider.SOLID | Collider.CHAOS, Collider.WALL, Collider.HOVER, false);
+			createCollider(mapX * SCALE, mapY * SCALE, Collider.WALL | Collider.SOLID | Collider.CHAOS, Collider.WALL | Collider.GATE, Collider.HOVER, false);
 			collider.pushDamping = 0;
 			collider.dampingX = collider.dampingY = 1;
 			chaosWalls[mapY][mapX] = this;
@@ -120,8 +120,8 @@ package com.robotacid.engine {
 					move();
 				}
 			} else if(state == MOVING){
-				if(collider.vx) dist = collider.x - target.x * Game.SCALE;
-				else if(collider.vy) dist = collider.y - target.y * Game.SCALE;
+				if(collider.vx) dist = collider.x - target.x * SCALE;
+				else if(collider.vy) dist = collider.y - target.y * SCALE;
 				if(dist < 0) dist = -dist;
 				if(dist < Collider.MOVEMENT_TOLERANCE){
 					state = RETIRE;
@@ -191,7 +191,7 @@ package com.robotacid.engine {
 			game.miniMap.bitmapData.setPixel32(mapX, mapY, LightMap.MINIMAP_EMPTY_COL);
 			gfx.visible = true;
 			free = true;
-			game.soundQueue.addRandom("pitTrap", Stone.STONE_DEATH_SOUNDS);
+			game.soundQueue.addRandom("pitTrap", Stone.DEATH_SOUNDS);
 			renderer.createDebrisRect(collider, 0, 100, Renderer.STONE);
 			// create a golem?
 			if(game.random.value() < GOLEM_CHANCE){
