@@ -1,4 +1,4 @@
-Change log: new swc library with gates and chaos wall frame, changed chaos map generation to have sparse connected T and + rooms, changed caves map generation to create rounded rooms, added Gate class to create barriers in levels, modified AI to cope with targets not on a node, stopped Stones and Gates from being stunned
+Change log: added chaos wall to editor, allowed chaos walls to fuse into one another, added random patrol area reinit to allow monsters to adapt to changes caused by chaos walls, nerfed monster portal, commute routine logic was the wrong way round, added columns of chaos wals to chaos zone, protected indifference from quickening
 
 Bug hunt
 	can crash graph renderer by changing level
@@ -13,6 +13,8 @@ Bug hunt
 	null Monster collider.world spotted - why?
 	
 	diagonal down ai node by two steps causes error on ladder ledge
+	
+	gate on trap causes error
 
 need the ability to block effect apply printouts
 

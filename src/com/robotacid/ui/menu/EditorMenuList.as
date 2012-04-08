@@ -1,4 +1,5 @@
 package com.robotacid.ui.menu {
+	import com.robotacid.engine.ChaosWall;
 	import com.robotacid.engine.Gate;
 	import com.robotacid.level.Content;
 	import com.robotacid.level.MapBitmap;
@@ -50,6 +51,7 @@ package com.robotacid.ui.menu {
 		public var remapAIGraphOption:MenuOption;
 		public var teleportMinionOption:MenuOption;
 		public var enterDungeonLevelOption:MenuOption;
+		public var chaosWallOption:MenuOption;
 		
 		public var deleteOption:MenuOption;
 		public var onOption:MenuOption;
@@ -96,6 +98,7 @@ package com.robotacid.ui.menu {
 			var monsterOption:MenuOption = new MenuOption("monster", raceList);
 			var critterOption:MenuOption = new MenuOption("critter", critterList);
 			var gateOption:MenuOption = new MenuOption("gate", gateList);
+			chaosWallOption = new MenuOption("chaos wall", null, false);
 			
 			var wallOption:MenuOption = new MenuOption("wall", null, false);
 			var ladderOption:MenuOption = new MenuOption("ladder", null, false);
@@ -129,6 +132,7 @@ package com.robotacid.ui.menu {
 			createObjectList.options.push(monsterOption);
 			createObjectList.options.push(critterOption);
 			createObjectList.options.push(gateOption);
+			createObjectList.options.push(chaosWallOption);
 			
 			for(i = 1; i <= 20; i++){
 				dungeonLevelList.options.push(new MenuOption(i + " (level)", null, false));
@@ -229,8 +233,23 @@ package com.robotacid.ui.menu {
 						mapX, mapY, new Gate(mapX * Game.SCALE, mapY * Game.SCALE, gateList.selection)
 					);
 					
+				} else if(option == chaosWallOption){
+					if(!ChaosWall.chaosWalls[mapY][mapX]){
+						game.world.map[mapY][mapX] = MapTileConverter.getMapProperties(id);
+						game.mapTileManager.changeLayer(MapTileManager.BLOCK_LAYER);
+						blit = converter.convertIndicesToObjects(mapX, mapY, MapTileConverter.WALL) as BlitRect;
+						blit.x = mapX * Game.SCALE;
+						blit.y = mapY * Game.SCALE;
+						renderer.blockBitmapData.fillRect(mapRect, 0x00000000);
+						blit.render(renderer.blockBitmapData);
+						game.mapTileManager.mapLayers[MapTileManager.ENTITY_LAYER][mapY][mapX] = converter.convertIndicesToObjects(
+							mapX, mapY, new ChaosWall(mapX, mapY)
+						);
+					}
+					
 				} else if(option == teleportMinionOption){
 					if(game.minion) Effect.teleportCharacter(game.minion, new Pixel(mapX, mapY));
+					
 				}
 			}
 		}

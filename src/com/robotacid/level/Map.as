@@ -683,12 +683,17 @@
 		
 		/* Create barriers in the dungeon */
 		public function createGates():void{
-			var site:Pixel = bitmap.gates[0];
-			var gate:Gate = new Gate(site.x * Game.SCALE, site.y * Game.SCALE, Gate.RAISE);
-			gate.mapX = site.x;
-			gate.mapY = site.y;
-			gate.mapZ = MapTileManager.ENTITY_LAYER;
-			layers[ENTITIES][site.y][site.x] = gate;
+			var i:int, site:Pixel, gate:Gate;
+			for(i = 0; i < bitmap.gates.length; i++){
+				site = bitmap.gates[i];
+				if(!layers[ENTITIES][site.y][site.x]){
+					gate = new Gate(site.x * Game.SCALE, site.y * Game.SCALE, Gate.GATES_BY_ZONE[zone][random.rangeInt(Gate.GATES_BY_ZONE.length)]);
+					gate.mapX = site.x;
+					gate.mapY = site.y;
+					gate.mapZ = MapTileManager.ENTITY_LAYER;
+					layers[ENTITIES][site.y][site.x] = gate;
+				}
+			}
 		}
 		
 		/* Sprinkle on some chaos walls to make exploring weirder */
@@ -697,35 +702,74 @@
 			
 			// we only put chaos walls in corridors, so we need a stretch of three wall blocks to
 			// either side of the chaos wall
-			var i:int, r:int, c:int;
+			var i:int, r:int, c:int, n:int;
 			for(i = width; i < pixels.length - width; i++){
 				c = i % width;
 				r = i / width;
 				if(c > 0 && c < width - 1 && pixels[i] == MapBitmap.EMPTY){
-					if(
-						// horizontal corridor
-						(
-							pixels[(i - width) - 1] == MapBitmap.WALL && 
-							pixels[i - width] == MapBitmap.WALL && 
-							pixels[(i - width) + 1] == MapBitmap.WALL && 
-							pixels[(i + width) - 1] == MapBitmap.WALL && 
-							pixels[i + width] == MapBitmap.WALL && 
-							pixels[(i + width) + 1] == MapBitmap.WALL
-						) ||
-						// vertical corridor
-						(
-							pixels[(i - width) - 1] == MapBitmap.WALL && 
-							pixels[i - 1] == MapBitmap.WALL && 
-							pixels[(i + width) - 1] == MapBitmap.WALL && 
-							pixels[(i - width) + 1] == MapBitmap.WALL && 
-							pixels[i + 1] == MapBitmap.WALL && 
-							pixels[(i + width) + 1] == MapBitmap.WALL
-						)
-					){
-						//if(random.value() < 0.4 && !layers[ENTITIES][r][c]){
-						if(random.value() < 1 && !layers[ENTITIES][r][c]){
-							layers[ENTITIES][r][c] = new ChaosWall(c, r);
-							layers[BLOCKS][r][c] = MapTileConverter.WALL;
+					if(zone == CHAOS && !layers[ENTITIES][r][c] && !layers[BLOCKS][r][c] && random.value() < 0.4){
+						if(pixels[i + width] == MapBitmap.WALL){
+							n = i;
+							while(n > width && pixels[n] == MapBitmap.EMPTY && !layers[ENTITIES][r][c] && !layers[BLOCKS][r][c]){
+								layers[ENTITIES][r][c] = new ChaosWall(c, r);
+								layers[BLOCKS][r][c] = MapTileConverter.WALL;
+								n -= width;
+								r = n / width;
+							}
+						}
+						if(pixels[i - width] == MapBitmap.WALL){
+							n = i;
+							while(n < pixels.length - width && pixels[n] == MapBitmap.EMPTY && !layers[ENTITIES][r][c] && !layers[BLOCKS][r][c]){
+								layers[ENTITIES][r][c] = new ChaosWall(c, r);
+								layers[BLOCKS][r][c] = MapTileConverter.WALL;
+								n += width;
+								r = n / width;
+							}
+						}
+						if(pixels[i - 1] == MapBitmap.WALL){
+							n = i;
+							while(n < pixels.length - width && pixels[n] == MapBitmap.EMPTY && !layers[ENTITIES][r][c] && !layers[BLOCKS][r][c]){
+								layers[ENTITIES][r][c] = new ChaosWall(c, r);
+								layers[BLOCKS][r][c] = MapTileConverter.WALL;
+								n++;
+								c = n % width;
+							}
+						}
+						if(pixels[i + 1] == MapBitmap.WALL){
+							n = i;
+							while(n > width && pixels[n] == MapBitmap.EMPTY && !layers[ENTITIES][r][c] && !layers[BLOCKS][r][c]){
+								layers[ENTITIES][r][c] = new ChaosWall(c, r);
+								layers[BLOCKS][r][c] = MapTileConverter.WALL;
+								n--;
+								c = n % width;
+							}
+						}
+					} else {
+						if(
+							// horizontal corridor
+							(
+								pixels[(i - width) - 1] == MapBitmap.WALL && 
+								pixels[i - width] == MapBitmap.WALL && 
+								pixels[(i - width) + 1] == MapBitmap.WALL && 
+								pixels[(i + width) - 1] == MapBitmap.WALL && 
+								pixels[i + width] == MapBitmap.WALL && 
+								pixels[(i + width) + 1] == MapBitmap.WALL
+							) ||
+							// vertical corridor
+							(
+								pixels[(i - width) - 1] == MapBitmap.WALL && 
+								pixels[i - 1] == MapBitmap.WALL && 
+								pixels[(i + width) - 1] == MapBitmap.WALL && 
+								pixels[(i - width) + 1] == MapBitmap.WALL && 
+								pixels[i + 1] == MapBitmap.WALL && 
+								pixels[(i + width) + 1] == MapBitmap.WALL
+							)
+						){
+							if(random.value() < 0.4 && !layers[ENTITIES][r][c] && !layers[BLOCKS][r][c]){
+							//if(random.value() < 1 && !layers[ENTITIES][r][c]){
+								layers[ENTITIES][r][c] = new ChaosWall(c, r);
+								layers[BLOCKS][r][c] = MapTileConverter.WALL;
+							}
 						}
 					}
 				}
@@ -752,8 +796,13 @@
 			var trapPositions:Vector.<Pixel> = new Vector.<Pixel>();
 			var pixels:Vector.<uint> = bitmap.bitmapData.getVector(bitmap.bitmapData.rect);
 			var mapWidth:int = bitmap.bitmapData.width;
+			var r:int, c:int;
 			for(i = mapWidth; i < pixels.length - mapWidth; i++){
 				if((pixels[i] == MapBitmap.WALL) && (pixels[i - mapWidth] == MapBitmap.EMPTY || pixels[i - mapWidth] == MapBitmap.LEDGE)){
+					// check there isn't an entity already here such as a gate
+					c = i % width;
+					r = i / width;
+					if(layers[ENTITIES][r][c]) continue;
 					for(j = i - mapWidth; j > mapWidth; j -= mapWidth){
 						// no combining ladders or pit traps with dart traps
 						// it confuses the trap and it's unfair to have to climb a ladder into a dart

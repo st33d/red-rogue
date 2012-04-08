@@ -64,7 +64,7 @@ package com.robotacid.engine {
 				dir = game.random.coinFlip() ? LEFT : RIGHT;
 				if(name & COG) createCogCollider(x, y);
 				else{
-					createCollider(x, y, Collider.HEAD | Collider.SOLID, Collider.HEAD, Collider.FALL);
+					createCollider(x, y, Collider.HEAD | Collider.SOLID, Collider.HEAD | Collider.CORPSE, Collider.FALL);
 					debrisType = Renderer.BLOOD;
 				}
 				collider.stackCallback = hitFloor;
@@ -79,7 +79,7 @@ package com.robotacid.engine {
 					createCogCollider(x, y);
 					topOfThreadY -= 2;
 				} else{
-					createCollider(x, y, Collider.HEAD | Collider.SOLID, Collider.HEAD, Collider.HOVER);
+					createCollider(x, y, Collider.HEAD | Collider.SOLID, Collider.HEAD | Collider.CORPSE, Collider.HOVER);
 					debrisType = Renderer.BLOOD;
 				}
 				collider.dampingY = collider.dampingX;
@@ -91,7 +91,7 @@ package com.robotacid.engine {
 				dir = game.random.coinFlip() ? LEFT : RIGHT;
 				if(name & COG) createCogCollider(x, y);
 				else{
-					createCollider(x, y, Collider.HEAD | Collider.SOLID, Collider.HEAD, Collider.FALL, false);
+					createCollider(x, y, Collider.HEAD | Collider.SOLID, Collider.HEAD | Collider.CORPSE, Collider.FALL, false);
 					(gfx as MovieClip).gotoAndPlay("fly");
 					debrisType = Renderer.BLOOD;
 				}
@@ -132,7 +132,7 @@ package com.robotacid.engine {
 			// a cogs collider exists at its hub
 			// so we have to create the collider manually
 			collider = new Collider(
-				x - 2, y - 2, 4, 4, Game.SCALE, Collider.HEAD | Collider.SOLID, Collider.HEAD,
+				x - 2, y - 2, 4, 4, Game.SCALE, Collider.HEAD | Collider.SOLID, Collider.HEAD | Collider.CORPSE,
 				(name & (RAT | BAT)) ? Collider.FALL : Collider.HOVER
 			);
 			collider.userData = this;

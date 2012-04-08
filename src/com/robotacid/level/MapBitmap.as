@@ -989,8 +989,10 @@
 			var range:int = (height - 1) * width
 			var width:int = bitmapData.width;
 			var height:int = bitmapData.height;
-			for(i = 0; i < 10; i++){
-				n = 1 + Map.random.range(width - 2);
+			var min:int = 1 + adjustedMapRect.x * Game.INV_SCALE;
+			var max:int = -1 + (adjustedMapRect.x + adjustedMapRect.width) * Game.INV_SCALE;
+			for(i = 0; i < width * 0.25; i++){
+				n = min + Map.random.range(max - min);
 				if(Map.random.coinFlip()){
 					for(; n < range; n += width){
 						if(mapPixels[n] == EMPTY){

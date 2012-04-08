@@ -196,7 +196,7 @@
 			monsterTemplate = xml;
 			// strip the monster of items - this is not an item farming spell
 			delete monsterTemplate.item;
-			monsterTotal = game.map.level < Game.MAX_LEVEL ? game.map.level : Game.MAX_LEVEL;
+			monsterTotal = 1 + game.map.zone;
 			game.map.completionCount += monsterTotal;
 			game.map.completionTotal += monsterTotal;
 			monsterEntryCount = MONSTERS_ENTRY_DELAY;

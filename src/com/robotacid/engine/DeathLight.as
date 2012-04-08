@@ -32,7 +32,6 @@ package com.robotacid.engine {
 		}
 		
 		override public function main():void {
-			trace(count, lightCount);
 			if(count){
 				count--;
 			} else {

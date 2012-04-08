@@ -1,6 +1,7 @@
 ﻿package com.robotacid.engine {
 	import com.robotacid.ai.Brain;
 	import com.robotacid.gfx.BlitRect;
+	import com.robotacid.gfx.CogRectBlit;
 	import com.robotacid.gfx.FadingBlitRect;
 	import com.robotacid.level.Map;
 	import com.robotacid.engine.Character;
@@ -28,6 +29,8 @@
 		private var raiseHits:int;
 		private var holdCount:int;
 		private var fleeRect:Rectangle;
+		private var cogDisplacement:int;
+		private var cogFrame:int;
 		
 		public var gateState:int;
 		
@@ -49,6 +52,13 @@
 		
 		public static const HIT_SOUNDS:Array = ["stoneHit1", "stoneHit2", "stoneHit3", "stoneHit4"];
 		public static const DEATH_SOUNDS:Array = ["stoneDeath1", "stoneDeath2", "stoneDeath3", "stoneDeath4"];
+		
+		public static const GATES_BY_ZONE:Array = [
+			[RAISE],
+			[RAISE],
+			[RAISE],
+			[RAISE, CHAOS]
+		];
 		
 		public static const SPEED:Number = 2;
 		public static const RAISE_HIT_TOTAL:int = 4;
@@ -146,6 +156,7 @@
 				} else if(dist >= SCALE - Collider.MOVEMENT_TOLERANCE){
 					gateState = CLOSED;
 					collider.vy = 0;
+					game.soundQueue.add("chaosWallStop");
 					if(name == CHAOS){
 						holdCount = HOLD_DELAY * 2 + game.random.range(HOLD_DELAY * 2);
 					} else {
@@ -196,6 +207,7 @@
 			} else if(name == CHAOS){
 				if(aggressor == game.player) game.console.print("?");
 			}
+			game.soundQueue.addRandom("gateHit", HIT_SOUNDS);
 		}
 		
 		/* The break gate is the only gate that can be destroyed, so only its death is dealt with here
@@ -240,6 +252,32 @@
 			matrix.tx -= renderer.bitmap.x;
 			matrix.ty -= renderer.bitmap.y;
 			renderer.bitmapData.draw(gfx, matrix, gfx.transform.colorTransform);
+			if(gateState == OPENING || gateState == OPEN){
+				if(cogDisplacement < SCALE * 0.5){
+					cogDisplacement++;
+				}
+				renderer.cogRectBlit.dirs[CogRectBlit.BOTTOM_RIGHT] = 1;
+				renderer.cogRectBlit.dirs[CogRectBlit.BOTTOM_LEFT] = -1;
+			} else if(gateState == CLOSED || gateState == CLOSING){
+				if(cogDisplacement > 0){
+					cogDisplacement--;
+				}
+				renderer.cogRectBlit.dirs[CogRectBlit.BOTTOM_RIGHT] = -1;
+				renderer.cogRectBlit.dirs[CogRectBlit.BOTTOM_LEFT] = 1;
+			}
+			if(gateState == OPENING || gateState == CLOSING){
+				cogFrame++;
+				if(cogFrame >= renderer.cogRectBlit.totalFrames) cogFrame = 0;
+			}
+			renderer.cogRectBlit.allVisible = false;
+			renderer.cogRectBlit.visibles[CogRectBlit.TOP_LEFT] = false;
+			renderer.cogRectBlit.visibles[CogRectBlit.TOP_RIGHT] = false;
+			renderer.cogRectBlit.visibles[CogRectBlit.BOTTOM_LEFT] = true;
+			renderer.cogRectBlit.visibles[CogRectBlit.BOTTOM_RIGHT] = true;
+			renderer.cogRectBlit.displacement = cogDisplacement;
+			renderer.cogRectBlit.x = -renderer.bitmap.x + collider.x + SCALE * 0.5;
+			renderer.cogRectBlit.y = -renderer.bitmap.y + openY + SCALE * 0.5;
+			renderer.cogRectBlit.render(renderer.bitmapData, cogFrame);
 		}
 		
 	}

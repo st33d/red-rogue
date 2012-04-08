@@ -1,5 +1,6 @@
 package com.robotacid.engine {
 	import adobe.utils.CustomActions;
+	import com.robotacid.gfx.CogRectBlit;
 	import com.robotacid.level.Content;
 	import com.robotacid.level.Map;
 	import com.robotacid.geom.Pixel;
@@ -30,12 +31,13 @@ package com.robotacid.engine {
 		public static var chaosWalls:Vector.<Vector.<ChaosWall>>;
 		
 		public var state:int;
+		public var fuse:Boolean;
 		
-		private var cogs:Vector.<MovieClip>;
 		private var target:Pixel;
 		
 		private var count:int;
 		private var cogDisplacement:Number;
+		private var cogFrame:int;
 		private var playerDist:int;
 		
 		private static var distX:int;
@@ -64,19 +66,12 @@ package com.robotacid.engine {
 			this.mapY = mapY;
 			mapZ = Map.ENTITIES;
 			free = false;
+			fuse = false;
 			callMain = true;
 			state = IDLE;
 			(gfx as Sprite).graphics.beginFill(0);
 			(gfx as Sprite).graphics.drawRect(0, 0, SCALE, SCALE);
 			(gfx as Sprite).graphics.endFill();
-			cogs = new Vector.<MovieClip>();
-			var i:int;
-			for(i = 0; i < 4; i++){
-				cogs[i] = new CogMC();
-				cogs[i].x = SCALE * 0.5;
-				cogs[i].y = SCALE * 0.5;
-				(gfx as Sprite).addChild(cogs[i]);
-			}
 			cogDisplacement = 0;
 			gfx.visible = false;
 			createCollider(mapX * SCALE, mapY * SCALE, Collider.WALL | Collider.SOLID | Collider.CHAOS, Collider.WALL | Collider.GATE, Collider.HOVER, false);
@@ -105,7 +100,10 @@ package com.robotacid.engine {
 				if(distX < 0) distX = -distX;
 				distY = game.player.mapY - mapY;
 				if(distY < 0) distY = -distY;
-				if(distX + distY < READY_DIST && game.lightMap.darkImage.getPixel32(mapX, mapY) != 0xFF000000){
+				if(
+					distX + distY < READY_DIST &&
+					(game.map.type == Map.AREA || game.lightMap.darkImage.getPixel32(mapX, mapY) != 0xFF000000)
+				){
 					// in later zones chaos walls simply crumble, and possibly spawn golems
 					if(game.map.zone == Map.CAVES || (game.map.zone == Map.CHAOS && game.random.value() < CHAOS_EXPLODE_CHANCE)){
 						crumble();
@@ -129,6 +127,9 @@ package com.robotacid.engine {
 					renderer.shake(collider.vx, collider.vy);
 					collider.vx = collider.vy = 0;
 					game.soundQueue.add("chaosWallStop");
+					if(fuse){
+						kill();
+					}
 				}
 			} else if(state == RETIRE){
 				if(count){
@@ -159,23 +160,41 @@ package com.robotacid.engine {
 		/* Begin moving the ChaosWall, activate all neighbouring ChaosWalls to create a resting place and
 		 * create cascading animations */
 		public function move():void{
-			// ready neighbouring walls
-			if(mapX > 0 && chaosWalls[mapY][mapX - 1]) chaosWalls[mapY][mapX - 1].ready();
-			if(mapY > 0 && chaosWalls[mapY - 1][mapX]) chaosWalls[mapY - 1][mapX].ready();
-			if(mapX < mapWidth - 1 && chaosWalls[mapY][mapX + 1]) chaosWalls[mapY][mapX + 1].ready();
-			if(mapY < mapHeight - 1 && chaosWalls[mapY + 1][mapX]) chaosWalls[mapY + 1][mapX].ready();
-			// find shelter options - chaos walls should be out of the way now
 			var pixels:Array = [];
-			if(mapX > 0 && (game.world.map[mapY][mapX - 1] & Collider.WALL)) pixels.push(new Pixel(mapX - 1, mapY));
-			if(mapY > 0 && (game.world.map[mapY - 1][mapX] & Collider.WALL)) pixels.push(new Pixel(mapX, mapY - 1));
-			if(mapX < mapWidth - 1 && (game.world.map[mapY][mapX + 1] & Collider.WALL)) pixels.push(new Pixel(mapX + 1, mapY));
-			if(mapY < mapHeight - 1 && (game.world.map[mapY + 1][mapX] & Collider.WALL)) pixels.push(new Pixel(mapX, mapY + 1));
-			target = pixels[game.random.rangeInt(pixels.length)];
+			// create shelter options
+			if(mapX > 0 && ((game.world.map[mapY][mapX - 1] & Collider.WALL) || chaosWalls[mapY][mapX - 1])) pixels.push(new Pixel(mapX - 1, mapY));
+			if(mapY > 0 && ((game.world.map[mapY - 1][mapX] & Collider.WALL) || chaosWalls[mapY - 1][mapX])) pixels.push(new Pixel(mapX, mapY - 1));
+			if(mapX < mapWidth - 1 && ((game.world.map[mapY][mapX + 1] & Collider.WALL) || chaosWalls[mapY][mapX + 1])) pixels.push(new Pixel(mapX + 1, mapY));
+			if(mapY < mapHeight - 1 && ((game.world.map[mapY + 1][mapX] & Collider.WALL) || chaosWalls[mapY + 1][mapX])) pixels.push(new Pixel(mapX, mapY + 1));
+			// no shelter? crumble
+			if(pixels.length == 0){
+				crumble();
+				return;
+			}
+			target = pixels[0];// game.random.rangeInt(pixels.length)];
 			collider.divorce();
 			if(target.y < mapY) collider.vy = -SPEED;
 			else if(target.x > mapX) collider.vx = SPEED;
 			else if(target.y > mapY) collider.vy = SPEED;
 			else if(target.x < mapX) collider.vx = -SPEED;
+			// fuse with a neighbouring chaos wall?
+			if(chaosWalls[target.y][target.x]){
+				chaosWalls[target.y][target.x].callMain = false;
+				fuse = true;
+			}
+			// ready neighbouring walls
+			if(mapX > 0 && chaosWalls[mapY][mapX - 1]){
+				chaosWalls[mapY][mapX - 1].ready();
+			}
+			if(mapY > 0 && chaosWalls[mapY - 1][mapX]){
+				chaosWalls[mapY - 1][mapX].ready();
+			}
+			if(mapX < mapWidth - 1 && chaosWalls[mapY][mapX + 1]){
+				chaosWalls[mapY][mapX + 1].ready();
+			}
+			if(mapY < mapHeight - 1 && chaosWalls[mapY + 1][mapX]){
+				chaosWalls[mapY + 1][mapX].ready();
+			}
 			state = MOVING;
 			game.soundQueue.add("chaosWallMoving");
 		}
@@ -206,6 +225,9 @@ package com.robotacid.engine {
 		
 		/* Destructor */
 		public function kill():void {
+			if(fuse){
+				if(chaosWalls[target.y][target.x]) chaosWalls[target.y][target.x].callMain = true;
+			}
 			active = false;
 			//renderer.createDebrisRect(collider, 0, 100, debrisType);
 			collider.world.removeCollider(collider);
@@ -215,14 +237,6 @@ package com.robotacid.engine {
 			if(state == READY){
 				if(cogDisplacement < SCALE * 0.5){
 					cogDisplacement++;
-					cogs[0].x = SCALE * 0.5 - cogDisplacement;
-					cogs[0].y = SCALE * 0.5 - cogDisplacement;
-					cogs[1].x = SCALE * 0.5 + cogDisplacement;
-					cogs[1].y = SCALE * 0.5 - cogDisplacement;
-					cogs[2].x = SCALE * 0.5 - cogDisplacement;
-					cogs[2].y = SCALE * 0.5 + cogDisplacement;
-					cogs[3].x = SCALE * 0.5 + cogDisplacement;
-					cogs[3].y = SCALE * 0.5 + cogDisplacement;
 				}
 			} else if(state == MOVING){
 				var blit:BlitRect;
@@ -243,19 +257,24 @@ package com.robotacid.engine {
 			} else if(state == RETIRE){
 				if(cogDisplacement > 0){
 					cogDisplacement--;
-					cogs[0].x = SCALE * 0.5 - cogDisplacement;
-					cogs[0].y = SCALE * 0.5 - cogDisplacement;
-					cogs[1].x = SCALE * 0.5 + cogDisplacement;
-					cogs[1].y = SCALE * 0.5 - cogDisplacement;
-					cogs[2].x = SCALE * 0.5 - cogDisplacement;
-					cogs[2].y = SCALE * 0.5 + cogDisplacement;
-					cogs[3].x = SCALE * 0.5 + cogDisplacement;
-					cogs[3].y = SCALE * 0.5 + cogDisplacement;
 				}
 			}
 			gfx.x = (collider.x + 0.5) >> 0;
 			gfx.y = (collider.y + 0.5) >> 0;
 			super.render();
+			if(cogDisplacement >= SCALE * 0.5){
+				cogFrame++;
+				if(cogFrame >= renderer.cogRectBlit.totalFrames) cogFrame = 0;
+				renderer.cogRectBlit.dirs[CogRectBlit.TOP_LEFT] = 1;
+				renderer.cogRectBlit.dirs[CogRectBlit.TOP_RIGHT] = -1;
+				renderer.cogRectBlit.dirs[CogRectBlit.BOTTOM_RIGHT] = -1;
+				renderer.cogRectBlit.dirs[CogRectBlit.BOTTOM_LEFT] = 1;
+			}
+			renderer.cogRectBlit.allVisible = true;
+			renderer.cogRectBlit.displacement = cogDisplacement;
+			renderer.cogRectBlit.x = -renderer.bitmap.x + ((collider.x + collider.width * 0.5 + 0.5) >> 0);
+			renderer.cogRectBlit.y = -renderer.bitmap.y + ((collider.y + collider.height * 0.5 + 0.5) >> 0);
+			renderer.cogRectBlit.render(renderer.bitmapData, cogFrame);
 		}
 		
 		override public function remove():void {

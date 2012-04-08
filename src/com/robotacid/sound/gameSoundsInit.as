@@ -28,9 +28,9 @@ package com.robotacid.sound {
 		SoundManager.addSound(new BoneHitSound2, "boneHit2", 0.8);
 		SoundManager.addSound(new BoneHitSound3, "boneHit3", 0.8);
 		SoundManager.addSound(new BoneHitSound4, "boneHit4", 0.8);
-		SoundManager.addSound(new ChaosWallMovingSound, "chaosWallMoving", 0.5);
-		SoundManager.addSound(new ChaosWallReadySound, "chaosWallReady", 0.5);
-		SoundManager.addSound(new ChaosWallStopSound, "chaosWallStop", 0.5);
+		SoundManager.addSound(new ChaosWallMovingSound, "chaosWallMoving", 0.4);
+		SoundManager.addSound(new ChaosWallReadySound, "chaosWallReady", 0.4);
+		SoundManager.addSound(new ChaosWallStopSound, "chaosWallStop", 0.4);
 		SoundManager.addSound(new CogDeathSound1, "cogDeath1", 0.6);
 		SoundManager.addSound(new CogDeathSound2, "cogDeath2", 0.6);
 		SoundManager.addSound(new CogDeathSound3, "cogDeath3", 0.6);
@@ -57,10 +57,10 @@ package com.robotacid.sound {
 		SoundManager.addSound(new SpiderDeathSound2, "spiderDeath2", 0.2);
 		SoundManager.addSound(new SpiderDeathSound3, "spiderDeath3", 0.2);
 		SoundManager.addSound(new SpiderDeathSound4, "spiderDeath4", 0.2);
-		SoundManager.addSound(new StoneDeathSound1, "stoneDeath1", 0.7);
-		SoundManager.addSound(new StoneDeathSound2, "stoneDeath2", 0.7);
-		SoundManager.addSound(new StoneDeathSound3, "stoneDeath3", 0.7);
-		SoundManager.addSound(new StoneDeathSound4, "stoneDeath4", 0.7);
+		SoundManager.addSound(new StoneDeathSound1, "stoneDeath1", 0.4);
+		SoundManager.addSound(new StoneDeathSound2, "stoneDeath2", 0.4);
+		SoundManager.addSound(new StoneDeathSound3, "stoneDeath3", 0.4);
+		SoundManager.addSound(new StoneDeathSound4, "stoneDeath4", 0.4);
 		SoundManager.addSound(new StoneHitSound1, "stoneHit1", 0.7);
 		SoundManager.addSound(new StoneHitSound2, "stoneHit2", 0.7);
 		SoundManager.addSound(new StoneHitSound3, "stoneHit3", 0.7);

@@ -626,7 +626,7 @@
 							node = Brain.playerCharacters[game.random.rangeInt(Brain.playerCharacters.length)];
 						}
 					}
-					if(!node || !node.active || node.state == QUICKENING || node.state == ENTERING || node.state == EXITING || node.collider.x + node.collider.width * 0.5 < collider.x + collider.width * 0.5){
+					if(!node || !node.active || node.state == QUICKENING || node.state == ENTERING || node.state == EXITING || node.indifferent || node.collider.x + node.collider.width * 0.5 < collider.x + collider.width * 0.5){
 						node = null;
 						tx = game.mapTileManager.width * SCALE;
 						ty = game.random.range(game.mapTileManager.height) * SCALE;
@@ -651,7 +651,7 @@
 							node = Brain.playerCharacters[game.random.rangeInt(Brain.playerCharacters.length)];
 						}
 					}
-					if(!node || !node.active || node.state == QUICKENING || node.state == ENTERING || node.state == EXITING || node.collider.x + node.collider.width * 0.5 > collider.x + collider.width * 0.5){
+					if(!node || !node.active || node.state == QUICKENING || node.state == ENTERING || node.state == EXITING || node.indifferent || node.collider.x + node.collider.width * 0.5 > collider.x + collider.width * 0.5){
 						node = null;
 						tx = 0;
 						ty = game.random.range(game.mapTileManager.height) * SCALE;

@@ -412,7 +412,7 @@
 					character.collider.properties |= Collider.CORPSE;
 					character.indifferent = true;
 					if(character.type == Character.PLAYER || character.type == Character.MINION){
-						character.collider.ignoreProperties |= Collider.MONSTER | Collider.HEAD;
+						character.collider.ignoreProperties |= Collider.MONSTER | Collider.HEAD | Collider.GATE;
 						for(i = 0; i < Brain.monsterCharacters.length; i++){
 							brain = Brain.monsterCharacters[i].brain;
 							if(brain && brain.target == user) brain.clear();
@@ -421,7 +421,7 @@
 							game.menu.missileOption.active = false;
 						}
 					} else if(character.type == Character.MONSTER){
-						character.collider.ignoreProperties |= Collider.PLAYER | Collider.HEAD;
+						character.collider.ignoreProperties |= Collider.PLAYER | Collider.HEAD | Collider.GATE;
 						for(i = 0; i < Brain.playerCharacters.length; i++){
 							brain = Brain.playerCharacters[i].brain;
 							if(brain && brain.target == user) brain.clear();
@@ -445,12 +445,12 @@
 					// character alpha should return to normal (there's few lines in the Character object that see to this)
 					character.collider.properties &= ~Collider.CORPSE;
 					if(character.type == Character.PLAYER || character.type == Character.MINION){
-						character.collider.ignoreProperties &= ~(Collider.MONSTER | Collider.HEAD);
+						character.collider.ignoreProperties &= ~(Collider.MONSTER | Collider.HEAD | Collider.GATE);
 						if(character.type == Character.PLAYER && character.weapon){
 							game.menu.missileOption.active = Boolean(character.weapon.range & (MISSILE | THROWN));
 						}
 					} else if(character.type == Character.MONSTER){
-						character.collider.ignoreProperties &= ~(Collider.PLAYER | Collider.HEAD);
+						character.collider.ignoreProperties &= ~(Collider.PLAYER | Collider.HEAD | Collider.GATE);
 					}
 				}
 			}

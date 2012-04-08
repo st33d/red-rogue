@@ -218,6 +218,8 @@
 							voiceDist = Math.abs(game.player.mapX - char.mapX) + Math.abs(game.player.mapY - char.mapY) * VERTICAL_DIST_MULTIPLIER;
 							if(voiceDist < VOICE_DIST_MAX) speak(char.voice, voiceDist);
 						}
+						// check for changes in patrol area at random
+						if(patrolAreaSet && game.random.coinFlip()) patrolAreaSet = false;
 					}
 				}
 				
@@ -265,7 +267,9 @@
 						char.collider.x + char.collider.width <= target.collider.x
 					)
 				){
-					flee(target);
+					if(target.type == Character.GATE) clear();
+					else flee(target);
+					
 				} else {
 					if(char.throwable || (char.weapon && (char.weapon.range & Item.MISSILE))){
 						snipe(target);
@@ -346,9 +350,9 @@
 			// refuse state copying when either is confused
 			if(confusedCount || template.confusedCount) return;
 			
-			template.state = state;
-			template.count = count;
-			template.target = target
+			state = template.state;
+			count = template.count;
+			target = template.target;
 		}
 		
 		/* This walks a character left and right in their patrol area
