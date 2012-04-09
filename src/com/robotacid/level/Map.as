@@ -194,6 +194,9 @@
 				} else if(pixels[i] == MapBitmap.SECRET){
 					createSecretWall(c, r);
 					pixels[i] = MapBitmap.WALL;
+				} else if(pixels[i] == MapBitmap.GATE){
+					// gates are created later
+					pixels[i] = MapBitmap.EMPTY;
 				}
 			}
 			// now for ladders, ledges and empty spaces

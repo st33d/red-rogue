@@ -265,19 +265,22 @@
 				renderer.cogRectBlit.dirs[CogRectBlit.BOTTOM_RIGHT] = -1;
 				renderer.cogRectBlit.dirs[CogRectBlit.BOTTOM_LEFT] = 1;
 			}
-			if(gateState == OPENING || gateState == CLOSING){
-				cogFrame++;
-				if(cogFrame >= renderer.cogRectBlit.totalFrames) cogFrame = 0;
+			if(cogDisplacement > 0){
+				if(gateState == OPENING || gateState == CLOSING){
+					cogFrame++;
+					if(cogFrame >= renderer.cogRectBlit.totalFrames) cogFrame = 0;
+				}
+				
+				renderer.cogRectBlit.allVisible = false;
+				renderer.cogRectBlit.visibles[CogRectBlit.TOP_LEFT] = false;
+				renderer.cogRectBlit.visibles[CogRectBlit.TOP_RIGHT] = false;
+				renderer.cogRectBlit.visibles[CogRectBlit.BOTTOM_LEFT] = true;
+				renderer.cogRectBlit.visibles[CogRectBlit.BOTTOM_RIGHT] = true;
+				renderer.cogRectBlit.displacement = cogDisplacement;
+				renderer.cogRectBlit.x = -renderer.bitmap.x + collider.x + SCALE * 0.5;
+				renderer.cogRectBlit.y = -renderer.bitmap.y + openY + SCALE * 0.5;
+				renderer.cogRectBlit.render(renderer.bitmapData, cogFrame);
 			}
-			renderer.cogRectBlit.allVisible = false;
-			renderer.cogRectBlit.visibles[CogRectBlit.TOP_LEFT] = false;
-			renderer.cogRectBlit.visibles[CogRectBlit.TOP_RIGHT] = false;
-			renderer.cogRectBlit.visibles[CogRectBlit.BOTTOM_LEFT] = true;
-			renderer.cogRectBlit.visibles[CogRectBlit.BOTTOM_RIGHT] = true;
-			renderer.cogRectBlit.displacement = cogDisplacement;
-			renderer.cogRectBlit.x = -renderer.bitmap.x + collider.x + SCALE * 0.5;
-			renderer.cogRectBlit.y = -renderer.bitmap.y + openY + SCALE * 0.5;
-			renderer.cogRectBlit.render(renderer.bitmapData, cogFrame);
 		}
 		
 	}

@@ -42,7 +42,7 @@
 					(victim.uniqueNameStr.charAt(victim.uniqueNameStr.length - 1) == "s") ? "' " : "'s "
 				) + " face";
 			}
-			createCollider(victim.gfx.x, victim.collider.y + gfx.height, Collider.HEAD | Collider.SOLID, Collider.CORPSE);
+			createCollider(victim.gfx.x, victim.collider.y + gfx.height, Collider.HEAD | Collider.SOLID, Collider.CORPSE | Collider.ITEM);
 			game.world.restoreCollider(collider);
 			collider.resolveMapInsertion();
 			if(victim.dir & RIGHT){

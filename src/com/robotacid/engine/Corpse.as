@@ -51,7 +51,7 @@ package com.robotacid.engine {
 			var mcClass:Class = (Object(victim.gfx).constructor as Class);
 			gfx = new mcClass();
 			super(gfx, true);
-			createCollider(victim.gfx.x, victim.gfx.y, Collider.CORPSE | Collider.SOLID, Collider.CORPSE);
+			createCollider(victim.gfx.x, victim.gfx.y, Collider.CORPSE | Collider.SOLID, Collider.CORPSE | Collider.ITEM);
 			game.world.restoreCollider(collider);
 			callMain = true;
 		}

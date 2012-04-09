@@ -64,7 +64,7 @@ package com.robotacid.engine {
 				dir = game.random.coinFlip() ? LEFT : RIGHT;
 				if(name & COG) createCogCollider(x, y);
 				else{
-					createCollider(x, y, Collider.HEAD | Collider.SOLID, Collider.HEAD | Collider.CORPSE, Collider.FALL);
+					createCollider(x, y, Collider.HEAD | Collider.SOLID, Collider.HEAD | Collider.CORPSE | Collider.ITEM, Collider.FALL);
 					debrisType = Renderer.BLOOD;
 				}
 				collider.stackCallback = hitFloor;
@@ -79,7 +79,7 @@ package com.robotacid.engine {
 					createCogCollider(x, y);
 					topOfThreadY -= 2;
 				} else{
-					createCollider(x, y, Collider.HEAD | Collider.SOLID, Collider.HEAD | Collider.CORPSE, Collider.HOVER);
+					createCollider(x, y, Collider.HEAD | Collider.SOLID, Collider.HEAD | Collider.CORPSE | Collider.ITEM, Collider.HOVER);
 					debrisType = Renderer.BLOOD;
 				}
 				collider.dampingY = collider.dampingX;

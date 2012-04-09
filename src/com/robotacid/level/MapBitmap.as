@@ -1,5 +1,6 @@
 ﻿package com.robotacid.level {
 	import com.robotacid.geom.Pixel;
+	import com.robotacid.phys.Collider;
 	import com.robotacid.util.array.randomiseArray;
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
@@ -28,6 +29,7 @@
 		
 		public var rooms:Vector.<Room>;
 		public var gates:Vector.<Pixel>;
+		public var surfaces:Vector.<Surface>;
 		
 		public var leftSecretRoom:Room;
 		public var rightSecretRoom:Room;
@@ -37,7 +39,7 @@
 		public var adjustedMapRect:Rectangle;
 		
 		// temp variables
-		private var i:int, j:int, k:int, n:int, r:int, c:int, node:Node, room:Room;
+		private var i:int, j:int, k:int, n:int, r:int, c:int, dir:int, node:Node, room:Room;
 		
 		// pacing variables - these keep a consistent scale for the level
 		public var vertPace:int;
@@ -64,6 +66,7 @@
 		public static const LADDER:uint = 0xFF0000FF;
 		public static const LEDGE:uint = 0xFF00FF00;
 		public static const LADDER_LEDGE:uint = 0xFF00FFFF;
+		public static const GATE:uint = 0xFFF0F0F0;
 		
 		public static const PIT:uint = 0xFFFFFFFF;
 		public static const SECRET:uint = 0xFFCCCCCC;
@@ -158,6 +161,7 @@
 				createSecrets();
 				createGates(connectionBitmapData);
 			}
+			createSurfaces();
 		}
 		
 		/* Creates the base map for the overworld area */
@@ -985,8 +989,7 @@
 			// this favours gates to be identified early or late
 			var mapPixels:Vector.<uint> = bitmapData.getVector(bitmapData.rect);
 			var finders:Vector.<Pixel> = new Vector.<Pixel>();
-			var i:int, r:int, c:int, n:int, dir:int;
-			var range:int = (height - 1) * width
+			var range:int = (height - 1) * width;
 			var width:int = bitmapData.width;
 			var height:int = bitmapData.height;
 			var min:int = 1 + adjustedMapRect.x * Game.INV_SCALE;
@@ -1025,8 +1028,12 @@
 					c = n % width;
 					r = n / width;
 					gates.push(new Pixel(c, r));
+					
+					// prevent a gate next to this one by marking the site
+					mapPixels[n] = GATE;
 				}
 			}
+			bitmapData.setVector(bitmapData.rect, mapPixels);
 			// traverse map to test logic debug
 			//for(n = width + 1; n < range - 1; n++){
 				//if(
@@ -1047,6 +1054,61 @@
 				//}
 			//}
 			trace("gate total", gates.length);
+		}
+		
+		public function createSurfaces():void{
+			
+			// initial sweep to get all usable surfaces in the level
+			var surface:Surface;
+			var properties:int;
+			var width:int = bitmapData.width;
+			var height:int = bitmapData.height;
+			Surface.initMap(width, height);
+			surfaces = new Vector.<Surface>();
+			var mapPixels:Vector.<uint> = bitmapData.getVector(bitmapData.rect);
+			for(i = width; i < mapPixels.length - width; i++){
+				if(
+					mapPixels[i] != WALL &&
+					mapPixels[i] != PIT &&
+					mapPixels[i] != SECRET &&
+					mapPixels[i] != GATE
+				){
+					c = i % width;
+					r = i / width;
+					properties = 0;
+					if(mapPixels[i + width] == LEDGE) properties = Collider.UP | Collider.LEDGE;
+					else if(mapPixels[i + width] == LADDER_LEDGE) properties = Collider.UP | Collider.LEDGE | Collider.LADDER;
+					else if(mapPixels[i + width] == WALL) properties = Collider.SOLID | Collider.WALL;
+					if(properties){
+						surface = new Surface(c, r, properties);
+						Surface.map[r][c] = surface;
+						surfaces.push(surface);
+					}
+				}
+			}
+			// now find which of those surfaces are in a room
+			// all surfaces in a room are found by casting down from the top of the room - catching areas dug out below the room
+			if(rooms){
+				var roomList:Vector.<Room> = rooms.slice();
+				if(leftSecretRoom) roomList.push(leftSecretRoom);
+				if(rightSecretRoom) roomList.push(rightSecretRoom);
+				for(i = 0; i < roomList.length; i++){
+					room = roomList[i];
+					for(c = room.x; c < room.x + room.width; c++){
+						n = c + r * width;
+						for(r = room.y; mapPixels[n] != WALL && mapPixels[n] != PIT && mapPixels[n] != SECRET && mapPixels[n] != GATE; r++, n = c + r * width){
+							if(Surface.map[r][c]){
+								surface = Surface.map[r][c];
+								// due to casting, a room may have already claimed a surface
+								if(!surface.room){
+									room.surfaces.push(surface);
+									surface.room = room;
+								}
+							}
+						}
+					}
+				}
+			}
 		}
 		
 		/* is this pixel sitting on the edge of the map? it will likely cause me trouble if it is... */

@@ -322,6 +322,7 @@
 			}
 			gfx.filters = [];
 			gfx.visible = true;
+			gfx.scaleX = 1;
 		}
 		
 		/* Puts this item on the map */
@@ -352,6 +353,7 @@
 		 * visible against the grey background */
 		public function setDroppedRender():void{
 			if(gfx is ItemMovieClip) (gfx as ItemMovieClip).setDropRender();
+			gfx.scaleX = 1;
 			gfx.filters = [DROP_GLOW_FILTER];
 		}
 		

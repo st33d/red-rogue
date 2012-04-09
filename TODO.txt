@@ -1,4 +1,4 @@
-Change log: added chaos wall to editor, allowed chaos walls to fuse into one another, added random patrol area reinit to allow monsters to adapt to changes caused by chaos walls, nerfed monster portal, commute routine logic was the wrong way round, added columns of chaos wals to chaos zone, protected indifference from quickening
+Change log: set chaos walls to ignore characters and any other possible obstruction, fixed item doubling when monsters throw weapons, fixed item scaleX after thrown, prevented adjacent gates (results in unavoidable damage from two raise gates), set many collider types to ignore items
 
 Bug hunt
 	can crash graph renderer by changing level
@@ -13,8 +13,6 @@ Bug hunt
 	null Monster collider.world spotted - why?
 	
 	diagonal down ai node by two steps causes error on ladder ledge
-	
-	gate on trap causes error
 
 need the ability to block effect apply printouts
 
@@ -24,8 +22,6 @@ yendor
 
 	
 gates
-	Gate class
-		create cog renderer to ease load on chaos walls and add to gates
 	keys, pressure pads
 	how to split the map
 		draw up or down from the edge of the map to a horizontal line

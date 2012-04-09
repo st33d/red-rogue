@@ -74,7 +74,7 @@ package com.robotacid.engine {
 			(gfx as Sprite).graphics.endFill();
 			cogDisplacement = 0;
 			gfx.visible = false;
-			createCollider(mapX * SCALE, mapY * SCALE, Collider.WALL | Collider.SOLID | Collider.CHAOS, Collider.WALL | Collider.GATE, Collider.HOVER, false);
+			createCollider(mapX * SCALE, mapY * SCALE, Collider.WALL | Collider.SOLID | Collider.CHAOS, Collider.WALL | Collider.GATE | Collider.CHARACTER | Collider.HEAD | Collider.CORPSE | Collider.ITEM, Collider.HOVER, false);
 			collider.pushDamping = 0;
 			collider.dampingX = collider.dampingY = 1;
 			chaosWalls[mapY][mapX] = this;

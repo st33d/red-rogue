@@ -901,7 +901,6 @@
 			}
 			
 			item.addBuff(this);
-			
 			if(throwing) (gfx as Sprite).addChildAt(item.gfx, 0);
 			else if(item.name == Item.YENDOR && item.type == Item.ARMOUR) (gfx as Sprite).addChildAt(item.gfx, 0);
 			else (gfx as Sprite).addChild(item.gfx);
@@ -1008,6 +1007,7 @@
 				if(throwable){
 					item = unequip(throwable);
 					if(this == game.player || this == game.minion) item = game.menu.inventoryList.removeItem(item);
+					else dropItem(item);
 					item.location = Item.FLIGHT;
 					missileMc = item.gfx;
 					item.gfx.visible = true;

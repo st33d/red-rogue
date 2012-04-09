@@ -20,6 +20,7 @@
 		public var num:int;
 		public var siblings:Vector.<Room>;
 		public var doors:Vector.<Pixel>;
+		public var surfaces:Vector.<Surface>;
 		
 		public static var roomCount:int = 0;
 		
@@ -31,6 +32,7 @@
 			this.id = id;
 			siblings = new Vector.<Room>();
 			doors = new Vector.<Pixel>();
+			surfaces = new Vector.<Surface>();
 			num = roomCount++;
 		}
 		public function touchesDoors(p:Pixel):Boolean{
