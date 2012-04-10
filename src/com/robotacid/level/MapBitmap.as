@@ -29,7 +29,6 @@
 		
 		public var rooms:Vector.<Room>;
 		public var gates:Vector.<Pixel>;
-		public var surfaces:Vector.<Surface>;
 		
 		public var leftSecretRoom:Room;
 		public var rightSecretRoom:Room;
@@ -1064,7 +1063,6 @@
 			var width:int = bitmapData.width;
 			var height:int = bitmapData.height;
 			Surface.initMap(width, height);
-			surfaces = new Vector.<Surface>();
 			var mapPixels:Vector.<uint> = bitmapData.getVector(bitmapData.rect);
 			for(i = width; i < mapPixels.length - width; i++){
 				if(
@@ -1082,29 +1080,37 @@
 					if(properties){
 						surface = new Surface(c, r, properties);
 						Surface.map[r][c] = surface;
-						surfaces.push(surface);
+						Surface.surfaces.push(surface);
 					}
 				}
 			}
 			// now find which of those surfaces are in a room
 			// all surfaces in a room are found by casting down from the top of the room - catching areas dug out below the room
 			if(rooms){
+				
 				var roomList:Vector.<Room> = rooms.slice();
 				if(leftSecretRoom) roomList.push(leftSecretRoom);
 				if(rightSecretRoom) roomList.push(rightSecretRoom);
+				roomList.sort(Map.sortRoomsTopWards);
+				
 				for(i = 0; i < roomList.length; i++){
 					room = roomList[i];
 					for(c = room.x; c < room.x + room.width; c++){
+						r = room.y;
 						n = c + r * width;
-						for(r = room.y; mapPixels[n] != WALL && mapPixels[n] != PIT && mapPixels[n] != SECRET && mapPixels[n] != GATE; r++, n = c + r * width){
+						while(n < mapPixels.length - width && mapPixels[n] != WALL && mapPixels[n] != PIT && mapPixels[n] != SECRET && mapPixels[n] != GATE){
 							if(Surface.map[r][c]){
 								surface = Surface.map[r][c];
 								// due to casting, a room may have already claimed a surface
-								if(!surface.room){
-									room.surfaces.push(surface);
-									surface.room = room;
+								// logically the bottom-most room must be the true owner
+								if(surface.room){
+									surface.room.surfaces.splice(surface.room.surfaces.indexOf(surface), 1);
 								}
+								room.surfaces.push(surface);
+								surface.room = room;
 							}
+							r++;
+							n += width;
 						}
 					}
 				}

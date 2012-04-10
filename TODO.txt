@@ -1,4 +1,4 @@
-Change log: set chaos walls to ignore characters and any other possible obstruction, fixed item doubling when monsters throw weapons, fixed item scaleX after thrown, prevented adjacent gates (results in unavoidable damage from two raise gates), set many collider types to ignore items
+Change log: reduced trap quantities on later levels, reduced monster quantity on later levels, kobold hearts now give random extra health at higher levels, monsters and chests now distributed to rooms only, traps distributed according to new surface map system
 
 Bug hunt
 	can crash graph renderer by changing level

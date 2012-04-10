@@ -11,6 +11,7 @@
 	 */
 	public class Room {
 		
+		public var start:Boolean;
 		public var gridNum:int;
 		public var x:int;
 		public var y:int;
@@ -30,6 +31,7 @@
 			this.width = width;
 			this.height = height;
 			this.id = id;
+			start = false;
 			siblings = new Vector.<Room>();
 			doors = new Vector.<Pixel>();
 			surfaces = new Vector.<Surface>();

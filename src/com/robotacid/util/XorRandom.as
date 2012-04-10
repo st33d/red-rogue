@@ -16,6 +16,7 @@ package com.robotacid.util {
 		public var seed:uint;
 		
 		public function XorRandom(seed:uint = 0) {
+			
 			if(seed){
 				r = seed;
 			} else {

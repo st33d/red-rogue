@@ -5,6 +5,7 @@ package com.robotacid.ui {
 	import com.robotacid.engine.Character;
 	import com.robotacid.geom.Pixel;
 	import com.robotacid.gfx.Renderer;
+	import com.robotacid.level.Surface;
 	import com.robotacid.phys.Collider;
 	import com.robotacid.ui.menu.EditorMenuList;
 	import com.robotacid.ui.menu.GameMenu;
@@ -127,6 +128,12 @@ package com.robotacid.ui {
 				gfx.clear();
 				gfx.lineStyle(2, 0xFFFF00, 0.4);
 				wallWalkGraph.drawGraph(gfx, Game.SCALE, topLeft, bottomRight);
+				bitmapData.draw(sprite, new Matrix(1, 0, 0, 1, -renderer.bitmap.x, -renderer.bitmap.y));
+			}
+			if(menuList.renderSurfacesList.selection == EditorMenuList.ON){
+				gfx.clear();
+				gfx.lineStyle(2, 0x00FF00, 0.4);
+				Surface.draw(gfx, Game.SCALE, topLeft, bottomRight);
 				bitmapData.draw(sprite, new Matrix(1, 0, 0, 1, -renderer.bitmap.x, -renderer.bitmap.y));
 			}
 			if(menuList.renderAIPathsList.selection == EditorMenuList.ON){

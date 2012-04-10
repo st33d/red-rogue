@@ -85,7 +85,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 356;
+		public static const BUILD_NUM:int = 357;
 		
 		public static const TEST_BED_INIT:Boolean = false;
 		
@@ -491,7 +491,7 @@
 			Player.previousPortalType = Portal.STAIRS;
 			Player.previousMapType = Map.AREA;
 			SoundManager.musicTimes = {};
-			
+			editor.deactivate();
 			init();
 		}
 		
@@ -515,6 +515,8 @@
 		 * This method tries to wipe all layers whilst leaving the gaming architecture in place
 		 */
 		public function changeLevel(n:int, portalType:int, loaded:Boolean = false):void{
+			
+			editor.deactivate();
 			
 			// maintain debug state if present
 			if(map.level == -1){
@@ -822,6 +824,7 @@
 						addLife();
 						Key.keyLogString = "";
 					}
+					
 				
 				}
 				

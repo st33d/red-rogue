@@ -187,5 +187,12 @@
 		["Werewolf1", "Werewolf2", "Werewolf3"], [""], ["Naga1", "Naga2", "Naga3"], ["Gorgon1", "Gorgon2", "Gorgon3"], ["UmberHulk1", "UmberHulk2", "UmberHulk3"],
 		["Golem1", "Golem2", "Golem3"], ["Banshee1", "Banshee2", "Banshee3"], ["Wraith1", "Wraith2", "Wraith3"], ["Mindflayer1", "Mindflayer2", "Mindflayer3"], ["Rakshasa1", "Rakshasa2", "Rakshasa3"],
 		["Balrog1", "Balrog2", "Balrog3"], [""]
+	],
+	"groups":[
+		"human", "goblinoid", "goblinoid", "goblinoid", "goblinoid",
+		"goblinoid", "fae", "fae", "fae", "undead",
+		"fae", "hulk", "serpent", "serpent", "hulk",
+		"hulk", "undead", "undead", "mage", "mage",
+		"demon", "human"
 	]
 }

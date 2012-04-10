@@ -1,5 +1,7 @@
 package com.robotacid.level {
 	import com.robotacid.geom.Pixel;
+	import com.robotacid.phys.Collider;
+	import flash.display.Graphics;
 	
 	/**
 	 * Describes a position on the map that has a supporting surface below it
@@ -11,6 +13,7 @@ package com.robotacid.level {
 	public class Surface extends Pixel {
 		
 		public static var map:Vector.<Vector.<Surface>>;
+		public static var surfaces:Vector.<Surface>;
 		
 		public var properties:int;
 		public var room:Room;
@@ -31,15 +34,47 @@ package com.robotacid.level {
 					map[r].push(null);
 				}
 			}
+			surfaces = new Vector.<Surface>();
 		}
 		
 		public static function removeSurface(x:int, y:int):void{
 			if(map[y][x]){
+				var n:int;
 				var surface:Surface = map[y][x];
 				map[y][x] = null;
+				n = surfaces.indexOf(surface);
+				if(n > -1) surfaces.splice(n, 1);
 				if(surface.room){
-					var n:int = surface.room.surfaces.indexOf(surface);
+					n = surface.room.surfaces.indexOf(surface);
 					if(n > -1) surface.room.surfaces.splice(n, 1);
+				}
+			}
+		}
+		
+		public static function getClosestSurface(x:int, y:int):Surface{
+			return null;
+		}
+		
+		/* Diagnositic illustration of the AI graph for the map */
+		public static function draw(gfx:Graphics, scale:Number, topLeft:Pixel, bottomRight:Pixel):void{
+			var r:int, c:int, i:int, surface:Surface;
+			for(r = topLeft.y; r <= bottomRight.y; r++){
+				for(c = topLeft.x; c <= bottomRight.x; c++){
+					if(map[r][c]){
+						surface = map[r][c];
+						gfx.moveTo(surface.x * scale, (surface.y + 1) * scale);
+						gfx.lineTo((surface.x + 1) * scale, (surface.y + 1) * scale);
+						
+						if(surface.properties == (Collider.SOLID | Collider.WALL)){
+							gfx.moveTo(surface.x * scale, 2 + (surface.y + 1) * scale);
+							gfx.lineTo((surface.x + 1) * scale, 2 + (surface.y + 1) * scale);
+						}
+						
+						if(surface.room){
+							gfx.moveTo(surface.x * scale, 2 + (surface.y + 1) * scale);
+							gfx.lineTo(surface.room.x * scale, surface.room.y * scale);
+						}
+					}
 				}
 			}
 		}

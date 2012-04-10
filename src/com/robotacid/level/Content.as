@@ -12,6 +12,7 @@
 	import com.robotacid.engine.Portal;
 	import com.robotacid.engine.Stone;
 	import com.robotacid.gfx.Renderer;
+	import com.robotacid.util.XorRandom;
 	import flash.display.DisplayObject;
 	import flash.geom.Rectangle;
 	/**
@@ -39,6 +40,7 @@
 		public var secretsByLevel:Vector.<int>;
 		public var questGemsByLevel:Vector.<int>
 		public var seedsByLevel:Vector.<uint>;
+		public var xpByLevel:Vector.<Number>;
 		
 		public var itemDungeonContent:Object;
 		public var areaContent:Array;
@@ -64,13 +66,12 @@
 			secretsByLevel = new Vector.<int>();
 			questGemsByLevel = new Vector.<int>();
 			seedsByLevel = new Vector.<uint>();
-			
 			for(level = 0; level <= TOTAL_LEVELS; level++){
 				obj = getLevelContent(level);
 				monstersByLevel[level] = obj.monsters;
 				chestsByLevel[level] = obj.chests;
 				portalsByLevel[level] = new Vector.<XML>();
-				trapsByLevel[level] = level * 2;
+				trapsByLevel[level] = trapQuantityPerLevel(level);
 				secretsByLevel[level] = 2;
 				questGemsByLevel[level] = 0;
 				Map.random.value();
@@ -103,7 +104,6 @@
 		
 		// Equations for quantities on levels
 		
-		// min: level / 2, max: (level + 2) / 2
 		public function equipmentQuantityPerLevel(level:int):int{
 			if(level <= 0) return 0;
 			if(level > TOTAL_LEVELS) level = TOTAL_LEVELS;
@@ -111,7 +111,6 @@
 			return n == (n >> 0) ? n : (n >> 0) + 1; // inline Math.ceil()
 		}
 		
-		// min: level / 2, max: (level + 1) / 2
 		public function runeQuantityPerLevel(level:int):int{
 			if(level <= 0) return 0;
 			if(level > TOTAL_LEVELS) level = TOTAL_LEVELS;
@@ -119,11 +118,17 @@
 			return n == (n >> 0) ? n : (n >> 0) + 1; // inline Math.ceil()
 		}
 		
-		// min: 5 + level * 2, max: 10 + level 3
 		public function monsterQuantityPerLevel(level:int):int{
 			if(level <= 0) return 0;
 			if(level > TOTAL_LEVELS) level = TOTAL_LEVELS;
-			return 5 + Map.random.range(6) + level * (2 + Map.random.range(2));
+			var n:Number = level * (2 + Map.random.range(2));
+			if(n > 30) n = 30;
+			return 5 + Map.random.range(6) + n;
+		}
+		
+		public function trapQuantityPerLevel(level:int):int{
+			if(level > TOTAL_LEVELS) level = TOTAL_LEVELS;
+			return 1 + Math.ceil(level / (2 + Map.random.rangeInt(3)));
 		}
 		
 		/* Create a satisfactory amount of monsters and loot for a level
@@ -215,7 +220,7 @@
 			itemDungeonContent = getLevelContent(level, item.toXML());
 			itemDungeonContent.portals = Vector.<XML>([<portal type={Portal.ITEM_RETURN} targetLevel={level} />]);
 			itemDungeonContent.secrets = 2;
-			itemDungeonContent.traps = 2 * (level <= TOTAL_LEVELS ? level : TOTAL_LEVELS);
+			itemDungeonContent.traps = trapQuantityPerLevel(level);
 			itemDungeonContent.seed = Math.random() * uint.MAX_VALUE;
 		}
 		
@@ -239,9 +244,9 @@
 		/* Distributes content across a level
 		 * 
 		 * Portals we leave alone for the Map to request when it needs to create access points */
-		public function populateLevel(mapType:int, mapLevel:int, bitmap:MapBitmap, layers:Array):int{
+		public function populateLevel(mapType:int, mapLevel:int, bitmap:MapBitmap, layers:Array, random:XorRandom):int{
 			var r:int, c:int;
-			var i:int;
+			var i:int, j:int, n:int;
 			var chest:Chest;
 			var item:Item;
 			var list:Array;
@@ -250,6 +255,10 @@
 			var chests:Vector.<XML>;
 			var questGems:int = 0;
 			var completionCount:int = 0;
+			var room:Room;
+			var surface:Surface;
+			var name:int;
+			
 			if(mapType == Map.MAIN_DUNGEON){
 				if(mapLevel < monstersByLevel.length){
 					monsters = monstersByLevel[mapLevel];
@@ -271,30 +280,90 @@
 			
 			if(mapType != Map.AREA){
 				
+				var roomList:Vector.<Room> = bitmap.rooms.slice();
+				// remove the start room
+				for(i = roomList.length - 1; i > -1; i--){
+					if(roomList[i].start){
+						roomList.splice(i, 1);
+						break;
+					}
+				}
+				if(bitmap.leftSecretRoom) bitmap.rooms.push(bitmap.leftSecretRoom);
+				if(bitmap.rightSecretRoom) bitmap.rooms.push(bitmap.rightSecretRoom);
+				// randomise
+				for(i = roomList.length; i; j = random.rangeInt(i), room = roomList[--i], roomList[i] = roomList[j], roomList[j] = room){}
+				
 				completionCount += monsters.length;
 				completionCount += chests.length;
 				completionCount += questGems;
 				
+				// drop chests into rooms
+				while(chests.length){
+					room = roomList[random.rangeInt(roomList.length)];
+					if(room.surfaces.length){
+						surface = room.surfaces[random.rangeInt(room.surfaces.length)];
+						chest = XMLToEntity(surface.x, surface.y, chests.shift());
+						chest.mimicInit(mapType, mapLevel);
+						layers[Map.ENTITIES][surface.y][surface.x] = chest;
+						Surface.removeSurface(surface.x, surface.y);
+					}
+				}
+				
+				// sort monsters by racial group
+				var groups:Object = {};
+				var group:String;
+				for(i = 0; i < monsters.length; i++){
+					name = monsters[i].@name;
+					group = Character.stats["groups"][name];
+					if(!groups[group]) groups[group] = [monsters[i]];
+					else groups[group].push(monsters[i]);
+				}
+				// get the mean quantity of monsters per room
+				var mean:Number = monsters.length / roomList.length;
+				trace("mean", mean);
+				trace("total", monsters.length);
+				i = 0;
+				j = 0;
+				
+				var monsterGroup:Array;
+				for(group in groups){
+					monsterGroup = groups[group];
+					room = roomList[i];
+					while(monsterGroup.length){
+						if(room.surfaces.length){
+							n = (mean * 0.5) + random.range(mean * 1.5);
+							if(n < 1) n = 1;
+							if(n > monsterGroup.length) n = monsterGroup.length;
+							if(n > room.surfaces.length) n = room.surfaces.length - 2;
+							while(n-- > 0 && room.surfaces.length){
+								j++;
+								surface = room.surfaces[random.rangeInt(room.surfaces.length)];
+								layers[Map.ENTITIES][surface.y][surface.x] = XMLToEntity(surface.x, surface.y, monsterGroup.pop());
+								Surface.removeSurface(surface.x, surface.y);
+							}
+							i++;
+							if(i >= roomList.length) i = 0;
+							room = roomList[i];
+						} else {
+							i++;
+							if(i >= roomList.length) i = 0;
+							room = roomList[i];
+						}
+					}
+				}
+				trace("deployed", j);
+				monsters.length = 0;
+				
 				// just going to go for a random drop for now.
 				// I intend to figure out a distribution pattern later
-				while(monsters.length){
-					r = 1 + Map.random.range(bitmap.height - 1);
-					c = 1 + Map.random.range(bitmap.width - 1);
-					if(!layers[Map.ENTITIES][r][c] && layers[Map.BLOCKS][r][c] != MapTileConverter.WALL && (bitmap.bitmapData.getPixel32(c, r + 1) == MapBitmap.LEDGE || layers[Map.BLOCKS][r + 1][c] == MapTileConverter.WALL)){
+				//while(monsters.length){
+					//r = 1 + random.range(bitmap.height - 1);
+					//c = 1 + random.range(bitmap.width - 1);
+					//if(!layers[Map.ENTITIES][r][c] && layers[Map.BLOCKS][r][c] != MapTileConverter.WALL && (bitmap.bitmapData.getPixel32(c, r + 1) == MapBitmap.LEDGE || layers[Map.BLOCKS][r + 1][c] == MapTileConverter.WALL)){
 						//trace(monstersByLevel[level][0].toXMLString());
-						layers[Map.ENTITIES][r][c] = XMLToEntity(c, r, monsters.shift());
-					}
-				}
-				while(chests.length){
-					r = 1 + Map.random.range(bitmap.height - 2);
-					c = 1 + Map.random.range(bitmap.width - 2);
-					if(!layers[Map.ENTITIES][r][c] && layers[Map.BLOCKS][r][c] != MapTileConverter.WALL && (bitmap.bitmapData.getPixel32(c, r + 1) == MapBitmap.LEDGE || layers[Map.BLOCKS][r + 1][c] == MapTileConverter.WALL)){
-						//trace(chestsByLevel[level][0].toXMLString());
-						chest = XMLToEntity(c, r, chests.shift());
-						chest.mimicInit(mapType, mapLevel);
-						layers[Map.ENTITIES][r][c] = chest;
-					}
-				}
+						//layers[Map.ENTITIES][r][c] = XMLToEntity(c, r, monsters.shift());
+					//}
+				//}
 				if(questGems) dropQuestGems(questGems, layers, bitmap);
 				
 			} else {
@@ -312,7 +381,7 @@
 					chest = XMLToEntity(0, 0, areaContent[mapLevel].chests.shift());
 					while(chest.contents.length){
 						item = chest.contents.shift();
-						c = minX + Map.random.range(maxX - minX);
+						c = minX + random.range(maxX - minX);
 						item.dropToMap(c, r, false);
 						if(layers[Map.ENTITIES][r][c]){
 							if(layers[Map.ENTITIES][r][c] is Array){
@@ -399,7 +468,7 @@
 		/* Returns the amount of traps in this part of the level */
 		public function getTraps(dungeonLevel:int, dungeonType:int):int{
 			if(dungeonType == Map.MAIN_DUNGEON){
-				while(dungeonLevel >= trapsByLevel.length) trapsByLevel.push(TOTAL_LEVELS * 2);
+				while(dungeonLevel >= trapsByLevel.length) trapsByLevel.push(trapQuantityPerLevel(dungeonLevel));
 				return trapsByLevel[dungeonLevel];
 			} else if(dungeonType == Map.ITEM_DUNGEON){
 				return itemDungeonContent.traps;
@@ -518,7 +587,8 @@
 						}
 					}
 				}
-				monsters.push(entity.toXML());
+				// do not recycle generated monsters
+				if((entity as Monster).characterNum > -1) monsters.push(entity.toXML());
 				
 			} else if(entity is Item){
 				item = entity as Item;

@@ -41,6 +41,7 @@ package com.robotacid.ui.menu {
 		public var renderAIGraphList:MenuList;
 		public var renderAIWallWalkGraphList:MenuList;
 		public var renderAIPathsList:MenuList;
+		public var renderSurfacesList:MenuList;
 		public var lightList:MenuList;
 		
 		public var blockLayerOption:MenuOption;
@@ -80,6 +81,7 @@ package com.robotacid.ui.menu {
 			renderAIGraphList = new MenuList();
 			renderAIWallWalkGraphList = new MenuList();
 			renderAIPathsList = new MenuList();
+			renderSurfacesList = new MenuList();
 			lightList = new MenuList();
 			
 			blockLayerOption = new MenuOption("block layer", createBlockList);
@@ -109,6 +111,7 @@ package com.robotacid.ui.menu {
 			var renderAIGraphOption:MenuOption = new MenuOption("ai graph", renderAIGraphList);
 			var renderAIWallWalkGraphOption:MenuOption = new MenuOption("ai wall walk graph", renderAIWallWalkGraphList);
 			var renderAIPathsOption:MenuOption = new MenuOption("ai paths", renderAIPathsList);
+			var renderSurfacesOption:MenuOption = new MenuOption("surfaces", renderSurfacesList);
 			var lightOption:MenuOption = new MenuOption("light", lightList);
 			
 			onOption = new MenuOption("on", null, false);
@@ -160,6 +163,7 @@ package com.robotacid.ui.menu {
 			renderList.options.push(renderAIGraphOption);
 			renderList.options.push(renderAIWallWalkGraphOption);
 			renderList.options.push(renderAIPathsOption);
+			renderList.options.push(renderSurfacesOption);
 			renderList.options.push(lightOption);
 			
 			renderCollisionList.options.push(offOption);
@@ -170,6 +174,8 @@ package com.robotacid.ui.menu {
 			renderAIWallWalkGraphList.options.push(onOption);
 			renderAIPathsList.options.push(offOption);
 			renderAIPathsList.options.push(onOption);
+			renderSurfacesList.options.push(offOption);
+			renderSurfacesList.options.push(onOption);
 			lightList.options.push(offOption);
 			lightList.options.push(onOption);
 		}

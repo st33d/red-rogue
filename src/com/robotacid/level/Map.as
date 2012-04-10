@@ -346,18 +346,18 @@
 				// a good dungeon needs to be full of loot and monsters
 				// in comes the content manager to mete out a decent amount of action and reward per level
 				// content manager stocks are limited to avoid scumming
-				completionCount += game.content.populateLevel(type, level, bitmap, layers);
+				completionCount += game.content.populateLevel(type, level, bitmap, layers, random);
 				
 			} else if(type == ITEM_DUNGEON){
 				portalType = portalXMLs[0].@type;
 				createAccessPoint(portalType, sortRoomsTopWards, portalXMLs[0]);
-				completionCount += game.content.populateLevel(type, level, bitmap, layers);
+				completionCount += game.content.populateLevel(type, level, bitmap, layers, random);
 			}
 			
 			// now add some flavour
 			if(bitmap.gates.length) createGates();
+			createOtherTraps(pixels);
 			createChaosWalls(pixels);
-			createOtherTraps();
 			createCritters();
 			
 			completionTotal = completionCount;
@@ -400,7 +400,7 @@
 			setStairsDown(12, height - 2);
 			
 			// the player may have left content on the overworld as a sort of bank
-			game.content.populateLevel(type, 0, bitmap, layers);
+			game.content.populateLevel(type, 0, bitmap, layers, random);
 		}
 		
 		/* Create the underworld
@@ -433,7 +433,7 @@
 			}
 			
 			// the player may have left content on the underworld as a sort of bank
-			game.content.populateLevel(type, 0, bitmap, layers);
+			game.content.populateLevel(type, 0, bitmap, layers, random);
 			
 			// create sensors to resolve any contact with the waters
 			var waterSensor:ColliderEntitySensor = new ColliderEntitySensor(
@@ -463,19 +463,18 @@
 			var portalRoom:Room = rooms[index];
 			
 			var r:int, c:int, pos:uint;
-			var candidates:Vector.<Pixel> = new Vector.<Pixel>();
-			var choice:Pixel;
+			var candidates:Vector.<Surface> = new Vector.<Surface>();
+			var choice:Surface;
+			var surface:Surface;
+			var i:int;
 			
 			do{
 				candidates.length = 0;
-				for(c = portalRoom.x; c < portalRoom.x + portalRoom.width; c++){
-					r = portalRoom.y - 1;
-					do{
-						r++;
-						pos = bitmap.bitmapData.getPixel32(c, r);
-					} while(pos != MapBitmap.WALL && r < portalRoom.y + portalRoom.height * 2);
-					r--;
-					if(goodPortalPosition(c, r, random.value() < 0.3)) candidates.push(new Pixel(c, r));
+				for(i = 0; i < portalRoom.surfaces.length; i++){
+					surface = portalRoom.surfaces[i];
+					if(goodPortalPosition(surface.x, surface.y, random.value() < 0.2)){
+						candidates.push(surface);
+					}
 				}
 				if(candidates.length){
 					choice = candidates[random.rangeInt(candidates.length)];
@@ -495,15 +494,18 @@
 			} else {
 				setPortal(choice.x, choice.y, xml);
 			}
+			
+			Surface.removeSurface(choice.x, choice.y);
+			
 		}
 		
 		// room sorting callbacks
-		private function sortRoomsTopWards(a:Room, b:Room):Number{
+		public static function sortRoomsTopWards(a:Room, b:Room):Number{
 			if(a.y < b.y) return -1;
 			else if(a.y > b.y) return 1;
 			return 0;
 		}
-		private function sortRoomsBottomWards(a:Room, b:Room):Number{
+		public static function sortRoomsBottomWards(a:Room, b:Room):Number{
 			if(a.y > b.y) return -1;
 			else if(a.y < b.y) return 1;
 			return 0;
@@ -513,14 +515,20 @@
 		public function setStairsUp(x:int, y:int):void{
 			layers[ENTITIES][y][x] = MapTileConverter.STAIRS_UP;
 			stairsUp = new Pixel(x, y);
-			if(isPortalToPreviousLevel(x, y, Portal.STAIRS, level - 1)) start = stairsUp;
+			if(isPortalToPreviousLevel(x, y, Portal.STAIRS, level - 1)){
+				start = stairsUp;
+				if(Surface.map[y][x] && Surface.map[y][x].room) Surface.map[y][x].room.start = true;
+			}
 		}
 		
 		/* Creates a stairway down */
 		public function setStairsDown(x:int, y:int):void{
 			layers[ENTITIES][y][x] = MapTileConverter.STAIRS_DOWN;
 			stairsDown = new Pixel(x, y);
-			if(isPortalToPreviousLevel(x, y, Portal.STAIRS, level + 1)) start = stairsDown;
+			if(isPortalToPreviousLevel(x, y, Portal.STAIRS, level + 1)){
+				start = stairsDown;
+				if(Surface.map[y][x] && Surface.map[y][x].room) Surface.map[y][x].room.start = true;
+			}
 		}
 		
 		/* Creates a portal */
@@ -534,7 +542,10 @@
 				}
 			}
 			layers[ENTITIES][y][x] = portal;
-			if(isPortalToPreviousLevel(x, y, int(xml.@type), int(xml.@targetLevel))) start = p;
+			if(isPortalToPreviousLevel(x, y, int(xml.@type), int(xml.@targetLevel))){
+				start = p;
+				if(Surface.map[y][x] && Surface.map[y][x].room) Surface.map[y][x].room.start = true;
+			}
 			portals.push(p);
 		}
 		
@@ -780,7 +791,7 @@
 		}
 		
 		/* This adds traps other than pit traps to the level */
-		public function createOtherTraps():void{
+		public function createOtherTraps(pixels:Vector.<uint>):void{
 			
 			// the compiler won't let me create this as a constant so I have to drop it in here
 			// better than resorting to magic numbers I suppose
@@ -796,30 +807,29 @@
 			if(totalTraps == 0) return;
 			
 			var dartPos:Pixel;
-			var trapPositions:Vector.<Pixel> = new Vector.<Pixel>();
-			var pixels:Vector.<uint> = bitmap.bitmapData.getVector(bitmap.bitmapData.rect);
+			var trapPositions:Vector.<Surface> = new Vector.<Surface>();
+			var surface:Surface;
 			var mapWidth:int = bitmap.bitmapData.width;
-			var r:int, c:int;
-			for(i = mapWidth; i < pixels.length - mapWidth; i++){
-				if((pixels[i] == MapBitmap.WALL) && (pixels[i - mapWidth] == MapBitmap.EMPTY || pixels[i - mapWidth] == MapBitmap.LEDGE)){
-					// check there isn't an entity already here such as a gate
-					c = i % width;
-					r = i / width;
-					if(layers[ENTITIES][r][c]) continue;
-					for(j = i - mapWidth; j > mapWidth; j -= mapWidth){
+			var n:int;
+			
+			for(i = 0; i < Surface.surfaces.length; i++){
+				surface = Surface.surfaces[i];
+				if(surface.properties == (Collider.SOLID | Collider.WALL)){
+					if(layers[ENTITIES][surface.y][surface.x]) continue;
+					for(j = surface.x + surface.y * mapWidth; j > mapWidth; j -= mapWidth){
 						// no combining ladders or pit traps with dart traps
 						// it confuses the trap and it's unfair to have to climb a ladder into a dart
 						if(pixels[j] == MapBitmap.LADDER || pixels[j] == MapBitmap.LADDER_LEDGE || pixels[j] == MapBitmap.PIT){
 							break;
 						} else if(pixels[j] == MapBitmap.WALL){
-							trapPositions.push(new Pixel(i % mapWidth, i / mapWidth));
+							trapPositions.push(surface);
 							break;
 						}
 					}
 				}
 			}
 			
-			var trapIndex:int, trapPos:Pixel, trapType:int, sprite:Sprite, trap:Trap;
+			var trapIndex:int, trapPos:Surface, trapType:int, sprite:Sprite, trap:Trap;
 			
 			while(totalTraps > 0 && trapPositions.length > 0){
 				trapIndex = random.range(trapPositions.length);
@@ -827,22 +837,23 @@
 				trapType = ZONE_TRAPS[zone][random.rangeInt(ZONE_TRAPS[zone].length)];
 				sprite = new Sprite();
 				sprite.x = trapPos.x * Game.SCALE;
-				sprite.y = trapPos.y * Game.SCALE;
+				sprite.y = (trapPos.y + 1) * Game.SCALE;
 				if(trapType != Trap.MONSTER_PORTAL){
 					// get dart gun position
 					dartPos = trapPos.copy();
-					do{
+					while(pixels[dartPos.x + dartPos.y * width] != MapBitmap.WALL){
 						dartPos.y--;
-					} while(pixels[dartPos.x + dartPos.y * width] != MapBitmap.WALL);
+					}
 				} else {
 					dartPos = null;
 				}
-				trap = new Trap(sprite, trapPos.x, trapPos.y, trapType, dartPos);
+				trap = new Trap(sprite, trapPos.x, trapPos.y + 1, trapType, dartPos);
 				trap.mapX = trapPos.x;
-				trap.mapY = trapPos.y;
+				trap.mapY = trapPos.y + 1;
 				trap.mapZ = MapTileManager.ENTITY_LAYER;
-				layers[ENTITIES][trapPos.y][trapPos.x] = trap;
+				layers[ENTITIES][trapPos.y + 1][trapPos.x] = trap;
 				trapPositions.splice(trapIndex, 1);
+				Surface.removeSurface(trapPos.x, trapPos.y);
 				totalTraps--;
 			}
 		}

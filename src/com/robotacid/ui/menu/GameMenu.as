@@ -477,6 +477,7 @@
 		override public function executeSelection():void {
 			var option:MenuOption = currentMenuList.options[selection];
 			var item:Item, n:int, i:int, effect:Effect, prevItem:Item, character:Character, throwing:Boolean;
+			var health:Number;
 			
 			// equipping items on the player - toggle logic follows
 			if(
@@ -549,7 +550,11 @@
 				game.console.print("rogue eats " + item.nameToString());
 				
 				if(item.type == Item.HEART){
-					game.player.applyHealth((Character.stats["healths"][item.name] + Character.stats["health levels"][item.name] * game.player.level) * Item.HEALTH_PER_HEART);
+					health = Character.stats["healths"][item.name] + Character.stats["health levels"][item.name] * game.player.level;
+					if(item.name == Character.KOBOLD) health += Character.stats["health levels"][item.name] * game.player.level * game.random.value();
+					health *= Item.HEALTH_PER_HEART;
+					game.player.applyHealth(health);
+					
 				} else if(item.type == Item.RUNE){
 					effect = new Effect(item.name, 20, Effect.EATEN, game.player);
 				}
@@ -562,7 +567,11 @@
 				game.console.print("minion eats " + item.nameToString());
 				
 				if(item.type == Item.HEART){
-					game.minion.applyHealth((Character.stats["healths"][item.name] + Character.stats["health levels"][item.name] * game.minion.level) * Item.HEALTH_PER_HEART);
+					health = Character.stats["healths"][item.name] + Character.stats["health levels"][item.name] * game.minion.level;
+					if(item.name == Character.KOBOLD) health += Character.stats["health levels"][item.name] * game.minion.level * game.random.value();
+					health *= Item.HEALTH_PER_HEART;
+					game.minion.applyHealth(health);
+					
 				} else if(item.type == Item.RUNE){
 					effect = new Effect(item.name, 20, Effect.EATEN, game.minion);
 				}

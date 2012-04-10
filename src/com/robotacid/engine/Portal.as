@@ -194,6 +194,7 @@
 		/* Creates the type of monster that will pour out of the portal */
 		public function setMonsterTemplate(xml:XML):void{
 			monsterTemplate = xml;
+			monsterTemplate.@characterNum = -1;
 			// strip the monster of items - this is not an item farming spell
 			delete monsterTemplate.item;
 			monsterTotal = 1 + game.map.zone;
