@@ -1,4 +1,4 @@
-Change log: reduced trap quantities on later levels, reduced monster quantity on later levels, kobold hearts now give random extra health at higher levels, monsters and chests now distributed to rooms only, traps distributed according to new surface map system
+Change log: rebuilt xp system as distributed across a level's monsters with percentages of amount needed per level for other entities, monster levels set to current level - 2 or -3, clause put in Effect.teleportCharacter to work around tiny levels contradicting minimum teleport distance
 
 Bug hunt
 	can crash graph renderer by changing level

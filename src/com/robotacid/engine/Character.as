@@ -256,7 +256,6 @@
 			attackSpeed = stats["attack speeds"][name] + stats["attack speed levels"][name] * level;
 			damage = stats["damages"][name] + stats["damage levels"][name] * level;
 			speed = stats["speeds"][name] + stats["speed levels"][name] * level;
-			xpReward = stats["xp rewards"][name] + stats["xp reward levels"][name] * level;
 			stun = stats["stuns"][name];
 			knockback = stats["knockbacks"][name] * KNOCKBACK_DIST;
 			endurance = stats["endurances"][name];
@@ -268,6 +267,9 @@
 			speedModifier = 1;
 			attackSpeedModifier = 1;
 			protectionModifier = 1;
+			
+			// this is calculated by the Content class or the object generating the monster
+			xpReward = 0;
 			
 			// racial modifications
 			if(name == SKELETON){

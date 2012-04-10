@@ -2,6 +2,7 @@
 	
 	import com.robotacid.ai.Brain;
 	import com.robotacid.ai.PlayerBrain;
+	import com.robotacid.level.Content;
 	import com.robotacid.level.Map;
 	import com.robotacid.engine.Effect;
 	import com.robotacid.engine.Item;
@@ -73,12 +74,6 @@
 		public static const RIGHT:int = 2;
 		public static const DOWN:int = 4;
 		public static const LEFT:int = 8;
-		
-		public static const XP_LEVELS:Array = [
-			0, 10, 20, 40, 80, 160, 320, 640, 1280, 2560,
-			5120, 10240, 20480, 40960, 81920, 163840, 327680, 655360, 1310720, 2621440,
-			int.MAX_VALUE
-		];
 		
 		public static const DEFAULT_LIGHT_RADIUS:int = 5;
 		public static const SEARCH_DELAY:int = 2;
@@ -542,12 +537,12 @@
 			if(level >= Game.MAX_LEVEL) return;
 			
 			// level up check
-			while(level < Game.MAX_LEVEL && xp + n > XP_LEVELS[level]){
+			while(level < Game.MAX_LEVEL && xp + n > Content.xpTable[level]){
 				levelUp();
 			}
 			if(level < Game.MAX_LEVEL){
 				xp += n;
-				game.playerXpBar.setValue(xp - XP_LEVELS[level - 1], XP_LEVELS[level] - XP_LEVELS[level - 1]);
+				game.playerXpBar.setValue(xp - Content.xpTable[level - 1], Content.xpTable[level] - Content.xpTable[level - 1]);
 			} else {
 				game.playerXpBar.barCol = Game.DISABLED_BAR_COL;
 				game.playerXpBar.setValue(1, 1);

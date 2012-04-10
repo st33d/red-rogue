@@ -45,7 +45,8 @@ package com.robotacid.ui.menu {
 											character &&
 											!character.questVictim &&
 											character.brain &&
-											character.brain.allegiance != Brain.PLAYER
+											character.brain.allegiance != Brain.PLAYER &&
+											character.characterNum != -1
 										) targets.push(character);
 									}
 								}
@@ -55,7 +56,8 @@ package com.robotacid.ui.menu {
 									character &&
 									!character.questVictim &&
 									character.brain &&
-									character.brain.allegiance != Brain.PLAYER
+									character.brain.allegiance != Brain.PLAYER &&
+									character.characterNum != -1
 								) targets.push(character);
 							}
 						}
@@ -69,7 +71,8 @@ package com.robotacid.ui.menu {
 							character &&
 							!character.questVictim &&
 							character.brain &&
-							character.brain.allegiance != Brain.PLAYER
+							character.brain.allegiance != Brain.PLAYER &&
+							character.characterNum != -1
 						) targets.push(character);
 					}
 				}

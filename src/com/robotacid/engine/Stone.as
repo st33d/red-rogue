@@ -1,5 +1,6 @@
 ﻿package com.robotacid.engine {
 	import com.robotacid.ai.Brain;
+	import com.robotacid.level.Content;
 	import com.robotacid.level.Map;
 	import com.robotacid.engine.Character;
 	import com.robotacid.gfx.Renderer;
@@ -32,8 +33,8 @@
 		public static const GRIND:int = 2;
 		public static const DEATH:int = 3;
 		
-		public static const SECRET_XP_REWARD:Number = 2;
-		public static const GRIND_XP_REWARD:Number = 0.1;
+		public static const SECRET_XP_REWARD:Number = 1 / 30;
+		public static const GRIND_XP_RATE:Number = 0.005;
 		public static const DEATH_HITS:int = 3;
 		
 		public static const HEAL_STONE_HIT_SOUNDS:Array = ["healStoneHit1", "healStoneHit2", "healStoneHit3", "healStoneHit4"];
@@ -115,7 +116,7 @@
 				game.soundQueue.addRandom("healStone", HEAL_STONE_HIT_SOUNDS);
 				
 			} else if(name == GRIND){
-				game.player.addXP(GRIND_XP_REWARD);
+				game.player.addXP((Content.xpTable[game.player.level] - Content.xpTable[game.player.level - 1]) * GRIND_XP_RATE);
 				var frame:int = 1 + (mc.currentFrame  % mc.totalFrames);
 				mc.gotoAndStop(frame);
 				game.soundQueue.addRandom("grindStone", HIT_SOUNDS[Renderer.STONE]);
@@ -139,7 +140,7 @@
 			game.console.print("secret revealed");
 			renderer.shake(0, 3);
 			game.soundQueue.addRandom("stoneDeath", DEATH_SOUNDS);
-			game.player.addXP(SECRET_XP_REWARD * game.map.level);
+			game.player.addXP(SECRET_XP_REWARD * Content.getLevelXp(game.map.level));
 			game.world.removeMapPosition(mapX, mapY);
 			game.mapTileManager.removeTile(this, mapX, mapY, mapZ);
 			renderer.blockBitmapData.fillRect(new Rectangle(mapX * SCALE, mapY * SCALE, SCALE, SCALE), 0x00000000);

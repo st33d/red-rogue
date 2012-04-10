@@ -29,6 +29,8 @@
 		public static const GNOLL_SCAVENGER_RATE:Number = 1.0 / 20;
 		public static const MIMIC_RATE:Number = 1.0 / 20;
 		public static const TRANSFORM_DELAY:int = 9;
+		public static const MIMIC_XP_REWARD:Number = 1 / 30;
+		public static const MIMIC_TEMPLATE_XML:XML = <character characterNum={-1} name={Character.MIMIC} type={Character.MONSTER} />;;
 		
 		// mimic states
 		public static const NONE:int = 0;
@@ -125,14 +127,16 @@
 		
 		/* Replaces this Entity with a Monster */
 		public function createMimic():void{
-			var monsterTemplate:XML =<character characterNum={-1} name={Character.MIMIC} type={Character.MONSTER} level={game.map.level} />;
+			var xml:XML = MIMIC_TEMPLATE_XML.copy();
+			xml.@level = game.map.level;
 			for(var i:int = 0; i < contents.length; i++){
-				monsterTemplate.appendChild(contents[i].toXML());
+				xml.appendChild(contents[i].toXML());
 			}
 			var n:int = game.items.indexOf(this);
 			if(n > -1) game.items.splice(n, 1);
 			game.mapTileManager.removeTile(this, mapX, mapY, mapZ);
-			var monster:Monster = Content.XMLToEntity(mapX, mapY, monsterTemplate);
+			var monster:Monster = Content.XMLToEntity(mapX, mapY, xml);
+			monster.xpReward = MIMIC_XP_REWARD * Content.getLevelXp(game.map.level);
 			game.mapTileManager.converter.convertIndicesToObjects(mapX, mapY, monster);
 		}
 		

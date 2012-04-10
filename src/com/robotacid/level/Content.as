@@ -40,7 +40,9 @@
 		public var secretsByLevel:Vector.<int>;
 		public var questGemsByLevel:Vector.<int>
 		public var seedsByLevel:Vector.<uint>;
-		public var xpByLevel:Vector.<Number>;
+		public var monsterXpByLevel:Vector.<Number>;
+		
+		public static var xpTable:Vector.<Number>;
 		
 		public var itemDungeonContent:Object;
 		public var areaContent:Array;
@@ -54,10 +56,26 @@
 		
 		public static const CURSED_CHANCE:Number = 0.05;
 		public static const BLESSED_CHANCE:Number = 0.95;
+		public static const XP_TABLE_SEED:Number = 10;
+		public static const XP_RATE:Number = 2;
+		public static const MONSTER_XP_BY_LEVEL_RATE:Number = 1.2;
 		
 		public function Content() {
 			var obj:Object;
 			var level:int;
+			
+			// initialise the xp table
+			xpTable = Vector.<Number>([0]);
+			monsterXpByLevel = Vector.<Number>([0]);
+			var xp:Number = XP_TABLE_SEED;
+			for(level = 1; level <= Game.MAX_LEVEL; level++, xp *= XP_RATE){
+				xpTable.push(xp);
+				monsterXpByLevel.push(getLevelXp(level) * MONSTER_XP_BY_LEVEL_RATE);
+			}
+			//trace("xp table", xpTable.length, xpTable);
+			//trace("monster xp by level", monsterXpByLevel.length, monsterXpByLevel);
+			
+			// initialise content lists
 			Character.characterNumCount = 1;
 			chestsByLevel = new Vector.<Vector.<XML>>(TOTAL_LEVELS + 1);
 			monstersByLevel = new Vector.<Vector.<XML>>(TOTAL_LEVELS + 1);
@@ -222,6 +240,8 @@
 			itemDungeonContent.secrets = 2;
 			itemDungeonContent.traps = trapQuantityPerLevel(level);
 			itemDungeonContent.seed = Math.random() * uint.MAX_VALUE;
+			itemDungeonContent.questGems = 0;
+			itemDungeonContent.monsterXp = getLevelXp(level);
 		}
 		
 		/* Retargets the underworld portal */
@@ -248,6 +268,7 @@
 			var r:int, c:int;
 			var i:int, j:int, n:int;
 			var chest:Chest;
+			var monster:Monster;
 			var item:Item;
 			var list:Array;
 			var minX:int, maxX:int;
@@ -258,27 +279,42 @@
 			var room:Room;
 			var surface:Surface;
 			var name:int;
+			var monsterXp:Number;
+			var monsterXpSplit:Number;
 			
 			if(mapType == Map.MAIN_DUNGEON){
 				if(mapLevel < monstersByLevel.length){
 					monsters = monstersByLevel[mapLevel];
 					chests = chestsByLevel[mapLevel];
 					questGems = questGemsByLevel[mapLevel];
+					monsterXp = monsterXpByLevel[mapLevel];
 					questGemsByLevel[mapLevel] = 0;
+					monsterXpByLevel[mapLevel] = 0;
 				} else {
 					var obj:Object = getLevelContent(mapLevel);
 					monsters = monstersByLevel[mapLevel] = obj.monsters;
 					chests = chestsByLevel[mapLevel] = obj.chests;
 					questGemsByLevel[mapLevel] = 0;
+					monsterXpByLevel[mapLevel] = 0;
+					monsterXp = 0;
+					questGems = 0;
 				}
 			} else if(mapType == Map.ITEM_DUNGEON){
 				monsters = itemDungeonContent.monsters;
 				chests = itemDungeonContent.chests;
+				questGems = itemDungeonContent.questGems;
+				monsterXp = itemDungeonContent.monsterXp;
+				itemDungeonContent.questGems = 0;
+				itemDungeonContent.monsterXp = 0;
 			}
 			
 			// distribute
 			
 			if(mapType != Map.AREA){
+				
+				// get monster xp split (there are level 0 monsters, so we add an extra level to divide by)
+				if(monsterXp || monsters.length) monsterXpSplit = monsterXp / monsters.length;
+				else monsterXpSplit = 0;
 				
 				var roomList:Vector.<Room> = bitmap.rooms.slice();
 				// remove the start room
@@ -309,7 +345,7 @@
 					}
 				}
 				
-				// sort monsters by racial group
+				// sort monsters by racial group - packs of similar monsters look good
 				var groups:Object = {};
 				var group:String;
 				for(i = 0; i < monsters.length; i++){
@@ -318,12 +354,19 @@
 					if(!groups[group]) groups[group] = [monsters[i]];
 					else groups[group].push(monsters[i]);
 				}
+				
 				// get the mean quantity of monsters per room
 				var mean:Number = monsters.length / roomList.length;
-				trace("mean", mean);
-				trace("total", monsters.length);
+				//trace("mean", mean);
+				//trace("total", monsters.length);
+				
+				// tracking current room
 				i = 0;
+				// tracking monsters deployed (debugging)
 				j = 0;
+				
+				
+				var temp:Number = 0;
 				
 				var monsterGroup:Array;
 				for(group in groups){
@@ -338,7 +381,9 @@
 							while(n-- > 0 && room.surfaces.length){
 								j++;
 								surface = room.surfaces[random.rangeInt(room.surfaces.length)];
-								layers[Map.ENTITIES][surface.y][surface.x] = XMLToEntity(surface.x, surface.y, monsterGroup.pop());
+								monster = XMLToEntity(surface.x, surface.y, monsterGroup.pop());
+								monster.xpReward = monsterXpSplit;
+								layers[Map.ENTITIES][surface.y][surface.x] = monster;
 								Surface.removeSurface(surface.x, surface.y);
 							}
 							i++;
@@ -351,19 +396,9 @@
 						}
 					}
 				}
-				trace("deployed", j);
+				//trace("deployed", j);
 				monsters.length = 0;
 				
-				// just going to go for a random drop for now.
-				// I intend to figure out a distribution pattern later
-				//while(monsters.length){
-					//r = 1 + random.range(bitmap.height - 1);
-					//c = 1 + random.range(bitmap.width - 1);
-					//if(!layers[Map.ENTITIES][r][c] && layers[Map.BLOCKS][r][c] != MapTileConverter.WALL && (bitmap.bitmapData.getPixel32(c, r + 1) == MapBitmap.LEDGE || layers[Map.BLOCKS][r + 1][c] == MapTileConverter.WALL)){
-						//trace(monstersByLevel[level][0].toXMLString());
-						//layers[Map.ENTITIES][r][c] = XMLToEntity(c, r, monsters.shift());
-					//}
-				//}
 				if(questGems) dropQuestGems(questGems, layers, bitmap);
 				
 			} else {
@@ -587,6 +622,9 @@
 						}
 					}
 				}
+				// recycle xp
+				if(mapType == Map.MAIN_DUNGEON) monsterXpByLevel[level] += (entity as Monster).xpReward;
+				else if(mapType == Map.ITEM_DUNGEON) itemDungeonContent.monsterXp += (entity as Monster).xpReward;
 				// do not recycle generated monsters
 				if((entity as Monster).characterNum > -1) monsters.push(entity.toXML());
 				
@@ -643,10 +681,10 @@
 		 * Currently set up for just Monsters */
 		public static function createCharacterXML(dungeonLevel:int, characterType:int):XML{
 			var name:int;
-			var level:int = -1 + Map.random.range(dungeonLevel);
+			var level:int = dungeonLevel - (2 + Map.random.rangeInt(2));
 			if(characterType == Character.MONSTER){
-				var range:int = dungeonLevel + 2;
-				if(dungeonLevel > Game.MAX_LEVEL) range = Game.MAX_LEVEL + 2;
+				var range:int = dungeonLevel + 1;
+				if(dungeonLevel > Game.MAX_LEVEL) range = Game.MAX_LEVEL + 1;
 				while(name < 1 || name > dungeonLevel || name >= Game.MAX_LEVEL){
 					name = Map.random.range(range);
 					if(name > dungeonLevel) name = dungeonLevel;
@@ -831,6 +869,11 @@
 			obj.mapZ = Map.ENTITIES;
 			
 			return obj;
+		}
+		
+		public static function getLevelXp(level:int):Number{
+			if(level > Game.MAX_LEVEL) level = Game.MAX_LEVEL;
+			return xpTable[level] - xpTable[level - 1];
 		}
 		
 	}

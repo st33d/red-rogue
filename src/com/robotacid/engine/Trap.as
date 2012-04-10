@@ -30,6 +30,7 @@
 		public var revealed:Boolean;
 		public var dartGun:Point;
 		public var count:int;
+		public var xpReward:Number;
 		
 		public var disarmingRect:Rectangle;
 		public var disarmingContact:Boolean;
@@ -46,8 +47,7 @@
 		public static const FEAR_DART:int = 6;
 		
 		public static const PIT_COVER_DELAY:int = 7;
-		
-		public static const DISARMING_XP_REWARD:Number = 1;
+		public static const DISARM_XP_REWARD:Number = 1 / 30;
 		
 		public function Trap(gfx:DisplayObject, mapX:int, mapY:int, type:int, dartPos:Pixel = null) {
 			super(gfx, false, false);
@@ -66,6 +66,7 @@
 			contact = false;
 			disarmingContact = false;
 			addToEntities = true;
+			xpReward = 0;
 		}
 		
 		override public function main():void {
@@ -207,7 +208,7 @@
 				minimapFX.active = false;
 				minimapFX = null;
 			}
-			game.player.addXP(DISARMING_XP_REWARD * game.map.level);
+			game.player.addXP(DISARM_XP_REWARD * Content.getLevelXp(game.map.level));
 			game.content.removeTrap(game.map.level, game.map.type);
 			if(--game.map.completionCount == 0) game.levelCompleteMsg();
 		}

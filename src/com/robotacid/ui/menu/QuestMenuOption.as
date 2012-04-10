@@ -1,5 +1,6 @@
 package com.robotacid.ui.menu {
 	import com.robotacid.engine.Character;
+	import com.robotacid.level.Content;
 	/**
 	 * Describes a quest the player is currently undertaking
 	 * 
@@ -17,6 +18,8 @@ package com.robotacid.ui.menu {
 		public var num:int;
 		public var xpReward:Number;
 		
+		public static const XP_REWARD:Number = 1 / 30;
+		
 		public static const COLLECT:int = 0;
 		public static const KILL:int = 1;
 		public static const MACGUFFIN:int = 2;
@@ -26,7 +29,7 @@ package com.robotacid.ui.menu {
 			if(type == COLLECT){
 				num = 3 + game.random.rangeInt(3);
 				name = "collect " + num + " gems";
-				xpReward = num * game.map.level;
+				xpReward = Content.getLevelXp(game.map.level) * XP_REWARD;
 				
 			} else if(type == KILL){
 				name = "kill " + subject.nameToString();
@@ -35,7 +38,7 @@ package com.robotacid.ui.menu {
 				xpReward = subject.xpReward;
 				
 			} else if(type == MACGUFFIN){
-				name = "get yendor to the overworld";
+				name = "get yendor";
 				xpReward = 0;
 			}
 			super(name, null, false);

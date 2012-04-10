@@ -58,7 +58,8 @@ package com.robotacid.engine {
 		
 		public static const GOLEM_CHANCE:Number = 1.0 / 20;
 		public static const GOLEM_TEMPLATE_XML:XML =<character name={Character.GOLEM} type={Character.MONSTER} characterNum={-1} />;
-		public static const CHAOS_EXPLODE_CHANCE:Number = 1.0 / 5;
+		public static const GOLEM_XP_REWARD:Number = 1 / 30;
+		public static const CHAOS_CRUMBLE_CHANCE:Number = 1.0 / 5;
 		
 		public function ChaosWall(mapX:int, mapY:int) {
 			super(new Sprite(), false);
@@ -105,7 +106,7 @@ package com.robotacid.engine {
 					(game.map.type == Map.AREA || game.lightMap.darkImage.getPixel32(mapX, mapY) != 0xFF000000)
 				){
 					// in later zones chaos walls simply crumble, and possibly spawn golems
-					if(game.map.zone == Map.CAVES || (game.map.zone == Map.CHAOS && game.random.value() < CHAOS_EXPLODE_CHANCE)){
+					if(game.map.zone == Map.CAVES || (game.map.zone == Map.CHAOS && game.random.value() < CHAOS_CRUMBLE_CHANCE)){
 						crumble();
 					} else {
 						ready();
@@ -218,6 +219,7 @@ package com.robotacid.engine {
 				var xml:XML = GOLEM_TEMPLATE_XML.copy();
 				xml.@level = game.map.level;
 				var monster:Monster = Content.XMLToEntity(mapX, mapY, xml);
+				monster.xpReward = GOLEM_XP_REWARD * Content.getLevelXp(game.map.level);
 				game.mapTileManager.converter.convertIndicesToObjects(mapX, mapY, monster);
 			}
 			kill();

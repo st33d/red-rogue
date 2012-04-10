@@ -1,6 +1,7 @@
 ﻿package com.robotacid.engine {
 	import com.robotacid.ai.Brain;
 	import com.robotacid.ai.PlayerBrain;
+	import com.robotacid.level.Content;
 	import com.robotacid.level.Map;
 	import com.robotacid.geom.Pixel;
 	import com.robotacid.gfx.ItemMovieClip;
@@ -607,7 +608,7 @@
 			} else if(name == XP){
 				// all characters except the player will get a level up, the player gets xp to their next level
 				if(target is Player){
-					(target as Player).addXP(1 + (Player.XP_LEVELS[(target as Player).level] - (target as Player).xp));
+					(target as Player).addXP(1 + (Content.xpTable[(target as Player).level] - (target as Player).xp));
 				} else {
 					target.levelUp();
 				}
@@ -877,9 +878,15 @@
 		/* Get a random location on the map to teleport to - aims for somewhere not too immediate */
 		public static function getTeleportTarget(startX:int, startY:int, map:Vector.<Vector.<int>>, mapRect:Rectangle):Pixel{
 			var finish:Pixel = new Pixel(startX, startY);
-			while((Math.abs(startX - finish.x) < MIN_TELEPORT_DIST && Math.abs(startY - finish.y) < MIN_TELEPORT_DIST) || (map[finish.y][finish.x] & Collider.WALL) || !mapRect.contains((finish.x + 0.5) * Game.SCALE, (finish.y + 0.5) * Game.SCALE)){
+			var minTeleportDist:int = MIN_TELEPORT_DIST;
+			var minDistImpossible:int = 500;
+			while((Math.abs(startX - finish.x) < minTeleportDist && Math.abs(startY - finish.y) < minTeleportDist) || (map[finish.y][finish.x] & Collider.WALL) || !mapRect.contains((finish.x + 0.5) * Game.SCALE, (finish.y + 0.5) * Game.SCALE)){
 				finish.x = game.random.range(map[0].length);
 				finish.y = game.random.range(map.length);
+				if(minDistImpossible-- <= 0){
+					minDistImpossible = 500;
+					minTeleportDist--;
+				}
 			}
 			return finish;
 		}
