@@ -1,6 +1,7 @@
 package com.robotacid.level {
 	import com.robotacid.geom.Pixel;
 	import com.robotacid.phys.Collider;
+	import flash.display.BitmapData;
 	import flash.display.Graphics;
 	
 	/**
@@ -14,6 +15,8 @@ package com.robotacid.level {
 		
 		public static var map:Vector.<Vector.<Surface>>;
 		public static var surfaces:Vector.<Surface>;
+		public static var fragmentationMap:BitmapData;
+		public static var entranceCol:uint;
 		
 		public var properties:int;
 		public var room:Room;
@@ -35,6 +38,8 @@ package com.robotacid.level {
 				}
 			}
 			surfaces = new Vector.<Surface>();
+			fragmentationMap = null;
+			entranceCol = 0x0;
 		}
 		
 		public static function removeSurface(x:int, y:int):void{

@@ -51,6 +51,7 @@
 		public var disarmableTraps:Vector.<Trap>;
 		public var cameraDisplacement:Point;
 		public var camera:CanvasCamera;
+		public var keyItem:Boolean;
 		
 		public var canMenuAction:Boolean;
 		public var searchRadius:int;
@@ -60,6 +61,7 @@
 		private var searchRevealCount:int;
 		
 		private var exitKeyPressReady:Boolean;
+		private var keyWarning:Boolean;
 		
 		private var i:int, j:int;
 		
@@ -100,6 +102,7 @@
 			callMain = false;
 			stepNoise = true;
 			exitKeyPressReady = false;
+			keyWarning = false;
 			searchRadius = -1;
 			canMenuAction = true;
 			uniqueNameStr = DEFAULT_UNIQUE_NAME_STR;
@@ -310,8 +313,9 @@
 			}
 			game.playerActionBar.setValue(attackCount, 1);
 			
-			// exiting requires a clean key press
+			// exiting and warning about keys requires a clean key press
 			exitKeyPressReady = Key.keysPressed == 0 || (game.dogmaticMode && !(dir & DOWN));
+			if(keyWarning && (Key.keysPressed == 0 || (game.dogmaticMode && !(dir & UP)))) keyWarning = false;
 			
 		}
 		
@@ -638,6 +642,24 @@
 			}
 			disarmableTraps.length = 0;
 			game.soundQueue.add("click");
+		}
+		
+		/* Set the key carrying status of the player */
+		public function setKeyItem(value:Boolean):void{
+			if(value){
+				if(keyItem){
+					if(!keyWarning){
+						game.console.print("the handbag of holding cannot carry any more magic keys");
+						keyWarning = true;
+					}
+				} else {
+					keyItem = true;
+					game.keyItemStatus.visible = true;
+				}
+			} else {
+				keyItem = false;
+				game.keyItemStatus.visible = true;
+			}
 		}
 		
 		public function toString():String{

@@ -3,6 +3,7 @@
 	import com.robotacid.level.Map;
 	import com.robotacid.engine.Entity;
 	import com.robotacid.gfx.ItemMovieClip;
+	import com.robotacid.level.Surface;
 	import com.robotacid.phys.Cast;
 	import com.robotacid.phys.Collider;
 	import com.robotacid.ui.menu.InventoryMenuList;
@@ -70,6 +71,7 @@
 		public static const RUNE:int = 2;
 		public static const HEART:int = 3;
 		public static const QUEST_GEM:int = 4;
+		public static const KEY:int = 5;
 		
 		// location
 		public static const UNASSIGNED:int = 0;
@@ -249,6 +251,9 @@
 				
 			} else if(type == QUEST_GEM){
 				nameStr = "quest gem";
+				
+			} else if(type == KEY){
+				nameStr = "quest gem";
 			}
 		}
 		
@@ -294,8 +299,13 @@
 			
 			// check for collection by player
 			if((game.player.actions & Collider.UP) && collider.intersects(game.player.collider) && !game.player.indifferent){
-				collect(game.player);
-				game.soundQueue.add("pickUp");
+				if(type == KEY && game.player.keyItem){
+					// fires a warning once if a key is already carried
+					game.player.setKeyItem(true);
+				} else {
+					collect(game.player);
+					game.soundQueue.add("pickUp");
+				}
 			}
 		}
 		
@@ -304,14 +314,18 @@
 				collider.world.removeCollider(collider);
 				active = false;
 			}
-			if(type == QUEST_GEM){
-				game.menu.loreList.questsList.questCheck(QuestMenuOption.COLLECT);
-				return;
-			}
 			location = INVENTORY;
 			if(character == game.player || character == game.minion){
-				game.menu.inventoryList.addItem(this, autoEquip > 0);
 				if(print) game.console.print(character.nameToString() + (caught ? " caught " : " picked up ") + nameToString());
+				if(type == QUEST_GEM){
+					game.menu.loreList.questsList.questCheck(QuestMenuOption.COLLECT);
+					return;
+				}
+				if(type == KEY){
+					game.player.setKeyItem(true);
+					return;
+				}
+				game.menu.inventoryList.addItem(this, autoEquip > 0);
 				if(type == WEAPON && (range & THROWN) && autoEquip){
 					if((autoEquip & Character.MINION) && game.minion && !game.minion.throwable) game.minion.equip(this, true);
 					else if((autoEquip & Character.PLAYER) && !game.player.throwable) game.player.equip(this, true);
@@ -451,6 +465,15 @@
 						if(character.type == Character.PLAYER && character.weapon){
 							game.menu.missileOption.active = Boolean(character.weapon.range & (MISSILE | THROWN));
 						}
+						// teleport the player out of locked areas
+						if(
+							character.type == Character.PLAYER &&
+							Surface.fragmentationMap &&
+							Surface.fragmentationMap.getPixel32(character.mapX, character.mapY) != Surface.entranceCol
+						){
+							Effect.teleportCharacter(character, Effect.getTeleportTarget(character.mapX, character.mapY, game.world.map, game.mapTileManager.mapRect, true));
+						}
+						
 					} else if(character.type == Character.MONSTER){
 						character.collider.ignoreProperties &= ~(Collider.PLAYER | Collider.HEAD | Collider.GATE);
 					}
@@ -492,6 +515,8 @@
 			else if(type == ARMOUR) return str + stats["armour names"][name];
 			else if(type == WEAPON) return str + stats["weapon names"][name];
 			else if(type == HEART) return Character.stats["names"][name] + " heart";
+			else if(type == QUEST_GEM) return "quest gem";
+			else if(type == KEY) return "key";
 			//if(effect) str += effect.toString();
 			return str
 		}

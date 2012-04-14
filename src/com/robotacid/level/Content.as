@@ -12,6 +12,7 @@
 	import com.robotacid.engine.Portal;
 	import com.robotacid.engine.Stone;
 	import com.robotacid.gfx.Renderer;
+	import com.robotacid.phys.Collider;
 	import com.robotacid.util.XorRandom;
 	import flash.display.DisplayObject;
 	import flash.geom.Rectangle;
@@ -338,6 +339,8 @@
 					room = roomList[random.rangeInt(roomList.length)];
 					if(room.surfaces.length){
 						surface = room.surfaces[random.rangeInt(room.surfaces.length)];
+						// seems to be really keen on putting chests on ladders - I'm not keen on this
+						if(surface.properties & Collider.LADDER) continue;
 						chest = XMLToEntity(surface.x, surface.y, chests.shift());
 						chest.mimicInit(mapType, mapLevel);
 						layers[Map.ENTITIES][surface.y][surface.x] = chest;
@@ -642,6 +645,9 @@
 						questGemsByLevel[level]++;
 					}
 				}
+				if(item.type == Item.KEY){
+					return;
+				}
 				
 				if(chests.length > 0){
 					chest = chests[chests.length - 1];
@@ -681,7 +687,7 @@
 		 * Currently set up for just Monsters */
 		public static function createCharacterXML(dungeonLevel:int, characterType:int):XML{
 			var name:int;
-			var level:int = dungeonLevel - (2 + Map.random.rangeInt(2));
+			var level:int = dungeonLevel - 3;
 			if(characterType == Character.MONSTER){
 				var range:int = dungeonLevel + 1;
 				if(dungeonLevel > Game.MAX_LEVEL) range = Game.MAX_LEVEL + 1;

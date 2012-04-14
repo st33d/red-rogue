@@ -85,7 +85,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 358;
+		public static const BUILD_NUM:int = 359;
 		
 		public static const TEST_BED_INIT:Boolean = false;
 		
@@ -127,6 +127,7 @@
 		public var minionHealthBar:ProgressBar;
 		public var enemyHealthBar:ProgressBar;
 		public var livesPanel:LivesPanel;
+		public var keyItemStatus:Sprite;
 		public var fpsText:TextBox;
 		
 		// debug
@@ -289,6 +290,12 @@
 			
 			miniMapHolder = new Sprite();
 			addChild(miniMapHolder);
+			
+			keyItemStatus = new KeyUI();
+			keyItemStatus.x = 5 + MiniMap.WIDTH + 2;
+			keyItemStatus.y = 5 + (MiniMap.HEIGHT * 0.5 - keyItemStatus.height * 0.5) >> 0;
+			addChild(keyItemStatus);
+			keyItemStatus.visible = false;
 			
 			playerHealthBar = new ProgressBar(5, console.y - 22, 27, 17, HEALTH_GLOW_RATIO, 0xAA0000);
 			playerHealthBar.barCol = 0xFFCCCCCC;

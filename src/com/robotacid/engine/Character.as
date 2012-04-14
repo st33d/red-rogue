@@ -3,6 +3,7 @@
 	import com.robotacid.level.Map;
 	import com.robotacid.gfx.ItemMovieClip;
 	import com.robotacid.gfx.Renderer;
+	import com.robotacid.level.Surface;
 	import com.robotacid.phys.Collider;
 	import com.robotacid.phys.FilterCollider;
 	import com.robotacid.sound.SoundManager;
@@ -1217,8 +1218,17 @@
 				game.world.restoreCollider(collider);
 				if(name != WRAITH) collider.resolveMapInsertion();
 				// if a character ceases to be a wraith whilst wall-walking, teleport them out
-				if(previousName == WRAITH && (game.world.map[mapY][mapX] & Collider.WALL)){
-					Effect.teleportCharacter(this, Effect.getTeleportTarget(mapX, mapY, game.world.map, game.mapTileManager.mapRect));
+				// also teleport the player out of locked areas
+				if(
+					previousName == WRAITH && (
+						(game.world.map[mapY][mapX] & Collider.WALL) ||
+						(
+							Surface.fragmentationMap &&
+							Surface.fragmentationMap.getPixel32(mapX, mapY) != Surface.entranceCol
+						)
+					)
+				){
+					Effect.teleportCharacter(this, Effect.getTeleportTarget(mapX, mapY, game.world.map, game.mapTileManager.mapRect, (this == game.player && !game.player.keyItem && Surface.fragmentationMap)));
 				}
 			}
 			

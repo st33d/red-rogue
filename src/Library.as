@@ -86,6 +86,8 @@
 				return new RuneMC;
 			} else if(type == Item.QUEST_GEM){
 				return new QuestGemMC;
+			} else if(type == Item.KEY){
+				return new KeyMC;
 			}
 			if(c == ItemMovieClip){
 				return new c(name, type, curseState);

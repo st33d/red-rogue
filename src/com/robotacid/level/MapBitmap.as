@@ -66,9 +66,10 @@
 		public static const LEDGE:uint = 0xFF00FF00;
 		public static const LADDER_LEDGE:uint = 0xFF00FFFF;
 		public static const GATE:uint = 0xFFF0F0F0;
-		
 		public static const PIT:uint = 0xFFFFFFFF;
 		public static const SECRET:uint = 0xFFCCCCCC;
+		
+		public static const CONNECTIVITY_TEST:uint = 0x99660000;
 		
 		// types
 		public static const MAIN_DUNGEON:int = Map.MAIN_DUNGEON;
@@ -154,11 +155,11 @@
 			super(bitmapData, "auto", false);
 			
 			if(type == MAIN_DUNGEON || type == ITEM_DUNGEON){
-				var connectionBitmapData:BitmapData = new BitmapData(bitmapData.width * 2, bitmapData.height * 2);
-				while(!createRoutes(connectionBitmapData)){}
+				while(!createRoutes()){}
 				createPits();
 				createSecrets();
-				createGates(connectionBitmapData);
+				createGates();
+				
 			}
 			createSurfaces();
 		}
@@ -424,7 +425,7 @@
 		 * ladders to navigate that network and be able to visit every corner of it
 		 * 
 		 * The route planner does a final check for connectivity, if this fails then route planner aborts, returning false */
-		public function createRoutes(connectionBitmapData:BitmapData):Boolean{
+		public function createRoutes():Boolean{
 			
 			// count all the cliffs that are in the level. A cliff is an L-shaped area where the
 			// character can fall off
@@ -742,11 +743,11 @@
 			
 			// It is possible for the route planning to go awry.
 			// Double check that the level has full connectivity
+			var connectionBitmapData:BitmapData = new BitmapData(bitmapData.width * 2, bitmapData.height * 2);
 			connectionBitmapData.fillRect(connectionBitmapData.rect, 0xFFFFFFFF);
 			var connectionPixels:Vector.<uint> = connectionBitmapData.getVector(connectionBitmapData.rect);
 			var connectionMapWidth:int = mapWidth * 2;
 			var floodSeed:Pixel;
-			var connectionCol:uint = 0x99660000;
 			for(i = mapWidth; i < pixels.length - mapWidth; i++){
 				if(
 					pixels[i] != WALL &&
@@ -759,16 +760,16 @@
 					c = i % mapWidth;
 					r = i / mapWidth;
 					j = c * 2 + r * 2 * connectionMapWidth;
-					connectionPixels[j + connectionMapWidth] = connectionCol;
-					connectionPixels[j + 1 + connectionMapWidth] = connectionCol;
+					connectionPixels[j + connectionMapWidth] = CONNECTIVITY_TEST;
+					connectionPixels[j + 1 + connectionMapWidth] = CONNECTIVITY_TEST;
 					if(!floodSeed) floodSeed = new Pixel(c * 2, 1 + r * 2);
 				}
 				if(pixels[i] == LADDER || pixels[i] == LADDER_LEDGE){
 					c = i % mapWidth;
 					r = i / mapWidth;
 					j = c * 2 + r * 2 * connectionMapWidth;
-					connectionPixels[j] = connectionCol;
-					connectionPixels[j + connectionMapWidth] = connectionCol;
+					connectionPixels[j] = CONNECTIVITY_TEST;
+					connectionPixels[j + connectionMapWidth] = CONNECTIVITY_TEST;
 					if(!floodSeed) floodSeed = new Pixel(c * 2, r * 2);
 				}
 			}
@@ -776,7 +777,7 @@
 			connectionBitmapData.floodFill(floodSeed.x, floodSeed.y, 0xFF000000);
 			//var connectionBitmap:Bitmap = new Bitmap(connectionBitmapData);
 			//Game.game.addChild(connectionBitmap);
-			if(connectionBitmapData.getColorBoundsRect(0xFFFFFFFF, connectionCol).width){
+			if(connectionBitmapData.getColorBoundsRect(0xFFFFFFFF, CONNECTIVITY_TEST).width){
 				trace("failed route planning");
 				return false;
 			}
@@ -978,7 +979,7 @@
 		}
 		
 		/* Create obstructions the player has to pass by force other means */
-		public function createGates(connectionBitmapData:BitmapData):void{
+		public function createGates():void{
 			gates = new Vector.<Pixel>();
 			
 			// find sites suitable for gates
@@ -991,19 +992,20 @@
 			var range:int = (height - 1) * width;
 			var width:int = bitmapData.width;
 			var height:int = bitmapData.height;
-			var min:int = 1 + adjustedMapRect.x * Game.INV_SCALE;
-			var max:int = -1 + (adjustedMapRect.x + adjustedMapRect.width) * Game.INV_SCALE;
+			var min:int = 2 + adjustedMapRect.x * Game.INV_SCALE;
+			var max:int = -2 + (adjustedMapRect.x + adjustedMapRect.width) * Game.INV_SCALE;
+			var dir:int = -1;
 			for(i = 0; i < width * 0.25; i++){
 				n = min + Map.random.range(max - min);
-				if(Map.random.coinFlip()){
-					for(; n < range; n += width){
+				if(dir == -1){
+					n += range;
+					for(; n > width; n -= width){
 						if(mapPixels[n] == EMPTY){
 							break;
 						}
 					}
-				} else {
-					n += range;
-					for(; n > width; n -= width){
+				} else if(dir == 1){
+					for(; n < range; n += width){
 						if(mapPixels[n] == EMPTY){
 							break;
 						}
@@ -1030,6 +1032,11 @@
 					
 					// prevent a gate next to this one by marking the site
 					mapPixels[n] = GATE;
+					
+					// flip direction?
+					if(dir == -1) dir = 1;
+					// more than 2 gates is boring
+					else break;
 				}
 			}
 			bitmapData.setVector(bitmapData.rect, mapPixels);

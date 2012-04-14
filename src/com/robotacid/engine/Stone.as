@@ -34,7 +34,7 @@
 		public static const DEATH:int = 3;
 		
 		public static const SECRET_XP_REWARD:Number = 1 / 30;
-		public static const GRIND_XP_RATE:Number = 0.005;
+		public static const GRIND_XP_RATE:Number = 1;
 		public static const DEATH_HITS:int = 3;
 		
 		public static const HEAL_STONE_HIT_SOUNDS:Array = ["healStoneHit1", "healStoneHit2", "healStoneHit3", "healStoneHit4"];
@@ -116,7 +116,7 @@
 				game.soundQueue.addRandom("healStone", HEAL_STONE_HIT_SOUNDS);
 				
 			} else if(name == GRIND){
-				game.player.addXP((Content.xpTable[game.player.level] - Content.xpTable[game.player.level - 1]) * GRIND_XP_RATE);
+				game.player.addXP(GRIND_XP_RATE);
 				var frame:int = 1 + (mc.currentFrame  % mc.totalFrames);
 				mc.gotoAndStop(frame);
 				game.soundQueue.addRandom("grindStone", HIT_SOUNDS[Renderer.STONE]);

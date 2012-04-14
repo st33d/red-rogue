@@ -6,6 +6,7 @@
 	import com.robotacid.geom.Pixel;
 	import com.robotacid.gfx.ItemMovieClip;
 	import com.robotacid.gfx.Renderer;
+	import com.robotacid.level.Surface;
 	import com.robotacid.phys.Collider;
 	import com.robotacid.sound.SoundManager;
 	import com.robotacid.ui.menu.InventoryMenuList;
@@ -436,7 +437,7 @@
 				// at least if it was cursed this is a good thing
 				if(user) renderer.createTeleportSparkRect(user.collider, 10);
 				item = inventoryList.removeItem(item);
-				dest = getTeleportTarget(game.player.mapX, game.player.mapY, game.world.map, game.mapTileManager.mapRect);
+				dest = getTeleportTarget(game.player.mapX, game.player.mapY, game.world.map, game.mapTileManager.mapRect, Boolean(Surface.fragmentationMap));
 				item.dropToMap(dest.x, dest.y);
 				game.soundQueue.add("teleport");
 			}
@@ -753,7 +754,11 @@
 				target.effects.push(this);
 				active = true;
 				
-				if(callMain) game.effects.push(this);
+				if(callMain){
+					// check that this effect isn't already deployed
+					// it may have been turned on and off by a setStats call
+					if(game.effects.indexOf(this) == -1) game.effects.push(this);
+				}
 			}
 		}
 		
@@ -854,7 +859,7 @@
 		public static function teleportCharacter(target:Character, dest:Pixel = null):void{
 			renderer.createTeleportSparkRect(target.collider, 20);
 			target.collider.divorce();
-			if(!dest) dest = getTeleportTarget(target.mapX, target.mapY, game.world.map, game.mapTileManager.mapRect);
+			if(!dest) dest = getTeleportTarget(target.mapX, target.mapY, game.world.map, game.mapTileManager.mapRect, (target == game.player && !game.player.keyItem && Surface.fragmentationMap));
 			target.collider.x = -target.collider.width * 0.5 + (dest.x + 0.5) * Game.SCALE;
 			target.collider.y = -target.collider.height + (dest.y + 1) * Game.SCALE;
 			if(target is Player){
@@ -875,16 +880,23 @@
 			return <effect name={name} level={level} count={count} source={source} />;
 		}
 		
-		/* Get a random location on the map to teleport to - aims for somewhere not too immediate */
-		public static function getTeleportTarget(startX:int, startY:int, map:Vector.<Vector.<int>>, mapRect:Rectangle):Pixel{
+		/* Get a random location on the map to teleport to  */
+		public static function getTeleportTarget(startX:int, startY:int, map:Vector.<Vector.<int>>, mapRect:Rectangle, fragmentationCheck:Boolean):Pixel{
 			var finish:Pixel = new Pixel(startX, startY);
 			var minTeleportDist:int = MIN_TELEPORT_DIST;
-			var minDistImpossible:int = 500;
-			while((Math.abs(startX - finish.x) < minTeleportDist && Math.abs(startY - finish.y) < minTeleportDist) || (map[finish.y][finish.x] & Collider.WALL) || !mapRect.contains((finish.x + 0.5) * Game.SCALE, (finish.y + 0.5) * Game.SCALE)){
+			var minDistImpossible:int = 100;
+			
+			while(
+				// on fragmented levels we always teleport the player to a location that is entrance-side of the break
+				(fragmentationCheck && Surface.fragmentationMap.getPixel32(finish.x, finish.y) != Surface.entranceCol) ||
+				(Math.abs(startX - finish.x) < minTeleportDist && Math.abs(startY - finish.y) < minTeleportDist) ||
+				(map[finish.y][finish.x] & Collider.WALL) ||
+				!mapRect.contains((finish.x + 0.5) * Game.SCALE, (finish.y + 0.5) * Game.SCALE)
+			){
 				finish.x = game.random.range(map[0].length);
 				finish.y = game.random.range(map.length);
 				if(minDistImpossible-- <= 0){
-					minDistImpossible = 500;
+					minDistImpossible = 100;
 					minTeleportDist--;
 				}
 			}

@@ -6,6 +6,7 @@
 	import com.robotacid.level.Map;
 	import com.robotacid.engine.Character;
 	import com.robotacid.gfx.Renderer;
+	import com.robotacid.level.Surface;
 	import com.robotacid.phys.Collider;
 	import com.robotacid.sound.SoundManager;
 	import com.robotacid.ui.MinimapFX;
@@ -52,13 +53,6 @@
 		
 		public static const HIT_SOUNDS:Array = ["stoneHit1", "stoneHit2", "stoneHit3", "stoneHit4"];
 		public static const DEATH_SOUNDS:Array = ["stoneDeath1", "stoneDeath2", "stoneDeath3", "stoneDeath4"];
-		
-		public static const GATES_BY_ZONE:Array = [
-			[RAISE],
-			[RAISE],
-			[RAISE],
-			[RAISE, CHAOS]
-		];
 		
 		public static const SPEED:Number = 2;
 		public static const RAISE_HIT_TOTAL:int = 4;
@@ -117,6 +111,11 @@
 					if(name == CHAOS){
 						holdCount = HOLD_DELAY * 2 + game.random.range(HOLD_DELAY * 2);
 					} else {
+						if(name == LOCK){
+							// Surface.fragmentationMap is no longer necessary - delete it
+							Surface.fragmentationMap = null;
+							death();
+						}
 						callMain = false;
 					}
 				}
@@ -181,21 +180,20 @@
 			
 			if(name == RAISE){
 				if(raiseHits < RAISE_HIT_TOTAL) raiseHits++;
-				if(!callMain){
-					callMain = true;
-					if(gateState == CLOSED || gateState == CLOSING || gateState == OPEN){
-						collider.vy = 0;
-						game.soundQueue.add("chaosWallReady");
-					}
-				}
-				collider.awake = Collider.AWAKE_DELAY;
-				holdCount = 0;
-				gateState = OPENING;
+				open();
 				
 			} else if(name == LOCK){
 				if(gateState == CLOSED){
 					renderer.createTeleportSparkRect(collider, 20);
-					if(aggressor == game.player) game.console.print("find a key");
+					if(aggressor == game.player){
+						if(game.player.keyItem){
+							open();
+							game.player.setKeyItem(false);
+							game.console.print("unlocked gate");
+						} else {
+							game.console.print("find a key");
+						}
+					}
 				}
 				
 			} else if(name == PRESSURE){
@@ -208,6 +206,32 @@
 				if(aggressor == game.player) game.console.print("?");
 			}
 			game.soundQueue.addRandom("gateHit", HIT_SOUNDS);
+		}
+		
+		public function open():void{
+			if(!callMain){
+				callMain = true;
+				if(gateState == CLOSED || gateState == CLOSING || gateState == OPEN){
+					collider.vy = 0;
+					game.soundQueue.add("chaosWallReady");
+				}
+			}
+			collider.awake = Collider.AWAKE_DELAY;
+			holdCount = 0;
+			gateState = OPENING;
+		}
+		
+		/* Called to remove a LOCK gate permanently */
+		override public function death(cause:String = "crushing", decapitation:Boolean = false, aggressor:Character = null):void {
+			if(!active) return;
+			active = false;
+			renderer.shake(0, 3);
+			game.mapTileManager.removeTile(this, mapX, mapY, mapZ);
+			if(minimapFeature) {
+				minimapFeature.active = false;
+				minimapFeature = null;
+			}
+			collider.world.removeCollider(collider);
 		}
 		
 		/* The break gate is the only gate that can be destroyed, so only its death is dealt with here
