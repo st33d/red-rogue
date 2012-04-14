@@ -699,6 +699,10 @@
 		
 		/* Create barriers in the dungeon */
 		public function createGates():void{
+			
+			// debug for repeating levels
+			//trace(random.seed);
+			
 			var i:int, j:int, site:Pixel, n:int, entranceCol:uint, surface:Surface, gate:Gate, item:Item;
 			var connections:BitmapData = bitmap.bitmapData.clone();
 			connections.threshold(connections, connections.rect, new Point(), "!=", MapBitmap.WALL, 0xFF000000);
@@ -706,107 +710,120 @@
 			var connectionPixels:Vector.<uint>;
 			var gateType:int;
 			var checkCol:uint;
+			var fragmentationSites:Vector.<Pixel> = new Vector.<Pixel>();
 			
-			for(i = 0; i < bitmap.gates.length; i++){
+			// scrape for fragmentation sites
+			for(i = bitmap.gates.length - 1; i > -1; i--){
 				site = bitmap.gates[i];
-				
-				if(zone == CHAOS) gateType = random.coinFlip() ? Gate.CHAOS : Gate.RAISE;
-				else gateType = Gate.RAISE;
 				
 				// nanny-condition, in a perfect world I won't have put an entity here
 				if(!layers[ENTITIES][site.y][site.x]){
 					
-					if(!fragmented){
-						// fragmentation debugging
-						//var temp:Bitmap = new Bitmap(connections);
-						//game.addChild(temp);
-							
-						// do a connectivity test to check for map fragmentation
-						connections.setPixel32(site.x, site.y, 0xFFFFFFFF);
-						connections.floodFill(site.x + 1, site.y, 0xFF0000FF);
-						connections.floodFill(site.x - 1, site.y, 0xFF00FF00);
-						//trace(random.seed);
-						
-						// fragmentation means a section of the dungeon will be hermetically
-						// sealed from all manner of access (no dropping in, no teleport)
-						if(connections.getColorBoundsRect(0xFFFFFFFF, 0xFF0000FF).width){
-							fragmented = true;
-							//connections.setPixel32(start.x, start.y, 0xFFFF00FF);
-							fragmented = true;
-							// iterate through surfaces and mark them as connected to the entrance or not
-							//trace("fragmentation", start, layers[ENTITIES][start.y][start.x]);
-							entranceCol = connections.getPixel32(start.x, start.y);
-							//trace("entranceCol", entranceCol.toString(16));
-							connectionPixels = connections.getVector(connections.rect);
-							//trace("Surface.surfaces.length", Surface.surfaces.length);
-							for(j = 0; j < Surface.surfaces.length; j++){
-								surface = Surface.surfaces[j];
-								n = surface.x + surface.y * width;
-								checkCol = connectionPixels[n];
-								//connections.getPixel32(surface.x * 2, 1 + surface.y * 2);
-								if(checkCol == entranceCol){
-									//trace("entrance side", j);
-									surface.nearEntrance = true;
-								} else {
-									//trace("non entrance side", connectionPixels[n].toString(16));
-									
-								}
-							}
-							//for(j == 0; j < connectionPixels.length; j++){
-								//if(connectionPixels[j] == 0xFFFF0000){
-									//trace("found", j, j % connectionsWidth, j / connectionsWidth);
-									//var c:int = (j % connectionsWidth) / 2;
-									//var r:int = (j / connectionsWidth) / 2;
-									//if(Surface.map[r][c]){
-										//surface = Surface.map[r][c];
-										//trace(Surface.surfaces.indexOf(surface));
-										//trace(Surface.map[r][c].nearEntrance);
-									//}
-								//}
-							//}
-							//return;
-							// create a location for the key to the gate
-							do{
-								surface = Surface.surfaces[random.rangeInt(Surface.surfaces.length)];
-							} while(!surface.nearEntrance || layers[ENTITIES][site.y][site.x]);
-							//trace("surface", surface);
-							
-							// key
-							var xml:XML =<item name={0} type={Item.KEY} level={0} />;
-							item = Content.XMLToEntity(surface.x, surface.y, xml);
-							item.dropToMap(surface.x, surface.y, false);
-							layers[Map.ENTITIES][surface.y][surface.x] = item;
-							gateType = Gate.LOCK;
-							Surface.removeSurface(surface.x, surface.y);
-							
-							// pressure pad
-							
-							// to do
-							
-							// an illustration of fragmentation needs to be saved for Effect.teleportCharacter
-							// and for wall walkers that change race inside a locked area
-							Surface.fragmentationMap = connections;
-							Surface.entranceCol = entranceCol;
-							
-							trace("fragmented level");
-							
-						} else {
-							// revert to standard connection colour
-							connections.setPixel32(site.x * 2, 1 + site.y * 2, MapBitmap.CONNECTIVITY_TEST);
-							connections.setPixel32(1 + site.x * 2, 1 + site.y * 2, MapBitmap.CONNECTIVITY_TEST);
-							connections.floodFill(2 + site.x * 2, 1 + site.y * 2, MapBitmap.CONNECTIVITY_TEST);
-						}
-						//trace(fragmented);
-					}
+					// do a connectivity test
+					connections.setPixel32(site.x, site.y, 0xFFFFFFFF);
+					connections.floodFill(site.x + 1, site.y, 0xFF0000FF);
+					connections.floodFill(site.x - 1, site.y, 0xFF00FF00);
 					
-					gate = new Gate(site.x * Game.SCALE, site.y * Game.SCALE, gateType);
-					gate.mapX = site.x;
-					gate.mapY = site.y;
-					gate.mapZ = MapTileManager.ENTITY_LAYER;
-					layers[ENTITIES][site.y][site.x] = gate;
+					// fragmentation means a section of the dungeon will be hermetically
+					// sealed from all manner of access (no dropping in, no teleport)
+					if(connections.getColorBoundsRect(0xFFFFFFFF, 0xFF0000FF).width){
+						fragmentationSites.push(site);
+						bitmap.gates.splice(i, 1);
+						
+						trace("fragmentation", site);
+					}
+					// revert to standard connection colour
+					connections.setPixel32(site.x, site.y, MapBitmap.CONNECTIVITY_TEST);
+					connections.floodFill(1 + site.x, site.y, MapBitmap.CONNECTIVITY_TEST);
+				} else {
+					bitmap.gates.splice(i, 1);
 				}
 			}
 			
+			if(fragmentationSites.length){
+				site = fragmentationSites[random.rangeInt(fragmentationSites.length)];
+				connections.setPixel32(site.x, site.y, 0xFFFFFFFF);
+				connections.floodFill(site.x + 1, site.y, 0xFF0000FF);
+				connections.floodFill(site.x - 1, site.y, 0xFF00FF00);
+				
+				// fragmentation debugging
+				//var temp:Bitmap = new Bitmap(connections);
+				//game.addChild(temp);
+				
+				// iterate through surfaces and mark them as connected to the entrance or not
+				entranceCol = connections.getPixel32(start.x, start.y);
+				connectionPixels = connections.getVector(connections.rect);
+				for(j = 0; j < Surface.surfaces.length; j++){
+					surface = Surface.surfaces[j];
+					n = surface.x + surface.y * width;
+					checkCol = connectionPixels[n];
+					if(checkCol == entranceCol){
+						surface.nearEntrance = true;
+					}
+				}
+				
+				// create a location for the key to the gate,
+				// try not to put it next to the entrance or the gate
+				var minDist:int = 10;
+				var collapseMinDist:int = 100;
+				do{
+					surface = Surface.surfaces[random.rangeInt(Surface.surfaces.length)];
+					if(collapseMinDist-- <= 0){
+						collapseMinDist = 100;
+						minDist--;
+					}
+				} while(
+					!surface.nearEntrance ||
+					layers[ENTITIES][site.y][site.x] ||
+					(
+						Math.abs(start.x - surface.x) < minDist &&
+						Math.abs(start.y - surface.y) < minDist
+					) ||
+					(
+						Math.abs(site.x - surface.x) < minDist &&
+						Math.abs(site.y - surface.y) < minDist
+					) ||
+					!bitmap.adjustedMapRect.contains((surface.x + 0.5) * Game.SCALE, (surface.y + 0.5) * Game.SCALE)
+				);
+				
+				// key
+				var xml:XML =<item name={0} type={Item.KEY} level={0} />;
+				item = Content.XMLToEntity(surface.x, surface.y, xml);
+				item.dropToMap(surface.x, surface.y, false);
+				layers[Map.ENTITIES][surface.y][surface.x] = item;
+				gateType = Gate.LOCK;
+				Surface.removeSurface(surface.x, surface.y);
+				
+				// pressure pad
+				
+				// to do
+				
+				// an illustration of fragmentation needs to be saved for Effect.teleportCharacter
+				// and for wall walkers that change race inside a locked area
+				Surface.fragmentationMap = connections;
+				Surface.entranceCol = entranceCol;
+				
+				gateType = Gate.LOCK;
+				gate = new Gate(site.x * Game.SCALE, site.y * Game.SCALE, gateType);
+				gate.mapX = site.x;
+				gate.mapY = site.y;
+				gate.mapZ = MapTileManager.ENTITY_LAYER;
+				layers[ENTITIES][site.y][site.x] = gate;
+				Surface.removeSurface(site.x, site.y);
+			}
+			
+			// pick a random normal site for a raise gate or chaos gate
+			if(bitmap.gates.length){
+				site = bitmap.gates[random.rangeInt(bitmap.gates.length)];
+				if(zone == CHAOS) gateType = random.coinFlip() ? Gate.CHAOS : Gate.RAISE;
+				else gateType = Gate.RAISE;
+				gate = new Gate(site.x * Game.SCALE, site.y * Game.SCALE, gateType);
+				gate.mapX = site.x;
+				gate.mapY = site.y;
+				gate.mapZ = MapTileManager.ENTITY_LAYER;
+				layers[ENTITIES][site.y][site.x] = gate;
+				Surface.removeSurface(site.x, site.y);
+			}
 		}
 		
 		/* Sprinkle on some chaos walls to make exploring weirder */

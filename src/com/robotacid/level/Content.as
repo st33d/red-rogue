@@ -688,6 +688,7 @@
 		public static function createCharacterXML(dungeonLevel:int, characterType:int):XML{
 			var name:int;
 			var level:int = dungeonLevel - 3;
+			if(level < -1) level = -1;
 			if(characterType == Character.MONSTER){
 				var range:int = dungeonLevel + 1;
 				if(dungeonLevel > Game.MAX_LEVEL) range = Game.MAX_LEVEL + 1;

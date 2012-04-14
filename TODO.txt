@@ -1,4 +1,4 @@
-Change log: changed monster level to be (current dungeon level - 3) - no more random, created Surface.fragmentationMap to manage levels segmented by LOCK Gates, added check to Effect.apply to ensure that an Effect isn't added to game.effects multiple times, implemented LOCK Gates
+Change log: revised gate creation code to search for all gate locations and then locate any possible fragmentation (due to rarity of fragmentation opportunities), raised minimum monster level to -1
 
 Bug hunt
 	can crash graph renderer by changing level

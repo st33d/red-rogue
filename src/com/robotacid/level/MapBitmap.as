@@ -982,83 +982,51 @@
 		public function createGates():void{
 			gates = new Vector.<Pixel>();
 			
+			// skip creating gates on level 1 - too early for new mechanics
+			if(level == 1) return;
+			
 			// find sites suitable for gates
 			
-			// agents are spawned randomly at the top and the bottom of the map
-			// they walk in until they find air and then check if the site is legal
-			// this favours gates to be identified early or late
 			var mapPixels:Vector.<uint> = bitmapData.getVector(bitmapData.rect);
-			var finders:Vector.<Pixel> = new Vector.<Pixel>();
-			var range:int = (height - 1) * width;
+			var range:int = (height - 1) * width - 1;
 			var width:int = bitmapData.width;
 			var height:int = bitmapData.height;
-			var min:int = 2 + adjustedMapRect.x * Game.INV_SCALE;
-			var max:int = -2 + (adjustedMapRect.x + adjustedMapRect.width) * Game.INV_SCALE;
-			var dir:int = -1;
-			for(i = 0; i < width * 0.25; i++){
-				n = min + Map.random.range(max - min);
-				if(dir == -1){
-					n += range;
-					for(; n > width; n -= width){
-						if(mapPixels[n] == EMPTY){
-							break;
-						}
-					}
-				} else if(dir == 1){
-					for(; n < range; n += width){
-						if(mapPixels[n] == EMPTY){
-							break;
-						}
-					}
-				}
-				// did we strike air?
-				if(n > range || n < width) continue;
-				
-				// look for surrounding pixels to confirm valid gate site
-				// we want all walls above and all walls below with nothing in between
+			var minX:int = 2 + adjustedMapRect.x * Game.INV_SCALE;
+			var maxX:int = -2 + (adjustedMapRect.x + adjustedMapRect.width) * Game.INV_SCALE;
+			var x:int;
+			var passageFound:Boolean = false;
+			var startPassage:int;
+			
+			// iterate through all pixels and find locations suitable
+			for(i = width + 1; i < range; i++){
+				x = i % width;
+				// locate a passage 
 				if(
-					mapPixels[n - (width + 1)] == WALL &&
-					mapPixels[n - (width - 1)] == WALL &&
-					mapPixels[n - width] == WALL &&
-					mapPixels[n + (width + 1)] == WALL &&
-					mapPixels[n + (width - 1)] == WALL &&
-					mapPixels[n + width] == WALL &&
-					mapPixels[n - 1] == EMPTY &&
-					mapPixels[n + 1] == EMPTY
+					x > minX && x < maxX &&
+					mapPixels[i - (width + 1)] == WALL &&
+					mapPixels[i - (width - 1)] == WALL &&
+					mapPixels[i - width] == WALL &&
+					mapPixels[i + (width + 1)] == WALL &&
+					mapPixels[i + (width - 1)] == WALL &&
+					mapPixels[i + width] == WALL &&
+					mapPixels[i - 1] == EMPTY &&
+					mapPixels[i + 1] == EMPTY
 				){
-					c = n % width;
-					r = n / width;
-					gates.push(new Pixel(c, r));
-					
-					// prevent a gate next to this one by marking the site
-					mapPixels[n] = GATE;
-					
-					// flip direction?
-					if(dir == -1) dir = 1;
-					// more than 2 gates is boring
-					else break;
+					if(!passageFound){
+						startPassage = i;
+						passageFound = true;
+					}
+				} else {
+					if(passageFound){
+						// mark a site halfway along the passage
+						c = (((((i - 1) - startPassage) * 0.5) >> 0) + startPassage) % width;
+						r = i / width;
+						gates.push(new Pixel(c, r));
+						passageFound = false;
+					}
 				}
 			}
-			bitmapData.setVector(bitmapData.rect, mapPixels);
-			// traverse map to test logic debug
-			//for(n = width + 1; n < range - 1; n++){
-				//if(
-					//mapPixels[n - (width + 1)] == WALL &&
-					//mapPixels[n - (width - 1)] == WALL &&
-					//mapPixels[n - width] == WALL &&
-					//mapPixels[n + (width + 1)] == WALL &&
-					//mapPixels[n + (width - 1)] == WALL &&
-					//mapPixels[n + width] == WALL &&
-					//mapPixels[n - 1] == EMPTY &&
-					//mapPixels[n + 1] == EMPTY &&
-					//mapPixels[n] == EMPTY
-				//){
-					//trace("+site found");
-					//c = n % width;
-					//r = n / width;
-					//gates.push(new Pixel(c, r));
-				//}
-			//}
+			
 			trace("gate total", gates.length);
 		}
 		
