@@ -4,6 +4,7 @@
 	import com.robotacid.ai.HorrorBrain;
 	import com.robotacid.ai.Node;
 	import com.robotacid.ai.PlayerBrain;
+	import com.robotacid.engine.Writing;
 	import com.robotacid.level.Content;
 	import com.robotacid.level.MapBitmap;
 	import com.robotacid.level.Map;
@@ -85,7 +86,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 360;
+		public static const BUILD_NUM:int = 361;
 		
 		public static const TEST_BED_INIT:Boolean = false;
 		
@@ -238,13 +239,13 @@
 			
 			editor = new Editor(this, renderer);
 			
-			var statsByteArray:ByteArray;
+			var byteArray:ByteArray;
 			
-			statsByteArray = new Character.statsData();
-			Character.stats = JSON.decode(statsByteArray.readUTFBytes(statsByteArray.length));
+			byteArray = new Character.statsData();
+			Character.stats = JSON.decode(byteArray.readUTFBytes(byteArray.length));
 			
-			statsByteArray = new Item.statsData();
-			Item.stats = JSON.decode(statsByteArray.readUTFBytes(statsByteArray.length));
+			byteArray = new Item.statsData();
+			Item.stats = JSON.decode(byteArray.readUTFBytes(byteArray.length));
 			
 			FPS.start();
 			
@@ -428,7 +429,9 @@
 			Brain.initCharacterLists();
 			Brain.voiceCount = Brain.VOICE_DELAY + random.range(Brain.VOICE_DELAY);
 			
+			// ALL CONTENT FOR THE RANDOM SEED GENERATED FROM THIS POINT FORWARD
 			content = new Content();
+			Writing.createStoryCharCodes(Map.random);
 			
 			// DEBUG HERE ==========================================================================================
 			map = new Map(1);
@@ -437,6 +440,7 @@
 			mapTileManager.setLayers(map.layers);
 			renderer.blockBitmapData = mapTileManager.layerToBitmapData(MapTileManager.BACKGROUND_LAYER);
 			renderer.blockBitmapData = mapTileManager.layerToBitmapData(MapTileManager.BLOCK_LAYER, renderer.blockBitmapData);
+			Writing.renderWritings();
 			world = new CollisionWorld(map.width, map.height, SCALE);
 			world.map = createPropertyMap(mapTileManager.mapLayers[MapTileManager.BLOCK_LAYER]);
 			
@@ -589,7 +593,10 @@
 			
 			mapTileManager.newMap(map.width, map.height, map.layers);
 			renderer.blockBitmapData = mapTileManager.layerToBitmapData(MapTileManager.BACKGROUND_LAYER);
-			if(map.type != Map.AREA) renderer.blockBitmapData = mapTileManager.layerToBitmapData(MapTileManager.BLOCK_LAYER, renderer.blockBitmapData);
+			if(map.type != Map.AREA){
+				renderer.blockBitmapData = mapTileManager.layerToBitmapData(MapTileManager.BLOCK_LAYER, renderer.blockBitmapData);
+				Writing.renderWritings();
+			}
 			
 			// modify the mapRect to conceal secrets
 			mapTileManager.mapRect = map.bitmap.adjustedMapRect;

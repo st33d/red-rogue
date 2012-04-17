@@ -37,11 +37,11 @@
 		public static const WAITING:int = 1;
 		public static const TRANSFORM:int = 2;
 		
-		public function Chest(mc:DisplayObject, x:Number, y:Number, items:Vector.<Item>) {
-			super(mc, false, false);
+		public function Chest(gfx:DisplayObject, x:Number, y:Number, items:Vector.<Item>) {
+			super(gfx, false, false);
 			
-			mc.x = x;
-			mc.y = y;
+			gfx.x = x;
+			gfx.y = y;
 			
 			mapX = x * INV_SCALE;
 			mapY = (y - 1) * INV_SCALE;
@@ -50,13 +50,13 @@
 			// for the sake of brevity - an open chest is an empty chest
 			if(items){
 				contents = items;
-				rect = mc.getBounds(mc);
+				rect = gfx.getBounds(gfx);
 				rect.x += x;
 				rect.y += y;
 				twinkleRect = rect.clone();
 				callMain = true;
 			}
-			(mc as MovieClip).gotoAndStop(contents ? "closed" : "open");
+			(gfx as MovieClip).gotoAndStop(contents ? "closed" : "open");
 			
 		}
 		

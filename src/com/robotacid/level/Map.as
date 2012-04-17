@@ -12,6 +12,7 @@
 	import com.robotacid.engine.Portal;
 	import com.robotacid.engine.Stone;
 	import com.robotacid.engine.Trap;
+	import com.robotacid.engine.Writing;
 	import com.robotacid.geom.Pixel;
 	import com.robotacid.gfx.BlitSprite;
 	import com.robotacid.gfx.Renderer;
@@ -359,6 +360,7 @@
 			
 			// now add some extra flavour
 			createOtherTraps(pixels);
+			createWritings(pixels);
 			createChaosWalls(pixels);
 			createCritters();
 			
@@ -823,6 +825,65 @@
 				gate.mapZ = MapTileManager.ENTITY_LAYER;
 				layers[ENTITIES][site.y][site.x] = gate;
 				Surface.removeSurface(site.x, site.y);
+			}
+		}
+		
+		/* Generate patches of readable text */
+		public function createWritings(pixels:Vector.<uint>):void{
+			
+			Writing.writings = new Vector.<Writing>();
+			
+			var i:int, n:int;
+			var surface:Surface, writing:Writing;
+			
+			var range:int = (height - 1) * width - 1;
+			var candidates:Vector.<Surface> = new Vector.<Surface>();
+			
+			for(i = 0; i < Surface.surfaces.length; i++){
+				surface = Surface.surfaces[i];
+				if(surface.properties == (Collider.SOLID | Collider.WALL)){
+					n = surface.x + surface.y * width;
+					if(
+						n > width + 1 && n < range &&
+						(pixels[n + (width + 1)] == MapBitmap.WALL || pixels[n + (width + 1)] == MapBitmap.LEDGE) &&
+						(pixels[n + width] == MapBitmap.WALL || pixels[n + width] == MapBitmap.LEDGE) &&
+						(pixels[n + (width - 1)] == MapBitmap.WALL || pixels[n + (width - 1)] == MapBitmap.LEDGE) &&
+						pixels[n] == MapBitmap.EMPTY &&
+						pixels[n - 1] == MapBitmap.EMPTY &&
+						pixels[n + 1] == MapBitmap.EMPTY
+					){
+						candidates.push(surface);
+					}	
+				}
+			}
+			trace("candidates", candidates.length);
+			if(candidates.length){
+				var index:int, text:String;
+				
+				var writings:int = 1 + random.rangeInt(bitmap.roominess * 0.5);
+				trace("writings", writings);
+				var level:int = this.level - 1;
+				if(level >= Game.MAX_LEVEL - 1) level = Game.MAX_LEVEL - 1;
+				
+				// randomise selections
+				var selection:Array = [];
+				var levelArray:Array = Writing.story[level];
+				for(i = 0; i < levelArray.length; i++){
+					selection.push(i);
+				}
+				randomiseArray(selection, random);
+				while((writings--) && selection.length && candidates.length){
+					index = selection.pop();
+					n = random.rangeInt(candidates.length);
+					surface = candidates[n];
+					candidates.splice(n, 1);
+					text = levelArray[index];
+					text = text.substr(2);
+					writing = new Writing(surface.x, surface.y, levelArray[index], level, index);
+					writing.mapZ = MapTileManager.ENTITY_LAYER;
+					layers[ENTITIES][surface.y][surface.x] = writing;
+					Surface.removeSurface(surface.x, surface.y);
+				}
 			}
 		}
 		
