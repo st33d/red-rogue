@@ -33,7 +33,6 @@ package com.robotacid.engine {
 		// names
 		public static const MESSAGE:int = 0;
 		public static const ELBERETH:int = 1;
-		public static const FEAR:int = 2;
 		
 		public static const CHAR_TOTAL:int = 5;
 		
@@ -47,7 +46,6 @@ package com.robotacid.engine {
 			this.level = level;
 			this.index = index;
 			if(text == "elbereth") name = ELBERETH;
-			else if(text == "he comes") name = FEAR;
 			rect = new Rectangle((mapX - 1) * SCALE, mapY * SCALE, SCALE * 3, SCALE);
 			super(new Sprite(), false, false);
 			gfx.visible = false;
@@ -61,10 +59,6 @@ package com.robotacid.engine {
 				if(!read && game.player.collider.intersects(rect)){
 					game.console.print("\"" + text + "\"");
 					read = true;
-					if(name == FEAR){
-						// send a horror after the player
-						var effect:Effect = new Effect(Effect.FEAR, game.player.level, Effect.WEAPON, game.player);
-					}
 				}
 			} else if(read){
 				read = false;
@@ -93,13 +87,8 @@ package com.robotacid.engine {
 			for(i = 0; i < writings.length; i++){
 				writing = writings[i];
 				chars = storyCharCodes[writing.level][writing.index].split(",");
-				if(story[writing.level][writing.index].indexOf("b:") > -1){
-					underBlit = renderer.redWritingUnderBlit;
-					overBlit = renderer.redWritingOverBlit;
-				} else {
-					underBlit = renderer.blackWritingUnderBlit;
-					overBlit = renderer.blackWritingOverBlit;
-				}
+				underBlit = renderer.redWritingUnderBlit;
+				overBlit = renderer.redWritingOverBlit;
 				underBlit.chars = overBlit.chars = chars;
 				underBlit.x = overBlit.x = writing.rect.x;
 				underBlit.y = overBlit.y = writing.rect.y;
@@ -114,23 +103,48 @@ package com.robotacid.engine {
 			story = JSON.decode(byteArray.readUTFBytes(byteArray.length));
 			
 			var i:int, j:int, k:int, m:int;
-			var typeArray:Array, levelArray:Array, code:String;
+			var typeArray:Array, levelArray:Array;
 			
+			elberethCode = getCode(random);
 			storyCharCodes = [];
+			
 			for(i = 0; i < story.length; i++){
 				storyCharCodes[i] = [];
 				levelArray = story[i];
 				for(j = 0; j < levelArray.length; j++){
-					code = "";
-					for(m = 0; m < CHAR_TOTAL; m++){
-						code += "" + (1 + random.rangeInt(30));
-						if(m < CHAR_TOTAL - 1) code += ",";
-					}
-					storyCharCodes[i][j] = code;
+					storyCharCodes[i][j] = getCode(random, levelArray[j]);
 				}
 			}
-			
 		}
+		
+		/* Create a random sequence of shapes - a set code for "elbereth" is predetermined */
+		public static function getCode(random:XorRandom, str:String = ""):String{
+			if(str == "elbereth") return elberethCode;
+			var i:int;
+			var code:String = code = "";
+			for(i = 0; i < CHAR_TOTAL; i++){
+				code += CHAR_SHAPES[random.rangeInt(CHAR_SHAPES.length)] + "";
+				if(i < CHAR_TOTAL - 1) code += ",";
+			}
+			return code;
+		}
+		
+		public static var elberethCode:String = "";
+		
+		/* Always want at least two lines, otherwise the writing looks a bit shit */
+		public static const CHAR_SHAPES:Array = [
+			WritingBlit.TOP_LEFT | WritingBlit.TOP_RIGHT | WritingBlit.BOTTOM_LEFT | WritingBlit.BOTTOM_RIGHT,
+			WritingBlit.TOP_LEFT | WritingBlit.TOP_RIGHT | WritingBlit.BOTTOM_LEFT,
+			WritingBlit.TOP_LEFT | WritingBlit.BOTTOM_LEFT | WritingBlit.BOTTOM_RIGHT,
+			WritingBlit.TOP_RIGHT | WritingBlit.BOTTOM_LEFT | WritingBlit.BOTTOM_RIGHT,
+			WritingBlit.TOP_LEFT | WritingBlit.TOP_RIGHT | WritingBlit.BOTTOM_RIGHT,
+			WritingBlit.TOP_LEFT | WritingBlit.TOP_RIGHT,
+			WritingBlit.BOTTOM_LEFT | WritingBlit.BOTTOM_RIGHT,
+			WritingBlit.TOP_LEFT | WritingBlit.BOTTOM_RIGHT,
+			WritingBlit.BOTTOM_LEFT | WritingBlit.TOP_RIGHT,
+			WritingBlit.BOTTOM_LEFT | WritingBlit.TOP_LEFT,
+			WritingBlit.BOTTOM_RIGHT | WritingBlit.TOP_RIGHT
+		]
 		
 	}
 

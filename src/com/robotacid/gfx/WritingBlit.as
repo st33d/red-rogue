@@ -13,11 +13,10 @@ package com.robotacid.gfx {
 		public var chars:Array/*int*/;
 		
 		// strokes
-		public static const CENTER:int = 1 << 0;
-		public static const BOTTOM_RIGHT:int = 1 << 1;
-		public static const TOP_LEFT:int = 1 << 2;
-		public static const BOTTOM_LEFT:int = 1 << 3;
-		public static const TOP_RIGHT:int = 1 << 4;
+		public static const BOTTOM_RIGHT:int = 1 << 0;
+		public static const TOP_LEFT:int = 1 << 1;
+		public static const BOTTOM_LEFT:int = 1 << 2;
+		public static const TOP_RIGHT:int = 1 << 3;
 		
 		public static const TRACKING:Number = Game.SCALE * 0.5;
 		

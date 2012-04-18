@@ -1,4 +1,4 @@
-Change log: revised gate creation code to search for all gate locations and then locate any possible fragmentation (due to rarity of fragmentation opportunities), raised minimum monster level to -1
+Change log: random raise/chaos gate occurence revised, finalised ground work on writing
 
 Bug hunt
 	can crash graph renderer by changing level

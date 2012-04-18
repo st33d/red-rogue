@@ -360,7 +360,8 @@
 			
 			// now add some extra flavour
 			createOtherTraps(pixels);
-			createWritings(pixels);
+			// below level 20 the minion cannot have written anything
+			if(level < Game.MAX_LEVEL) createWritings(pixels);
 			createChaosWalls(pixels);
 			createCritters();
 			
@@ -622,6 +623,7 @@
 			if(bitmap.rightSecretRoom && bitmap.rightSecretRoom.contains(x, y)) return false;
 			return (
 				(posLeft != MapBitmap.WALL && posRight != MapBitmap.WALL) &&
+				(posLeft != MapBitmap.GATE && posRight != MapBitmap.GATE) &&
 				(posBelow == MapBitmap.WALL || (posBelow == MapBitmap.LEDGE && ledgeAllowed)) &&
 				(pos == MapBitmap.EMPTY || pos == MapBitmap.LEDGE)
 			);
@@ -816,15 +818,18 @@
 			
 			// pick a random normal site for a raise gate or chaos gate
 			if(bitmap.gates.length){
-				site = bitmap.gates[random.rangeInt(bitmap.gates.length)];
-				if(zone == CHAOS) gateType = random.coinFlip() ? Gate.CHAOS : Gate.RAISE;
-				else gateType = Gate.RAISE;
-				gate = new Gate(site.x * Game.SCALE, site.y * Game.SCALE, gateType);
-				gate.mapX = site.x;
-				gate.mapY = site.y;
-				gate.mapZ = MapTileManager.ENTITY_LAYER;
-				layers[ENTITIES][site.y][site.x] = gate;
-				Surface.removeSurface(site.x, site.y);
+				i = -1 + random.rangeInt(4);
+				while(i-- > 0){
+					site = bitmap.gates[random.rangeInt(bitmap.gates.length)];
+					if(zone == CHAOS) gateType = random.coinFlip() ? Gate.CHAOS : Gate.RAISE;
+					else gateType = Gate.RAISE;
+					gate = new Gate(site.x * Game.SCALE, site.y * Game.SCALE, gateType);
+					gate.mapX = site.x;
+					gate.mapY = site.y;
+					gate.mapZ = MapTileManager.ENTITY_LAYER;
+					layers[ENTITIES][site.y][site.x] = gate;
+					Surface.removeSurface(site.x, site.y);
+				}
 			}
 		}
 		
@@ -850,18 +855,20 @@
 						(pixels[n + (width - 1)] == MapBitmap.WALL || pixels[n + (width - 1)] == MapBitmap.LEDGE) &&
 						pixels[n] == MapBitmap.EMPTY &&
 						pixels[n - 1] == MapBitmap.EMPTY &&
-						pixels[n + 1] == MapBitmap.EMPTY
+						pixels[n + 1] == MapBitmap.EMPTY &&
+						Surface.map[surface.y][surface.x - 1] &&
+						Surface.map[surface.y][surface.x + 1]
 					){
 						candidates.push(surface);
 					}	
 				}
 			}
-			trace("candidates", candidates.length);
+			//trace("candidates", candidates.length);
 			if(candidates.length){
-				var index:int, text:String;
 				
+				var index:int;
 				var writings:int = 1 + random.rangeInt(bitmap.roominess * 0.5);
-				trace("writings", writings);
+				//trace("writings", writings);
 				var level:int = this.level - 1;
 				if(level >= Game.MAX_LEVEL - 1) level = Game.MAX_LEVEL - 1;
 				
@@ -873,16 +880,25 @@
 				}
 				randomiseArray(selection, random);
 				while((writings--) && selection.length && candidates.length){
-					index = selection.pop();
 					n = random.rangeInt(candidates.length);
 					surface = candidates[n];
 					candidates.splice(n, 1);
-					text = levelArray[index];
-					text = text.substr(2);
-					writing = new Writing(surface.x, surface.y, levelArray[index], level, index);
-					writing.mapZ = MapTileManager.ENTITY_LAYER;
-					layers[ENTITIES][surface.y][surface.x] = writing;
-					Surface.removeSurface(surface.x, surface.y);
+					i = surface.x + surface.y * width;
+					if(
+						pixels[i] == MapBitmap.EMPTY &&
+						pixels[i + 1] == MapBitmap.EMPTY &&
+						pixels[i - 1] == MapBitmap.EMPTY
+					){
+						index = selection.pop();
+						writing = new Writing(surface.x, surface.y, levelArray[index], level, index);
+						writing.mapZ = MapTileManager.ENTITY_LAYER;
+						layers[ENTITIES][surface.y][surface.x] = writing;
+						Surface.removeSurface(surface.x, surface.y);
+						// hack to avoid over writing
+						pixels[i] = MapBitmap.GATE;
+						pixels[i + 1] = MapBitmap.GATE;
+						pixels[i - 1] = MapBitmap.GATE;
+					}
 				}
 			}
 		}
