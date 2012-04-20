@@ -1,4 +1,4 @@
-Change log: random raise/chaos gate occurence revised, finalised ground work on writing
+Change log: promoted chaos helm in armour order, fixed some armour endurance stats, added more to story.json
 
 Bug hunt
 	can crash graph renderer by changing level
@@ -24,12 +24,7 @@ yendor
 
 	
 gates
-	keys, pressure pads
-	how to split the map
-		draw up or down from the edge of the map to a horizontal line
-		check for route fragmentation
-			flood fill from entrance to level for valid switch positions
-
+	pressure pads
 
 save and quit
 	unlocking minion lore permanently alters all references to "the minion"

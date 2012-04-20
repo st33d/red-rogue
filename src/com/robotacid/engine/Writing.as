@@ -34,7 +34,7 @@ package com.robotacid.engine {
 		public static const MESSAGE:int = 0;
 		public static const ELBERETH:int = 1;
 		
-		public static const CHAR_TOTAL:int = 5;
+		public static const CHAR_TOTAL:int = 7;
 		
 		[Embed(source = "story.json", mimeType = "application/octet-stream")] public static var storyData:Class;
 		public static var story:Array;
@@ -90,7 +90,7 @@ package com.robotacid.engine {
 				underBlit = renderer.redWritingUnderBlit;
 				overBlit = renderer.redWritingOverBlit;
 				underBlit.chars = overBlit.chars = chars;
-				underBlit.x = overBlit.x = writing.rect.x;
+				underBlit.x = overBlit.x = writing.rect.x + 1;
 				underBlit.y = overBlit.y = writing.rect.y;
 				underBlit.render(renderer.blockBitmapData);
 				overBlit.render(renderer.blockBitmapData);

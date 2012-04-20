@@ -8,20 +8,20 @@
 	"armour names":[
 		"flies", "tiara", "fedora", "top hat", "fire flies",
 		"halo", "bees", "viking helm", "skull", "crown",
-		"blood", "goggles", "chaos helm", "wizard hat", "helmet",
-		"_", "knives", "indifference", "face", "yendor"
+		"blood", "goggles", "wizard hat", "helmet", "_",
+		"knives", "indifference", "chaos helm", "face", "yendor"
 	],
 	"unique weapon names":[
-		["athame"], ["godhand", "grip"], ["sting", "carnwennan", "werewindle"] , ["plus one"], ["cupid's bow", "pinaka"],
+		["athame", "first"], ["godhand", "grip"], ["sting", "carnwennan", "werewindle"] , ["plus one"], ["cupid's bow", "pinaka"],
 		["vampire killer", "spelunker's friend"], ["excalibur", "kladenets", "grayswandir", "skofnung", "tyrfing"], ["penetrator", "piercer"] , ["gungnir", "gae bulg", "lugh", "rhongomiant"], ["xena's friend", "ouroboros"],
 		["jo", "ruyi jingu bang", "grid's rod"], ["boom", "surprise", "smithereens"], ["sarah-jane", "boom-stick"] , ["mjolnir"], ["bullseye", "brahmastra", "saranga", "gandiva"],
 		["dyrnwyn", "bayonetta"], ["reaver"], ["blackthorn", "stallion", "swirl"] , ["oh kath ra", "shocker", "thunder", "nova", "zeus", "vajra"], ["licker", "kiss", "sarlak", "fang"]
 	],
 	"unique armour names":[
-		["swarm", "buzz"], ["brisingamen"], ["indy", "spelunker's hat", "archaeologist's hat"] , ["gentleman's pride"], ["apollo"],
-		["draupnir", "seal of solomon"], ["vengeance"], ["eric's helm"] , ["baphomet's skull"], ["jewels"],
-		["ythr", "rthyr", "sanguine"], ["spectacles", "far-seer"], ["madness", "foolscap"] , ["harry's hat", "zed's hat"], ["aegis", "ancile"],
-		["yautja skin", "tarnhelm", "hades helm"], ["snicker snack"], ["anonymous", "unknown"] , [], ["yendor"]
+		["swarm", "buzz"], ["brisingamen"], ["indy", "spelunker's hat", "archaeologist's hat"] , ["gentleman's pride"], ["apollo", "shimmer"],
+		["draupnir", "seal of solomon"], ["vengeance", "anaphylactic", "histamine"], ["eric's helm", "beserker"] , ["baphomet's skull"], ["jewels"],
+		["ythr", "rthyr", "sanguine"], ["spectacles", "far-seer"] , ["harry's hat", "zed's hat"], ["aegis", "ancile"], ["yautja skin", "tarnhelm", "hades helm"],
+		["snicker snack", "slice n dice"], ["anonymous", "unknown"], ["madness", "foolscap"] , [], ["yendor"]
 	],
 	"rune names":[
 		"light", "heal", "poison", "identify", "undead",
@@ -65,24 +65,6 @@
 		0.03, 0.02, 0.03, 0.03, 0.04,
 		0.04, 0.04, 0.0, 0.06, 0.06
 	],
-	"armour positions":[
-		1, 0, 0, 0, 1,
-		0, 1, 0, 0, 0,
-		1, 0, 0, 0, 0,
-		1, 1, 0, 0, 0
-	],
-	"armour defences":[
-		0.01, 0.012, 0.02, 0.02, 0.01,
-		0.03, 0.01, 0.04, 0.04, 0.05,
-		0.03, 0.01, 0.05, 0.03, 0.1,
-		0.01, 0.05, 0.0, 0.0, 0.1
-	],
-	"armour defence levels":[
-		0.01, 0.01, 0.015, 0.015, 0.01,
-		0.015, 0.01, 0.02, 0.02, 0.025,
-		0.02, 0.01, 0.03, 0.02, 0.05,
-		0.01, 0.03, 0.0, 0.0, 0.05
-	],
 	"weapon knockbacks":[
 		0, 0.1, 0, 0.15, 0,
 		0, 0.1, 0.15, 0.15, 0,
@@ -101,11 +83,29 @@
 		0, 0, 0, 0, 0,
 		0.05, 0.05, 0, 0, 0.15
 	],
+	"armour positions":[
+		1, 0, 0, 0, 1,
+		0, 1, 0, 0, 0,
+		1, 0, 0, 0, 1,
+		1, 0, 0, 0, 0
+	],
+	"armour defences":[
+		0.01, 0.012, 0.02, 0.02, 0.01,
+		0.03, 0.01, 0.04, 0.04, 0.05,
+		0.03, 0.01, 0.03, 0.1, 0.01,
+		0.05, 0.0, 0.05, 0.0, 0.1
+	],
+	"armour defence levels":[
+		0.01, 0.01, 0.015, 0.015, 0.01,
+		0.015, 0.01, 0.02, 0.02, 0.025,
+		0.02, 0.01, 0.02, 0.05, 0.01,
+		0.03, 0.0, 0.03, 0.0, 0.05
+	],
 	"armour endurances":[
 		0, 0, 0, 0, 0,
 		0, 0, 0.1, 0.1, 0.15,
-		0, 0, 0.15, 0.05, 0.4,
-		0, 0.85, 0, 0, 0.3
+		0, 0, 0.05, 0.4, 0,
+		0.15, 0, 0.15, 0, 0.3
 	],
 	"weapon specials":[
 		"none", "none", "none", "none", "none",
@@ -116,8 +116,8 @@
 	"armour specials":[
 		"none", "none", "none", "none", "light enchanted",
 		"none", "reflects damage", "none", "undead enchanted", "none",
-		"life steal", "infravision", "inflicts chaos spells on wearer", "x2 to new enchantments applied", "none",
-		"invisible", "reflects damage", "ignored by the game", "polymorph into face type", "jump"
+		"life steal", "infravision", "x2 to new enchantments applied", "none", "invisible",
+		"reflects damage", "ignored by the game", "inflicts chaos spells on wearer", "polymorph into face type", "jump"
 	],
 	"weapon descriptions":[
 		"short blade", "metal glove", "medium blade", "spiked stick", "fires arrows",
@@ -128,7 +128,7 @@
 	"armour descriptions":[
 		"distracting insects", "pretty adornment", "sweet hat", "gentleman's hat", "glowing insects",
 		"floating ring", "defensive insects", "horned hat", "former balrog head", "regal hat",
-		"liquidised blood demon", "magic spectacles", "mad king's hat", "magic hat", "strong hat",
-		"", "flying magic blades", "out of phase with the universe", "magic skin mask", "levitation amulet"
+		"liquidised blood demon", "magic spectacles", "magic hat", "strong hat", "",
+		"flying magic blades", "out of phase with the universe", "mad king's hat", "magic skin mask", "levitation amulet"
 	]
 }

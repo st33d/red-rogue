@@ -18,7 +18,7 @@ package com.robotacid.gfx {
 		public static const BOTTOM_LEFT:int = 1 << 2;
 		public static const TOP_RIGHT:int = 1 << 3;
 		
-		public static const TRACKING:Number = Game.SCALE * 0.5;
+		public static const TRACKING:Number = 5;
 		
 		public function WritingBlit(mc:MovieClip = null) {
 			super(mc, null);

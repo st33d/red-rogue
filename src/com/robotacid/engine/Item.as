@@ -127,12 +127,12 @@
 		public static const CROWN:int = 9;
 		public static const BLOOD:int = 10;
 		public static const GOGGLES:int = 11;
-		public static const CHAOS_HELM:int = 12;
-		public static const WIZARD_HAT:int = 13;
-		public static const HELMET:int = 14;
-		public static const INVISIBILITY:int = 15;
-		public static const KNIVES:int = 16;
-		public static const INDIFFERENCE:int = 17;
+		public static const WIZARD_HAT:int = 12;
+		public static const HELMET:int = 13;
+		public static const INVISIBILITY:int = 14;
+		public static const KNIVES:int = 15;
+		public static const INDIFFERENCE:int = 16;
+		public static const CHAOS_HELM:int = 17;
 		public static const FACE:int = 18;
 		public static const YENDOR:int = 19;
 		
