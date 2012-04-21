@@ -658,7 +658,7 @@
 				}
 			} else {
 				keyItem = false;
-				game.keyItemStatus.visible = true;
+				game.keyItemStatus.visible = false;
 			}
 		}
 		
