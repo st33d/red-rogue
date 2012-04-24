@@ -284,11 +284,6 @@
 				
 				if(!target || !target.active){
 					clear();
-					// drop from ladder
-					if(char.collider.state == Collider.HOVER){
-						char.collider.state = Collider.FALL;
-						char.collider.divorce();
-					}
 					
 				} else {
 					avoid(target);
@@ -343,6 +338,11 @@
 			patrolAreaSet = false;
 			state = PATROL;
 			altNode = null;
+			// drop from ladder
+			if(char.collider.state == Collider.HOVER){
+				char.collider.state = Collider.FALL;
+				char.collider.divorce();
+			}
 		}
 		
 		/* Copys one brain state on to another, along with target */

@@ -34,16 +34,37 @@ package com.robotacid.ai {
 					nodes[r].push(null);
 				}
 			}
-			// there is a node on every surface and ladder
+			// there is a node on every surface and ladder, and on nodes in space adjacent to surfaces
 			var pixels:Vector.<uint> = bitmap.bitmapData.getVector(bitmap.bitmapData.rect);
 			for(i = width; i < pixels.length - width; i++){
 				if(
-					(pixels[i] != MapBitmap.WALL && (
-						pixels[i + width] == MapBitmap.PIT ||
-						pixels[i + width] == MapBitmap.LEDGE ||
-						pixels[i + width] == MapBitmap.LADDER_LEDGE ||
-						pixels[i + width] == MapBitmap.WALL
-					)) ||
+					(
+						pixels[i] != MapBitmap.WALL && 
+						(
+							(
+								pixels[i + width] == MapBitmap.PIT ||
+								pixels[i + width] == MapBitmap.LEDGE ||
+								pixels[i + width] == MapBitmap.LADDER_LEDGE ||
+								pixels[i + width] == MapBitmap.WALL
+							) ||
+							(
+								i < pixels.length - (width + 1) &&  pixels[i + 1] != MapBitmap.WALL && (
+									pixels[i + width + 1] == MapBitmap.PIT ||
+									pixels[i + width + 1] == MapBitmap.LEDGE ||
+									pixels[i + width + 1] == MapBitmap.LADDER_LEDGE ||
+									pixels[i + width + 1] == MapBitmap.WALL
+								)
+							) ||
+							(
+								pixels[i - 1] != MapBitmap.WALL && (
+									pixels[i + width - 1] == MapBitmap.PIT ||
+									pixels[i + width - 1] == MapBitmap.LEDGE ||
+									pixels[i + width - 1] == MapBitmap.LADDER_LEDGE ||
+									pixels[i + width - 1] == MapBitmap.WALL
+								)
+							)
+						)
+					) ||
 					pixels[i] == MapBitmap.LADDER || pixels[i] == MapBitmap.LADDER_LEDGE
 				){
 					r = i / width;
@@ -69,7 +90,7 @@ package com.robotacid.ai {
 							nodes[r][c + 1].connections.push(nodes[r][c]);
 						}
 						if(
-							pixels[n + width] == MapBitmap.LEDGE
+							pixels[n + width] == MapBitmap.LEDGE || pixels[n + width] == MapBitmap.EMPTY
 						){
 							for(i = r + 1; i < height; i++){
 								if(nodes[i][c]){

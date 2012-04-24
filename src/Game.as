@@ -86,7 +86,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 363;
+		public static const BUILD_NUM:int = 364;
 		
 		public static const TEST_BED_INIT:Boolean = false;
 		
@@ -883,6 +883,7 @@
 		
 		/* Switches to the appropriate music */
 		public function changeMusic():void{
+			
 			var start:int;
 			var name:String;
 			if(SoundManager.soundLoops["underworldMusic2"]) SoundManager.fadeLoopSound("underworldMusic2", -SoundManager.DEFAULT_FADE_STEP)

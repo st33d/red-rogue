@@ -18,7 +18,7 @@
 		0.2, 0.25, 0.2, 0.3, 0.25,
 		0.25, 0.2, 0.2, 0.2, 0.2,
 		0.2, 0.2, 0.2, 0.2, 0.25,
-		0.4, 0.15
+		0.4, 0.2
 	],
 	"attack levels":[
 		0.05, 0.04, 0.04, 0.06, 0.03,
@@ -32,14 +32,14 @@
 		0.1, 0.25, 0.1, 0.2, 0.2,
 		0.2, 0.2, 0.15, 0.15, 0.2,
 		0.3, 0.15, 0.15, 0.15, 0.18,
-		0.3, 0.15
+		0.3, 0.16
 	],
 	"defence levels":[
 		0.05, 0.05, 0.04, 0.04, 0.04,
 		0.04, 0.04, 0.03, 0.05, 0.05,
 		0.04, 0.05, 0.04, 0.04, 0.06,
 		0.06, 0.04, 0.04, 0.04, 0.05,
-		0.06, 0.04
+		0.06, 0.045
 	],
 	"healths":[
 		3, 1, 1.5, 3.5, 4,
@@ -53,7 +53,7 @@
 		1, 0.9, 1.1, 0.8, 1,
 		1.1, 0.5, 0.9, 0.9, 1.1,
 		1.5, 0.9, 0.9, 0.8, 1,
-		1.5, 0.5
+		1.5, 0.8
 	],
 	"damages":[
 		1, 0.5, 0.5, 1.1, 1,
@@ -67,7 +67,7 @@
 		0.2, 0.08, 0.08, 0.03, 0.2,
 		0.2, 0.2, 0.2, 0.2, 0.2,
 		0.21, 0.2, 0.2, 0.2, 0.2,
-		0.2, 0.15
+		0.2, 0.18
 	],
 	"attack speeds":[
 		0.05, 0.028, 0.06, 0.03, 0.03,
@@ -137,7 +137,7 @@
 		0.6, 0.9, 0.9, 0.3, 0.9,
 		1, 1, 0.9, 0.9, 1,
 		1, 1, 1, 1, 1,
-		1, 1
+		1, 0.7
 	],
 	"undeads":[
 		0, 0, 0, 0, 0,
@@ -156,7 +156,7 @@
 	"specials":[
 		"x2 backstab damage, superior search skill", "chaotic learner", "superior speed", "superior combat skills", "regenerates health",
 		"possible bonus chest items", "infravision", "damage reflection", "theft attack", "life steal, undead",
-		"superior speed and combat, infectious, insane", "form steal", "poison attack", "stupefy attack", "confuse attack",
+		"infectious, insane", "form steal", "poison attack", "stupefy attack", "confuse attack",
 		"superior defence", "fear attack, undead", "wall walk, undead", "xp steal", "chaos attack",
 		"blessed strike, possession", "poison immune, undead"
 	],

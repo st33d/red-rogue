@@ -304,6 +304,7 @@
 		/* Fades music in by default, set step to a negative figure to fade.
 		 * Fades out currentMusic at the same rate */
 		public static function fadeMusic(name:String, step:Number = DEFAULT_FADE_STEP, start:int = 0):void{
+			
 			if(
 				!sounds[name] ||
 				(soundLoops[name] && soundLoops[name].fadeStep * step > 0) ||
@@ -317,19 +318,20 @@
 				
 				var fadeTarget:Number = step > 0 ? volumes[name] : 0;
 				
+				// force any existing fading in music to fade out
+				if(currentMusic){
+					soundLoops[currentMusic].fadeStep = -step;
+					soundLoops[currentMusic].fadeTarget = 0;
+					musicTimes[currentMusic] = getTime();
+				}
+				
 				if(!soundLoops[name]){
+					
 					// we shouldn't have gotten here if step isn't positively signed (see condition above),
 					// this condition here is for speed readers
 					if(step > 0){
 						var soundTransform:SoundTransform = new SoundTransform(0);
 						var sound:Sound = sounds[name];
-						
-						// force any existing fading in music to fade out
-						if(currentMusic){
-							soundLoops[currentMusic].fadeStep = -step;
-							soundLoops[currentMusic].fadeTarget = 0;
-							musicTimes[currentMusic] = getTime();
-						}
 						if(start >= sound.length) start %= sound.length;
 						
 						soundChannels[name] = sound.play(start, start == 0 ? int.MAX_VALUE : 1, soundTransform);
@@ -420,35 +422,41 @@
 		/* Sound fading event - mixes all sound loops */
 		private static function fadeUpdate(e:Event):void{
 			var stopFade:Boolean = true;
+			var soundLoop:SoundLoop;
+			
 			for(var key:String in soundLoops){
 				
-				if(soundLoops[key].fadeStep){
+				soundLoop = soundLoops[key];
+				
+				if(soundLoop.fadeStep){
 					stopFade = false;
 					
-					if(soundLoops[key].fadeStep > 0){
+					if(soundLoop.fadeStep > 0){
 						
-						soundLoops[key].soundTransform.volume += soundLoops[key].fadeStep;
-						if(soundLoops[key].soundTransform.volume >= soundLoops[key].fadeTarget){
-							soundLoops[key].soundTransform.volume = soundLoops[key].fadeTarget;
+						soundLoop.soundTransform.volume += soundLoop.fadeStep;
+						if(soundLoop.soundTransform.volume >= soundLoop.fadeTarget){
+							soundLoop.soundTransform.volume = soundLoop.fadeTarget;
+							soundLoop.fadeStep = 0;
 						}
-						soundChannels[key].soundTransform = soundLoops[key].soundTransform;
+						soundChannels[key].soundTransform = soundLoop.soundTransform;
 						
-					} else if(soundLoops[key].fadeStep < 0){
+					} else if(soundLoop.fadeStep < 0){
 						
-						soundLoops[key].soundTransform.volume += soundLoops[key].fadeStep;
-						if(soundLoops[key].soundTransform.volume <= soundLoops[key].fadeTarget){
+						soundLoop.soundTransform.volume += soundLoop.fadeStep;
+						if(soundLoop.soundTransform.volume <= soundLoop.fadeTarget){
 							soundChannels[key].stop();
 							delete soundChannels[key];
 							if(key == currentMusic){
 								musicTimes[currentMusic] = getTime();
 								currentMusic = null;
 							}
-							soundLoops[key].soundTransform.volume = soundLoops[key].fadeTarget;
+							soundLoop.soundTransform.volume = soundLoop.fadeTarget;
+							soundLoop.fadeStep = 0;
 						} else {
-							soundChannels[key].soundTransform = soundLoops[key].soundTransform;
+							soundChannels[key].soundTransform = soundLoop.soundTransform;
 						}
 						
-						if(soundLoops[key].soundTransform.volume == soundLoops[key].fadeTarget){
+						if(soundLoop.soundTransform.volume == soundLoop.fadeTarget){
 							delete soundLoops[key];
 						}
 					}

@@ -1,4 +1,4 @@
-Change log: promoted chaos helm in armour order, fixed some armour endurance stats, added more to story.json
+Change log: fixed music not fading properly bug, buffed skeleton - dropped skeleton bravery to make minion less gung-ho, added ai path nodes at cliff edges to solve various problems, added ladder drop to Brain.clear
 
 Bug hunt
 	can crash graph renderer by changing level
@@ -12,11 +12,18 @@ Bug hunt
 	
 	null Monster collider.world spotted - why?
 	
-	diagonal down ai node by two steps causes error on ladder ledge
-	
 	killed wearing debug armour bug (light + undead)
 
 need the ability to block effect apply printouts
+
+add volume distancing to other elements like chaos walls
+	also add shake volume
+
+reduce monster quantities and level size (apart from levels 5, 10, 15, 20)
+
+sleep mechanic
+	woken by voices
+	nightmares
 
 yendor
 	jumping
