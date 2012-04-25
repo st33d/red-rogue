@@ -140,8 +140,9 @@
 		public function monsterQuantityPerLevel(level:int):int{
 			if(level <= 0) return 0;
 			if(level > TOTAL_LEVELS) level = TOTAL_LEVELS;
-			var n:Number = level * (2 + Map.random.range(2));
-			if(n > 30) n = 30;
+			var n:Number = level * (2 + Map.random.range(2)) * 0.6;
+			if(n > 24) n = 24;
+			// I have no idea what this algorithm is doing anymore
 			return 5 + Map.random.range(6) + n;
 		}
 		

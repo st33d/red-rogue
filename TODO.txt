@@ -1,4 +1,4 @@
-Change log: fixed music not fading properly bug, buffed skeleton - dropped skeleton bravery to make minion less gung-ho, added ai path nodes at cliff edges to solve various problems, added ladder drop to Brain.clear
+Change log: refactored Effect.randomEnchant, IDENTIFY now improves only existing enchantments, roominess of dungeon reduced, monster quantity reduced, search duration reduced, changed writings quantity, updated story, added exploding monster to possible holy effects
 
 Bug hunt
 	can crash graph renderer by changing level
@@ -16,14 +16,39 @@ Bug hunt
 
 need the ability to block effect apply printouts
 
-add volume distancing to other elements like chaos walls
-	also add shake volume
-
-reduce monster quantities and level size (apart from levels 5, 10, 15, 20)
-
 sleep mechanic
-	woken by voices
-	nightmares
+	sleep character boolean
+		go through ai 
+	polls nearby monsters to attack
+	fade out light before heal begins
+	sleep render state
+	sleep menu state
+		sleep option - toggle to wake up
+			can only be active on a platform?
+				print out "you need to be on ground to do that"
+		
+	rogue thoughts
+	balrog messages
+		nightmares
+
+sounds
+	mimic voice
+	disarm trap
+	unlock gate
+	arquebus
+	gunblade
+	explosion
+	lighting (short calls of quickening samples)
+	telport (whoomph)
+	search
+		ping
+		discovery
+
+add volume distancing to other elements like
+	chaos walls
+	cogs shooting
+create volume distance function
+also add shake volume
 
 yendor
 	jumping
@@ -77,38 +102,15 @@ AI problems:
 help on menu has not been fully written out
 
 level generator overhaul:
-	create a list of legal floor positions for portals, exits and traps during level generation
-	distribution tactics -
-		expand room defined areas
-			rooms as exploding squares from nodes - RoomNode
-		drop monsters into rooms only (or in certain zones - other areas as well)
-		create context groups for monsters in packs
-			dramatis personae creator
-				unique named characters (set equipments?):
-					
-					create a level above current character - assign to levels initially according to roll
-					
-					crowley: regenerating drow - helmet and mace
-					the balrog: the boss - yendor and weapon
-					pun pun: max stats kobold - good armour and weapon?
-					edward: sparkling vampire - unequipped
-					golfimbul: a goblin that always suffers critcal hits
-					internet: a max regenerating troll
-					the bitch: a nymph that never fails a steal roll
-					
-		distribute 150% of level's worth of xp across monsters on one level instead of set xp for each monster
-
-new xp system - floating point
-	xp required = level ^ (e * 0.5)
-		gap between levels distributed across a level's worth of content
-
-plateauMc?
-	new exit logic
-		refactor exit option to pressing down at exits
-		create plateau surface in physics
-			create plateau spawner (part of portal code?)
-				create node pruning function for spawned plateaus
-			change portal location rules
-				create list of legal floor positions in map
-					use floor list for traps
-					create list of legal floor positions in rooms
+	dramatis personae creator
+		unique named characters (set equipments?):
+			
+			create a level above current character - assign to levels initially according to roll
+			
+			crowley: regenerating drow - helmet and mace
+			the balrog: the boss - yendor and weapon
+			pun pun: max stats kobold - good armour and weapon?
+			edward: sparkling vampire - unequipped
+			golfimbul: a goblin that always suffers critcal hits
+			internet: a max regenerating troll
+			the bitch: a nymph that never fails a steal roll

@@ -161,11 +161,11 @@
 		"blessed strike, possession", "poison immune, undead"
 	],
 	"descriptions":[
-		"widow to the thief adventurer named @", "reptile goblinoid", "true goblin", "greater goblin", "goblin protector",
-		"hyena goblin", "cave elf", "cactus monster", "mischevious faerie", "undead blood drinker",
-		"transformation curse", "shapeshifter", "snake monster", "snake queen", "insectiod horror",
-		"animated stone", "wailing ghost", "creature from the river styx", "cthuloid horror", "tiger wizard",
-		"demon", "the undead thief adventurer named @"
+		"widow to the rogue named @", "reptile goblinoid", "true goblin", "greater goblin", "goblin protector",
+		"hyena goblin", "cave elf", "cactus monster", "faerie theif", "undead leech human",
+		"transformation curse", "shapeshifter", "snake monster", "snake queen", "insectiod beast",
+		"animated stone", "wailing ghost", "creature from the river styx", "psychic cthuloid", "tiger wizard",
+		"demon", "the undead rogue named @"
 	],
 	"voices":[
 		[""], ["Kobold1", "Kobold2", "Kobold3"], ["Goblin1", "Goblin2", "Goblin3"], ["Orc1", "Orc2", "Orc3"], ["Troll1", "Troll2", "Troll3"],

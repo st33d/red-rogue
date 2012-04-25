@@ -143,7 +143,15 @@
 				// create pacing standard for this level
 				horizPace = Math.ceil(size * 0.5) * ZONE_HORIZ_PACE[zone];
 				vertPace = Math.ceil(size * 0.5) * ZONE_VERT_PACE[zone];
-				roominess = ZONE_ROOMINESS[zone] + (level == 1 ? 1 : 0);
+				// marvel at the mockery that level design makes of code
+				roominess = ZONE_ROOMINESS[zone]
+				if(level <= MIN_SIZE){
+					roominess++;
+					if(level == 1){
+						roominess++;
+						if(roominess < 5) roominess = 5;
+					}
+				}
 				bitmapData = createRoomsAndTunnels();
 				
 				// view map generation debug
@@ -190,7 +198,9 @@
 			
 				// create a list of rooms, then randomly assign a sibling
 				rooms = new Vector.<Room>();
-				for(i = 0; i < (roominess * size) + Map.random.rangeInt(size * roominess); i++){
+				var totalRooms:int = -MIN_SIZE + roominess * size + Map.random.rangeInt(roominess * size);
+				if(totalRooms < 5) totalRooms = 5;
+				for(i = 0; i < totalRooms; i++){
 					rooms.push(new Room());
 				}
 				var pick:int;

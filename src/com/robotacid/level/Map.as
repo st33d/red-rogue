@@ -867,7 +867,7 @@
 			if(candidates.length){
 				
 				var index:int;
-				var writings:int = 1 + random.rangeInt(bitmap.roominess * 0.5);
+				var writings:int = 1 + random.rangeInt(3);
 				//trace("writings", writings);
 				var level:int = this.level - 1;
 				if(level >= Game.MAX_LEVEL - 1) level = Game.MAX_LEVEL - 1;

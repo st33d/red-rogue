@@ -78,7 +78,7 @@
 		public static const LEFT:int = 8;
 		
 		public static const DEFAULT_LIGHT_RADIUS:int = 5;
-		public static const SEARCH_DELAY:int = 2;
+		public static const SEARCH_DELAY:int = 1;
 		public static const ROGUE_SEARCH_MAX:int = 20;
 		public static const DEFAULT_SEARCH_MAX:int = 10;
 		

@@ -375,7 +375,7 @@
 				return item;
 				
 			} else if(name == IDENTIFY){
-				randomEnchant(item, game.deepestLevelReached);
+				randomEnchant(item, game.deepestLevelReached, true);
 				if(!item.uniqueNameStr){
 					if(item.type == Item.WEAPON){
 						str = Item.stats["weapon names"][item.name];
@@ -904,26 +904,31 @@
 		}
 		
 		/* Applies a set of random enchantments to an item */
-		public static function randomEnchant(item:Item, level:int):Item{
-			var name:int;
+		public static function randomEnchant(item:Item, level:int, existingEffectOnly:Boolean = false):Item{
+			var name:int, i:int;
 			var nameRange:int;
 			var enchantments:int = 2 + game.random.range(level * 0.2);
-			var runeList:Vector.<int> = new Vector.<int>();
-			while(enchantments--){
-				nameRange = game.random.range(Game.MAX_LEVEL);
-				if(nameRange > game.deepestLevelReached) nameRange = game.deepestLevelReached;
-				name = game.random.range(nameRange);
-				// some enchantments confer multiple extra enchantments -
-				// that can of worms will stay closed
-				if(!Effect.BANNED_RANDOM_ENCHANTMENTS[name]) runeList.push(name);
-				else enchantments++;
-			}
-			// each effect must now be given a level, for this we do a bucket sort
-			// to stack the effects
+			// bucket sort selection process, probably faster than a hash at this scale, can be arsed to verify
 			var bucket:Vector.<int> = new Vector.<int>(Game.MAX_LEVEL);
-			var i:int;
-			for(i = 0; i < runeList.length; i++){
-				bucket[runeList[i]]++;
+			var index:int;
+			if(existingEffectOnly){
+				if(item.effects) index = game.random.range(item.effects.length);
+				else return item;
+			}
+			while(enchantments--){
+				if(existingEffectOnly){
+					bucket[item.effects[index].name]++;
+					index++;
+					if(index >= item.effects.length) index = 0;
+				} else {
+					nameRange = game.random.range(Game.MAX_LEVEL);
+					if(nameRange > game.deepestLevelReached) nameRange = game.deepestLevelReached;
+					name = game.random.range(nameRange);
+					// some enchantments confer multiple extra enchantments -
+					// that can of worms will stay closed
+					if(!Effect.BANNED_RANDOM_ENCHANTMENTS[name]) bucket[name]++;
+					else enchantments++;
+				}
 			}
 			var effect:Effect;
 			for(i = 0; i < bucket.length; i++){
@@ -942,20 +947,15 @@
 		
 		/* Applies a set of favourable random enchantments to an item */
 		public static function favourableEnchant(item:Item, level:int):Item{
-			var name:int;
+			var name:int, i:int;
 			var nameRange:int;
 			var enchantments:int = 1 + game.random.range(level * 0.2);
 			var runeList:Vector.<int> = new Vector.<int>();
 			var list:Array = item.type == Item.WEAPON ? FAVOURABLE_WEAPON_ENCHANTMENTS : FAVOURABLE_ARMOUR_ENCHANTMENTS;
-			while(enchantments--){
-				runeList.push(list[game.random.rangeInt(list.length)]);
-			}
-			// each effect must now be given a level, for this we do a bucket sort
-			// to stack the effects
+			// bucket sort selection process, probably faster than a hash at this scale, can be arsed to verify
 			var bucket:Vector.<int> = new Vector.<int>(Game.MAX_LEVEL);
-			var i:int;
-			for(i = 0; i < runeList.length; i++){
-				bucket[runeList[i]]++;
+			while(enchantments--){
+				bucket[list[game.random.rangeInt(list.length)]]++;
 			}
 			var effect:Effect;
 			for(i = 0; i < bucket.length; i++){
@@ -981,7 +981,8 @@
 				}
 			} else {
 				// obliterate the target
-				target.smite((target.looking & Collider.RIGHT) ? Collider.LEFT : Collider.RIGHT, target.totalHealth);
+				if(game.random.coinFlip()) target.smite((target.looking & Collider.RIGHT) ? Collider.LEFT : Collider.RIGHT, target.totalHealth);
+				else var explosion:Explosion = new Explosion(0, target.mapX, target.mapY, 5, target.totalHealth, game.player, null, game.player.missileIgnore);
 			}
 		}
 	}
