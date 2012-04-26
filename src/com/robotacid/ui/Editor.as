@@ -46,13 +46,13 @@ package com.robotacid.ui {
 			this.game = game;
 			this.renderer = renderer;
 			highlight = new BitmapData(Game.SCALE, Game.SCALE, true, 0xFFFFFFFF);
-			highlight.fillRect(new Rectangle(1, 1, Game.SCALE-2, Game.SCALE-2), 0x00000000);
-			bitmap = new Bitmap(new BitmapData(Game.WIDTH, Game.HEIGHT - Console.HEIGHT, true, 0x00000000));
+			highlight.fillRect(new Rectangle(1, 1, Game.SCALE-2, Game.SCALE-2), 0x0);
+			bitmap = new Bitmap(new BitmapData(Game.WIDTH, Game.HEIGHT - Console.HEIGHT, true, 0x0));
 			bitmapData = bitmap.bitmapData;
 			topLeft = new Pixel();
 			bottomRight = new Pixel();
 			sprite = new Sprite();
-			textBox = new TextBox(100, 12, 0x00000000, 0x00000000);
+			textBox = new TextBox(100, 12, 0x0, 0x0);
 			//active = true;
 		}
 		
@@ -97,7 +97,7 @@ package com.robotacid.ui {
 			var wallWalkGraph:MapGraph = Brain.walkWalkGraph;
 			var rect:Rectangle = new Rectangle();
 			
-			bitmapData.fillRect(bitmapData.rect, 0x00000000);
+			bitmapData.fillRect(bitmapData.rect, 0x0);
 			
 			// render settings
 			if(menuList.renderCollisionList.selection == EditorMenuList.ON){

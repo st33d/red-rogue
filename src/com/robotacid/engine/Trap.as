@@ -118,7 +118,7 @@
 				game.soundQueue.addRandom("pitTrap", Stone.DEATH_SOUNDS);
 				game.world.removeMapPosition(mapX, mapY);
 				game.mapTileManager.removeTile(this, mapX, mapY, mapZ);
-				renderer.blockBitmapData.fillRect(new Rectangle(mapX * SCALE, mapY * SCALE, SCALE, SCALE), 0x00000000);
+				renderer.blockBitmapData.fillRect(new Rectangle(mapX * SCALE, mapY * SCALE, SCALE, SCALE), 0x0);
 				var blit:BlitSprite = MapTileConverter.ID_TO_GRAPHIC[MapTileConverter.LEDGE_SINGLE];
 				blit.x = mapX * SCALE;
 				blit.y = mapY * SCALE;

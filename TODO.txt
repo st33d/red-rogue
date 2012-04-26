@@ -1,4 +1,4 @@
-Change log: refactored Effect.randomEnchant, IDENTIFY now improves only existing enchantments, roominess of dungeon reduced, monster quantity reduced, search duration reduced, changed writings quantity, updated story, added exploding monster to possible holy effects
+Change log: refactored DeathLight to FadeLight (for double use with sleep mechanic), fixed null cast bug in DebrisFX, fixed armour graphics library (broken by promoting chaos armour)
 
 Bug hunt
 	can crash graph renderer by changing level
@@ -13,14 +13,18 @@ Bug hunt
 	null Monster collider.world spotted - why?
 	
 	killed wearing debug armour bug (light + undead)
+	
+	indifference armour showing knives armour graphic - why?
 
 need the ability to block effect apply printouts
 
 sleep mechanic
 	sleep character boolean
-		go through ai 
+		set sleep method - must track till satifactory sleep state is possible
+		go through ai
+			lock down behaviour when asleep - awake when attacked
 	polls nearby monsters to attack
-	fade out light before heal begins
+	*fade out light before heal begins
 	sleep render state
 	sleep menu state
 		sleep option - toggle to wake up

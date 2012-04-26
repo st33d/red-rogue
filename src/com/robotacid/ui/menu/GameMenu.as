@@ -813,7 +813,7 @@
 		private function screenshot():void{
 			visible = false;
 			if(Game.dialog) Game.dialog.visible = false;
-			var bitmapData:BitmapData = new BitmapData(Game.WIDTH * 2, Game.HEIGHT * 2, true, 0x00000000);
+			var bitmapData:BitmapData = new BitmapData(Game.WIDTH * 2, Game.HEIGHT * 2, true, 0x0);
 			bitmapData.draw(game, game.transform.matrix);
 			FileManager.save(PNGEncoder.encode(bitmapData, {"creator":"red-rogue"}), "screenshot.png");
 			if(Game.dialog) Game.dialog.visible = true;

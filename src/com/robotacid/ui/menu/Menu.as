@@ -236,10 +236,10 @@
 			selectionWindow.y = 1 + ((LINE_SPACING * 3) + (_height - (LINE_SPACING * 3)) * 0.5 - LINE_SPACING * 0.5 - TextBox.BORDER_ALLOWANCE) >> 0;
 			selectionCopyBitmap.x = selectionWindow.x;
 			selectionCopyBitmap.y = selectionWindow.y;
-			selectionWindowTaperNext = new Bitmap(new BitmapData(SELECTION_WINDOW_TAPER_WIDTH, LINE_SPACING, true, 0x00000000));
+			selectionWindowTaperNext = new Bitmap(new BitmapData(SELECTION_WINDOW_TAPER_WIDTH, LINE_SPACING, true, 0x0));
 			selectionWindowTaperNext.x = selectionWindow.x + selectionWindow.width;
 			selectionWindowTaperNext.y = selectionWindow.y;
-			selectionWindowTaperPrevious = new Bitmap(new BitmapData(SELECTION_WINDOW_TAPER_WIDTH, LINE_SPACING, true, 0x00000000));
+			selectionWindowTaperPrevious = new Bitmap(new BitmapData(SELECTION_WINDOW_TAPER_WIDTH, LINE_SPACING, true, 0x0));
 			selectionWindowTaperPrevious.x = selectionWindow.x - selectionWindowTaperPrevious.width;
 			selectionWindowTaperPrevious.y = selectionWindow.y;
 			drawSelectionWindow();
@@ -249,7 +249,7 @@
 			addChild(selectionWindowTaperPrevious);
 			
 			// selection prompt
-			selectText = new TextBox(LIST_WIDTH, 1 + LINE_SPACING + TextBox.BORDER_ALLOWANCE * 2, 0x00000000, 0x00000000, 0xFFDDDDDD);
+			selectText = new TextBox(LIST_WIDTH, 1 + LINE_SPACING + TextBox.BORDER_ALLOWANCE * 2, 0x0, 0x0, 0xFFDDDDDD);
 			selectText.text = "select";
 			selectText.x = textHolder.x + nextTextBox.x;
 			selectText.y = -(TextBox.BORDER_ALLOWANCE + 1) + textHolder.y + nextTextBox.y;
@@ -588,7 +588,7 @@
 				// copy, brighten, then erase the text of the selected item
 				var selectionWindowRect:Rectangle = new Rectangle(selectionWindow.x, selectionWindow.y, selectionWindow.width, selectionWindow.height);
 				selectionCopyBitmap.bitmapData.copyPixels(capture.bitmapData, selectionWindowRect, new Point());
-				capture.bitmapData.fillRect(selectionWindowRect, 0x00000000);
+				capture.bitmapData.fillRect(selectionWindowRect, 0x0);
 				selectionCopyBitmap.visible = true;
 				
 				stepRight();
@@ -927,7 +927,7 @@
 					selectionWindow.bitmapData.rect.y + 1,
 					selectionWindow.bitmapData.rect.width - 2,
 					selectionWindow.bitmapData.rect.height- 2
-				), 0x00000000);
+				), 0x0);
 				var step:int = 255 / SELECTION_WINDOW_TAPER_WIDTH;
 			for(var c:uint = SELECTION_WINDOW_COL, n:int = 0; n < SELECTION_WINDOW_TAPER_WIDTH; c -= 0x01000000 * step, n++){
 				selectionWindowTaperNext.bitmapData.setPixel32(n, 0, c);

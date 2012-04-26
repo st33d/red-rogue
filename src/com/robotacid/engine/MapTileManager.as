@@ -159,7 +159,7 @@
 			if(!bitmapData){
 				var pixelWidth:int = width * scale;
 				var pixelHeight:int = height * scale;
-				bitmapData = new BitmapData(pixelWidth, pixelHeight, true, 0x00000000);
+				bitmapData = new BitmapData(pixelWidth, pixelHeight, true, 0x0);
 			}
 			var r:int, c:int, item:BlitRect;
 			for(r = 0; r < height; r++) {
@@ -197,7 +197,7 @@
 		
 		/* Return true if a point is inside the edge of the scrolling area */
 		public function contains(x:Number, y:Number):Boolean{
-			return x < scrollBottomrightX - 1 && x >= scrollTopleftX && y < scrollBottomrightY - 1 && y >= scrollTopleftY;
+			return x < scrollBottomrightX && x >= scrollTopleftX && y < scrollBottomrightY && y >= scrollTopleftY;
 		}
 		
 		/* Return true if a rect intersects the scrolling area

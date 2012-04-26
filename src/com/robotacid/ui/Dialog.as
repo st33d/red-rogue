@@ -40,7 +40,7 @@ package com.robotacid.ui {
 			y = Game.HEIGHT * 0.5;
 			
 			// create background and text
-			var textBox:TextBox = new TextBox(WIDTH, 12, 0x00000000, 0x00000000);
+			var textBox:TextBox = new TextBox(WIDTH, 12, 0x0, 0x0);
 			textBox.align = "center";
 			textBox.alignVert = "center";
 			textBox.text = text;

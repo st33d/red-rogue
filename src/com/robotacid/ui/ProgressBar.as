@@ -48,7 +48,7 @@
 				addChild(glowShape);
 				addEventListener(Event.ENTER_FRAME, main, false, 0, true);
 			}
-			bitmap = new Bitmap(new BitmapData(width, height, true, 0x00000000));
+			bitmap = new Bitmap(new BitmapData(width, height, true, 0x0));
 			bitmapData = bitmap.bitmapData;
 			addChild(bitmap);
 			active = true;
@@ -73,7 +73,7 @@
 				}
 			}
 			bitmapData.fillRect(rect, borderCol);
-			bitmapData.fillRect(backRect, glowActive ? 0x00000000 : backCol);
+			bitmapData.fillRect(backRect, glowActive ? 0x0 : backCol);
 			barRect.width = (value * backRect.width) >> 0;
 			bitmapData.fillRect(barRect, barCol);
 		}

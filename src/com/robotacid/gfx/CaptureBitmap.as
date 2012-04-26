@@ -12,16 +12,16 @@ package com.robotacid.gfx {
 	public class CaptureBitmap extends Bitmap {
 		
 		public function CaptureBitmap(bitmapData:BitmapData = null) {
-			super(bitmapData ? bitmapData : new BitmapData(1, 1, true, 0x00000000));
+			super(bitmapData ? bitmapData : new BitmapData(1, 1, true, 0x0));
 		}
 		
 		public function capture(target:DisplayObject, matrix:Matrix = null, width:int = 0, height:int = 0):void{
 			if(width == 0 || height == 0){
 				if(bitmapData.width != target.width || bitmapData.height != target.height){
-					bitmapData = new BitmapData(target.width, target.height, bitmapData.transparent, 0x00000000);
+					bitmapData = new BitmapData(target.width, target.height, bitmapData.transparent, 0x0);
 				}
 			} else {
-				bitmapData = new BitmapData(width, height, bitmapData.transparent, 0x00000000);
+				bitmapData = new BitmapData(width, height, bitmapData.transparent, 0x0);
 			}
 			bitmapData.draw(target, matrix);
 			x = target.x;

@@ -23,7 +23,7 @@ package com.robotacid.ai {
 		
 		public function PlayerBrain(char:Character) {
 			super(char, PLAYER);
-			confusionOverlay = new Bitmap(new BitmapData(Game.WIDTH, Game.HEIGHT, true, 0x00000000));
+			confusionOverlay = new Bitmap(new BitmapData(Game.WIDTH, Game.HEIGHT, true, 0x0));
 		}
 		
 		override public function main():void {

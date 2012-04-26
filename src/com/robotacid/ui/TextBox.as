@@ -125,7 +125,7 @@ package com.robotacid.ui {
 			borderRect = new Rectangle(1, 1, _width - 2, _height - 2);
 			boundsRect = new Rectangle(2, 2, _width - 4, _height - 4);
 			maskRect = new Rectangle(0, 0, 1, 1);
-			super(new BitmapData(_width, _height, true, 0x00000000), "auto", false);
+			super(new BitmapData(_width, _height, true, 0x0), "auto", false);
 			drawBorder();
 		}
 		
@@ -181,7 +181,7 @@ package com.robotacid.ui {
 			_height = height;
 			borderRect = new Rectangle(1, 1, _width - 2, _height - 2);
 			boundsRect = new Rectangle(2, 2, _width - 4, _height - 4);
-			bitmapData = new BitmapData(width, height, true, 0x00000000);
+			bitmapData = new BitmapData(width, height, true, 0x0);
 			updateText();
 			draw();
 		}

@@ -48,8 +48,8 @@
 			this.game = game;
 			this.renderer = renderer;
 			
-			bitmapData = new BitmapData(blockMap[0].length, blockMap.length, true, 0x00000000);
-			window = new Bitmap(new BitmapData(WIDTH, HEIGHT, true, 0x00000000));
+			bitmapData = new BitmapData(blockMap[0].length, blockMap.length, true, 0x0);
+			window = new Bitmap(new BitmapData(WIDTH, HEIGHT, true, 0x0));
 			addChild(window);
 			
 			flashPrompt = new Shape();
@@ -60,14 +60,14 @@
 			addChild(flashPrompt);
 			
 			playerBitmapData = new BitmapData(3, 3, true, 0xFFFFFFFF);
-			playerBitmapData.setPixel32(1, 1, 0x00000000);
+			playerBitmapData.setPixel32(1, 1, 0x0);
 			var playerBitmap:Bitmap = new Bitmap(playerBitmapData);
 			playerBitmap.x = -1 + (WIDTH * 0.5) >> 0;
 			playerBitmap.y = -1 + (HEIGHT * 0.5) >> 0;
 			addChild(playerBitmap);
 			
 			var borderdata:BitmapData = new BitmapData(WIDTH, HEIGHT, true, 0xFF999999);
-			borderdata.fillRect(new Rectangle(1, 1, WIDTH - 2, HEIGHT - 2), 0x00000000);
+			borderdata.fillRect(new Rectangle(1, 1, WIDTH - 2, HEIGHT - 2), 0x0);
 			var border:Bitmap = new Bitmap(borderdata);
 			addChild(border);
 			
@@ -91,7 +91,7 @@
 		}
 		
 		public function newMap(blockMap:Vector.<Vector.<int>>):void{
-			bitmapData = new BitmapData(blockMap[0].length, blockMap.length, true, 0x00000000);
+			bitmapData = new BitmapData(blockMap[0].length, blockMap.length, true, 0x0);
 			fx.length = 0;
 		}
 		
@@ -103,7 +103,7 @@
 			for(r = 1; r < bitmapData.height - 1; r++){
 				for(c = 1; c < bitmapData.width - 1; c++){
 					col = bitmapData.getPixel32(c, r);
-					if(col == 0x00000000 && (blockMap[r][c] & Collider.SOLID) != Collider.SOLID){
+					if(col == 0x0 && (blockMap[r][c] & Collider.SOLID) != Collider.SOLID){
 						bitmapData.setPixel32(c, r, LightMap.MINIMAP_REVEAL_COL);
 						// as well as marking empty squares, the surrounding squares must be checked for walls to mark
 						if(blockMap[r - 1][c - 1] & LightMap.WALL) bitmapData.setPixel32(c - 1, r - 1, LightMap.MINIMAP_WALL_COL);

@@ -17,7 +17,6 @@
 		public static var renderer:Renderer;
 		
 		public var gfx:DisplayObject;
-		public var mask:DisplayObject;
 		public var active:Boolean;
 		public var addToEntities:Boolean;
 		public var callMain:Boolean;

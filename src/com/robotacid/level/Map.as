@@ -1117,7 +1117,7 @@
 					bitmapData = bitmap.bitmapData;
 				}
 			} else {
-				bitmapData = new BitmapData(Game.SCALE * BACKGROUND_WIDTH, Game.SCALE * BACKGROUND_HEIGHT, true, 0x00000000);
+				bitmapData = new BitmapData(Game.SCALE * BACKGROUND_WIDTH, Game.SCALE * BACKGROUND_HEIGHT, true, 0x0);
 				var source:BitmapData;
 				var point:Point = new Point();
 				var x:int, y:int;

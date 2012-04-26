@@ -151,7 +151,7 @@
 				bitmap_width = scale;
 				for(c = 0; c < width; c += scale){
 					if(c + bitmap_width > width) bitmap_width = width - c;
-					bitmapdata = new BitmapData(bitmap_width, bitmap_height, true, 0x00000000);
+					bitmapdata = new BitmapData(bitmap_width, bitmap_height, true, 0x0);
 					bitmap = new Bitmap(bitmapdata);
 					bitmap.x = c;
 					bitmap.y = r;

@@ -4,6 +4,7 @@
 	import com.robotacid.ai.HorrorBrain;
 	import com.robotacid.ai.Node;
 	import com.robotacid.ai.PlayerBrain;
+	import com.robotacid.engine.FadeLight;
 	import com.robotacid.engine.Writing;
 	import com.robotacid.level.Content;
 	import com.robotacid.level.MapBitmap;
@@ -86,7 +87,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 365;
+		public static const BUILD_NUM:int = 366;
 		
 		public static const TEST_BED_INIT:Boolean = false;
 		
@@ -363,14 +364,14 @@
 				focusPrompt = new Sprite();
 				focusPrompt.graphics.beginFill(0x000000);
 				focusPrompt.graphics.drawRect(0, 0, WIDTH, HEIGHT);
-				var clickToPlayText:TextBox = new TextBox(100, 12, 0x00000000, 0x00000000, 0xFFAA0000);
+				var clickToPlayText:TextBox = new TextBox(100, 12, 0x0, 0x0, 0xFFAA0000);
 				clickToPlayText.align = "center";
 				clickToPlayText.text = "click to play";
 				clickToPlayText.bitmapData.colorTransform(clickToPlayText.bitmapData.rect, new ColorTransform(1, 0, 0, 1, -85));
 				focusPrompt.addChild(clickToPlayText);
 				clickToPlayText.x = (WIDTH * 0.5) - 50;
 				clickToPlayText.y = (HEIGHT * 0.5) + 10;
-				var buildText:TextBox = new TextBox(100, 12, 0x00000000, 0x00000000, 0xFFAA0000);
+				var buildText:TextBox = new TextBox(100, 12, 0x0, 0x0, 0xFFAA0000);
 				buildText.align = "center";
 				buildText.text = "build " + BUILD_NUM;
 				buildText.bitmapData.colorTransform(buildText.bitmapData.rect, new ColorTransform(1, 0, 0, 1, -85));
@@ -957,7 +958,9 @@
 				pauseGame();
 			}
 			if(Key.isDown(Key.K)){
-				player.jump();
+				//player.jump();
+				player.asleep = !player.asleep;
+				var fadeLight:FadeLight = new FadeLight(FadeLight.SLEEP, player.mapX, player.mapY, player);
 			}
 			/*if(Key.isDown(Key.T)){
 				if(!Game.dialog){

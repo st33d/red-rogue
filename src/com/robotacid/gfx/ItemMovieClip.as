@@ -71,7 +71,7 @@ package com.robotacid.gfx {
 					gfx = new HelmetMC();
 					addChild(gfx);
 				} else if(name == Item.INVISIBILITY){
-					buffer = new BitmapData(CAPTURE_WIDTH, CAPTURE_HEIGHT, true, 0x00000000);
+					buffer = new BitmapData(CAPTURE_WIDTH, CAPTURE_HEIGHT, true, 0x0);
 					bufferLoaded = false;
 				} else if(name == Item.INDIFFERENCE){
 					gfx = new IndifferenceMC();
@@ -106,8 +106,8 @@ package com.robotacid.gfx {
 		}
 		
 		public static function init():void{
-			characterMask = new BitmapData(CAPTURE_WIDTH, CAPTURE_HEIGHT, true, 0x00000000);
-			bitmapData = new BitmapData(CAPTURE_WIDTH, CAPTURE_HEIGHT, true, 0x00000000);
+			characterMask = new BitmapData(CAPTURE_WIDTH, CAPTURE_HEIGHT, true, 0x0);
+			bitmapData = new BitmapData(CAPTURE_WIDTH, CAPTURE_HEIGHT, true, 0x0);
 			rect = new Rectangle(0, 0, CAPTURE_WIDTH, CAPTURE_HEIGHT);
 			dx = -CAPTURE_WIDTH * 0.5;
 			dy = -CAPTURE_HEIGHT + 1;
@@ -214,7 +214,7 @@ package com.robotacid.gfx {
 							point.x < renderer.bitmapData.width && point.y < renderer.bitmapData.height
 						){
 							parent.visible = true;
-							characterMask.fillRect(characterMask.rect, 0x00000000);
+							characterMask.fillRect(characterMask.rect, 0x0);
 							characterMask.draw(parent, new Matrix(parent.scaleX, 0, 0, 1, -dx, -dy));
 							parent.visible = false;
 							

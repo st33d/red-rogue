@@ -192,7 +192,7 @@ package com.robotacid.ui.menu {
 				if(option == deleteOption){
 					if(list == createBlockList){
 						game.world.removeMapPosition(mapX, mapY);
-						renderer.blockBitmapData.fillRect(mapRect, 0x00000000);
+						renderer.blockBitmapData.fillRect(mapRect, 0x0);
 						game.map.bitmap.bitmapData.setPixel32(mapX, mapY, MapBitmap.EMPTY);
 					}
 				} else if(list == createBlockList){
@@ -214,7 +214,7 @@ package com.robotacid.ui.menu {
 					blit = converter.convertIndicesToObjects(mapX, mapY, id) as BlitRect;
 					blit.x = mapX * Game.SCALE;
 					blit.y = mapY * Game.SCALE;
-					renderer.blockBitmapData.fillRect(mapRect, 0x00000000);
+					renderer.blockBitmapData.fillRect(mapRect, 0x0);
 					blit.render(renderer.blockBitmapData);
 				}
 			}
@@ -246,7 +246,7 @@ package com.robotacid.ui.menu {
 						blit = converter.convertIndicesToObjects(mapX, mapY, MapTileConverter.WALL) as BlitRect;
 						blit.x = mapX * Game.SCALE;
 						blit.y = mapY * Game.SCALE;
-						renderer.blockBitmapData.fillRect(mapRect, 0x00000000);
+						renderer.blockBitmapData.fillRect(mapRect, 0x0);
 						blit.render(renderer.blockBitmapData);
 						game.mapTileManager.mapLayers[MapTileManager.ENTITY_LAYER][mapY][mapX] = converter.convertIndicesToObjects(
 							mapX, mapY, new ChaosWall(mapX, mapY)

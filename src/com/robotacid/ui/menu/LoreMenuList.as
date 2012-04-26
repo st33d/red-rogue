@@ -139,7 +139,7 @@ package com.robotacid.ui.menu {
 				}
 			}
 			
-			infoTextBox.backgroundCol = 0x00000000;
+			infoTextBox.backgroundCol = 0x0;
 			infoTextBox.align = "center";
 			infoTextBox.text = nameStr;
 			textBuffer = infoTextBox.bitmapData.clone();

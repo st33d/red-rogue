@@ -70,6 +70,7 @@
 		public var quickenQueued:Boolean;
 		public var canJump:Boolean;
 		public var voice:Array;
+		public var asleep:Boolean;
 		
 		// stats
 		public var speed:Number;
@@ -204,6 +205,8 @@
 		public static const INFRAVISION_COLS:Vector.<ColorTransform> = Vector.<ColorTransform>([DEFAULT_COL, new ColorTransform(1, 0, 0, 1, 255), new ColorTransform(1, 0.7, 0.7, 1, 50)]);
 		public static const QUEST_VICTIM_FILTER:GlowFilter = new GlowFilter(0xAA0000, 0.5, 2, 2, 1000);
 		
+		public static var tent:MovieClip = new TentMC;
+		
 		public static var p:Point = new Point();
 		
 		/* Characters require a unique id to identify them in circumstances such as quests */
@@ -234,6 +237,7 @@
 			missileIgnore = Collider.LADDER | Collider.LEDGE | Collider.CORPSE | Collider.ITEM | Collider.HEAD | Collider.HORROR;
 			uniqueNameStr = null;
 			canJump = false;
+			asleep = false;
 			
 			setStats();
 			
@@ -1293,6 +1297,16 @@
 			}
 			if((looking & LEFT) && mc.scaleX != -1) mc.scaleX = -1;
 			else if((looking & RIGHT) && mc.scaleX != 1) mc.scaleX = 1;
+			
+			if(asleep){
+				tent.x = gfx.x - tent.width * 0.5;
+				tent.y = gfx.y - SCALE;
+				matrix = tent.transform.matrix;
+				matrix.tx -= renderer.bitmap.x;
+				matrix.ty -= renderer.bitmap.y;
+				renderer.bitmapData.draw(tent, matrix, gfx.transform.colorTransform);
+				return;
+			}
 			
 			// pace movement
 			if(state == WALKING || state == EXITING || state == ENTERING){

@@ -50,7 +50,7 @@
 			point = new Point();
 			border = bitmapData.clone();
 			border.fillRect(bitmapData.rect, BORDER_COL);
-			border.fillRect(new Rectangle(1, 1, bitmapData.width - 2, bitmapData.height - 2), 0x00000000);
+			border.fillRect(new Rectangle(1, 1, bitmapData.width - 2, bitmapData.height - 2), 0x0);
 			textBox = new TextBox(Game.WIDTH, LINE_SPACING + 1, BACKGROUND_COL, BACKGROUND_COL, FONT_COL);
 			textBox.wordWrap = false;
 			insertionPoint = Game.renderer.insertionPointBlit;

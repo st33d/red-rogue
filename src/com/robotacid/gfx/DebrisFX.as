@@ -62,10 +62,15 @@
 					// resolve and kill
 					getVector();
 					cast = Cast.ray(px, py, dx, dy, game.world, IGNORE_PROPERTIES);
-					x = px + cast.distance * dx;
-					y = py + cast.distance * dy;
-					if(print) printFade();
-					if(!smear || cast.surface == Collider.UP || cast.surface == 0) kill();
+					if(cast){
+						x = px + cast.distance * dx;
+						y = py + cast.distance * dy;
+						if(print) printFade();
+						if(!smear || cast.surface == Collider.UP || cast.surface == 0) kill();
+						
+					} else {
+						kill();
+					}
 				}
 			}
 			// render

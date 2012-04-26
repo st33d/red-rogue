@@ -28,7 +28,7 @@
 		public function BlitSprite(mc:DisplayObject = null, colorTransform:ColorTransform = null) {
 			if(mc){
 				bounds = mc.getBounds(mc);
-				data = new BitmapData(Math.ceil(bounds.width), Math.ceil(bounds.height), true, 0x00000000);
+				data = new BitmapData(Math.ceil(bounds.width), Math.ceil(bounds.height), true, 0x0);
 				data.draw(mc, new Matrix(1, 0, 0, 1, -bounds.left, -bounds.top), colorTransform);
 				super(bounds.left, bounds.top, Math.ceil(bounds.width), Math.ceil(bounds.height));
 			}
@@ -55,7 +55,7 @@
 		}
 		/* resizes the data */
 		public function resize(dx:int, dy:int, width:int, height:int):void{
-			var tempData:BitmapData = new BitmapData(width, height, true, 0x00000000);
+			var tempData:BitmapData = new BitmapData(width, height, true, 0x0);
 			p.x = dx;
 			p.y = dy;
 			this.width = width;

@@ -118,6 +118,8 @@
 			for(var i:int = entities.length - 1; i > -1; i--){
 				entity = entities[i];
 				if(entity.active){
+					// skip sleeping characters
+					if(entity is Character && (entity as Character).asleep) continue;
 					radius = entity.light;
 					if(entity.mapX + radius > p.x && entity.mapY + radius > p.y && entity.mapX - radius < p.x + rect.width && entity.mapY - radius < p.y + rect.height){
 						light(entity);
@@ -144,7 +146,7 @@
 			
 			var col:uint = darkImage.getPixel32(entity.mapX, entity.mapY);
 			if(col > entity.lightCols[0]){
-				col = col >= FADE_STEP ? col - FADE_STEP : 0x00000000;
+				col = col >= FADE_STEP ? col - FADE_STEP : 0x0;
 				if(col < entity.lightCols[0]) col = entity.lightCols[0];
 				darkImage.setPixel32(entity.mapX, entity.mapY, col);
 			}
@@ -219,7 +221,7 @@
 							if(mapX > -1 && mapY > -1 && mapX < width && mapY < height){
 								col = darkImage.getPixel32(mapX, mapY);
 								if(col > lightCols[dist]){
-									col = col >= FADE_STEP ? col - FADE_STEP : 0x00000000;
+									col = col >= FADE_STEP ? col - FADE_STEP : 0x0;
 									if(col < lightCols[dist]) col = lightCols[dist];
 									darkImage.setPixel32(mapX, mapY, col);
 									// edge lighting code
@@ -302,7 +304,7 @@
 			var col:uint = 0xFF000000;
 			var prevCol:uint = col;
 			for(var i:int = temp_radius + 1; i > -1; i--, col -= 0x01000000 * step){
-				if(prevCol < col) col = 0x00000000;
+				if(prevCol < col) col = 0x0;
 				entity.lightCols[i] = col;
 				prevCol = col;
 			}

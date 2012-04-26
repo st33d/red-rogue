@@ -150,7 +150,7 @@ package com.robotacid.engine {
 			// remove from map renderer
 			game.world.removeMapPosition(mapX, mapY);
 			game.mapTileManager.removeTile(this, mapX, mapY, mapZ);
-			renderer.blockBitmapData.fillRect(new Rectangle(mapX * SCALE, mapY * SCALE, SCALE, SCALE), 0x00000000);
+			renderer.blockBitmapData.fillRect(new Rectangle(mapX * SCALE, mapY * SCALE, SCALE, SCALE), 0x0);
 			// show empty on minimap
 			game.miniMap.bitmapData.setPixel32(mapX, mapY, LightMap.MINIMAP_EMPTY_COL);
 			gfx.visible = true;
@@ -206,7 +206,7 @@ package com.robotacid.engine {
 			// remove from map renderer
 			game.world.removeMapPosition(mapX, mapY);
 			game.mapTileManager.removeTile(this, mapX, mapY, mapZ);
-			renderer.blockBitmapData.fillRect(new Rectangle(mapX * SCALE, mapY * SCALE, SCALE, SCALE), 0x00000000);
+			renderer.blockBitmapData.fillRect(new Rectangle(mapX * SCALE, mapY * SCALE, SCALE, SCALE), 0x0);
 			// show empty on minimap
 			game.miniMap.bitmapData.setPixel32(mapX, mapY, LightMap.MINIMAP_EMPTY_COL);
 			gfx.visible = true;

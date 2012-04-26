@@ -28,7 +28,7 @@
 				frames[0] = data;
 				for (var i:int = 2; i < mc.totalFrames + 1; i++){
 					mc.gotoAndStop(i);
-					frames[i-1] = new BitmapData(Math.ceil(bounds.width), Math.ceil(bounds.height), true, 0x00000000);
+					frames[i-1] = new BitmapData(Math.ceil(bounds.width), Math.ceil(bounds.height), true, 0x0);
 					frames[i-1].draw(mc, new Matrix(1, 0, 0, 1, -bounds.left, -bounds.top), colorTransform);
 				}
 				totalFrames = mc.totalFrames;
