@@ -79,6 +79,7 @@
 			if(name == CHAOS){
 				callMain = true;
 				holdCount = HOLD_DELAY;
+				
 			}
 			debrisType = Renderer.STONE;
 			free = false;
@@ -94,6 +95,7 @@
 		}
 		
 		override public function main():void {
+			
 			dist = collider.y - openY;
 			if(gateState == OPENING){
 				collider.vy = dist < SPEED ? -dist : -SPEED;
@@ -206,6 +208,10 @@
 				if(aggressor == game.player) game.console.print("?");
 			}
 			game.soundQueue.addRandom("gateHit", HIT_SOUNDS);
+			
+			if(!minimapFeature){
+				minimapFeature = game.miniMap.addFeature(mapX, mapY, renderer.gateFeatureBlit, true);
+			} else return;
 		}
 		
 		public function open():void{
@@ -232,7 +238,13 @@
 				minimapFeature = null;
 			}
 			collider.world.removeCollider(collider);
+			if(minimapFeature) {
+				minimapFeature.active = false;
+				minimapFeature = null;
+			}
 		}
+		
+		
 		
 		/* The break gate is the only gate that can be destroyed, so only its death is dealt with here
 		override public function death(cause:String = "unlocked", decapitation:Boolean = false, aggressor:Character = null):void {
@@ -248,12 +260,6 @@
 			}
 			collider.world.removeCollider(collider);
 		} */
-		
-		/* A search action can reveal to the player where a secret wall is */
-		public function reveal():void{
-			minimapFeature = game.miniMap.addFeature(mapX, mapY, renderer.searchFeatureBlit, true);
-			gfx.visible = true;
-		}
 		
 		/* Called to make this object visible */
 		override public function render():void{

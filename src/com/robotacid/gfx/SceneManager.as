@@ -1,4 +1,5 @@
 package com.robotacid.gfx {
+	import com.robotacid.engine.Portal;
 	import com.robotacid.level.Map;
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
@@ -96,8 +97,14 @@ package com.robotacid.gfx {
 				}
 				
 			} else if(mapLevel == Map.OVERWORLD && mapType == Map.AREA){
-				// the overworld requires an effect over the stairwell to imply the time loop spell
-				renderer.createTeleportSparkRect(new Rectangle(12 * Game.SCALE, (game.map.height - 2) * Game.SCALE, Game.SCALE, Game.SCALE), 2);
+				// the overworld requires an effect over portals to imply the time loop spell
+				if(game.portals.length){
+					var portal:Portal;
+					for(i = 0; i < game.portals.length; i++){
+						portal = game.portals[i];
+						renderer.createTeleportSparkRect(new Rectangle(portal.rect.x, portal.rect.y, portal.rect.width, portal.rect.height), 2);
+					}
+				}
 			}
 		}
 		

@@ -230,6 +230,8 @@
 					game.console.print("grindstone created");
 					debrisType = Renderer.STONE;
 				}
+				Item.revealName(effect.name, game.menu.inventoryList.runesList);
+				
 				entity.mapX = mapX;
 				entity.mapY = mapY;
 				entity.mapZ = MapTileManager.ENTITY_LAYER;

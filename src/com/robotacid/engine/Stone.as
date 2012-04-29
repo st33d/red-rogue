@@ -32,6 +32,7 @@
 		public static const HEAL:int = 1;
 		public static const GRIND:int = 2;
 		public static const DEATH:int = 3;
+		public static const LIGHT:int = 4;
 		
 		public static const SECRET_XP_REWARD:Number = 1 / 30;
 		public static const GRIND_XP_RATE:Number = 1;

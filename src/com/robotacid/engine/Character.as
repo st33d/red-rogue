@@ -333,7 +333,7 @@
 			if(name == TROLL){
 				racialEffect = new Effect(Effect.HEAL, level, Effect.ARMOUR, this, 0, true);
 			} else if(name == WEREWOLF){
-				racialEffect = new Effect(Effect.CONFUSION, level, Effect.ARMOUR, this, 0, true);
+				racialEffect = new Effect(Effect.STUN, level, Effect.ARMOUR, this, 0, true);
 			} else {
 				racialEffect = null;
 			}

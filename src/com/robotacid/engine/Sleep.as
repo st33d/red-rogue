@@ -21,6 +21,7 @@ package com.robotacid.engine {
 		
 		private var fadeLight:FadeLight;
 		private var aggroCount:int;
+		private var aggroBegins:Boolean;
 		
 		public static const HEIGHT:Number = Game.HEIGHT - Console.HEIGHT;
 		public static const HEAL_RATE:Number = 1.0 / 180;
@@ -36,20 +37,10 @@ package com.robotacid.engine {
 			textBox.align = "center";
 			textBox.alignVert = "center";
 			addChild(textBox);
+			visible = false;
 		}
 		
 		public function main():void{
-			// aggravate local monsters
-			if(aggroCount) aggroCount--;
-			else {
-				if(Brain.monsterCharacters.length){
-					var monster:Monster = Brain.monsterCharacters[game.random.rangeInt(Brain.monsterCharacters.length)] as Monster;
-					if(monster){
-						monster.brain.attack(game.player);
-					}
-				}
-				aggroCount = AGGRO_DELAY;
-			}
 			// get the minion to a position where it can sleep
 			if(game.minion && !game.minion.asleep){
 				// teleport to player
@@ -68,6 +59,20 @@ package com.robotacid.engine {
 				if(game.minion && game.minion.asleep && game.minion.health < game.minion.totalHealth){
 					game.minion.applyHealth(HEAL_RATE * game.minion.totalHealth);
 				}
+			} else {
+				// aggravate local monsters
+				aggroCount--;
+				if(Brain.monsterCharacters.length){
+					var monster:Monster = Brain.monsterCharacters[game.random.rangeInt(Brain.monsterCharacters.length)] as Monster;
+					if(monster){
+						monster.brain.attack(game.player);
+						if(!aggroBegins){
+							aggroBegins = true;
+							game.console.print("monsters have heard you make camp");
+						}
+					}
+				}
+				if(aggroCount <= 0) aggroCount = AGGRO_DELAY;
 			}
 		}
 		
@@ -77,6 +82,7 @@ package com.robotacid.engine {
 			aggroCount = 0;
 			game.menu.sleepOption.state = MENU_WAKE_UP;
 			game.menu.update();
+			aggroBegins = false;
 		}
 		
 		public function deactivate():void{
