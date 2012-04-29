@@ -1052,12 +1052,16 @@
 			collider.state = Collider.FALL;
 			collider.vy = JUMP_VELOCITY;
 			game.soundQueue.add("jump");
+			if(asleep) setAsleep(false);
 		}
 		
 		/* Adds damage to the Character */
 		public function applyDamage(n:Number, source:String, knockback:Number = 0, critical:Boolean = false, aggressor:Character = null, defaultSound:Boolean = true):void{
 			// killing a character on a set of stairs could crash the game
 			if(state == ENTERING || state == EXITING || state == QUICKENING) return;
+			// wake up any sleeping character
+			if(asleep) setAsleep(false);
+			
 			health-= n;
 			if(defaultSound) game.soundQueue.addRandom("hit" + debrisType, HIT_SOUNDS[debrisType]);
 			if(critical) renderer.shake(0, 5);
@@ -1110,6 +1114,11 @@
 			} else {
 				losBorder = Brain.DEFAULT_LOS_BORDER + infravision * Brain.INFRAVISION_LOS_BORDER_BONUS;
 			}
+		}
+		
+		/* Changes the character's sleep state (overridden by Player) */
+		public function setAsleep(value:Boolean):void{
+			asleep = value;
 		}
 		
 		/* Some races have a special attack as their racial ability, this method is executed during a successful melee strike */
@@ -1299,12 +1308,14 @@
 			else if((looking & RIGHT) && mc.scaleX != 1) mc.scaleX = 1;
 			
 			if(asleep){
-				tent.x = gfx.x - tent.width * 0.5;
-				tent.y = gfx.y - SCALE;
-				matrix = tent.transform.matrix;
-				matrix.tx -= renderer.bitmap.x;
-				matrix.ty -= renderer.bitmap.y;
-				renderer.bitmapData.draw(tent, matrix, gfx.transform.colorTransform);
+				if(this == game.player){
+					tent.x = gfx.x - tent.width * 0.5;
+					tent.y = gfx.y - SCALE;
+					matrix = tent.transform.matrix;
+					matrix.tx -= renderer.bitmap.x;
+					matrix.ty -= renderer.bitmap.y;
+					renderer.bitmapData.draw(tent, matrix, gfx.transform.colorTransform);
+				}
 				return;
 			}
 			

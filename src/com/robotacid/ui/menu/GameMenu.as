@@ -13,6 +13,7 @@
 	import com.robotacid.geom.Pixel;
 	import com.robotacid.gfx.PNGEncoder;
 	import com.robotacid.gfx.Renderer;
+	import com.robotacid.level.Surface;
 	import com.robotacid.phys.Collider;
 	import com.robotacid.sound.SoundManager;
 	import com.robotacid.ui.Dialog;
@@ -66,6 +67,7 @@
 		public var disarmTrapOption:MenuOption;
 		public var missileOption:ToggleMenuOption;
 		public var jumpOption:MenuOption;
+		public var sleepOption:ToggleMenuOption;
 		
 		public var screenshotOption:MenuOption;
 		public var editorOption:MenuOption;
@@ -184,6 +186,8 @@
 			missileOption.context = "missile";
 			jumpOption = new MenuOption("jump", null, false);
 			jumpOption.help = "makes the player leap into the air";
+			sleepOption = new ToggleMenuOption(["sleep", "wake up"]);
+			sleepOption.help = "sleep recovers health after a short pause";
 			
 			initChangeKeysMenuOption();
 			changeKeysOption.help = "change the movement keys, menu key and hot keys"
@@ -237,6 +241,7 @@
 			actionsList.options.push(disarmTrapOption);
 			actionsList.options.push(missileOption);
 			actionsList.options.push(jumpOption);
+			actionsList.options.push(sleepOption);
 			
 			optionsList.options.push(soundOption);
 			optionsList.options.push(fullScreenOption);
@@ -709,6 +714,26 @@
 			// jumping
 			} else if(option == jumpOption){
 				game.player.jump();
+			
+			// sleeping / waking up
+			} else if(option == sleepOption){
+				// i can't let you do that dave
+				if(game.player.state == Character.QUICKENING) game.console.print("you cannot sleep during the quickening");
+				else if(game.player.state == Character.EXITING || game.player.state == Character.ENTERING) game.console.print("you cannot sleep in stairs or portals");
+				else if(game.player.state == Character.LUNGING) game.console.print("you cannot sleep whilst fighting");
+				else if(game.player.state == Character.STUNNED) game.console.print("you cannot sleep whilst stunned");
+				else if(game.player.state == Character.SMITED) game.console.print("do you honestly think you can sleep right now?");
+				else if(game.player.state == Character.WALKING){
+					if(game.player.collider.parent){
+						if(game.player.collider.properties & Collider.CHAOS) game.console.print("you cannot sleep on ?");
+						else if(
+							game.player.name == Character.WRAITH &&
+							(game.world.map[game.player.mapY][game.player.mapX] & Collider.WALL)
+						) game.console.print("you cannot sleep inside a wall");
+						else game.player.setAsleep(!game.player.asleep);
+						
+					} else game.console.print("you must sleep on the floor");
+				}
 			
 			// creating an item
 			} else if(option == giveItemList.createOption){

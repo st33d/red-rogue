@@ -1,31 +1,32 @@
-Change log: refactored DeathLight to FadeLight (for double use with sleep mechanic), fixed null cast bug in DebrisFX, fixed armour graphics library (broken by promoting chaos armour)
+Change log: sleep implemented - full testing may be required
 
 Bug hunt
-	can crash graph renderer by changing level
 	collection lock out on chests after playing for a while - bugged chest or item?
 	minion summon after death? - unreproducable
 	combo bug: minion, indifference, level 21, identify monster twice, minion portal - unreproducable
 	undead respawn causes issue - unreproducable
-	halted chaos wall - why?
 	
 	chaos wall colliders can parent a character and pull it into a wall - how?
 	
 	null Monster collider.world spotted - why?
 	
 	killed wearing debug armour bug (light + undead)
-	
-	indifference armour showing knives armour graphic - why?
 
 need the ability to block effect apply printouts
 
 sleep mechanic
-	sleep character boolean
+	asleep character boolean
 		set sleep method - must track till satifactory sleep state is possible
 		go through ai
 			lock down behaviour when asleep - awake when attacked
 	polls nearby monsters to attack
 	*fade out light before heal begins
 	sleep render state
+		renderer sleep mode
+			Sleep class.render
+				managed messages and ZZZ
+				monitor player for combat engagement
+				put minion to sleep
 	sleep menu state
 		sleep option - toggle to wake up
 			can only be active on a platform?

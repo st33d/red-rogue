@@ -5,6 +5,7 @@
 	import com.robotacid.ai.Node;
 	import com.robotacid.ai.PlayerBrain;
 	import com.robotacid.engine.FadeLight;
+	import com.robotacid.engine.Sleep;
 	import com.robotacid.engine.Writing;
 	import com.robotacid.level.Content;
 	import com.robotacid.level.MapBitmap;
@@ -87,7 +88,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 366;
+		public static const BUILD_NUM:int = 367;
 		
 		public static const TEST_BED_INIT:Boolean = false;
 		
@@ -107,6 +108,7 @@
 		public var world:CollisionWorld;
 		public var random:XorRandom;
 		public var soundQueue:SoundQueue;
+		public var sleep:Sleep;
 		public var transition:Transition;
 		public var editor:Editor;
 		
@@ -234,6 +236,8 @@
 			
 			random = new XorRandom();
 			
+			sleep = new Sleep(this, renderer);
+			
 			transition = new Transition();
 			
 			lightning = new Lightning();
@@ -281,6 +285,8 @@
 			renderer.createRenderLayers(this);
 			
 			addChild(editor.bitmap);
+			
+			addChild(sleep);
 			
 			// UI INIT
 			
@@ -762,6 +768,7 @@
 					
 					if(player.active){
 						player.main();
+						if(player.asleep) sleep.main();
 						if(transition.active) return;
 					}
 					
@@ -959,8 +966,7 @@
 			}
 			if(Key.isDown(Key.K)){
 				//player.jump();
-				player.asleep = !player.asleep;
-				var fadeLight:FadeLight = new FadeLight(FadeLight.SLEEP, player.mapX, player.mapY, player);
+				player.setAsleep(true);
 			}
 			/*if(Key.isDown(Key.T)){
 				if(!Game.dialog){

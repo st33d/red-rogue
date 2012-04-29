@@ -145,7 +145,7 @@
 			tileCenter = (mapX + 0.5) * SCALE;
 			
 			// keyboard input is managed from the PlayerBrain - thus psychological states can be inflicted upon the player
-			if(state == WALKING) brain.main();
+			if(state == WALKING && !asleep) brain.main();
 			
 			super.main();
 			
@@ -615,6 +615,16 @@
 					!indifferent && !(throwable.holyState == Item.CURSE_REVEALED && !undead)
 				);
 				game.menu.missileOption.state = GameMenu.THROW;
+			}
+		}
+		
+		override public function setAsleep(value:Boolean):void {
+			super.setAsleep(value);
+			if(value){
+				game.sleep.activate();
+			} else {
+				game.sleep.deactivate();
+				if(game.minion) game.minion.asleep = false;
 			}
 		}
 		

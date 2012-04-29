@@ -78,7 +78,7 @@
 				teleportToPlayer();
 			}
 			tileCenter = (mapX + 0.5) * SCALE;
-			if(state == WALKING) brain.main();
+			if(state == WALKING && !asleep) brain.main();
 			super.main();
 			minimapFX.x = mapX;
 			minimapFX.y = mapY;
@@ -112,6 +112,14 @@
 		override public function applyHealth(n:Number):void {
 			super.applyHealth(n);
 			game.minionHealthBar.setValue(health, totalHealth);
+		}
+		
+		override public function setAsleep(value:Boolean):void {
+			super.setAsleep(value);
+			if(!value && game.player.asleep){
+				game.console.print("your minion is in danger");
+				game.player.setAsleep(false);
+			}
 		}
 		
 		/* This pulls the minion to the vicinity of the player */
