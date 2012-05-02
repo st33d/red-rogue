@@ -11,6 +11,8 @@ package com.robotacid.ui.menu {
 		public var renderCallback:Function;
 		public var update:Boolean;
 		
+		public static const TEXT_BOX_LINES:int = 15;
+		
 		public function MenuInfo(renderCallback:Function, update:Boolean = false) {
 			super();
 			this.renderCallback = renderCallback;

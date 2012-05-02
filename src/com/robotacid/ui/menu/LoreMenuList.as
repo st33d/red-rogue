@@ -26,6 +26,7 @@ package com.robotacid.ui.menu {
 		public var questsList:QuestMenuList;
 		
 		public var mapInfo:MenuInfo;
+		public var logInfo:MenuInfo;
 		public var raceInfo:MenuInfo;
 		public var weaponInfo:MenuInfo;
 		public var armourInfo:MenuInfo;
@@ -50,6 +51,7 @@ package com.robotacid.ui.menu {
 			questsList = new QuestMenuList(menu);
 			
 			mapInfo = new MenuInfo(renderMap, true);
+			logInfo = new MenuInfo(renderLog);
 			raceInfo = new MenuInfo(renderRace);
 			weaponInfo = new MenuInfo(renderWeapon);
 			armourInfo = new MenuInfo(renderArmour);
@@ -73,6 +75,8 @@ package com.robotacid.ui.menu {
 			
 			var mapOption:MenuOption = new MenuOption("map", mapInfo);
 			mapOption.recordable = false;
+			var logOption:MenuOption = new MenuOption("log", logInfo);
+			logOption.recordable = false;
 			racesOption = new MenuOption("races", racesList);
 			itemsOption = new MenuOption("items", itemsList);
 			weaponsOption = new MenuOption("weapons", weaponsList);
@@ -80,6 +84,7 @@ package com.robotacid.ui.menu {
 			questsOption = new MenuOption("quests", questsList);
 			
 			options.push(mapOption);
+			options.push(logOption);
 			options.push(racesOption);
 			options.push(itemsOption);
 			options.push(questsOption);
@@ -151,6 +156,13 @@ package com.robotacid.ui.menu {
 			
 			infoTextBox.backgroundCol = col;
 			infoTextBox.align = "left";
+		}
+		
+		/* Show an extended console report */
+		private function renderLog():void{
+			infoTextBox.wordWrap = false;
+			infoTextBox.marquee = true;
+			infoTextBox.text = game.console.getLog(MenuInfo.TEXT_BOX_LINES);
 		}
 		
 		/* Callback for raceInfo rendering */

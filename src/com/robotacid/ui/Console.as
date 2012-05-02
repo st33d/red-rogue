@@ -19,6 +19,8 @@
 	public class Console extends Bitmap{
 		
 		public var targetScrollDir:int;
+		public var log:String;
+		public var logLines:int;
 		
 		private var lineBuffer:Vector.<BitmapData>;
 		private var lineWidthBuffer:Vector.<Number>;
@@ -55,6 +57,8 @@
 			textBox.wordWrap = false;
 			insertionPoint = Game.renderer.insertionPointBlit;
 			insertionPointRect = insertionPoint.rect.clone();
+			log = "";
+			logLines = 0;
 			
 			// by default, console text scrolls in upwards
 			scrollDir = -1;
@@ -156,6 +160,24 @@
 			try{
 				ExternalInterface.call("printToLog", str);
 			}catch(e:Error){}
+			log += str + "\n";
+			logLines++;
+		}
+		
+		/* Return the last "lines" number of prints to the log */
+		public function getLog(lines:int):String{
+			if(log.length == 0) return "";
+			var list:Array = [];
+			// wind back from end of log
+			var end:int = log.length - 1;
+			var start:int;
+			do{
+				start = log.lastIndexOf("\n", end - 1);
+				if(scrollDir == -1) list.unshift(log.substring(start + 1, end));
+				else list.push(log.substring(start + 1, end));
+				end = start;
+			} while(start > -1 && --lines);
+			return list.join("\n");
 		}
 		
 		/* Changes the scrolling behaviour of the console */

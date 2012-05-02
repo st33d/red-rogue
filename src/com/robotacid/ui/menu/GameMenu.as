@@ -70,6 +70,7 @@
 		public var sleepOption:ToggleMenuOption;
 		
 		public var screenshotOption:MenuOption;
+		public var saveLogOption:MenuOption;
 		public var editorOption:MenuOption;
 		public var giveItemOption:MenuOption;
 		public var changeRogueRaceOption:MenuOption;
@@ -202,6 +203,8 @@
 			fullScreenOption.help = "toggle fullscreen.\nthe flash player only allows use of the cursor keys and space when fullscreen in a browser.";
 			screenshotOption = new MenuOption("screenshot");
 			screenshotOption.help = "take a screen shot of the game (making the menu temporarily invisible) and open a filebrowser to save the screenshot to the desktop.";
+			saveLogOption = new MenuOption("save log");
+			saveLogOption.help = "open a filebrowser to save this game's log to the desktop.";
 			seedOption = new MenuOption("set rng seed", seedInputList);
 			seedOption.help = "set the current random seed value used to generate levels and content.\nenter no value for a random seed value.";
 			dogmaticOption = new MenuOption("dogmatic mode", onOffList);
@@ -246,6 +249,7 @@
 			optionsList.options.push(soundOption);
 			optionsList.options.push(fullScreenOption);
 			optionsList.options.push(screenshotOption);
+			optionsList.options.push(saveLogOption);
 			optionsList.options.push(menuMoveOption);
 			optionsList.options.push(consoleDirOption);
 			optionsList.options.push(changeKeysOption);
@@ -653,6 +657,20 @@
 					}
 				}
 			
+			// taking a screenshot
+			} else if(option == saveLogOption){
+				if(Capabilities.playerType == "StandAlone"){
+					saveLog();
+				} else {
+					if(!Game.dialog){
+						Game.dialog = new Dialog(
+							"save log",
+							"flash's security restrictions require you to press the menu key to continue\n",
+							saveLog
+						);
+					}
+				}
+			
 			// changing the scrolling behaviour of the console
 			} else if(option == upDownOption){
 				if(previousMenuList.options[previousMenuList.selection] == consoleDirOption){
@@ -831,9 +849,19 @@
 		
 		/* Activates fullscreen mode */
 		private function fullscreen():void{
-			game.stage.fullScreenSourceRect = new Rectangle(0, 0, Game.WIDTH * 2, Game.HEIGHT * 2);
-			game.stage.scaleMode = StageScaleMode.SHOW_ALL;
-			game.stage.displayState = "fullScreen";
+			try{
+				game.stage.fullScreenSourceRect = new Rectangle(0, 0, Game.WIDTH * 2, Game.HEIGHT * 2);
+				game.stage.scaleMode = StageScaleMode.SHOW_ALL;
+				game.stage.displayState = "fullScreen";
+			} catch(e:Error){
+				if(!Game.dialog){
+					Game.dialog = new Dialog(
+						"nope",
+						"well whoever runs this site doesn't want you to run the game fullscreen.\n\nthey've locked the flash player out of that option.\n\nwhat a dick."
+					);
+				}
+				fullscreenOn = false;
+			}
 		}
 		
 		/* Takes a screen shot of the game (sans menu) and opens a file browser to save it as a png */
@@ -845,6 +873,11 @@
 			FileManager.save(PNGEncoder.encode(bitmapData, {"creator":"red-rogue"}), "screenshot.png");
 			if(Game.dialog) Game.dialog.visible = true;
 			visible = true;
+		}
+		
+		/* Takes a screen shot of the game (sans menu) and opens a file browser to save it as a png */
+		private function saveLog():void{
+			FileManager.save(game.console.log, "log.txt");
 		}
 		
 		/* Whenever armour of indifference is removed it is destroyed */

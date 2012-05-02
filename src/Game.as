@@ -513,6 +513,8 @@
 			Player.previousPortalType = Portal.STAIRS;
 			Player.previousMapType = Map.AREA;
 			SoundManager.musicTimes = {};
+			console.log = "";
+			console.logLines = 0;
 			editor.deactivate();
 			init();
 		}
@@ -981,16 +983,9 @@
 				//player.jump();
 				player.setAsleep(true);
 			}
-			/*if(Key.isDown(Key.T)){
-				if(!Game.dialog){
-					Game.dialog = new Dialog(
-						"exit level",
-						"this level may not be the same when you return, are you sure?",
-						function():void{trace("okay");},
-						function():void{trace("cancel");}
-					);
-				}
-			}
+			if(Key.isDown(Key.T)){
+				miniMap.reveal();
+			}/*
 			if(Key.isDown(Key.R)){
 				reset();
 			}
