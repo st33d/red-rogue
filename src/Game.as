@@ -88,7 +88,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 368;
+		public static const BUILD_NUM:int = 369;
 		
 		public static const TEST_BED_INIT:Boolean = false;
 		
@@ -193,6 +193,10 @@
 		public static const DEFAULT_BAR_COL:uint = 0xFFCCCCCC;
 		public static const DISABLED_BAR_COL:uint = 0xFFAA0000;
 		public static const GLOW_BAR_COL:uint = 0xAA0000;
+		
+		public static const SOUND_DIST_MAX:int = 12;
+		public static const INV_SOUND_DIST_MAX:Number = 1.0 / SOUND_DIST_MAX;
+		public static const SOUND_HORIZ_DIST_MULTIPLIER:Number = 1.5;
 		
 		public function Game():void {
 			
@@ -887,6 +891,15 @@
 				}
 			}
 			return idMap;
+		}
+		
+		/* Play a sound at a volume based on the distance to the player */
+		public function createDistSound(mapX:int, mapY:int, name:String, names:Array = null):void{
+			var dist:Number = Math.abs(player.mapX - mapX) * SOUND_HORIZ_DIST_MULTIPLIER + Math.abs(player.mapY - mapY);
+			if(dist < SOUND_DIST_MAX){
+				if(names) soundQueue.addRandom(name, names, (SOUND_DIST_MAX - dist) * INV_SOUND_DIST_MAX);
+				else if(name) soundQueue.add(name, (SOUND_DIST_MAX - dist) * INV_SOUND_DIST_MAX);
+			}
 		}
 		
 		/* Switches to the appropriate music */

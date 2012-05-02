@@ -325,6 +325,8 @@
 		
 		override public function changeSelection():void{
 			
+			if(currentMenuList.options.length == 0) return;
+			
 			var i:int, runeName:int;
 			
 			var option:MenuOption = currentMenuList.options[selection];

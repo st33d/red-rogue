@@ -242,7 +242,7 @@ package com.robotacid.engine {
 		
 		/* Launches a missile from the ceiling that bears a magic effect */
 		public function shootChaos():void{
-			game.soundQueue.add("throw");
+			game.createDistSound(mapX, mapY, "throw");
 			var x:Number = collider.x + collider.width * 0.5;
 			var y:Number = collider.y + collider.height * 0.5;
 			

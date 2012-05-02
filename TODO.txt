@@ -1,18 +1,33 @@
-Change log: alchemy now identifies the rune used, gates now create a minimap feature when attacked, werewolf racial ability changed to stun armour, werewolf buffed to rogue level and given greater damage and speed (to account for stun), rogue given red sash, warning issued when sleep-aggro begins, aggro limited to during fade light (3 monsters max), fixed sleep not visible on first attempt, added particles to all portals on the overworld
+Change log: added consolePrint boolean to Effects to allow status reports to be blocked on racial and armour effects, voice distance code wrong - fixed by Game class managed sound distancing method createSoundDist, chaos walls and gate sounds distanced, distanced shake method added to renderer, chaos wall shakes distanced, cog shoot sound distanced, info menu panel now expandable
 
 Bug hunt
 	collection lock out on chests after playing for a while - bugged chest or item?
 	minion summon after death? - unreproducable
 	combo bug: minion, indifference, level 21, identify monster twice, minion portal - unreproducable
 	undead respawn causes issue - unreproducable
-	
 	chaos wall colliders can parent a character and pull it into a wall - how?
-	
 	null Monster collider.world spotted - why?
-	
 	killed wearing debug armour bug (light + undead)
+	
 
-need the ability to block effect apply printouts
+expandable info menu
+	add size states to info menu render
+	add rendering to InfoMenuList?
+	create log in Lore menu
+
+title screen
+
+tutorial
+
+endings
+
+save and quit
+	refactor Save object
+		save overworld items
+			save location
+				add location to item xml
+		figure out what to do with underworld items
+
 
 sleep mechanic
 	sleep render state
@@ -36,12 +51,6 @@ sounds
 		ping
 		discovery
 
-add volume distancing to other elements like
-	chaos walls
-	cogs shooting
-create volume distance function
-also add shake volume
-
 yendor
 	jumping
 		jumping ai
@@ -49,18 +58,6 @@ yendor
 	
 gates
 	pressure pads
-
-save and quit
-	unlocking minion lore permanently alters all references to "the minion"
-	
-
-expandable info menu
-	add size states to info menu render
-	add rendering to InfoMenuList?
-
-refactor MapTileManager to EntityManager - move Entity control to EntityManager
-	refactor MapTileConverter to EntityConverter
-		make graphics commands more transparent
 
 title screen
 

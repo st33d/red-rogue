@@ -93,9 +93,6 @@
 		public static const INV_SCALE:Number = Game.INV_SCALE;
 		
 		public static const VOICE_DELAY:int = 30;
-		public static const VOICE_DIST_MAX:int = 12;
-		public static const INV_VOICE_DIST_MAX:Number = 1.0 / VOICE_DIST_MAX;
-		public static const VERTICAL_DIST_MULTIPLIER:Number = 1.5;
 		
 		public static const MONSTER_SEARCH_STEPS:int = 14;
 		public static const MINION_SEARCH_STEPS:int = 20;
@@ -215,8 +212,8 @@
 						state = PATROL;
 						// monsters will vocalise when they have finished pausing
 						if(voiceCount == 0){
-							voiceDist = Math.abs(game.player.mapX - char.mapX) + Math.abs(game.player.mapY - char.mapY) * VERTICAL_DIST_MULTIPLIER;
-							if(voiceDist < VOICE_DIST_MAX) speak(char.voice, voiceDist);
+							game.createDistSound(char.mapX, char.mapY, "voice", char.voice);
+							voiceCount = VOICE_DELAY + game.random.range(VOICE_DELAY);
 						}
 						// check for changes in patrol area at random
 						if(patrolAreaSet && game.random.coinFlip()) patrolAreaSet = false;
@@ -247,8 +244,8 @@
 									
 									// characters will vocalise when they see a target
 									if(voiceCount == 0){
-										voiceDist = Math.abs(game.player.mapX - char.mapX) + Math.abs(game.player.mapY - char.mapY);
-										if(voiceDist < VOICE_DIST_MAX) speak(char.voice, voiceDist);
+										game.createDistSound(char.mapX, char.mapY, "voice", char.voice);
+										voiceCount = VOICE_DELAY + game.random.range(VOICE_DELAY);
 									}
 								}
 							}
@@ -697,12 +694,6 @@
 				}
 				
 			}
-		}
-		
-		/* Triggers a sample representing the character grunting something */
-		public function speak(voice:Array, dist:Number):void{
-			game.soundQueue.addRandom("voice", voice, (VOICE_DIST_MAX - dist) * INV_VOICE_DIST_MAX);
-			voiceCount = VOICE_DELAY + game.random.range(VOICE_DELAY);
 		}
 		
 		/* Scan the floor about the character to establish an area to tread

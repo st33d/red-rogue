@@ -15,7 +15,7 @@ package com.robotacid.ui.menu {
 			super();
 			this.renderCallback = renderCallback;
 			this.update = update;
-			accessible = false;
+			//accessible = false;
 		}
 		
 	}

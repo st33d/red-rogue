@@ -33,6 +33,7 @@
 		public var target:Character;
 		public var source:int;
 		public var applicable:Boolean;
+		public var consolePrint:Boolean;
 		
 		public var healthStep:Number;
 		public var targetTotalHealth:Number;
@@ -94,10 +95,11 @@
 		public static const MIN_TELEPORT_DIST:int = 10;
 		public static const ARMOUR_COUNTDOWN_STEP:int = 600 / 20;
 		
-		public function Effect(name:int, level:int, source:int = 0, target:Character = null, count:int = 0, racial:Boolean = false) {
+		public function Effect(name:int, level:int, source:int = 0, target:Character = null, count:int = 0, racial:Boolean = false, consolePrint:Boolean = true) {
 			this.name = name;
 			this.level = level;
 			this.source = source;
+			this.consolePrint = consolePrint;
 			applicable = true;
 			if(target){
 				apply(target, count, racial);
@@ -122,7 +124,7 @@
 						level--;
 						count = DECAY_DELAY_PER_LEVEL;
 					} else {
-						if(target is Player) game.console.print("the " + nameToString() + " wears off");
+						if(target is Player && consolePrint) game.console.print("the " + nameToString() + " wears off");
 						dismiss();
 					}
 				}
@@ -159,7 +161,7 @@
 					if(!target.undead) target.applyDamage(healthStep, nameToString(), 0, false, null, false);
 				} else {
 					if(source == ARMOUR){
-						if(target is Player) game.console.print("the " + nameToString() + " wears off");
+						if(target is Player && consolePrint) game.console.print("the " + nameToString() + " wears off");
 						active = false;
 					} else {
 						dismiss();
@@ -173,7 +175,7 @@
 						target.thorns -= THORNS_PER_LEVEL;
 						level--;
 						if(level == 0){
-							if(target is Player) game.console.print("the " + nameToString() + " wears off");
+							if(target is Player && consolePrint) game.console.print("the " + nameToString() + " wears off");
 							dismiss();
 						} else {
 							count = DECAY_DELAY_PER_LEVEL;
@@ -189,7 +191,7 @@
 						target.attackSpeedModifier += SLOW_PER_LEVEL;
 						level--;
 						if(level == 0){
-							if(target is Player) game.console.print("the " + nameToString() + " wears off");
+							if(target is Player && consolePrint) game.console.print("the " + nameToString() + " wears off");
 							dismiss();
 						} else {
 							count = DECAY_DELAY_PER_LEVEL;
@@ -205,7 +207,7 @@
 						target.attackSpeedModifier -= HASTE_PER_LEVEL;
 						level--;
 						if(level == 0){
-							if(target is Player) game.console.print("the " + nameToString() + " wears off");
+							if(target is Player && consolePrint) game.console.print("the " + nameToString() + " wears off");
 							dismiss();
 						} else {
 							count = DECAY_DELAY_PER_LEVEL;
@@ -221,7 +223,7 @@
 						target.endurance -= PROTECTION_PER_LEVEL;
 						level--;
 						if(level == 0){
-							if(target is Player) game.console.print("the " + nameToString() + " wears off");
+							if(target is Player && consolePrint) game.console.print("the " + nameToString() + " wears off");
 							dismiss();
 						} else {
 							count = DECAY_DELAY_PER_LEVEL;
@@ -346,6 +348,7 @@
 					item.location = Item.UNASSIGNED;
 					var portal:Portal = Portal.createPortal(Portal.ITEM, user.mapX, user.mapY, game.map.level);
 					game.content.setItemDungeonContent(item, game.map.level);
+					game.console.print("the " + item.nameToString() + " is sent into another dimension");
 				}
 				return item;
 				
@@ -440,6 +443,7 @@
 				dest = getTeleportTarget(game.player.mapX, game.player.mapY, game.world.map, game.mapTileManager.mapRect, Boolean(Surface.fragmentationMap));
 				item.dropToMap(dest.x, dest.y);
 				game.soundQueue.add("teleport");
+				game.console.print("the " + item.nameToString() + " teleports away");
 			}
 			
 			return item;
@@ -447,6 +451,8 @@
 		
 		/* Add an effect to an item's effect list or creates the effect list */
 		public function addToItem(item:Item):void{
+			// item effects do not print out status reports all the time
+			consolePrint = false;
 			// repeat enchants must upgrade existing effects or risk a clusterfuck of effects firing all the time
 			if(item.effects){
 				var effect:Effect;
@@ -559,7 +565,7 @@
 					}
 					callMain = true;
 				} else {
-					if(target == game.player || target == game.minion) game.console.print(target.nameToString() + " may survive death");
+					if(consolePrint && (target == game.player || target == game.minion)) game.console.print(target.nameToString() + " may survive death");
 				}
 				
 			} else if(name == TELEPORT){
@@ -728,6 +734,7 @@
 						game.random.value() < CHANCE_PER_LEVEL * level
 					){
 						target.brain.confuse(CONFUSION_PER_LEVEL * level);
+						if(consolePrint) game.console.print(target.nameToString() + " is confused");
 					}
 					return;
 				}

@@ -36,15 +36,9 @@ package com.robotacid.ai {
 			prevCenter = charPos.x;
 			
 			if(horrorVoiceCount <= 0){
-				voiceDist = Math.abs(game.player.mapX - char.mapX) + Math.abs(game.player.mapY - char.mapY);
-				if(voiceDist < VOICE_DIST_MAX) speak(char.voice, voiceDist);
+				game.createDistSound(char.mapX, char.mapY, "horror", char.voice);
+				horrorVoiceCount = HORROR_VOICE_DELAY;
 			}
-		}
-		
-		/* Triggers a sample representing horrors */
-		override public function speak(voice:Array, dist:Number):void{
-			game.soundQueue.addRandom("horror", voice, (VOICE_DIST_MAX - dist) * INV_VOICE_DIST_MAX);
-			horrorVoiceCount = HORROR_VOICE_DELAY;
 		}
 		
 	}

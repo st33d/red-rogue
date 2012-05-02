@@ -38,8 +38,8 @@ package com.robotacid.engine {
 		private var count:int;
 		private var cogDisplacement:Number;
 		private var cogFrame:int;
-		private var playerDist:int;
 		
+		private static var soundDist:Number;
 		private static var distX:int;
 		private static var distY:int;
 		private static var dist:Number;
@@ -125,9 +125,9 @@ package com.robotacid.engine {
 				if(dist < Collider.MOVEMENT_TOLERANCE){
 					state = RETIRE;
 					count = RETIRE_DELAY;
-					renderer.shake(collider.vx, collider.vy);
+					renderer.shake(collider.vx, collider.vy, new Pixel(mapX, mapY));
 					collider.vx = collider.vy = 0;
-					game.soundQueue.add("chaosWallStop");
+					game.createDistSound(mapX, mapY, "chaosWallStop");
 					if(fuse){
 						kill();
 					}
@@ -155,7 +155,7 @@ package com.robotacid.engine {
 			game.miniMap.bitmapData.setPixel32(mapX, mapY, LightMap.MINIMAP_EMPTY_COL);
 			gfx.visible = true;
 			free = true;
-			game.soundQueue.add("chaosWallReady");
+			game.createDistSound(mapX, mapY, "chaosWallReady");
 		}
 		
 		/* Begin moving the ChaosWall, activate all neighbouring ChaosWalls to create a resting place and
@@ -197,7 +197,7 @@ package com.robotacid.engine {
 				chaosWalls[mapY + 1][mapX].ready();
 			}
 			state = MOVING;
-			game.soundQueue.add("chaosWallMoving");
+			game.createDistSound(mapX, mapY, "chaosWallMoving");
 		}
 		
 		/* The standard way for chaos walls to go in the Caves zone and occasionally in Chaos */
@@ -211,11 +211,11 @@ package com.robotacid.engine {
 			game.miniMap.bitmapData.setPixel32(mapX, mapY, LightMap.MINIMAP_EMPTY_COL);
 			gfx.visible = true;
 			free = true;
-			game.soundQueue.addRandom("pitTrap", Stone.DEATH_SOUNDS);
+			game.createDistSound(mapX, mapY, "pitTrap", Stone.DEATH_SOUNDS);
 			renderer.createDebrisRect(collider, 0, 100, Renderer.STONE);
 			// create a golem?
 			if(game.random.value() < GOLEM_CHANCE){
-				renderer.shake(0, 5);
+				renderer.shake(0, 5, new Pixel(mapX, mapY));
 				var xml:XML = GOLEM_TEMPLATE_XML.copy();
 				xml.@level = game.map.level;
 				var monster:Monster = Content.XMLToEntity(mapX, mapY, xml);

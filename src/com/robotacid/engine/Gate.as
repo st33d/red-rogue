@@ -107,7 +107,7 @@
 					}
 				} else if(dist < Collider.MOVEMENT_TOLERANCE){
 					collider.vy = 0;
-					game.soundQueue.add("chaosWallStop");
+					game.createDistSound(mapX, mapY, "chaosWallStop");
 					renderer.shake(0, -2);
 					gateState = OPEN;
 					if(name == CHAOS){
@@ -129,7 +129,7 @@
 						gateState = CLOSING;
 						raiseHits = 0;
 						collider.awake = Collider.AWAKE_DELAY;
-						game.soundQueue.add("chaosWallReady");
+						game.createDistSound(mapX, mapY, "chaosWallReady");
 					}
 				}
 				
@@ -143,7 +143,7 @@
 					if(character && character.brain) character.brain.flee(this);
 				}
 				if(collider.pressure & DOWN){
-					game.soundQueue.add("thud");
+					game.createDistSound(mapX, mapY, "thud");
 					if(collider.downContact){
 						character = collider.downContact.userData as Character;
 						if(character){
@@ -157,7 +157,7 @@
 				} else if(dist >= SCALE - Collider.MOVEMENT_TOLERANCE){
 					gateState = CLOSED;
 					collider.vy = 0;
-					game.soundQueue.add("chaosWallStop");
+					game.createDistSound(mapX, mapY, "chaosWallStop");
 					if(name == CHAOS){
 						holdCount = HOLD_DELAY * 2 + game.random.range(HOLD_DELAY * 2);
 					} else {
@@ -171,7 +171,7 @@
 				if(holdCount <= 0){
 					gateState = OPENING;
 					collider.awake = Collider.AWAKE_DELAY;
-					game.soundQueue.add("chaosWallReady");
+					game.createDistSound(mapX, mapY, "chaosWallReady");
 				}
 			}
 			//Game.debug.drawRect(collider.x, collider.y, collider.width, collider.height);
@@ -219,7 +219,7 @@
 				callMain = true;
 				if(gateState == CLOSED || gateState == CLOSING || gateState == OPEN){
 					collider.vy = 0;
-					game.soundQueue.add("chaosWallReady");
+					game.createDistSound(mapX, mapY, "chaosWallReady");
 				}
 			}
 			collider.awake = Collider.AWAKE_DELAY;

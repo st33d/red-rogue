@@ -62,7 +62,6 @@
 		
 		public var selection:int;
 		public var hideChangeSelection:Boolean;
-		public var infoTextBoxState:int;
 		
 		public var branch:Vector.<MenuList>;
 		public var branchStringCurrentOption:String;
@@ -118,6 +117,7 @@
 		public static const LIST_WIDTH:Number = 100;
 		public static const LINE_SPACING:Number = 11;
 		public static const SELECTION_WINDOW_TAPER_WIDTH:Number = 50;
+		public static const INFO_TEXT_BOX_WIDTH:Number = 110;
 		public static const SIDE_ALPHAS:Number = 0.7;
 		public static const SELECTION_WINDOW_COL:uint = 0xFFEEEEEE;
 		public static const KEYS_HELD_DELAY:int = 5;
@@ -165,7 +165,6 @@
 			movementGuideCount = MOVEMENT_GUIDE_DELAY;
 			hideChangeSelection = false;
 			animatingSelection = false;
-			infoTextBoxState = HIDDEN;
 			
 			// initialise NOT_VISITED_COLS
 			initNotVisitedCols();
@@ -207,7 +206,7 @@
 			nextTextBox.alpha = 0.7;
 			nextTextBox.wordWrap = false;
 			nextTextBox.marquee = true;
-			infoTextBox = new TextBox(110, 169, 0x66111111, 0xFF999999, 0xFFDDDDDD);
+			infoTextBox = new TextBox(INFO_TEXT_BOX_WIDTH, 169, 0x66111111, 0xFF999999, 0xFFDDDDDD);
 			infoTextBox.wordWrap = false;
 			infoTextBox.marquee = true;
 			infoTextBox.visible = false;
@@ -318,9 +317,13 @@
 		public function select(n:int):void{
 			selection = n;
 			currentMenuList.selection = n;
-			branchStringCurrentOption = currentMenuList.options[n].name;
-			if(currentMenuList.options[n].target){
-				nextMenuList = currentMenuList.options[n].target;
+			if(currentMenuList.options.length){
+				branchStringCurrentOption = currentMenuList.options[n].name;
+				if(currentMenuList.options[n].target){
+					nextMenuList = currentMenuList.options[n].target;
+				} else {
+					nextMenuList = null;
+				}
 			} else {
 				nextMenuList = null;
 			}
@@ -439,6 +442,8 @@
 		 * what MenuList leads from the currently selected MenuOption.
 		 */
 		public function renderMenu():void{
+			currentTextBox.visible = true;
+			selectionWindow.visible = true;
 			if(previousMenuList){
 				previousTextBox.setSize(LIST_WIDTH, LINE_SPACING * previousMenuList.options.length + TextBox.BORDER_ALLOWANCE);
 				previousTextBox.text = previousMenuList.optionsToString();
@@ -459,7 +464,18 @@
 				currentTextBox.y = -currentMenuList.selection * LINE_SPACING - TextBox.BORDER_ALLOWANCE;
 				setLineCols(currentMenuList, currentTextBox);
 			}
-			if(currentMenuList.options[selection].active && nextMenuList){
+			if(currentMenuList.options.length == 0){
+				// assuming this is a MenuInfo being expanded
+				if(currentMenuList is MenuInfo){
+					(currentMenuList as MenuInfo).renderCallback();
+					infoTextBox.visible = true;
+					selectionWindowTaperNext.visible = false;
+					nextTextBox.visible = false;
+					currentTextBox.visible = false;
+					selectionWindow.visible = false;
+				}
+				
+			} else if(currentMenuList.options[selection].active && nextMenuList){
 				if(nextMenuList is MenuInfo){
 					(nextMenuList as MenuInfo).renderCallback();
 					infoTextBox.visible = true;
@@ -561,11 +577,13 @@
 					previousTextBox.x += LIST_WIDTH;
 					currentTextBox.x += LIST_WIDTH;
 					nextTextBox.x += LIST_WIDTH;
-					infoTextBox.x += LIST_WIDTH;
+					if(nextMenuList){
+						infoTextBox.x += LIST_WIDTH;
+						infoTextBox.alpha = 0;
+					}
 					previousTextBox.alpha = 1;
 					currentTextBox.alpha = SIDE_ALPHAS;
 					nextTextBox.alpha = 0;
-					infoTextBox.alpha = 0;
 					
 					previousAlphaStep = (SIDE_ALPHAS - 1.0) / moveReset;
 					currentAlphaStep = (1.0 - SIDE_ALPHAS) / moveReset;
@@ -652,7 +670,7 @@
 		/* We listen for key input here, the keyLock property is used to stop the menu
 		 * endlessly firing the same selection */
 		public function main(e:Event = null):void{
-			var i:int, j:int, newKey:int, inputList:MenuInputList;
+			var i:int, j:int, newKey:int, inputList:MenuInputList, menuInfo:MenuInfo
 			
 			// handle menu opening animation
 			if(help.y < 0){
@@ -785,8 +803,9 @@
 						setLineCols(nextMenuList, nextTextBox);
 					}
 					if(infoTextBox.visible){
-						if((nextMenuList as MenuInfo).update){
-							(nextMenuList as MenuInfo).renderCallback();
+						menuInfo = (nextMenuList as MenuInfo) || (currentMenuList as MenuInfo);
+						if(menuInfo.update){
+							menuInfo.renderCallback();
 						} else {
 							infoTextBox.updateMarquee();
 						}
@@ -803,10 +822,11 @@
 					} else {
 						movementMovieClips[UP_MOVE].visible = currentMenuList.selection > 0;
 						movementMovieClips[DOWN_MOVE].visible = currentMenuList.selection < currentMenuList.options.length - 1;
-						movementMovieClips[RIGHT_MOVE].visible = currentMenuList.options[selection].active && !(nextMenuList && !nextMenuList.accessible);
+						movementMovieClips[RIGHT_MOVE].visible = currentMenuList.options.length && currentMenuList.options[selection].active && !(nextMenuList && !nextMenuList.accessible);
 						movementMovieClips[LEFT_MOVE].visible = Boolean(previousMenuList);
 					}
 					if(
+						currentMenuList.options.length &&
 						currentMenuList.options[selection].active &&
 						!nextMenuList &&
 						!(currentMenuList is MenuInputList) &&
@@ -830,6 +850,7 @@
 						else if(
 							(dir & RIGHT) &&
 							(
+								currentMenuList.options.length &&
 								!(nextMenuList && !nextMenuList.accessible) && (
 									(hotKeyMapRecord && currentMenuList.options[selection].recordable) ||
 									(!hotKeyMapRecord && currentMenuList.options[selection].active)
@@ -844,7 +865,7 @@
 							dir = 0;
 						}
 						// mark option visited
-						currentMenuList.options[currentMenuList.selection].visited = true;
+						if(currentMenuList.options.length) currentMenuList.options[currentMenuList.selection].visited = true;
 						
 					} else break;
 				} while(dir == 0);
@@ -884,16 +905,23 @@
 							nextTextBox.alpha += nextAlphaStep;
 							infoTextBox.alpha += nextAlphaStep;
 							capture.alpha += captureAlphaStep;
+							
+							if(infoTextBox.visible){
+								menuInfo = (currentMenuList as MenuInfo) || (nextMenuList as MenuInfo);
+								if(menuInfo == currentMenuList || (menuInfo == nextMenuList && (dir & LEFT))){
+									infoTextBox.setSize(infoTextBox.width - vx, infoTextBox.height);
+								}
+							}
 						}
 						
 						moveCount--;
 						// animation over
 						if(moveCount == 0){
-							// force everything into its right place to avoid floating point error build up
+							// force everything into its right place to flush floating point errors
 							currentTextBox.x = 0;
 							previousTextBox.x = -LIST_WIDTH;
 							nextTextBox.x = LIST_WIDTH;
-							infoTextBox.x = LIST_WIDTH;
+							infoTextBox.x = (currentMenuList is MenuInfo) ? 0 : LIST_WIDTH;
 							currentTextBox.alpha = 1;
 							previousTextBox.alpha = nextTextBox.alpha = SIDE_ALPHAS;
 							infoTextBox.alpha = 1;
@@ -904,6 +932,13 @@
 								if(moveReset > 1) moveReset--;
 							} else {
 								moveReset = moveDelay;
+							}
+							if(menuInfo){
+								if(currentMenuList == menuInfo){
+									infoTextBox.setSize(INFO_TEXT_BOX_WIDTH + LIST_WIDTH, infoTextBox.height);
+								} else if(nextMenuList == menuInfo){
+									infoTextBox.setSize(INFO_TEXT_BOX_WIDTH, infoTextBox.height);
+								}
 							}
 							update();
 						}
