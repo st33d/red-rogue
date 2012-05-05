@@ -1,4 +1,4 @@
-Change log: added log MenuInfo to LoreMenu, added save log option, added lack-of-fullscreen-support message (required refactoring Dialog to fire callbacks after clean-up)
+Change log: fixed UNDEAD resurrection bug caused by infinite effects management loop, added revert to normal form for player and minion with null rune, fixed bug with resurrection assuming all armour wearers are living, stopped horizontal movement when sleep initiated
 
 Bug hunt
 	collection lock out on chests after playing for a while - bugged chest or item?
@@ -7,8 +7,10 @@ Bug hunt
 	undead respawn causes issue - unreproducable
 	chaos wall colliders can parent a character and pull it into a wall - how?
 	null Monster collider.world spotted - why?
-	killed wearing debug armour bug (light + undead)
+	key not being placed for lock reported - investigate
 	
+
+separate level generation and game init
 
 title screen
 
@@ -53,9 +55,6 @@ yendor
 	
 gates
 	pressure pads
-
-title screen
-
 	
 
 Unique items

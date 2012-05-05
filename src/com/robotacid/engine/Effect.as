@@ -683,7 +683,13 @@
 					target.brain.clear();
 				}
 				// strip name
-				if(!(target is Player) && !(target is Minion)) target.uniqueNameStr = null;
+				if(target != game.player && target != game.minion) target.uniqueNameStr = null;
+				// revert rogue or minion to true form
+				if(target == game.player && target.name != Character.ROGUE){
+					target.changeName(Character.ROGUE);
+				} else if(target == game.minion && target.name != Character.SKELETON){
+					target.changeName(Character.SKELETON);
+				}
 				return;
 				
 			} else if(name == IDENTIFY){
@@ -772,9 +778,11 @@
 		/* Removes the effect from the target */
 		public function dismiss(buffer:Boolean = false):void{
 			
+			//if(target && target == game.player) trace("player effect dismiss", name);
 			active = false;
 			var n:int = target.effects.indexOf(this);
 			if(n > -1) target.effects.splice(n, 1);
+			//if(target && target == game.player) trace("player effects", target.effects.length);
 			if(target.effects.length == 0) target.effects = null;
 			
 			if(buffer){
@@ -793,12 +801,13 @@
 			} else if(name == UNDEAD){
 				// this rune's effect comes in to play when the target is killed and is not undead
 				// face armour complicates this a little
-				var living:Boolean = true;
-				if(target.armour){
-					if(target.armour.name == Item.FACE && Character.stats["undeads"][(target.armour as Face).previousName] == 1) living = false;
-				} else if(target.undead){
-					living = false;
-				}
+				var living:Boolean = !target.undead;
+				if(
+					target.armour &&
+					target.armour.name == Item.FACE &&
+					Character.stats["undeads"][(target.armour as Face).previousName] == 0
+				) living = true;
+				
 				if(!target.active && !buffer && living){
 					if(game.random.value() < CHANCE_PER_LEVEL * level){
 						var mc:MovieClip;
@@ -806,8 +815,8 @@
 						if(target == game.player || target == game.minion){
 							target.active = true;
 							target.applyHealth(target.totalHealth);
-							game.console.print(target.nameToString()+" returns as undead");
-							target.changeName(Character.SKELETON);
+							game.console.print(target.nameToString() + " returns as undead");
+							target.resurrect = true;
 						
 						} else {
 							// replenish the health of the minion

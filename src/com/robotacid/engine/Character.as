@@ -71,6 +71,7 @@
 		public var canJump:Boolean;
 		public var voice:Array;
 		public var asleep:Boolean;
+		public var resurrect:Boolean;
 		
 		// stats
 		public var speed:Number;
@@ -238,6 +239,7 @@
 			uniqueNameStr = null;
 			canJump = false;
 			asleep = false;
+			resurrect = false;
 			
 			setStats();
 			
@@ -750,6 +752,12 @@
 			game.soundQueue.add("kill");
 			if(type == MONSTER) game.player.addXP(xpReward);
 			if(effects) removeEffects();
+			// character may have been resurrected -
+			// skin change must occur here outside of changes to effects list
+			if(resurrect){
+				changeName(SKELETON);
+				resurrect = false;
+			}
 			if(!active && collider.world) collider.world.removeCollider(collider);
 		}
 		
@@ -932,7 +940,9 @@
 					var effect:Effect;
 					for(i = 0; i < item.effects.length; i++){
 						effect = item.effects[i];
-						if(effect.applicable) effect.dismiss();
+						// the effect may already have been dismissed as a result
+						// of resurrection
+						if(effect.applicable && effect.target) effect.dismiss();
 					}
 				}
 				canJump = false;
@@ -1119,6 +1129,10 @@
 		/* Changes the character's sleep state (overridden by Player) */
 		public function setAsleep(value:Boolean):void{
 			asleep = value;
+			if(value){
+				collider.vx = 0;
+				actions = dir = 0;
+			}
 		}
 		
 		/* Some races have a special attack as their racial ability, this method is executed during a successful melee strike */

@@ -88,7 +88,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 369;
+		public static const BUILD_NUM:int = 371;
 		
 		public static const TEST_BED_INIT:Boolean = false;
 		
@@ -736,7 +736,7 @@
 				
 				var advance:Boolean = true;
 				if(dogmaticMode){
-					if(player.searchRadius == -1 && player.state == Character.WALKING && Key.keysPressed == 0) advance = false;
+					if(!player.asleep && player.searchRadius == -1 && player.state == Character.WALKING && Key.keysPressed == 0) advance = false;
 				}
 				
 				if(transition.active) transition.main();
