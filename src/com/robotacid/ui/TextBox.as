@@ -433,6 +433,117 @@ package com.robotacid.ui {
 			if(_color) transform.colorTransform = _color;
 		}
 		
+		/* Get a list of rectangles describing character positions for performing transforms */
+		public function getCharRects():Vector.<Rectangle>{
+			
+			var rects:Vector.<Rectangle> = new Vector.<Rectangle>();
+			var rect:Rectangle = new Rectangle();
+			var i:int, j:int;
+			var x:int;
+			var y:int = BORDER_ALLOWANCE;
+			var alignX:int;
+			var alignY:int;
+			var char:BitmapData;
+			var offset:Point;
+			var wordBeginning:int = 0;
+			var linesHeight:int = lineSpacing * lines.length;
+			
+			for(i = 0; i < lines.length; i++, rect.y += lineSpacing){
+				x = BORDER_ALLOWANCE;
+				
+				if(marquee){
+					if(marqueeLines[i]) x += marqueeLines[i].offset;
+				}
+				
+				wordBeginning = 0;
+				for(j = 0; j < lines[i].length; j++){
+					char = lines[i][j];
+					
+					// alignment to bitmap
+					if(align == "left"){
+						alignX = 0;
+					} else if(align == "center"){
+						alignX = _width * 0.5 - (lineWidths[i] * 0.5 + BORDER_ALLOWANCE);
+					} else if(align == "right"){
+						alignX = _width - lineWidths[i];
+					}
+					if(alignVert == "top"){
+						alignY = 0;
+					} else if(alignVert == "center"){
+						alignY = _height * 0.5 - linesHeight * 0.5;
+					} else if(alignVert == "bottom"){
+						alignY = _height - linesHeight;
+					}
+					
+					// print to bitmapdata
+					if(char){
+						if(j > wordBeginning){
+							x += tracking;
+						}
+						rect.x = alignX + x;
+						rect.y = alignY + y + leading;
+						// mask characters that are outside the boundsRect
+						if(
+							rect.x < boundsRect.x ||
+							rect.y < boundsRect.y ||
+							rect.x + char.rect.width >= boundsRect.x + boundsRect.width ||
+							rect.y + char.rect.height >= boundsRect.y + boundsRect.height
+						){
+							// are they even in the bounds rect?
+							if(
+								rect.x + char.rect.width > boundsRect.x &&
+								boundsRect.x + boundsRect.width > rect.x &&
+								rect.y + char.rect.height > boundsRect.y &&
+								boundsRect.y + boundsRect.height > rect.y
+							){
+								// going to make a glib assumption that the TextBox won't be smaller than a single character
+								maskRect.x = rect.x >= boundsRect.x ? 0 : rect.x - boundsRect.x;
+								maskRect.y = rect.y >= boundsRect.y ? 0 : rect.y - boundsRect.y;
+								maskRect.width = rect.x + char.rect.width <= boundsRect.x + boundsRect.width ? char.rect.width : (boundsRect.x + boundsRect.width) - rect.x;
+								maskRect.height = rect.y + char.rect.height <= boundsRect.y + boundsRect.height ? char.rect.height : (boundsRect.y + boundsRect.height) - rect.y;
+								if(rect.x < boundsRect.x){
+									maskRect.x = boundsRect.x - rect.x;
+									rect.x = boundsRect.x;
+								}
+								if(rect.y < boundsRect.y){
+									maskRect.y = boundsRect.y - rect.y;
+									rect.y = boundsRect.y;
+								}
+								rects.push(maskRect.clone());
+							}
+						} else {
+							rect.width = char.width;
+							rect.height = char.height;
+							rects.push(rect.clone());
+						}
+						x += char.width;
+					} else {
+						x += whitespaceLength;
+						wordBeginning = j + 1;
+					}
+				}
+				y += lineSpacing;
+			}
+			
+			return rects;
+		}
+		
+		/* Move rectangles of pixels and applies colorTransforms, the transforms are applied sequentially */
+		public function applyTranformRects(sources:Vector.<Rectangle>, destinations:Vector.<Point>, colorTransforms:Vector.<ColorTransform> = null):void{
+			var source:Rectangle, destination:Point, colorTransform:ColorTransform;
+			var buffer:BitmapData = bitmapData.clone();
+			drawBorder();
+			for(var i:int = 0; i < sources.length; i++){
+				source = sources[i];
+				destination = destinations[i];
+				if(colorTransforms){
+					colorTransform = colorTransforms[i];
+					buffer.colorTransform(source, colorTransform);
+				}
+				bitmapData.copyPixels(buffer, source, destination, null, null, true);
+			}
+		}
+		
 		/* Update lines that have been assigned TextBoxMarquees */
 		public function updateMarquee():void{
 			var marquee:TextBoxMarquee;

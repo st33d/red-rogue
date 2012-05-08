@@ -88,7 +88,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 371;
+		public static const BUILD_NUM:int = 372;
 		
 		public static const TEST_BED_INIT:Boolean = false;
 		
@@ -443,6 +443,7 @@
 			// ALL CONTENT FOR THE RANDOM SEED GENERATED FROM THIS POINT FORWARD
 			content = new Content();
 			Writing.createStoryCharCodes(Map.random);
+			Sleep.initDreams();
 			
 			// DEBUG HERE ==========================================================================================
 			map = new Map(1);
@@ -979,13 +980,13 @@
 			if(Key.customDown(MENU_KEY) && !Game.dialog){
 				pauseGame();
 			}
-			if(Key.isDown(Key.K)){
+			/*if(Key.isDown(Key.K)){
 				//player.jump();
 				player.setAsleep(true);
 			}
 			if(Key.isDown(Key.T)){
 				miniMap.reveal();
-			}/*
+			}
 			if(Key.isDown(Key.R)){
 				reset();
 			}

@@ -86,7 +86,7 @@ package com.robotacid.engine {
 			super.main();
 			
 			renderer.addDripFX(spawnRect, 3, debrisType);
-			if(spawnRect.intersects(victim.collider)){
+			if(!victim.indifferent && spawnRect.intersects(victim.collider)){
 				victim.applyDamage(damage, "horror", 0, false, this, false);
 				renderer.createDebrisRect(victim.collider, 0, 2, victim.debrisType);
 			}

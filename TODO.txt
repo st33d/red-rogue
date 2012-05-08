@@ -1,4 +1,4 @@
-Change log: fixed UNDEAD resurrection bug caused by infinite effects management loop, added revert to normal form for player and minion with null rune, fixed bug with resurrection assuming all armour wearers are living, stopped horizontal movement when sleep initiated
+Change log: horrors cannot harm indifferent characters, added dreams and nightmare messages to sleep mechanic
 
 Bug hunt
 	collection lock out on chests after playing for a while - bugged chest or item?
@@ -9,7 +9,7 @@ Bug hunt
 	null Monster collider.world spotted - why?
 	key not being placed for lock reported - investigate
 	
-
+	
 separate level generation and game init
 
 title screen
@@ -25,15 +25,6 @@ save and quit
 				add location to item xml
 		figure out what to do with underworld items
 
-
-sleep mechanic
-	sleep render state
-		renderer sleep mode
-			Sleep class.render
-				managed messages and ZZZ
-	rogue thoughts
-	balrog messages
-		nightmares
 
 sounds
 	mimic voice
