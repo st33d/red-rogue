@@ -216,7 +216,7 @@ package com.robotacid.ui {
 						portalType = Portal.ITEM;
 					}
 					// call for a new level
-					game.changeLevel(int(obj.dungeonLevel), portalType, true);
+					game.setLevel(int(obj.dungeonLevel), portalType, true);
 				}
 				
 				// load the hotkeymaps

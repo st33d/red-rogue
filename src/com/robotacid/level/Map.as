@@ -616,12 +616,14 @@
 				}
 			}
 			var pos:uint = bitmap.bitmapData.getPixel32(x, y);
+			var posAbove:uint = bitmap.bitmapData.getPixel32(x, y - 1);
 			var posBelow:uint = bitmap.bitmapData.getPixel32(x, y + 1);
 			var posLeft:uint =  bitmap.bitmapData.getPixel32(x - 1, y);
 			var posRight:uint =  bitmap.bitmapData.getPixel32(x + 1, y);
 			if(bitmap.leftSecretRoom && bitmap.leftSecretRoom.contains(x, y)) return false;
 			if(bitmap.rightSecretRoom && bitmap.rightSecretRoom.contains(x, y)) return false;
 			return (
+				(posAbove != MapBitmap.WALL && posAbove != MapBitmap.GATE) &&
 				(posLeft != MapBitmap.WALL && posRight != MapBitmap.WALL) &&
 				(posLeft != MapBitmap.GATE && posRight != MapBitmap.GATE) &&
 				(posBelow == MapBitmap.WALL || (posBelow == MapBitmap.LEDGE && ledgeAllowed)) &&
@@ -710,6 +712,7 @@
 			var i:int, j:int, site:Pixel, n:int, entranceCol:uint, surface:Surface, gate:Gate, item:Item;
 			var connections:BitmapData = bitmap.bitmapData.clone();
 			connections.threshold(connections, connections.rect, new Point(), "!=", MapBitmap.WALL, 0xFF000000);
+			var connectionsBuffer:BitmapData = connections.clone();
 			var fragmented:Boolean = false;
 			var connectionPixels:Vector.<uint>;
 			var gateType:int;
@@ -736,9 +739,8 @@
 						
 						trace("fragmentation", site);
 					}
-					// revert to standard connection colour
-					connections.setPixel32(site.x, site.y, MapBitmap.CONNECTIVITY_TEST);
-					connections.floodFill(1 + site.x, site.y, MapBitmap.CONNECTIVITY_TEST);
+					// revert to buffer
+					connections = connectionsBuffer.clone();
 				} else {
 					bitmap.gates.splice(i, 1);
 				}

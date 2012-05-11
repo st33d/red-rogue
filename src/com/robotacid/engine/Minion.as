@@ -34,7 +34,7 @@
 		
 		public function Minion(gfx:DisplayObject, x:Number, y:Number, name:int) {
 			
-			super(gfx, x, y, name, MINION, game.player.level);
+			super(gfx, x, y, name, MINION, game.player.level, false);
 			
 			inventory = game.menu.inventoryList;
 			
@@ -49,8 +49,6 @@
 			game.menu.summonOption.active = true;
 			queueSummons = false;
 			game.menu.update();
-			
-			addMinimapFeature();
 		}
 		
 		public function addMinimapFeature():void{

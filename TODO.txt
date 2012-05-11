@@ -1,18 +1,28 @@
-Change log: horrors cannot harm indifferent characters, added dreams and nightmare messages to sleep mechanic
+Change log: refactored game init, entrances with wall above no longer allowed, added head stones to stairs for n00bs, fixed key not spawning entrance side bug (old fragmentation tests were not being cleared)
 
 Bug hunt
 	collection lock out on chests after playing for a while - bugged chest or item?
 	minion summon after death? - unreproducable
 	combo bug: minion, indifference, level 21, identify monster twice, minion portal - unreproducable
 	undead respawn causes issue - unreproducable
-	chaos wall colliders can parent a character and pull it into a wall - how?
+	chaos wall colliders can child a character and pull it into a wall - how?
 	null Monster collider.world spotted - why?
 	key not being placed for lock reported - investigate
 	
-	
-separate level generation and game init
 
+gas traps
+	create gas entity
+	mushroom graphic - red spots when triggered
+
+180 attack weapons
+	add spin attack property to items
+	
+content zones
+	break up content into zones (except for level 1)
+	
 title screen
+	title menu
+	refactor "sure" option in game menu
 
 tutorial
 

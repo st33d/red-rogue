@@ -229,7 +229,7 @@
 					else levelName = "";
 					
 					game.transition.init(function():void{
-						game.changeLevel(portalTargetLevel, portalType);
+						game.setLevel(portalTargetLevel, portalType);
 						// warm up the renderer
 						renderer.main();
 						if(game.map.type != Map.AREA){

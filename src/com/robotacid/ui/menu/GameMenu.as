@@ -815,7 +815,7 @@
 				Player.previousPortalType = Portal.STAIRS;
 				Player.previousMapType = Map.MAIN_DUNGEON;
 				game.editor.deactivate();
-				game.changeLevel(editorList.dungeonLevelList.selection + 1, Portal.STAIRS);;
+				game.setLevel(editorList.dungeonLevelList.selection + 1, Portal.STAIRS);;
 				
 			// remapping the ai graph
 			} else if(option == editorList.remapAIGraphOption){

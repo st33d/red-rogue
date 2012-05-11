@@ -88,7 +88,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 372;
+		public static const BUILD_NUM:int = 373;
 		
 		public static const TEST_BED_INIT:Boolean = false;
 		
@@ -264,15 +264,12 @@
 			
 			dogmaticMode = false;
 			
-			if (stage) init();
-			else addEventListener(Event.ADDED_TO_STAGE, init);
+			if (stage) addedToStage();
+			else addEventListener(Event.ADDED_TO_STAGE, addedToStage);
 		}
 		
-		/* The initialisation is quite long, so I'm breaking it up with some comment lines */
-		private function init(e:Event = null):void {
+		private function addedToStage(e:Event = null):void{
 			removeEventListener(Event.ADDED_TO_STAGE, init);
-			
-			Map.random = new XorRandom(Map.seed);
 			
 			// KEYS INIT
 			if(!Key.initialized){
@@ -285,6 +282,16 @@
 			
 			scaleX = scaleY = 2;
 			stage.quality = StageQuality.LOW;
+			
+			// GAME INIT
+			
+			init();
+		}
+		
+		/* The initialisation is quite long, so I'm breaking it up with some comment lines */
+		private function init():void {
+			
+			Map.random = new XorRandom(Map.seed);
 			
 			renderer.createRenderLayers(this);
 			
@@ -434,9 +441,6 @@
 			// the identify rune's name is already known (obviously)
 			Item.runeNames[Item.IDENTIFY] = Item.stats["rune names"][Item.IDENTIFY];
 			
-			// LEVEL SPECIFIC INIT
-			// This stuff that follows requires the bones of a level to initialise
-			
 			Brain.initCharacterLists();
 			Brain.voiceCount = Brain.VOICE_DELAY + random.range(Brain.VOICE_DELAY);
 			
@@ -445,35 +449,16 @@
 			Writing.createStoryCharCodes(Map.random);
 			Sleep.initDreams();
 			
-			// DEBUG HERE ==========================================================================================
-			map = new Map(1);
-			Brain.initMapGraph(map.bitmap);
-			mapTileManager = new MapTileManager(this, renderer.canvas, SCALE, map.width, map.height, WIDTH, HEIGHT);
-			mapTileManager.setLayers(map.layers);
-			renderer.blockBitmapData = mapTileManager.layerToBitmapData(MapTileManager.BACKGROUND_LAYER);
-			renderer.blockBitmapData = mapTileManager.layerToBitmapData(MapTileManager.BLOCK_LAYER, renderer.blockBitmapData);
-			Writing.renderWritings();
-			world = new CollisionWorld(map.width, map.height, SCALE);
-			world.map = createPropertyMap(mapTileManager.mapLayers[MapTileManager.BLOCK_LAYER]);
+			// LEVEL SPECIFIC INIT
+			// This stuff that follows requires the bones of a level to initialise
 			
-			Explosion.initMap(map.width, map.height);
+			Player.previousLevel = Map.OVERWORLD;
+			Player.previousPortalType = Portal.STAIRS;
+			Player.previousMapType = Map.AREA;
 			
-			//world.debug = debug;
+			// CREATE FIRST LEVEL =================================================================
+			setLevel(1, Portal.STAIRS);
 			
-			renderer.sceneManager = SceneManager.getSceneManager(map.level, map.type);
-			
-			lightMap = new LightMap(world.map);
-			
-			mapTileManager.init(map.start.x, map.start.y);
-			
-			//renderer.lightBitmap.visible = false;
-			
-			// modify the mapRect to conceal secrets
-			mapTileManager.mapRect = renderer.camera.mapRect = map.bitmap.adjustedMapRect;
-			miniMap = new MiniMap(world.map, this, renderer);
-			miniMap.y = miniMap.x = 5;
-			miniMapHolder.addChild(miniMap);
-			initPlayer();
 			// fire up listeners
 			addListeners();
 			
@@ -522,8 +507,7 @@
 		
 		/* Enters the testing area */
 		public function launchTestBed():void{
-			editor.deactivate();
-			changeLevel( -1, Portal.STAIRS);
+			setLevel( -1, Portal.STAIRS);
 			menu.editorList.setLight(menu.editorList.lightList.selection);
 		}
 		
@@ -539,12 +523,12 @@
 		 *
 		 * This method tries to wipe all layers whilst leaving the gaming architecture in place
 		 */
-		public function changeLevel(n:int, portalType:int, loaded:Boolean = false):void{
+		public function setLevel(n:int, portalType:int, loaded:Boolean = false):void{
 			
 			editor.deactivate();
 			
 			// maintain debug state if present
-			if(map.level == -1){
+			if(map && map.level == -1){
 				n = -1;
 				Player.previousLevel = -1;
 				Player.previousPortalType = Portal.ITEM;
@@ -552,16 +536,16 @@
 				loaded = true;
 			}
 			
-			if(!loaded){
+			if(!loaded && map){
 				// left over content needs to be pulled back into the content manager to be found
 				// if the level is visited again
 				content.recycleLevel(map.type);
-				QuickSave.save(this, true);
+				//QuickSave.save(this, true);
 			}
 			
 			// elements to update:
 			
-			// game_objects list needs to be emptied
+			// game objects list needs to be emptied
 			// items list needs to be emptied
 			// colliders list needs to be emptied
 			// new map
@@ -586,7 +570,7 @@
 			explosions.length = 0;
 			portalHash = {};
 			
-			Brain.monsterCharacters = new Vector.<Character>();
+			Brain.monsterCharacters.length = 0;
 			Brain.voiceCount = Brain.VOICE_DELAY + random.range(Brain.VOICE_DELAY);
 			
 			// figure out where in hell's name we're going
@@ -605,7 +589,12 @@
 			
 			Brain.initMapGraph(map.bitmap);
 			
-			mapTileManager.newMap(map.width, map.height, map.layers);
+			if(!mapTileManager){
+				mapTileManager = new MapTileManager(this, renderer.canvas, SCALE, map.width, map.height, WIDTH, HEIGHT);
+				mapTileManager.setLayers(map.layers);
+			} else {
+				mapTileManager.newMap(map.width, map.height, map.layers);
+			}
 			renderer.blockBitmapData = mapTileManager.layerToBitmapData(MapTileManager.BACKGROUND_LAYER);
 			if(map.type != Map.AREA){
 				renderer.blockBitmapData = mapTileManager.layerToBitmapData(MapTileManager.BLOCK_LAYER, renderer.blockBitmapData);
@@ -621,20 +610,42 @@
 			
 			Explosion.initMap(map.width, map.height);
 			
+			// collider debug
+			//world.debug = debug;
+			
 			renderer.sceneManager = SceneManager.getSceneManager(map.level, map.type);
 			
-			lightMap.newMap(world.map);
-			lightMap.setLight(player, player.light);
+			if(!lightMap) lightMap = new LightMap(world.map);
+			else {
+				lightMap.newMap(world.map);
+				lightMap.setLight(player, player.light);
+			}
 			
 			mapTileManager.init(map.start.x, map.start.y);
 			
-			miniMap.newMap(world.map);
+			if(!miniMap){
+				miniMap = new MiniMap(world.map, this, renderer)
+				miniMapHolder.addChild(miniMap);;
+				miniMap.y = miniMap.x = 5;
+			} else {
+				miniMap.newMap(world.map);
+			}
 			
-			player.collider.x = -player.collider.width * 0.5 + (map.start.x + 0.5) * SCALE;
-			player.collider.y = -player.collider.height + (map.start.y + 1) * SCALE;
-			player.mapX = (player.collider.x + player.collider.width * 0.5) * INV_SCALE;
-			player.mapY = (player.collider.y + player.collider.height * 0.5) * INV_SCALE;
-			player.snapCamera();
+			if(!player){
+				var playerMc:MovieClip = new RogueMC();
+				var minionMc:MovieClip = new SkeletonMC();
+				var startX:Number = (map.start.x + 0.5) * SCALE;
+				var startY:Number = (map.start.y + 1) * SCALE;
+				player = new Player(playerMc, startX, startY);
+				minion = new Minion(minionMc, startX, startY, Character.SKELETON);
+				player.snapCamera();
+			} else {
+				player.collider.x = -player.collider.width * 0.5 + (map.start.x + 0.5) * SCALE;
+				player.collider.y = -player.collider.height + (map.start.y + 1) * SCALE;
+				player.mapX = (player.collider.x + player.collider.width * 0.5) * INV_SCALE;
+				player.mapY = (player.collider.y + player.collider.height * 0.5) * INV_SCALE;
+				player.snapCamera();
+			}
 			
 			if(minion){
 				minion.collider.x = -minion.collider.width * 0.5 + (map.start.x + 0.5) * SCALE;
@@ -696,18 +707,6 @@
 			}
 			player.enterLevel(entrance, Player.previousLevel < game.map.level ? Collider.RIGHT : Collider.LEFT);
 			changeMusic();
-		}
-		
-		private function initPlayer():void{
-			var playerMc:MovieClip = new RogueMC();
-			var minionMc:MovieClip = new SkeletonMC();
-			var startX:Number = (map.start.x + 0.5) * SCALE;
-			var startY:Number = (map.start.y + 1) * SCALE;
-			player = new Player(playerMc, startX, startY);
-			minion = new Minion(minionMc, startX, startY, Character.SKELETON);
-			minion.prepareToEnter(entrance);
-			player.enterLevel(entrance);
-			player.snapCamera();
 		}
 		
 		private function addListeners():void{
