@@ -1,4 +1,4 @@
-Change log: refactored game init, entrances with wall above no longer allowed, added head stones to stairs for n00bs, fixed key not spawning entrance side bug (old fragmentation tests were not being cleared)
+Change log: added mushroom traps, removed same type dart traps, light rune missile emits max light, changed content progression to randomised by zone, fixed reset bug caused by init refactor
 
 Bug hunt
 	collection lock out on chests after playing for a while - bugged chest or item?
@@ -10,9 +10,13 @@ Bug hunt
 	key not being placed for lock reported - investigate
 	
 
+red particles on monster portal
+
 gas traps
 	create gas entity
+		gas circle anim - rise and expand cluster
 	mushroom graphic - red spots when triggered
+		spawn points for gas
 
 180 attack weapons
 	add spin attack property to items

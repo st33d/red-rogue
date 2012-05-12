@@ -13,6 +13,7 @@
 	import com.robotacid.engine.Stone;
 	import com.robotacid.gfx.Renderer;
 	import com.robotacid.phys.Collider;
+	import com.robotacid.util.array.randomiseArray;
 	import com.robotacid.util.XorRandom;
 	import flash.display.DisplayObject;
 	import flash.geom.Rectangle;
@@ -48,6 +49,11 @@
 		public var itemDungeonContent:Object;
 		public var areaContent:Array;
 		
+		public static var monsterNameDeck:Array;
+		public static var weaponNameDeck:Array;
+		public static var armourNameDeck:Array;
+		public static var runeNameDeck:Array;
+		
 		// special items
 		public var deathsScythe:Item;
 		public var yendor:Item;
@@ -61,9 +67,35 @@
 		public static const XP_RATE:Number = 2;
 		public static const MONSTER_XP_BY_LEVEL_RATE:Number = 1.2;
 		
+		public static const MONSTER_ZONE_DECKS:Array = [
+			[Character.KOBOLD, Character.GOBLIN, Character.ORC, Character.TROLL, Character.GNOLL],
+			[Character.DROW, Character.CACTUAR, Character.NYMPH, Character.VAMPIRE, Character.WEREWOLF],
+			[Character.MIMIC, Character.NAGA, Character.GORGON, Character.UMBER_HULK, Character.GOLEM],
+			[Character.BANSHEE, Character.WRAITH, Character.MIND_FLAYER, Character.RAKSHASA]
+		];
+		public static const WEAPON_ZONE_DECKS:Array = [
+			[Item.KNIFE, Item.GAUNTLET, Item.DAGGER, Item.MACE, Item.SHORT_BOW],
+			[Item.WHIP, Item.SWORD, Item.ARBALEST, Item.SPEAR, Item.CHAKRAM],
+			[Item.STAFF, Item.BOMB, Item.ARQUEBUS, Item.HAMMER, Item.LONG_BOW],
+			[Item.GUN_BLADE, Item.SCYTHE, Item.CHAOS_WAND, Item.LIGHTNING]
+		];
+		public static const ARMOUR_ZONE_DECKS:Array = [
+			[Item.FLIES, Item.TIARA, Item.FEDORA, Item.TOP_HAT, Item.FIRE_FLIES],
+			[Item.HALO, Item.BEES, Item.VIKING_HELM, Item.SKULL, Item.CROWN],
+			[Item.BLOOD, Item.GOGGLES, Item.WIZARD_HAT, Item.HELMET, Item.INVISIBILITY],
+			[Item.INDIFFERENCE, Item.CHAOS_HELM, Item.CHAOS_WAND, Item.FACE]
+		];
+		public static const RUNE_ZONE_DECKS:Array = [
+			[Item.LIGHT, Item.HEAL, Item.POISON, Item.IDENTIFY, Item.UNDEAD],
+			[Item.TELEPORT, Item.THORNS, Item.NULL, Item.PORTAL, Item.SLOW],
+			[Item.HASTE, Item.HOLY, Item.PROTECTION, Item.STUN, Item.POLYMORPH],
+			[Item.CONFUSION, Item.FEAR, Item.LEECH_RUNE, Item.XP, Item.CHAOS]
+		];
+		
 		public function Content() {
 			var obj:Object;
 			var level:int;
+			var i:int, j:int;
 			
 			// initialise the xp table
 			xpTable = Vector.<Number>([0]);
@@ -75,6 +107,35 @@
 			}
 			//trace("xp table", xpTable.length, xpTable);
 			//trace("monster xp by level", monsterXpByLevel.length, monsterXpByLevel);
+			
+			// construct names by level decks in order of zone
+			monsterNameDeck = [];
+			weaponNameDeck = [];
+			armourNameDeck = [];
+			runeNameDeck = [];
+			var monsterZoneDecks:Array = [MONSTER_ZONE_DECKS[Map.DUNGEONS].slice(), MONSTER_ZONE_DECKS[Map.SEWERS].slice(), MONSTER_ZONE_DECKS[Map.CAVES].slice(), MONSTER_ZONE_DECKS[Map.CHAOS].slice()];
+			var weaponZoneDecks:Array = [WEAPON_ZONE_DECKS[Map.DUNGEONS].slice(), WEAPON_ZONE_DECKS[Map.SEWERS].slice(), WEAPON_ZONE_DECKS[Map.CAVES].slice(), WEAPON_ZONE_DECKS[Map.CHAOS].slice()];
+			var armourZoneDecks:Array = [ARMOUR_ZONE_DECKS[Map.DUNGEONS].slice(), ARMOUR_ZONE_DECKS[Map.SEWERS].slice(), ARMOUR_ZONE_DECKS[Map.CAVES].slice(), ARMOUR_ZONE_DECKS[Map.CHAOS].slice()];
+			var runeZoneDecks:Array = [RUNE_ZONE_DECKS[Map.DUNGEONS].slice(), RUNE_ZONE_DECKS[Map.SEWERS].slice(), RUNE_ZONE_DECKS[Map.CAVES].slice(), RUNE_ZONE_DECKS[Map.CHAOS].slice()];
+			
+			var templates:Array = [monsterZoneDecks, weaponZoneDecks, armourZoneDecks, runeZoneDecks];
+			var targets:Array = [monsterNameDeck, weaponNameDeck, armourNameDeck, runeNameDeck];
+			var template:Array;
+			var target:Array;
+			var zone:Array;
+			
+			// each zone's list is randomised and then added to the target levels
+			// level 1 always starts with the the first content
+			for(i = 0; i < templates.length; i++){
+				template = templates[i];
+				target = targets[i];
+				target.push(template[0].shift());
+				for(j = 0; j < template.length; j++){
+					zone = template[j];
+					randomiseArray(zone, Map.random);
+					while(zone.length) target.push(zone.pop());
+				}
+			}
 			
 			// initialise content lists
 			Character.characterNumCount = 1;
@@ -104,6 +165,7 @@
 					portals:new Vector.<XML>
 				});
 			}
+			
 			// set up underworld portal on level 20
 			var portalXML:XML = <portal />;
 			portalXML.@type = Portal.UNDERWORLD;
@@ -686,48 +748,46 @@
 		/* Create a random character appropriate for the dungeon level
 		 * 
 		 * Currently set up for just Monsters */
-		public static function createCharacterXML(dungeonLevel:int, characterType:int):XML{
+		public static function createCharacterXML(mapLevel:int, characterType:int):XML{
 			var name:int;
-			var level:int = dungeonLevel - 3;
+			var level:int = mapLevel - 3;
 			if(level < -1) level = -1;
 			if(characterType == Character.MONSTER){
-				var range:int = dungeonLevel + 1;
-				if(dungeonLevel > Game.MAX_LEVEL) range = Game.MAX_LEVEL + 1;
-				while(name < 1 || name > dungeonLevel || name >= Game.MAX_LEVEL){
-					name = Map.random.range(range);
-					if(name > dungeonLevel) name = dungeonLevel;
-					if(name >= Game.MAX_LEVEL) continue;
-				}
+				var nameRange:int = mapLevel > monsterNameDeck.length ? monsterNameDeck.length : mapLevel;
+				name = monsterNameDeck[Map.random.rangeInt(nameRange)];
 			}
 			return <character characterNum={(Character.characterNumCount++)} name={name} type={characterType} level={level} />;
 		}
 		
 		/* Create a random item appropriate for the dungeon level */
-		public static function createItemXML(dungeonLevel:int, type:int):XML{
-			var enchantments:int = -2 + Map.random.range(dungeonLevel);
+		public static function createItemXML(mapLevel:int, type:int):XML{
+			var enchantments:int = -2 + Map.random.range(mapLevel);
 			var name:int;
-			var level:int = Math.min(1 + Map.random.range(dungeonLevel), Game.MAX_LEVEL);
+			var level:int = Math.min(1 + Map.random.range(mapLevel), Game.MAX_LEVEL);
+			
 			var nameRange:int;
 			if(type == Item.ARMOUR){
-				nameRange = Item.ITEM_MAX;
+				nameRange = mapLevel > armourNameDeck.length ? armourNameDeck.length : mapLevel;
+				name = armourNameDeck[Map.random.rangeInt(nameRange)];
 			} else if(type == Item.WEAPON){
-				nameRange = Item.ITEM_MAX;
+				nameRange = mapLevel > weaponNameDeck.length ? weaponNameDeck.length : mapLevel;
+				name = weaponNameDeck[Map.random.rangeInt(nameRange)];
 			} else if(type == Item.RUNE){
-				nameRange = Game.MAX_LEVEL;
+				nameRange = mapLevel > runeNameDeck.length ? runeNameDeck.length : mapLevel;
+				name = runeNameDeck[Map.random.rangeInt(nameRange)];
 				level = 0;
 				enchantments = 0;
 			} else if(type == Item.HEART){
-				nameRange = Game.MAX_LEVEL;
+				nameRange = mapLevel > monsterNameDeck.length ? monsterNameDeck.length : mapLevel;
+				name = monsterNameDeck[Map.random.rangeInt(nameRange)];
 				level = 0;
 				enchantments = 0;
 			}
-			if(nameRange > dungeonLevel) nameRange = dungeonLevel;
-			name = Map.random.range(nameRange);
 			
 			var itemXML:XML =<item name={name} type={type} level={level} />;
 			
 			// naturally occurring cursed and blessed items appear level 6+, at the point you can do something about them
-			if((type == Item.ARMOUR || type == Item.WEAPON) && dungeonLevel >= 6){
+			if((type == Item.ARMOUR || type == Item.WEAPON) && mapLevel >= 6){
 				var holyState:int = 0;
 				var roll:Number = Map.random.value();
 				if(roll < CURSED_CHANCE) holyState = Item.CURSE_HIDDEN;
@@ -740,7 +800,7 @@
 				var enchantmentName:int, enchantmentNameRange:int;
 				while(enchantments--){
 					enchantmentNameRange = Map.random.range(Game.MAX_LEVEL);
-					if(enchantmentNameRange > dungeonLevel) enchantmentNameRange = dungeonLevel;
+					if(enchantmentNameRange > mapLevel) enchantmentNameRange = mapLevel;
 					enchantmentName = Map.random.range(enchantmentNameRange);
 					// some enchantments confer multiple extra enchantments -
 					// that can of worms will stay closed

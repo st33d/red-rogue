@@ -988,13 +988,17 @@
 		/* This adds traps other than pit traps to the level */
 		public function createOtherTraps(pixels:Vector.<uint>):void{
 			
+			// TRAPS BY ZONE
+			
+			// All zones have pit traps
+			
 			// the compiler won't let me create this as a constant so I have to drop it in here
 			// better than resorting to magic numbers I suppose
 			var ZONE_TRAPS:Array = [
 				[Trap.TELEPORT_DART],
-				[Trap.STUN_DART, Trap.TELEPORT_DART],
-				[Trap.STUN_DART, Trap.POISON_DART, Trap.TELEPORT_DART, Trap.CONFUSION_DART],
-				[Trap.MONSTER_PORTAL, Trap.STUN_DART, Trap.POISON_DART, Trap.TELEPORT_DART, Trap.CONFUSION_DART, Trap.FEAR_DART]
+				[Trap.STUN_MUSHROOM, Trap.TELEPORT_DART, Trap.CONFUSION_MUSHROOM],
+				[Trap.STUN_MUSHROOM, Trap.POISON_DART, Trap.CONFUSION_MUSHROOM, Trap.FEAR_MUSHROOM],
+				[Trap.MONSTER_PORTAL, Trap.STUN_MUSHROOM, Trap.POISON_DART, Trap.TELEPORT_DART, Trap.CONFUSION_MUSHROOM, Trap.FEAR_MUSHROOM]
 			];
 			
 			var totalTraps:int = game.content.getTraps(level, type) - bitmap.pitTraps;

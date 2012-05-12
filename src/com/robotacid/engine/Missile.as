@@ -91,7 +91,14 @@
 			
 			// runes glow when they are converted to missiles
 			if(type == RUNE || type == CHAOS){
-				game.lightMap.setLight(this, 3, 112);
+				var lightRadius:int = 3;
+				var lightValue:int = 112;
+				// light runes generate max-light missiles
+				if(effect && effect.name == Effect.LIGHT){
+					lightRadius = 15;
+					lightValue= 255;
+				}
+				game.lightMap.setLight(this, lightRadius, lightValue);
 				
 			}
 			// set graphic offset

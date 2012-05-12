@@ -1,5 +1,6 @@
 ﻿package com.robotacid.engine {
 	import com.robotacid.ai.Brain;
+	import com.robotacid.gfx.BlitClip;
 	import com.robotacid.level.Content;
 	import com.robotacid.level.Map;
 	import com.robotacid.geom.Pixel;
@@ -29,25 +30,36 @@
 		public var contact:Boolean;
 		public var revealed:Boolean;
 		public var dartGun:Point;
-		public var count:int;
 		public var xpReward:Number;
 		
 		public var disarmingRect:Rectangle;
 		public var disarmingContact:Boolean;
 		
+		private var effectName:int;
+		private var pitCoverCount:int;
+		private var gasRect:Rectangle;
+		private var gasCount:int;
 		private var minimapFX:MinimapFX;
+		private var targets:Vector.<Effect>;
+		private var mushroomPoints:Vector.<Point>;
+		private var mushroomFrames:Vector.<int>;
+		
 		
 		// type flags
 		public static const PIT:int = 0;
-		public static const POISON_DART:int = 1;
-		public static const TELEPORT_DART:int = 2;
-		public static const STUN_DART:int = 3;
-		public static const MONSTER_PORTAL:int = 4;
-		public static const CONFUSION_DART:int = 5;
-		public static const FEAR_DART:int = 6;
+		public static const TELEPORT_DART:int = 1;
+		public static const STUN_MUSHROOM:int = 2;
+		public static const POISON_DART:int = 3;
+		public static const CONFUSION_MUSHROOM:int = 4;
+		public static const FEAR_MUSHROOM:int = 5;
+		public static const MONSTER_PORTAL:int = 6;
+		public static const HEAL_MUSHROOM:int = 7;
 		
 		public static const PIT_COVER_DELAY:int = 7;
+		public static const GAS_DELAY:Number = 60;
 		public static const DISARM_XP_REWARD:Number = 1 / 30;
+		public static const MUSHROOMS_WIDTH:Number = SCALE * 1.5;
+		public static const MUSHROOMS_HEIGHT:Number = SCALE;
 		
 		public function Trap(gfx:DisplayObject, mapX:int, mapY:int, type:int, dartPos:Pixel = null) {
 			super(gfx, false, false);
@@ -55,13 +67,35 @@
 			revealed = false;
 			if(type == PIT){
 				rect = new Rectangle(mapX * Game.SCALE, -1 + mapY * Game.SCALE, SCALE, SCALE);
-			} else {
-				rect = new Rectangle(mapX * Game.SCALE, -1 + mapY * Game.SCALE, SCALE, 5);
+			} else if(
+				type == TELEPORT_DART ||
+				type == POISON_DART ||
+				type == MONSTER_PORTAL
+			){
+				if(type == TELEPORT_DART) effectName = Effect.TELEPORT;
+				else if(type == TELEPORT_DART) effectName = Effect.POISON;
+				rect = new Rectangle(mapX * Game.SCALE, -1 + mapY * Game.SCALE, SCALE, 1);
 				if(dartPos){
 					dartGun = new Point((dartPos.x + 0.5) * Game.SCALE, (dartPos.y + 1) * Game.SCALE);
 				}
+			} else if(
+				type == CONFUSION_MUSHROOM ||
+				type == FEAR_MUSHROOM ||
+				type == STUN_MUSHROOM ||
+				type == HEAL_MUSHROOM
+			){
+				if(type == CONFUSION_MUSHROOM) effectName = Effect.CONFUSION;
+				else if(type == FEAR_MUSHROOM) effectName = Effect.FEAR;
+				else if(type == STUN_MUSHROOM) effectName = Effect.STUN;
+				else if(type == HEAL_MUSHROOM) effectName = Effect.HEAL;
+				rect = new Rectangle((mapX - 1) * Game.SCALE, -1 + (mapY * Game.SCALE), SCALE * 3, 1);
+				gasRect = new Rectangle(mapX * Game.SCALE, (mapY - 1) * Game.SCALE, SCALE, SCALE);
+				targets = new Vector.<Effect>();
+				mushroomPoints = new Vector.<Point>();
+				mushroomFrames = new Vector.<int>();
+				(gfx as Sprite).addChild(createMushroomGfx(mushroomPoints, mushroomFrames));
 			}
-			disarmingRect = new Rectangle((mapX - 1) * Game.SCALE, -1 + (mapY * Game.SCALE), SCALE * 3, 5);
+			disarmingRect = new Rectangle((mapX - 1) * Game.SCALE, -1 + (mapY * Game.SCALE), SCALE * 3, 1);
 			callMain = true;
 			contact = false;
 			disarmingContact = false;
@@ -70,7 +104,9 @@
 		}
 		
 		override public function main():void {
+			var i:int;
 			//Game.debug.drawRect(rect.x, rect.y, rect.width, rect.height);
+			
 			// check the player is fully on the trap before springing it
 			if(
 				game.player.collider.x >= rect.x &&
@@ -86,6 +122,25 @@
 			} else if(contact){
 				contact = false;
 			}
+			
+			// check for mushroom targets
+			if(gasCount){
+				gasCount--;
+				renderer.addFX(gasRect.x + game.random.range(gasRect.width), gasRect.y + game.random.range(gasRect.width), renderer.redRingBlit, new Point( -1 + game.random.range(2), -1 + game.random.range(2)), game.random.rangeInt(3));
+				checkGasTargets();
+				if(gasCount == 0){
+					// garbage collect target list
+					if(targets && targets.length){
+						var effect:Effect;
+						for(i = targets.length - 1; i > -1; i--){
+							effect = targets[i];
+							if(!effect.active || !effect.target) targets.splice(i, 1);
+						}
+					}
+				}
+			}
+			
+			// disarm check
 			if(revealed && disarmingRect.intersects(game.player.collider)){
 				if(!disarmingContact){
 					disarmingContact = true;
@@ -95,12 +150,43 @@
 				disarmingContact = false;
 				game.player.removeDisarmableTrap(this);
 			}
-			if(count){
-				count--;
-				if(count == 0){
+			
+			// count down pit deletion
+			if(pitCoverCount){
+				pitCoverCount--;
+				if(pitCoverCount == 0){
 					if(type == PIT){
 						active = false;
 						game.world.map[mapY][mapX] = Collider.UP | Collider.LEDGE;
+					}
+				}
+			}
+		}
+		
+		/* Look for targets to hit with an effect */
+		public function checkGasTargets():void{
+			var i:int, j:int;
+			var effect:Effect;
+			var colliders:Vector.<Collider>;
+			var character:Character;
+			// check for new targets
+			colliders = game.world.getCollidersIn(gasRect, null, Collider.PLAYER | Collider.MINION | Collider.MONSTER);
+			for(i = 0; i < colliders.length; i++){
+				character = colliders[i].userData as Character;
+				if(
+					character &&
+					character.active &&
+					!character.indifferent &&
+					character.state == Character.WALKING
+				){
+					
+					for(j = 0; j < targets.length; j++){
+						effect = targets[j];
+						if(effect.target == character) break;
+					}
+					if(j == targets.length){
+						targets.push(new Effect(effectName, game.map.level < Game.MAX_LEVEL ? game.map.level : Game.MAX_LEVEL, Effect.THROWN, character));
+						game.console.print(getName(type) + " gas touches " + character.nameToString());
 					}
 				}
 			}
@@ -111,8 +197,8 @@
 			game.console.print(getName(type) + " trap triggered");
 			
 			if(type == PIT){
-				if(count) return;
-				count = PIT_COVER_DELAY;
+				if(pitCoverCount) return;
+				pitCoverCount = PIT_COVER_DELAY;
 				renderer.createDebrisRect(rect, 0, 100, Renderer.STONE);
 				renderer.shake(0, 3);
 				game.soundQueue.addRandom("pitTrap", Stone.DEATH_SOUNDS);
@@ -159,18 +245,11 @@
 				}
 				if(--game.map.completionCount == 0) game.levelCompleteMsg();
 				
-			} else if(type == POISON_DART){
-				shootDart(new Effect(Effect.POISON, game.map.level < Game.MAX_LEVEL ? game.map.level : Game.MAX_LEVEL, Effect.THROWN));
-			} else if(type == STUN_DART){
-				shootDart(new Effect(Effect.STUN, game.map.level < Game.MAX_LEVEL ? game.map.level : Game.MAX_LEVEL, Effect.THROWN));
-			} else if(type == TELEPORT_DART){
-				shootDart(new Effect(Effect.TELEPORT, Game.MAX_LEVEL, Effect.THROWN));
+			} else if(type == FEAR_MUSHROOM || type == CONFUSION_MUSHROOM || type == STUN_MUSHROOM || type == HEAL_MUSHROOM){
+				if(gasCount == 0) gasCount = GAS_DELAY;
 				
-			} else if(type == CONFUSION_DART){
-				shootDart(new Effect(Effect.CONFUSION, game.map.level < Game.MAX_LEVEL ? game.map.level : Game.MAX_LEVEL, Effect.THROWN));
-				
-			} else if(type == FEAR_DART){
-				shootDart(new Effect(Effect.FEAR, game.map.level < Game.MAX_LEVEL ? game.map.level : Game.MAX_LEVEL, Effect.THROWN));
+			} else if(type == POISON_DART || type == TELEPORT_DART){
+				shootDart(new Effect(effectName, game.map.level < Game.MAX_LEVEL ? game.map.level : Game.MAX_LEVEL, Effect.THROWN));
 				
 			} else if(type == MONSTER_PORTAL){
 				var portal:Portal = Portal.createPortal(Portal.MONSTER, mapX, mapY - 1, game.map.level);
@@ -192,12 +271,26 @@
 		
 		/* Adds a graphic to this trap to show the player where it is and adds a feature to the minimap */
 		public function reveal():void{
-			var trapRevealedGfx:MovieClip = new TrapMC();
-			trapRevealedGfx.y = -SCALE;
-			(gfx as Sprite).addChild(trapRevealedGfx);
-			minimapFX = game.miniMap.addFeature(mapX, mapY, renderer.searchFeatureBlit, true);
+			var sprite:Sprite = (gfx as Sprite);
 			revealed = true;
+			minimapFX = game.miniMap.addFeature(mapX, mapY, renderer.searchFeatureBlit, true);
 			renderer.addFX(gfx.x, gfx.y - SCALE, renderer.trapRevealBlit);
+			if(
+				type == CONFUSION_MUSHROOM ||
+				type == STUN_MUSHROOM ||
+				type == FEAR_MUSHROOM ||
+				type == HEAL_MUSHROOM
+			){
+				while(sprite.numChildren) sprite.removeChildAt(0);
+				for(var i:int = 0; i < mushroomFrames.length; i++){
+					mushroomFrames[i]++;
+				}
+				sprite.addChild(createMushroomGfx(mushroomPoints, mushroomFrames));
+			} else {
+				var trapRevealedGfx:MovieClip = new TrapMC();
+				trapRevealedGfx.y = -SCALE;
+				sprite.addChild(trapRevealedGfx);
+			}
 		}
 		
 		/* Destroys this object and gives xp */
@@ -211,6 +304,18 @@
 			game.player.addXP(DISARM_XP_REWARD * Content.getLevelXp(game.map.level));
 			game.content.removeTrap(game.map.level, game.map.type);
 			if(--game.map.completionCount == 0) game.levelCompleteMsg();
+			if(
+				type == CONFUSION_MUSHROOM ||
+				type == STUN_MUSHROOM ||
+				type == FEAR_MUSHROOM ||
+				type == HEAL_MUSHROOM
+			){
+				// mutilate gasRect for rendering
+				gasRect.y += SCALE * 0.5;
+				gasRect.height = SCALE * 0.5;
+				renderer.createDebrisRect(gasRect, 0, 20, Renderer.STONE);
+				renderer.createDebrisRect(gasRect, 0, 10, Renderer.BLOOD);
+			}
 		}
 		
 		/* Launches a missile from the ceiling that bears a magic effect */
@@ -224,11 +329,44 @@
 		public static function getName(type:int):String{
 			if(type == PIT) return "pit";
 			else if(type == TELEPORT_DART) return "teleport";
-			else if(type == STUN_DART) return "stun";
+			else if(type == STUN_MUSHROOM) return "stun";
+			else if(type == POISON_DART) return "poison";
+			else if(type == CONFUSION_MUSHROOM) return "confusion";
+			else if(type == FEAR_MUSHROOM) return "fear";
 			else if(type == MONSTER_PORTAL) return "monster";
-			else if(type == CONFUSION_DART) return "confusion";
-			else if(type == FEAR_DART) return "fear";
 			return "";
+		}
+		
+		/* Assemble a mushroom graphic based on input */
+		public function createMushroomGfx(points:Vector.<Point>, frames:Vector.<int>):Bitmap{
+			var point:Point;
+			var bitmapData:BitmapData = new BitmapData(MUSHROOMS_WIDTH, MUSHROOMS_HEIGHT, true, 0x0);
+			
+			// check if points are initialised
+			if(points.length == 0){
+				var x:int, y:int;
+				var frame:int;
+				var num:int = 2 + game.random.range(2);
+				while(num--){
+					frame = game.random.rangeInt(3) * 2;
+					x = 8 + game.random.range(MUSHROOMS_WIDTH - 16);
+					y = game.random.range(4) + SCALE;
+					frames.push(frame);
+					points.push(new Point(x, y));
+				}
+			}
+			
+			// render to a bitmap
+			for(var i:int = 0; i < points.length; i++){
+				point = points[i];
+				renderer.mushroomBlit.x = point.x;
+				renderer.mushroomBlit.y = point.y;
+				renderer.mushroomBlit.render(bitmapData, frames[i]);
+			}
+			var bitmap:Bitmap = new Bitmap(bitmapData);
+			bitmap.x = -SCALE * 0.25;
+			bitmap.y = -SCALE;
+			return bitmap;
 		}
 		
 	}

@@ -88,7 +88,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 373;
+		public static const BUILD_NUM:int = 374;
 		
 		public static const TEST_BED_INIT:Boolean = false;
 		
@@ -495,6 +495,8 @@
 			mapTileManager = null;
 			map = null;
 			world = null;
+			lightMap = null;
+			mapTileManager = null;
 			Player.previousLevel = Map.OVERWORLD;
 			Player.previousPortalType = Portal.STAIRS;
 			Player.previousMapType = Map.AREA;
