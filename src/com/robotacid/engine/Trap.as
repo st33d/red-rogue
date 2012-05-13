@@ -65,6 +65,7 @@
 			super(gfx, false, false);
 			this.type = type;
 			revealed = false;
+			var sprite:Sprite = gfx as Sprite;
 			if(type == PIT){
 				rect = new Rectangle(mapX * Game.SCALE, -1 + mapY * Game.SCALE, SCALE, SCALE);
 			} else if(
@@ -77,6 +78,7 @@
 				rect = new Rectangle(mapX * Game.SCALE, -1 + mapY * Game.SCALE, SCALE, 1);
 				if(dartPos){
 					dartGun = new Point((dartPos.x + 0.5) * Game.SCALE, (dartPos.y + 1) * Game.SCALE);
+					sprite.addChild(createDartGunGfx(dartGun));
 				}
 			} else if(
 				type == CONFUSION_MUSHROOM ||
@@ -304,6 +306,7 @@
 			game.player.addXP(DISARM_XP_REWARD * Content.getLevelXp(game.map.level));
 			game.content.removeTrap(game.map.level, game.map.type);
 			if(--game.map.completionCount == 0) game.levelCompleteMsg();
+			renderer.createDebrisRect(new Rectangle(mapX * SCALE, -6 + mapY * SCALE, SCALE, 6), 0, 20, Renderer.STONE);
 			if(
 				type == CONFUSION_MUSHROOM ||
 				type == STUN_MUSHROOM ||
@@ -313,8 +316,10 @@
 				// mutilate gasRect for rendering
 				gasRect.y += SCALE * 0.5;
 				gasRect.height = SCALE * 0.5;
-				renderer.createDebrisRect(gasRect, 0, 20, Renderer.STONE);
 				renderer.createDebrisRect(gasRect, 0, 10, Renderer.BLOOD);
+				
+			} else if(type == POISON_DART || type == TELEPORT_DART){
+				renderer.createDebrisRect(new Rectangle(dartGun.x - 2, dartGun.y, 4, 2), 0, 10, Renderer.STONE);
 			}
 		}
 		
@@ -366,6 +371,16 @@
 			var bitmap:Bitmap = new Bitmap(bitmapData);
 			bitmap.x = -SCALE * 0.25;
 			bitmap.y = -SCALE;
+			return bitmap;
+		}
+		
+		// simply can't be bothered to draw these at the moment
+		
+		public function createDartGunGfx(pos:Point):Bitmap{
+			var bitmap:Bitmap = new Bitmap(new BitmapData(4, 2, true, 0xFF000000));
+			bitmap.bitmapData.fillRect(new Rectangle(1, 1, 2, 1), 0x0);
+			bitmap.x = -gfx.x + pos.x - bitmap.width * 0.5;
+			bitmap.y = -gfx.y + pos.y;
 			return bitmap;
 		}
 		

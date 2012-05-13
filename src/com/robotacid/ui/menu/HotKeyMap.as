@@ -1,4 +1,5 @@
 ﻿package com.robotacid.ui.menu {
+	import com.robotacid.ui.Key;
 	/**
 	 * This maps out a behaviour for a hot key
 	 *
@@ -149,6 +150,37 @@
 				xml.appendChild(branchNode);
 			}
 			return xml;
+		}
+		
+		public static function getOptionsHotKeyed(list:MenuList, hotKeyMaps:Vector.<HotKeyMap>):Vector.<String>{
+			var i:int, j:int, hotKeyMap:HotKeyMap;
+			var hotKeySelectionOption:MenuOption;
+			var option:MenuOption;
+			var strs:Vector.<String> = new Vector.<String>();
+			var str:String;
+			for(i = 0; i < list.options.length; i++){
+				str = "";
+				option = list.options[i];
+				for(j = 0; j < hotKeyMaps.length; j++){
+					hotKeyMap = hotKeyMaps[j];
+					// do an object, then index, then name comparison
+					if(hotKeyMap){
+						hotKeySelectionOption = hotKeyMap.optionBranch[hotKeyMap.optionBranch.length - 1];
+						if(
+							option == hotKeySelectionOption ||
+							(
+								hotKeyMap.selectionBranch[hotKeyMap.selectionBranch.length - 1] == i &&
+								option.name == hotKeySelectionOption.name
+							)
+						){
+							str = " (" + Key.keyString(Key.custom[Menu.HOT_KEY_OFFSET + j]) + ")";
+							break;
+						}
+					}
+				}
+				strs.push(str);
+			}
+			return strs;
 		}
 	}
 

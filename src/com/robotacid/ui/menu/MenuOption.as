@@ -13,7 +13,7 @@
 		public var visited:Boolean;
 		public var selectionStep:int; // controls where the menu ends up after selection
 		public var help:String;
-		public var recordable:Boolean; // set to false to prevent a hot key recording of this option
+		public var recordable:Boolean;// set to false to prevent a hot key recording of this option
 		
 		// A reference to an object that this option affects
 		public var userData:*;

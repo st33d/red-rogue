@@ -130,8 +130,11 @@
 					if(!game.minion){
 						var mc:MovieClip = new SkeletonMC();
 						game.minion = new Minion(mc, rect.x + rect.width * 0.5, rect.y + rect.height, Character.SKELETON);
+						game.entities.push(game.minion);
 						game.minion.enterLevel(this);
-						game.console.print("undead minion returns");
+						game.minion.brain.clear();
+						game.minion.addMinimapFeature();
+						game.console.print("undead minion returns from underworld");
 					}
 					
 				} else if(type == MONSTER){

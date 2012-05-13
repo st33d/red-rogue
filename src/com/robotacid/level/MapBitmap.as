@@ -43,7 +43,6 @@
 		// pacing variables - these keep a consistent scale for the level
 		public var vertPace:int;
 		public var horizPace:int;
-		public var roominess:int;
 		
 		public static var directions:Array;
 		
@@ -98,9 +97,6 @@
 		public static const UNDERWORLD_WIDTH:int = 20;
 		public static const UNDERWORLD_HEIGHT:int = 13;
 		
-		public static const ZONE_ROOMINESS:Array = [
-			4, 3, 4, 3
-		];
 		public static const ZONE_HORIZ_PACE:Array = [
 			3, 4, 2, 3
 		];
@@ -143,15 +139,7 @@
 				// create pacing standard for this level
 				horizPace = Math.ceil(size * 0.5) * ZONE_HORIZ_PACE[zone];
 				vertPace = Math.ceil(size * 0.5) * ZONE_VERT_PACE[zone];
-				// marvel at the mockery that level design makes of code
-				roominess = ZONE_ROOMINESS[zone]
-				if(level <= MIN_SIZE){
-					roominess++;
-					if(level == 1){
-						roominess++;
-						if(roominess < 5) roominess = 5;
-					}
-				}
+				
 				bitmapData = createRoomsAndTunnels();
 				
 				// view map generation debug
@@ -198,7 +186,7 @@
 			
 				// create a list of rooms, then randomly assign a sibling
 				rooms = new Vector.<Room>();
-				var totalRooms:int = -MIN_SIZE + roominess * size + Map.random.rangeInt(roominess * size);
+				var totalRooms:int = -MIN_SIZE + 4 * size + Map.random.rangeInt(4 * size);
 				if(totalRooms < 5) totalRooms = 5;
 				for(i = 0; i < totalRooms; i++){
 					rooms.push(new Room());

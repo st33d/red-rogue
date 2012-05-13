@@ -29,10 +29,11 @@
 			selection = 0;
 		}
 		
-		public function optionsToString(separator:String = "\n"):String{
+		public function optionsToString(separator:String = "\n", hotKeyMapStrings:Vector.<String> = null):String{
 			var str:String = "";
 			for(var i:int = 0; i < options.length; i++){
 				str += options[i].name;
+				if(hotKeyMapStrings && hotKeyMapStrings[i] != "") str += hotKeyMapStrings[i];
 				if(i < options.length - 1) str += separator;
 			}
 			return str;

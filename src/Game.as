@@ -88,7 +88,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 374;
+		public static const BUILD_NUM:int = 375;
 		
 		public static const TEST_BED_INIT:Boolean = false;
 		
@@ -913,8 +913,8 @@
 			var name:String;
 			if(SoundManager.soundLoops["underworldMusic2"]) SoundManager.fadeLoopSound("underworldMusic2", -SoundManager.DEFAULT_FADE_STEP)
 			if(state == UNFOCUSED){
-				if(!SoundManager.currentMusic || SoundManager.currentMusic != "introMusic"){
-					SoundManager.fadeMusic("introMusic");
+				if(SoundManager.currentMusic){
+					SoundManager.fadeMusic(SoundManager.currentMusic, -SoundManager.DEFAULT_FADE_STEP);
 				}
 			} else {
 				if(map.type == Map.AREA){

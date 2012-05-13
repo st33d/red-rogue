@@ -327,7 +327,7 @@
 			} else {
 				nextMenuList = null;
 			}
-			renderMenu();
+			if(parent) renderMenu();
 			if(!hideChangeSelection) changeSelection();
 		}
 		
@@ -446,7 +446,7 @@
 			selectionWindow.visible = true;
 			if(previousMenuList){
 				previousTextBox.setSize(LIST_WIDTH, LINE_SPACING * previousMenuList.options.length + TextBox.BORDER_ALLOWANCE);
-				previousTextBox.text = previousMenuList.optionsToString();
+				previousTextBox.text = previousMenuList.optionsToString("\n", HotKeyMap.getOptionsHotKeyed(previousMenuList, hotKeyMaps));
 				previousTextBox.y = -previousMenuList.selection * LINE_SPACING - TextBox.BORDER_ALLOWANCE;
 				setLineCols(previousMenuList, previousTextBox);
 				previousTextBox.visible = true;
@@ -460,7 +460,7 @@
 					keyChanger.options[0].name = "press a key";
 				}
 				currentTextBox.setSize(LIST_WIDTH, LINE_SPACING * currentMenuList.options.length + TextBox.BORDER_ALLOWANCE);
-				currentTextBox.text = currentMenuList.optionsToString();
+				currentTextBox.text = currentMenuList.optionsToString("\n", HotKeyMap.getOptionsHotKeyed(currentMenuList, hotKeyMaps));
 				currentTextBox.y = -currentMenuList.selection * LINE_SPACING - TextBox.BORDER_ALLOWANCE;
 				setLineCols(currentMenuList, currentTextBox);
 			}
@@ -486,7 +486,7 @@
 						keyChanger.options[0].name = Key.keyString(Key.custom[selection]);
 					}
 					nextTextBox.setSize(LIST_WIDTH, LINE_SPACING * nextMenuList.options.length + TextBox.BORDER_ALLOWANCE);
-					nextTextBox.text = nextMenuList.optionsToString();
+					nextTextBox.text = nextMenuList.optionsToString("\n", HotKeyMap.getOptionsHotKeyed(nextMenuList, hotKeyMaps));
 					nextTextBox.y = -nextMenuList.selection * LINE_SPACING - TextBox.BORDER_ALLOWANCE;
 					setLineCols(nextMenuList, nextTextBox);
 					nextTextBox.visible = true;
@@ -984,6 +984,7 @@
 			helpVy = help.height / (moveDelay * 2);
 			alpha = 0;
 			alphaStep = 1.0 / moveDelay;
+			renderMenu();
 			holder.addChild(this);
 		}
 		

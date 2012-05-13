@@ -1,4 +1,4 @@
-Change log: added mushroom traps, removed same type dart traps, light rune missile emits max light, changed content progression to randomised by zone, fixed reset bug caused by init refactor
+Change log: refactored room quantities, fixed teleport effect apply bug, fixed minion not spawning from underworld portal, created graphic for dart gun traps, added hotkey reminders to hotkeyed options, optimised menu render to cope with hotkey rendering cpu load, game is now silent when paused
 
 Bug hunt
 	collection lock out on chests after playing for a while - bugged chest or item?
@@ -7,28 +7,26 @@ Bug hunt
 	undead respawn causes issue - unreproducable
 	chaos wall colliders can child a character and pull it into a wall - how?
 	null Monster collider.world spotted - why?
-	key not being placed for lock reported - investigate
 	
+
+add hotkey shortcut names to menu options
+	hotkey recordings should show the state of the hotkey
+	how? menu options can be used multiple times
+		do a pass on the renderer of all known hotkeys
 
 red particles on monster portal
 
-gas traps
-	create gas entity
-		gas circle anim - rise and expand cluster
-	mushroom graphic - red spots when triggered
-		spawn points for gas
+change polymorph, identify, random enchant etc to new content progression
+
+create nanny
+	updates a render around the player detailing how to play
 
 180 attack weapons
 	add spin attack property to items
 	
-content zones
-	break up content into zones (except for level 1)
-	
 title screen
 	title menu
 	refactor "sure" option in game menu
-
-tutorial
 
 endings
 

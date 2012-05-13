@@ -574,11 +574,13 @@
 				if(source == ARMOUR){
 					count = (21 - level) * ARMOUR_COUNTDOWN_STEP;
 					callMain = true;
-				} else {
+				} else if(source == WEAPON){
 					if(game.random.value() < CHANCE_PER_LEVEL * level){
 						teleportCharacter(target);
 					}
-					// all other sources of teleport do not embed, they are one time effects only
+					return;
+				} else {
+					teleportCharacter(target);
 					return;
 				}
 				
