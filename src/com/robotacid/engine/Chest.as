@@ -27,7 +27,7 @@
 		public static const TWINKLE_DELAY:int = 20;
 		public static const OPEN_ID:int = 53;
 		public static const GNOLL_SCAVENGER_RATE:Number = 1.0 / 20;
-		public static const MIMIC_RATE:Number = 1.0 / 20;
+		public static const MIMIC_RATE:Number = 1.0 / 5;
 		public static const TRANSFORM_DELAY:int = 9;
 		public static const MIMIC_XP_REWARD:Number = 1 / 30;
 		public static const MIMIC_TEMPLATE_XML:XML = <character characterNum={-1} name={Character.MIMIC} type={Character.MONSTER} />;;

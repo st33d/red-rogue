@@ -1,20 +1,10 @@
-Change log: refactored room quantities, fixed teleport effect apply bug, fixed minion not spawning from underworld portal, created graphic for dart gun traps, added hotkey reminders to hotkeyed options, optimised menu render to cope with hotkey rendering cpu load, game is now silent when paused
+Change log: mimic rate increased to 1 in 5, set items to update mapX and mapY when dropped (fixes item going invisible from testing darkness of wrong tile), coloured xp/light/leech/chaos runes when thrown, xp thrown rune emits quickening, fixed leech rune cursing blood and leeches (not supposed to), changed Effect transformations to conform to new content progression
 
 Bug hunt
 	collection lock out on chests after playing for a while - bugged chest or item?
-	minion summon after death? - unreproducable
-	combo bug: minion, indifference, level 21, identify monster twice, minion portal - unreproducable
-	undead respawn causes issue - unreproducable
 	chaos wall colliders can child a character and pull it into a wall - how?
 	null Monster collider.world spotted - why?
-	
 
-add hotkey shortcut names to menu options
-	hotkey recordings should show the state of the hotkey
-	how? menu options can be used multiple times
-		do a pass on the renderer of all known hotkeys
-
-red particles on monster portal
 
 change polymorph, identify, random enchant etc to new content progression
 

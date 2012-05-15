@@ -101,10 +101,13 @@
 			xpTable = Vector.<Number>([0]);
 			monsterXpByLevel = Vector.<Number>([0]);
 			var xp:Number = XP_TABLE_SEED;
+			var total:int = 0;
 			for(level = 1; level <= Game.MAX_LEVEL; level++, xp *= XP_RATE){
 				xpTable.push(xp);
 				monsterXpByLevel.push(getLevelXp(level) * MONSTER_XP_BY_LEVEL_RATE);
+				total += xp;
 			}
+			
 			//trace("xp table", xpTable.length, xpTable);
 			//trace("monster xp by level", monsterXpByLevel.length, monsterXpByLevel);
 			

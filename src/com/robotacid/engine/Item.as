@@ -283,6 +283,9 @@
 		override public function main():void {
 			if(collider.state == Collider.STACK){
 				if(!game.mapTileManager.contains(collider.x + collider.width * 0.5, collider.y + collider.height * 0.5)) remove();
+			} else {
+				mapX = (collider.x + collider.width * 0.5) * Game.INV_SCALE;
+				mapY = (collider.y + collider.height * 0.5) * Game.INV_SCALE;
 			}
 			// concealing the item in the dark will help avoid showing a clipped effect on the edge
 			// of the light map

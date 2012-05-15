@@ -9,6 +9,7 @@
 	import com.robotacid.sound.SoundManager;
 	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
+	import flash.geom.ColorTransform;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	
@@ -100,6 +101,12 @@
 				}
 				game.lightMap.setLight(this, lightRadius, lightValue);
 				
+				// xp, light, chaos and leech runes are coloured
+				if(item){
+					if(item.name == Item.CHAOS) gfx.transform.colorTransform = new ColorTransform(0, 0, 0);
+					else if(item.name == Item.LIGHT || item.name == Item.XP) gfx.transform.colorTransform = new ColorTransform(0, 0, 0, 1, 255, 255, 255);
+					else if(item.name == Item.LEECH_RUNE) gfx.transform.colorTransform = new ColorTransform(1, 0, 0);
+				}
 			}
 			// set graphic offset
 			var bounds:Rectangle = gfx.getBounds(gfx);
@@ -185,8 +192,14 @@
 				collider.ignoreProperties &= ~(Collider.SOLID);
 				
 				if(sender && sender.active){
-					// lightning cast quickening lightning around it
-					if(item && item.name == Item.LIGHTNING){
+					// lightning and xp runes cast quickening lightning
+					if(
+						item &&
+						(
+							(item.type == Item.WEAPON && item.name == Item.LIGHTNING) ||
+							(item.type == Item.RUNE && item.name == Item.XP)
+						)
+					){
 						quickening();
 					}
 					if(catchable){

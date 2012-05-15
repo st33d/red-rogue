@@ -297,16 +297,17 @@
 				var newName:int = item.name;
 				var nameRange:int;
 				if(item.type == Item.ARMOUR){
-					nameRange = Item.ITEM_MAX;
+					nameRange = Content.armourNameDeck.length;
 				} else if(item.type == Item.WEAPON){
-					nameRange = Item.ITEM_MAX;
+					nameRange = Content.weaponNameDeck.length;
 				}
 				// limit change by exploration - catch possible infinite loop
 				if(nameRange > game.deepestLevelReached) nameRange = game.deepestLevelReached;
 				if(item.name == 0 && nameRange == 1){
 					newName = item.name == 1 ? 0 : 1;
 				} else {
-					while(newName == item.name) newName = game.random.range(nameRange);
+					if(item.type == Item.ARMOUR) while(newName == item.name) newName = Content.armourNameDeck[game.random.rangeInt(nameRange)];
+					else if(item.type == Item.WEAPON) while(newName == item.name) newName = Content.weaponNameDeck[game.random.rangeInt(nameRange)];
 				}
 				item.gfx = game.library.getItemGfx(newName, item.type);
 				item.name = newName;
@@ -329,7 +330,6 @@
 				
 			} else if(name == LEECH){
 				// leech levels up leeches and curses other items
-				if(item.holyState != Item.BLESSED) item.applyCurse();
 				if(
 					(item.type == Item.WEAPON && item.name == Item.LEECH_WEAPON) ||
 					(item.type == Item.ARMOUR && item.name == Item.BLOOD)
@@ -337,7 +337,8 @@
 					while(level--) item.levelUp();
 					if(inventoryList) inventoryList.updateItem(item);
 					return item;
-				}
+					
+				} else if(item.holyState != Item.BLESSED) item.applyCurse();
 				
 			} else if(name == PORTAL){
 				// create an item portal and send the item into the level it leads to
@@ -435,8 +436,8 @@
 			if(inventoryList) inventoryList.updateItem(item);
 			
 			if(name == TELEPORT && inventoryList){
-				// this is possibly the biggest pisstake of all the spells, casting teleport on an item
-				// in your inventory (suprise, surprise) teleports it to another location in the level
+				// casting teleport on an item in your inventory (suprise, surprise) teleports it to another location
+				// in the level
 				// at least if it was cursed this is a good thing
 				if(user) renderer.createTeleportSparkRect(user.collider, 10);
 				item = inventoryList.removeItem(item);
@@ -604,11 +605,11 @@
 					if(target.armour && target.armour.name == Item.FACE){
 						// when the character is wearing face armour, we only need change the race underneath
 						newName = (target.armour as Face).previousName;
-						while(newName == (target.armour as Face).previousName) newName = game.random.range(nameRange);
+						while(newName == (target.armour as Face).previousName) newName = Content.monsterNameDeck[game.random.rangeInt(nameRange)];
 						(target.armour as Face).previousName = newName;
 					} else {
 						newName = target.name
-						while(newName == target.name) newName = game.random.range(nameRange);
+						while(newName == target.name) newName = Content.monsterNameDeck[game.random.rangeInt(nameRange)];
 						target.changeName(newName);
 					}
 					return;
@@ -941,7 +942,7 @@
 				} else {
 					nameRange = game.random.range(Game.MAX_LEVEL);
 					if(nameRange > game.deepestLevelReached) nameRange = game.deepestLevelReached;
-					name = game.random.range(nameRange);
+					name = Content.runeNameDeck[game.random.range(nameRange)];
 					// some enchantments confer multiple extra enchantments -
 					// that can of worms will stay closed
 					if(!Effect.BANNED_RANDOM_ENCHANTMENTS[name]) bucket[name]++;
