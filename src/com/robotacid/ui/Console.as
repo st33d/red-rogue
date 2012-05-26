@@ -40,7 +40,6 @@
 		public static const HEIGHT:Number = 35
 		public static const BACKGROUND_COL:uint = 0xFF111111;
 		public static const BORDER_COL:uint = 0xFF999999;
-		public static const FONT_COL:uint = 0xFFDDDDDD;
 		public static const SCROLL_SPEED_MAX:Number = 4;
 		public static const LINE_SPACING:Number = 11;
 		public static const SCROLL_UP_STOP_Y:Number = HEIGHT - (LINE_SPACING + 2);
@@ -53,7 +52,7 @@
 			border = bitmapData.clone();
 			border.fillRect(bitmapData.rect, BORDER_COL);
 			border.fillRect(new Rectangle(1, 1, bitmapData.width - 2, bitmapData.height - 2), 0x0);
-			textBox = new TextBox(Game.WIDTH, LINE_SPACING + 1, BACKGROUND_COL, BACKGROUND_COL, FONT_COL);
+			textBox = new TextBox(Game.WIDTH, LINE_SPACING + 1, BACKGROUND_COL, BACKGROUND_COL);
 			textBox.wordWrap = false;
 			insertionPoint = Game.renderer.insertionPointBlit;
 			insertionPointRect = insertionPoint.rect.clone();

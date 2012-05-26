@@ -40,6 +40,7 @@
 	import com.robotacid.ui.menu.QuestMenuOption;
 	import com.robotacid.ui.ProgressBar;
 	import com.robotacid.ui.QuickSave;
+	import com.robotacid.ui.Suggestion;
 	import com.robotacid.ui.TextBox;
 	import com.robotacid.ui.MiniMap;
 	import com.robotacid.ui.Key;
@@ -88,7 +89,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 376;
+		public static const BUILD_NUM:int = 377;
 		
 		public static const TEST_BED_INIT:Boolean = false;
 		
@@ -132,6 +133,7 @@
 		public var enemyHealthBar:ProgressBar;
 		public var livesPanel:LivesPanel;
 		public var keyItemStatus:Sprite;
+		public var suggestion:Suggestion;
 		public var fpsText:TextBox;
 		
 		// debug
@@ -221,6 +223,7 @@
 			QuestMenuOption.game = this;
 			Dialog.game = this;
 			EditorMenuList.game = this;
+			Suggestion.game = this;
 			DebrisFX.IGNORE_PROPERTIES = (
 				Collider.CHARACTER | Collider.LEDGE | Collider.LADDER | Collider.HEAD | Collider.CORPSE
 			);
@@ -245,6 +248,8 @@
 			transition = new Transition();
 			
 			lightning = new Lightning();
+			
+			suggestion = new Suggestion();
 			
 			editor = new Editor(this, renderer);
 			
@@ -381,14 +386,14 @@
 				focusPrompt = new Sprite();
 				focusPrompt.graphics.beginFill(0x000000);
 				focusPrompt.graphics.drawRect(0, 0, WIDTH, HEIGHT);
-				var clickToPlayText:TextBox = new TextBox(100, 12, 0x0, 0x0, 0xFFAA0000);
+				var clickToPlayText:TextBox = new TextBox(100, 12, 0x0, 0x0);
 				clickToPlayText.align = "center";
 				clickToPlayText.text = "click to play";
 				clickToPlayText.bitmapData.colorTransform(clickToPlayText.bitmapData.rect, new ColorTransform(1, 0, 0, 1, -85));
 				focusPrompt.addChild(clickToPlayText);
 				clickToPlayText.x = (WIDTH * 0.5) - 50;
 				clickToPlayText.y = (HEIGHT * 0.5) + 10;
-				var buildText:TextBox = new TextBox(100, 12, 0x0, 0x0, 0xFFAA0000);
+				var buildText:TextBox = new TextBox(100, 12, 0x0, 0x0);
 				buildText.align = "center";
 				buildText.text = "build " + BUILD_NUM;
 				buildText.bitmapData.colorTransform(buildText.bitmapData.rect, new ColorTransform(1, 0, 0, 1, -85));
@@ -639,7 +644,7 @@
 				var startX:Number = (map.start.x + 0.5) * SCALE;
 				var startY:Number = (map.start.y + 1) * SCALE;
 				player = new Player(playerMc, startX, startY);
-				minion = new Minion(minionMc, startX, startY, Character.SKELETON);
+				//minion = new Minion(minionMc, startX, startY, Character.SKELETON);
 				player.snapCamera();
 			} else {
 				player.collider.x = -player.collider.width * 0.5 + (map.start.x + 0.5) * SCALE;

@@ -1,18 +1,39 @@
-Change log: mimic rate increased to 1 in 5, set items to update mapX and mapY when dropped (fixes item going invisible from testing darkness of wrong tile), coloured xp/light/leech/chaos runes when thrown, xp thrown rune emits quickening, fixed leech rune cursing blood and leeches (not supposed to), changed Effect transformations to conform to new content progression
+Change log: delay till first dream reduced, suggestion nanny framework created, fontCol refactored out of TextBox (it was never used in the new copyPixel method), new assets.swc (sounds, secret items, dart trap)
 
 Bug hunt
 	collection lock out on chests after playing for a while - bugged chest or item?
 	chaos wall colliders can child a character and pull it into a wall - how?
 	null Monster collider.world spotted - why?
-
-
-change polymorph, identify, random enchant etc to new content progression
+	
+	the new cliff nodes need to be one way into the cliff - the ai thinks it can walk across a span because they are linked either way
+	screen capture whilst player is confused includes the prompt - move prompts above confusion
+	minimap disappearing on new game in sewers reported - investigate
 
 create nanny
 	updates a render around the player detailing how to play
 
-180 attack weapons
-	add spin attack property to items
+reduce zones to 4 levels each
+	collapse writing and dream text into 16 levels
+	move default underworld portal to level 16
+	change content distribution to tiered reserve, the stuff left over from the missing level is added to the
+	pool for the next zone until 20 levels of content are done
+
+combat options
+	180 attack weapons
+		add spin attack property to items
+	kick-smite
+		smite when falling into a character's upper quarter
+
+dart trap update
+
+secret items
+	chest col
+	leech gun
+	fez
+	bug
+
+install new sounds
+	checklist to do
 	
 title screen
 	title menu
@@ -49,12 +70,6 @@ yendor
 gates
 	pressure pads
 	
-
-Unique items
-	mokesmoe's bug
-	rumrusher's fez
-	nate's horn
-	
 create Editor in debug menu
 	create option
 		map features
@@ -78,15 +93,22 @@ AI problems:
 help on menu has not been fully written out
 
 level generator overhaul:
-	dramatis personae creator
-		unique named characters (set equipments?):
+	dramatis personae creator:
+		champions
+			only champions have equipment and always have equipment, health is doubled
 			
-			create a level above current character - assign to levels initially according to roll
+		elite:
 			
-			crowley: regenerating drow - helmet and mace
+			named, one level below player, health x 4, special ability
+			
+			one elite per race, spawns at the end of each zone
+			
+			drow - crowley: regenerating
 			the balrog: the boss - yendor and weapon
-			pun pun: max stats kobold - good armour and weapon?
-			edward: sparkling vampire - unequipped
-			golfimbul: a goblin that always suffers critcal hits
-			internet: a max regenerating troll
-			the bitch: a nymph that never fails a steal roll
+			kobold - pun pun: max stats
+			vampire - edward: twinkles
+			goblin - golfimbul: always decaptiated on death
+			troll - forchan: a max regenerating troll
+			nymph - the bitch: never fails a steal roll
+			gorgon - medusa: slow attack as well as stun attack
+			

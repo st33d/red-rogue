@@ -232,7 +232,7 @@ package com.robotacid.engine {
 				nightmare = false;
 			}
 			dreamList = dreamStr.split("\n");
-			dreamCount = DREAM_DELAY * 0.5;
+			dreamCount = DREAM_DELAY * 0.25;
 			textBox.text = "zzz";
 			game.console.print("zzz");
 			initMsgAnim();

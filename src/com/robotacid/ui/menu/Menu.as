@@ -124,6 +124,9 @@
 		public static const MOVEMENT_GUIDE_DELAY:int = 30;
 		public static const DEFAULT_MOVE_DELAY:int = 4;
 		public static const DISABLED_COL:ColorTransform = new ColorTransform(1, 1, 1, 1, -100, -100, -100);
+		public static const BACKGROUND_COL:uint = 0x66111111;
+		public static const BORDER_COL:uint = 0xFF999999;
+		
 		public static var NOT_VISITED_COLS:Vector.<ColorTransform>;
 		
 		// game key properties
@@ -187,7 +190,7 @@
 			maskShape.graphics.endFill();
 			mask = maskShape;
 			
-			help = new TextBox(320, 36, 0x66111111, 0xFF999999, 0xFFDDDDDD);
+			help = new TextBox(320, 36, BACKGROUND_COL, BACKGROUND_COL);
 			
 			// create TextBoxes to render the current state of the menu
 			textHolder = new Sprite();
@@ -195,18 +198,18 @@
 			textHolder.x = (-LIST_WIDTH * 0.5 + _width * 0.5) >> 0;
 			textHolder.y = ((LINE_SPACING * 3) + (_height - (LINE_SPACING * 3)) * 0.5 - LINE_SPACING * 0.5) >> 0;
 			
-			previousTextBox = new TextBox(LIST_WIDTH, 1 + LINE_SPACING + TextBox.BORDER_ALLOWANCE * 2, 0x66111111, 0xFF999999, 0xFFDDDDDD);
+			previousTextBox = new TextBox(LIST_WIDTH, 1 + LINE_SPACING + TextBox.BORDER_ALLOWANCE * 2, BACKGROUND_COL, BORDER_COL);
 			previousTextBox.alpha = 0.7;
 			previousTextBox.wordWrap = false;
 			previousTextBox.marquee = true;
-			currentTextBox = new TextBox(LIST_WIDTH, 1 + LINE_SPACING + TextBox.BORDER_ALLOWANCE * 2, 0x66111111, 0xFF999999, 0xFFDDDDDD);
+			currentTextBox = new TextBox(LIST_WIDTH, 1 + LINE_SPACING + TextBox.BORDER_ALLOWANCE * 2, BACKGROUND_COL, BORDER_COL);
 			currentTextBox.wordWrap = false;
 			currentTextBox.marquee = true;
-			nextTextBox = new TextBox(LIST_WIDTH, 1 + LINE_SPACING + TextBox.BORDER_ALLOWANCE * 2, 0x66111111, 0xFF999999, 0xFFDDDDDD);
+			nextTextBox = new TextBox(LIST_WIDTH, 1 + LINE_SPACING + TextBox.BORDER_ALLOWANCE * 2, BACKGROUND_COL, BORDER_COL);
 			nextTextBox.alpha = 0.7;
 			nextTextBox.wordWrap = false;
 			nextTextBox.marquee = true;
-			infoTextBox = new TextBox(INFO_TEXT_BOX_WIDTH, 169, 0x66111111, 0xFF999999, 0xFFDDDDDD);
+			infoTextBox = new TextBox(INFO_TEXT_BOX_WIDTH, 169, BACKGROUND_COL, BORDER_COL);
 			infoTextBox.wordWrap = false;
 			infoTextBox.marquee = true;
 			infoTextBox.visible = false;
@@ -248,7 +251,7 @@
 			addChild(selectionWindowTaperPrevious);
 			
 			// selection prompt
-			selectText = new TextBox(LIST_WIDTH, 1 + LINE_SPACING + TextBox.BORDER_ALLOWANCE * 2, 0x0, 0x0, 0xFFDDDDDD);
+			selectText = new TextBox(LIST_WIDTH, 1 + LINE_SPACING + TextBox.BORDER_ALLOWANCE * 2, 0x0, 0x0);
 			selectText.text = "select";
 			selectText.x = textHolder.x + nextTextBox.x;
 			selectText.y = -(TextBox.BORDER_ALLOWANCE + 1) + textHolder.y + nextTextBox.y;

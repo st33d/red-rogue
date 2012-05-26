@@ -84,7 +84,6 @@ package com.robotacid.ui {
 		public var marquee:Boolean;					// sets up marquee scroll for lines that exceed the width (wordWrap must be false)
 		public var backgroundCol:uint;
 		public var borderCol:uint;
-		public var fontCol:uint;
 		public var backgroundAlpha:Number;
 		public var leading:int;
 		
@@ -103,12 +102,11 @@ package com.robotacid.ui {
 		
 		public static const BORDER_ALLOWANCE:int = 2;
 		
-		public function TextBox(_width:Number, _height:Number, backgroundCol:uint = 0xFF111111, borderCol:uint = 0xFF999999, fontCol:uint = 0xFFDDDDDD) {
+		public function TextBox(_width:Number, _height:Number, backgroundCol:uint = 0xFF111111, borderCol:uint = 0xFF999999) {
 			this._width = _width;
 			this._height = _height;
 			this.backgroundCol = backgroundCol;
 			this.borderCol = borderCol;
-			this.fontCol = fontCol;
 			align = "left";
 			alignVert = "top";
 			_colorInt = 0xFFFFFF;
