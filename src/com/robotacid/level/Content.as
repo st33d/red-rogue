@@ -128,15 +128,24 @@
 			var zone:Array;
 			
 			// each zone's list is randomised and then added to the target levels
-			// level 1 always starts with the the first content
 			for(i = 0; i < templates.length; i++){
 				template = templates[i];
 				target = targets[i];
+				// level 1 always starts with the the first content to keep the entry point easy
 				target.push(template[0].shift());
 				for(j = 0; j < template.length; j++){
 					zone = template[j];
 					randomiseArray(zone, Map.random);
-					while(zone.length) target.push(zone.pop());
+					while(target.length < Map.LEVELS_PER_ZONE * (j + 1)) target.push(zone.pop());
+					
+					// the remainder is added to the pool for the next zone
+					if(j < template.length - 1){
+						while(zone.length) template[j + 1].push(zone.pop());
+						
+					// the last zone is itself plus all the remainder
+					} else {
+						while(zone.length) target.push(zone.pop());
+					}
 				}
 			}
 			
@@ -169,12 +178,12 @@
 				});
 			}
 			
-			// set up underworld portal on level 20
+			// set up underworld portal on level 16
 			var portalXML:XML = <portal />;
 			portalXML.@type = Portal.UNDERWORLD;
 			portalXML.@targetLevel = Map.UNDERWORLD;
-			portalsByLevel[20].push(portalXML);
-			setUnderworldPortal(20);
+			portalsByLevel[16].push(portalXML);
+			setUnderworldPortal(16);
 			createUniqueItems();
 		}
 		

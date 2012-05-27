@@ -86,8 +86,9 @@ package com.robotacid.ai {
 						// because we are walking top to bottom, left to right
 						// we only look right and down
 						if(nodes[r][c + 1]){
-							nodes[r][c].connections.push(nodes[r][c + 1]);
-							nodes[r][c + 1].connections.push(nodes[r][c]);
+							// check for cliff nodes, they are one way only
+							if(pixels[n + width] != MapBitmap.EMPTY) nodes[r][c].connections.push(nodes[r][c + 1]);
+							if(pixels[n + 1 + width] != MapBitmap.EMPTY) nodes[r][c + 1].connections.push(nodes[r][c]);
 						}
 						if(
 							pixels[n + width] == MapBitmap.LEDGE || pixels[n + width] == MapBitmap.EMPTY

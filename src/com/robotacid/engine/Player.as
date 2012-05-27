@@ -344,6 +344,7 @@
 			searchCount = SEARCH_DELAY;
 			searchRevealCount = 0;
 			game.miniMap.triggerFlashPrompt();
+			game.soundQueue.add("search");
 		}
 		
 		/* Searches the border of a square described by the search radius */
@@ -651,7 +652,7 @@
 				disarmableTraps[i].disarm();
 			}
 			disarmableTraps.length = 0;
-			game.soundQueue.add("click");
+			game.soundQueue.add("trapDisarm");
 		}
 		
 		/* Set the key carrying status of the player */

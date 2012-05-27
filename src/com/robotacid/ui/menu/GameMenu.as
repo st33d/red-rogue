@@ -232,8 +232,8 @@
 			
 			// OPTION ARRAYS
 			
-			trunk.options.push(inventoryOption);
 			trunk.options.push(actionsOption);
+			trunk.options.push(inventoryOption);
 			trunk.options.push(loreOption);
 			trunk.options.push(optionsOption);
 			trunk.options.push(debugOption);
@@ -295,23 +295,23 @@
 			// construct the default hot-key maps
 			var defaultHotKeyXML:Array = [
 				<hotKey>
-				  <branch selection="1" name="actions" context="null"/>
+				  <branch selection="0" name="actions" context="null"/>
 				  <branch selection="3" name="shoot" context="missile"/>
 				</hotKey>,
 				<hotKey>
-				  <branch selection="1" name="actions" context="null"/>
+				  <branch selection="0" name="actions" context="null"/>
 				  <branch selection="0" name="search" context="null"/>
 				</hotKey>,
 				<hotKey>
-				  <branch selection="1" name="actions" context="null"/>
+				  <branch selection="0" name="actions" context="null"/>
 				  <branch selection="2" name="disarm trap" context="null"/>
 				</hotKey>,
 				<hotKey>
-				  <branch selection="1" name="actions" context="null"/>
+				  <branch selection="0" name="actions" context="null"/>
 				  <branch selection="1" name="summon" context="null"/>
 				</hotKey>,
 				<hotKey>
-				  <branch selection="1" name="actions" context="null"/>
+				  <branch selection="0" name="actions" context="null"/>
 				  <branch selection="4" name="jump" context="null"/>
 				</hotKey>
 			];

@@ -90,7 +90,7 @@
 		public static const UNDERWORLD_BOAT_MAX:int = 17;
 		public static const UNDERWORLD_PORTAL_X:int = 13;
 		
-		public static const LEVELS_PER_ZONE:int = 5;
+		public static const LEVELS_PER_ZONE:int = 4;
 		public static const ZONE_TOTAL:int = 4;
 		
 		public static const ZONE_NAMES:Vector.<String> = Vector.<String>(["dungeons", "sewers", "caves", "chaos"]);
@@ -360,8 +360,8 @@
 			
 			// now add some extra flavour
 			createOtherTraps(pixels);
-			// below level 20 the minion cannot have written anything
-			if(level < Game.MAX_LEVEL) createWritings(pixels);
+			// below level 16 the minion cannot have written anything
+			if(level <= Writing.story.length) createWritings(pixels);
 			createChaosWalls(pixels);
 			createCritters();
 			
@@ -872,7 +872,6 @@
 				var writings:int = 1 + random.rangeInt(3);
 				//trace("writings", writings);
 				var level:int = this.level - 1;
-				if(level >= Game.MAX_LEVEL - 1) level = Game.MAX_LEVEL - 1;
 				
 				// randomise selections
 				var selection:Array = [];

@@ -89,7 +89,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 377;
+		public static const BUILD_NUM:int = 378;
 		
 		public static const TEST_BED_INIT:Boolean = false;
 		
@@ -314,6 +314,7 @@
 			
 			miniMapHolder = new Sprite();
 			addChild(miniMapHolder);
+			if(miniMap) miniMapHolder.addChild(miniMap);
 			
 			keyItemStatus = new KeyUI();
 			keyItemStatus.x = 5 + MiniMap.WIDTH + 2;
@@ -631,7 +632,7 @@
 			mapTileManager.init(map.start.x, map.start.y);
 			
 			if(!miniMap){
-				miniMap = new MiniMap(world.map, this, renderer)
+				miniMap = new MiniMap(world.map, this, renderer);
 				miniMapHolder.addChild(miniMap);;
 				miniMap.y = miniMap.x = 5;
 			} else {
@@ -644,7 +645,7 @@
 				var startX:Number = (map.start.x + 0.5) * SCALE;
 				var startY:Number = (map.start.y + 1) * SCALE;
 				player = new Player(playerMc, startX, startY);
-				//minion = new Minion(minionMc, startX, startY, Character.SKELETON);
+				minion = new Minion(minionMc, startX, startY, Character.SKELETON);
 				player.snapCamera();
 			} else {
 				player.collider.x = -player.collider.width * 0.5 + (map.start.x + 0.5) * SCALE;

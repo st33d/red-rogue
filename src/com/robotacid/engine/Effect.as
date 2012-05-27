@@ -443,7 +443,7 @@
 				item = inventoryList.removeItem(item);
 				dest = getTeleportTarget(game.player.mapX, game.player.mapY, game.world.map, game.mapTileManager.mapRect, Boolean(Surface.fragmentationMap));
 				item.dropToMap(dest.x, dest.y);
-				game.soundQueue.add("teleport");
+				game.soundQueue.addRandom("teleport", ["teleport1", "teleport2", "teleport3"]);
 				game.console.print("the " + item.nameToString() + " teleports away");
 			}
 			
@@ -888,7 +888,7 @@
 				(target as Monster).brain.clear();
 			}
 			renderer.createTeleportSparkRect(target.collider, 20);
-			game.soundQueue.add("teleport");
+			game.soundQueue.addRandom("teleport", ["teleport1", "teleport2", "teleport3"]);
 		}
 		
 		public function nameToString():String{

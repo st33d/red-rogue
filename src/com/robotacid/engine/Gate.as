@@ -129,7 +129,7 @@
 						gateState = CLOSING;
 						raiseHits = 0;
 						collider.awake = Collider.AWAKE_DELAY;
-						game.createDistSound(mapX, mapY, "chaosWallReady");
+						game.createDistSound(mapX, mapY, "gateShut");
 					}
 				}
 				
@@ -171,7 +171,7 @@
 				if(holdCount <= 0){
 					gateState = OPENING;
 					collider.awake = Collider.AWAKE_DELAY;
-					game.createDistSound(mapX, mapY, "chaosWallReady");
+					game.createDistSound(mapX, mapY, "gateOpen");
 				}
 			}
 			//Game.debug.drawRect(collider.x, collider.y, collider.width, collider.height);
@@ -192,6 +192,7 @@
 							open();
 							game.player.setKeyItem(false);
 							game.console.print("unlocked gate");
+							game.soundQueue.add("gateUnlock");
 						} else {
 							game.console.print("find a key");
 						}
@@ -219,7 +220,7 @@
 				callMain = true;
 				if(gateState == CLOSED || gateState == CLOSING || gateState == OPEN){
 					collider.vy = 0;
-					game.createDistSound(mapX, mapY, "chaosWallReady");
+					game.createDistSound(mapX, mapY, "gateOpen");
 				}
 			}
 			collider.awake = Collider.AWAKE_DELAY;

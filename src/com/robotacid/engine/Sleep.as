@@ -163,7 +163,7 @@ package com.robotacid.engine {
 				if(nightmare) textBox.bitmapData.colorTransform(textBox.bitmapData.rect, NIGHTMARE_COL);
 				if(animCount == 0){
 					animState = HOLD_TEXT;
-					dreamCount = DREAM_DELAY;
+					dreamCount = textBox.text == "zzz" ? 10 : DREAM_DELAY;
 				} else {
 					animElapsed = ANIM_DELAY * 2 - animCount;
 					for(i = 0; i < charRects.length; i++){
@@ -220,8 +220,8 @@ package com.robotacid.engine {
 			var index:int = game.map.level - 1;
 			if(game.map.type != Map.MAIN_DUNGEON && game.map.type != Map.ITEM_DUNGEON){
 				index = 0;
-			} else if(index >= Game.MAX_LEVEL){
-				index = Game.MAX_LEVEL - 1;
+			} else if(index >= dreams.length){
+				index = dreams.length - 1;
 			}
 			dreamList = dreams[index];
 			var dreamStr:String = dreamList[game.random.rangeInt(dreamList.length)];
@@ -232,7 +232,6 @@ package com.robotacid.engine {
 				nightmare = false;
 			}
 			dreamList = dreamStr.split("\n");
-			dreamCount = DREAM_DELAY * 0.25;
 			textBox.text = "zzz";
 			game.console.print("zzz");
 			initMsgAnim();

@@ -44,7 +44,7 @@ package com.robotacid.engine {
 		public static const DOWN:int = 4;
 		public static const LEFT:int = 8;
 		
-		public static const SOUNDS:Array = ["star1", "star2", "star3", "star4"];
+		public static const SOUNDS:Array = ["bomb1", "bomb2", "bomb3"];
 		
 		public function Explosion(id:int, mapX:int, mapY:int, delay:int, damage:Number, sender:Character = null, item:Item = null, ignore:int = 0) {
 			super(null, true, false);

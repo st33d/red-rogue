@@ -1,30 +1,21 @@
-Change log: delay till first dream reduced, suggestion nanny framework created, fontCol refactored out of TextBox (it was never used in the new copyPixel method), new assets.swc (sounds, secret items, dart trap)
+Change log: missile aggro bug fixed, kick smite attack added, sounds added for various things, fixed minimap new game bug, zone levels reduced by one, remainder zone content carries over to next content raffle, fixed AI graph cliff node problem with one way nodes, updated dart trap gfx, moved actions in menu to top of list, sleep zzz delay reduced
 
 Bug hunt
 	collection lock out on chests after playing for a while - bugged chest or item?
 	chaos wall colliders can child a character and pull it into a wall - how?
 	null Monster collider.world spotted - why?
 	
-	the new cliff nodes need to be one way into the cliff - the ai thinks it can walk across a span because they are linked either way
 	screen capture whilst player is confused includes the prompt - move prompts above confusion
-	minimap disappearing on new game in sewers reported - investigate
 
 create nanny
 	updates a render around the player detailing how to play
 
-reduce zones to 4 levels each
-	collapse writing and dream text into 16 levels
-	move default underworld portal to level 16
-	change content distribution to tiered reserve, the stuff left over from the missing level is added to the
-	pool for the next zone until 20 levels of content are done
-
 combat options
-	180 attack weapons
-		add spin attack property to items
-	kick-smite
-		smite when falling into a character's upper quarter
-
-dart trap update
+	whirlwind
+		add spin attack to dual wielding
+		animation frame required - duh! - it's the same frame as lunge
+			manage switching weapon layers
+		two different states in lunge, monitor for attack state switch after half action bar recovery
 
 secret items
 	chest col

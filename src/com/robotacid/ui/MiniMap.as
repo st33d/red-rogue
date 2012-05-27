@@ -80,7 +80,10 @@
 		/* Adds an animation to depict a given item on the minimap, searchReveal adds a visual "ping" to emphasise the discovery */
 		public function addFeature(x:Number, y:Number, blit:BlitClip, searchReveal:Boolean = false):MinimapFX{
 			var feature:MinimapFX = addFX(x, y, blit, null, 0, true);
-			if(searchReveal) addFX(x, y, renderer.featureRevealedBlit);
+			if(searchReveal){
+				addFX(x, y, renderer.featureRevealedBlit);
+				game.soundQueue.add("ping");
+			}
 			return feature;
 		}
 		

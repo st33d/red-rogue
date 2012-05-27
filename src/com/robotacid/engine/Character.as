@@ -512,8 +512,20 @@
 									if(hitResult & CRITICAL){
 										hitDamage *= 2;
 									}
-									// blessed weapon? roll for smite
-									if(weapon && weapon.holyState == Item.BLESSED && ((hitResult & CRITICAL) || game.random.value() < SMITE_PER_LEVEL * weapon.level)){
+									// falling attack or blessed weapon? roll for smite
+									if(
+										(
+											collider.state == Collider.FALL && (
+												(hitResult & CRITICAL) ||
+												game.random.value() < SMITE_PER_LEVEL * level
+											)
+										) || (
+											(weapon && weapon.holyState == Item.BLESSED) && (
+												(hitResult & CRITICAL) ||
+												game.random.value() < SMITE_PER_LEVEL * weapon.level
+											)
+										)
+									){
 										target.smite(looking, hitDamage * 0.5);
 										// half of hitDamage is transferred to the smite state
 										hitDamage *= 0.5;
@@ -1040,7 +1052,15 @@
 				}
 			}
 			if(type == Missile.ITEM) {
-				game.soundQueue.add("bowShoot");
+				if(item.name == Item.GUN_BLADE){
+					game.soundQueue.addRandom("gunBlade", ["gunBlade1", "gunBlade2", "gunBlade3"]);
+				} else if(item.name == Item.ARQUEBUS){
+					game.soundQueue.addRandom("arquebus", ["arquebus1", "arquebus2", "arquebus3"]);
+				} else if(item.name == Item.ARBALEST){
+					game.soundQueue.add("arbalest");
+				} else {
+					game.soundQueue.add("bowShoot");
+				}
 			} else if (type == Missile.RUNE){
 				game.soundQueue.add("throw");
 				reflections = Missile.RUNE_REFLECTIONS;

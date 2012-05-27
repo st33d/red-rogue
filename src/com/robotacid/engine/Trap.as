@@ -78,7 +78,10 @@
 				rect = new Rectangle(mapX * Game.SCALE, -1 + mapY * Game.SCALE, SCALE, 1);
 				if(dartPos){
 					dartGun = new Point((dartPos.x + 0.5) * Game.SCALE, (dartPos.y + 1) * Game.SCALE);
-					sprite.addChild(createDartGunGfx(dartGun));
+					var dartTrapGfx:DisplayObject = new DartTrapMC();
+					dartTrapGfx.x = -gfx.x + dartGun.x - 0.5 * Game.SCALE;
+					dartTrapGfx.y = -gfx.y + dartGun.y;
+					sprite.addChild(dartTrapGfx);
 				}
 			} else if(
 				type == CONFUSION_MUSHROOM ||
@@ -371,16 +374,6 @@
 			var bitmap:Bitmap = new Bitmap(bitmapData);
 			bitmap.x = -SCALE * 0.25;
 			bitmap.y = -SCALE;
-			return bitmap;
-		}
-		
-		// simply can't be bothered to draw these at the moment
-		
-		public function createDartGunGfx(pos:Point):Bitmap{
-			var bitmap:Bitmap = new Bitmap(new BitmapData(4, 2, true, 0xFF000000));
-			bitmap.bitmapData.fillRect(new Rectangle(1, 1, 2, 1), 0x0);
-			bitmap.x = -gfx.x + pos.x - bitmap.width * 0.5;
-			bitmap.y = -gfx.y + pos.y;
 			return bitmap;
 		}
 		

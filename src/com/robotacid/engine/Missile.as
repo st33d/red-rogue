@@ -282,8 +282,7 @@
 			if(type == ITEM){
 				// need to make sure that monsters hit by arrows fly into battle mode
 				if(character is Monster && (character as Monster).brain.state == Brain.PATROL){
-					(character as Monster).brain.state == Brain.ATTACK;
-					(character as Monster).brain.target = sender;
+					(character as Monster).brain.attack(sender);
 				}
 				// would help if the player can see what they're doing to the target
 				if(sender is Player) sender.victim = character;

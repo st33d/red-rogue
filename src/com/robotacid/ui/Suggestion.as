@@ -59,7 +59,11 @@ package com.robotacid.ui {
 		public static const DISARM:int = 1 << 6;
 		
 		public function Suggestion() {
-			active = true;
+			
+			
+			active = false;
+			
+			
 			sprite = new Sprite();
 			skillPrompt = new TextBox(100, 13, TEXT_BACKGROUND_COL, TEXT_BACKGROUND_COL);
 			skillPrompt.x = - skillPrompt.width * 0.5;
@@ -174,7 +178,7 @@ package com.robotacid.ui {
 											(entity as Item).collider.intersects(game.player.collider)
 										) || (
 											(entity is Chest) &&
-											(entity is Chest).mimicState == Chest.NONE &&
+											(entity as Chest).mimicState == Chest.NONE &&
 											(entity as Chest).rect.intersects(game.player.collider)
 										)
 									){
