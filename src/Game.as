@@ -89,9 +89,9 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 378;
+		public static const BUILD_NUM:int = 379;
 		
-		public static const TEST_BED_INIT:Boolean = false;
+		public static const TEST_BED_INIT:Boolean = true;
 		
 		public static var game:Game;
 		public static var renderer:Renderer;
@@ -123,6 +123,7 @@
 		public var menuHolder:Sprite;
 		public var miniMapHolder:Sprite;
 		public var console:Console;
+		public var confusionOverlayHolder:Sprite;
 		public var menu:GameMenu;
 		public var miniMap:MiniMap;
 		public var playerActionBar:ProgressBar;
@@ -367,6 +368,9 @@
 			addChild(enemyHealthBar);
 			enemyHealthBar.active = false;
 			enemyHealthBar.alpha = 0;
+			
+			confusionOverlayHolder = new Sprite();
+			addChild(confusionOverlayHolder);
 			
 			addChild(transition);
 			

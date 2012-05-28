@@ -78,13 +78,17 @@ package com.robotacid.ai {
 			super.confuse(delay);
 			if(!confusionOverlay.parent){
 				confusionOverlay.transform.matrix = CONFUSION_SCALE_TRANSFORMS[game.random.rangeInt(CONFUSION_SCALE_TRANSFORMS.length)];
-				game.addChild(confusionOverlay);
+				game.confusionOverlayHolder.addChild(confusionOverlay);
 			}
 		}
 		
 		public function renderConfusion():void{
 			confusionOverlay.visible = false;
+			game.menu.visible = false;
+			if(Game.dialog) Game.dialog.visible = false;
 			confusionOverlay.bitmapData.draw(game);
+			if(Game.dialog) Game.dialog.visible = true;
+			game.menu.visible = true;
 			confusionOverlay.visible = true;
 		}
 		

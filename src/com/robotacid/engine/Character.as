@@ -72,6 +72,7 @@
 		public var voice:Array;
 		public var asleep:Boolean;
 		public var resurrect:Boolean;
+		public var lungeState:int;
 		
 		// stats
 		public var speed:Number;
@@ -141,7 +142,17 @@
 		public static const STUNNED:int = 6;
 		public static const SMITED:int = 7;
 		
-		public static const MOVE_DELAY:int = 3;
+		// directions - from com.robotacid.phys.Collider
+		public static const UP:int = 1;
+		public static const RIGHT:int = 2;
+		public static const DOWN:int = 4;
+		public static const LEFT:int = 8;
+		
+		// hit flags
+		public static const MISS:int = 0;
+		public static const HIT:int = 1 << 0;
+		public static const CRITICAL:int = 1 << 1;
+		public static const STUN:int = 1 << 2;
 		
 		// based on debris type order
 		public static const HIT_SOUNDS:Array = [
@@ -175,17 +186,7 @@
 		public static const STAIRS_SPEED:Number = 2;
 		public static const PORTAL_DISTANCE:Number = STAIRS_SPEED * PORTAL_STEPS;
 		
-		public static const UP:int = 1;
-		public static const RIGHT:int = 2;
-		public static const DOWN:int = 4;
-		public static const LEFT:int = 8;
-		
-		// hit flags
-		public static const MISS:int = 0;
-		public static const HIT:int = 1 << 0;
-		public static const CRITICAL:int = 1 << 1;
-		public static const STUN:int = 1 << 2;
-		
+		public static const MOVE_DELAY:int = 3;
 		public static const CRITICAL_HIT:Number = 0.94;
 		public static const CRITICAL_MISS:Number = 0.05;
 		public static const QUICKENING_DELAY:int = 90;

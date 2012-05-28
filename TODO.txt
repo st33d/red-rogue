@@ -1,11 +1,9 @@
-Change log: missile aggro bug fixed, kick smite attack added, sounds added for various things, fixed minimap new game bug, zone levels reduced by one, remainder zone content carries over to next content raffle, fixed AI graph cliff node problem with one way nodes, updated dart trap gfx, moved actions in menu to top of list, sleep zzz delay reduced
+Change log: fixed confusion screenshot bug, this upload is to create a restore point before I wreck everything with the whirlwind attack
 
 Bug hunt
 	collection lock out on chests after playing for a while - bugged chest or item?
 	chaos wall colliders can child a character and pull it into a wall - how?
 	null Monster collider.world spotted - why?
-	
-	screen capture whilst player is confused includes the prompt - move prompts above confusion
 
 create nanny
 	updates a render around the player detailing how to play
@@ -16,6 +14,8 @@ combat options
 		animation frame required - duh! - it's the same frame as lunge
 			manage switching weapon layers
 		two different states in lunge, monitor for attack state switch after half action bar recovery
+
+always put something in a secret room
 
 secret items
 	chest col
