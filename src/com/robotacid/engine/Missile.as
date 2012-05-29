@@ -204,7 +204,12 @@
 					}
 					if(catchable){
 						// check for collision with sender if reflective, allowing them to catch the item
-						if(sender.collider.intersects(collider)){
+						if(
+							sender.collider.x + sender.collider.width > collider.x &&
+							collider.x + collider.width > sender.collider.x &&
+							sender.collider.y + sender.collider.height > collider.y &&
+							collider.y + collider.height > sender.collider.y
+						){
 							kill();
 							if(item){
 								item.collect(sender);

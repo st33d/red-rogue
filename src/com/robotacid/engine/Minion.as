@@ -76,7 +76,7 @@
 				teleportToPlayer();
 			}
 			tileCenter = (mapX + 0.5) * SCALE;
-			if(state == WALKING && !asleep) brain.main();
+			if((state == WALKING || state == LUNGING) && !asleep) brain.main();
 			super.main();
 			minimapFX.x = mapX;
 			minimapFX.y = mapY;

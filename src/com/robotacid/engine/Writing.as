@@ -56,7 +56,13 @@ package com.robotacid.engine {
 		
 		override public function main():void {
 			if(game.player.actions & Collider.UP){
-				if(!read && game.player.collider.intersects(rect)){
+				if(
+					!read &&
+					game.player.collider.x + game.player.collider.width > rect.x &&
+					rect.x + rect.width > game.player.collider.x &&
+					game.player.collider.y + game.player.collider.height > rect.y &&
+					rect.y + rect.height > game.player.collider.y
+				){
 					game.console.print("\"" + text + "\"");
 					read = true;
 				}
@@ -65,7 +71,12 @@ package com.robotacid.engine {
 			}
 			if(name == ELBERETH){
 				// make any monster targeting the player, run away
-				if(game.player.collider.intersects(rect)){
+				if(
+					game.player.collider.x + game.player.collider.width > rect.x &&
+					rect.x + rect.width > game.player.collider.x &&
+					game.player.collider.y + game.player.collider.height > rect.y &&
+					rect.y + rect.height > game.player.collider.y
+				){
 					var i:int, character:Character;
 					for(i = 0; i < Brain.monsterCharacters.length; i++){
 						character = Brain.monsterCharacters[i];

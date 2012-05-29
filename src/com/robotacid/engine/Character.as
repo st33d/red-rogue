@@ -154,6 +154,10 @@
 		public static const CRITICAL:int = 1 << 1;
 		public static const STUN:int = 1 << 2;
 		
+		// lunge states
+		public static const LUNGE_FORWARD:int = 0;
+		public static const LUNGE_BACK:int = 1;
+		
 		// based on debris type order
 		public static const HIT_SOUNDS:Array = [
 			["bloodHit1", "bloodHit2", "bloodHit3", "bloodHit4"],
@@ -424,6 +428,7 @@
 		protected function move():void{
 			
 			var mc:MovieClip = gfx as MovieClip;
+			var target:Character = null;
 			
 			var moveSpeedTemp:Number = speedModifier;
 			if(moveSpeedTemp < MIN_SPEED_MODIFIER) moveSpeedTemp = MIN_SPEED_MODIFIER;
@@ -464,114 +469,18 @@
 				
 				// COMBAT =====================================================================================
 				
-				if(collider.state == Collider.STACK || collider.state == Collider.FALL){
+				if(collider.state == Collider.STACK || collider.state == Collider.FALL && !indifferent){
 					if(collider.leftContact || collider.rightContact){
-						var target:Character = null;
 						if((dir & LEFT) && collider.leftContact && (collider.leftContact.properties & Collider.CHARACTER) && enemy(collider.leftContact.userData)){
 							target = collider.leftContact.userData as Character;
 						} else if((dir & RIGHT) && collider.rightContact && (collider.rightContact.properties & Collider.CHARACTER) && enemy(collider.rightContact.userData)){
 							target = collider.rightContact.userData as Character;
 						}
-						if(target && !indifferent){
+						if(target){
 							moving = false;
 							if(attackCount >= 1){
-								
-								hitResult = hit(target, Item.MELEE);
-								if(hitResult){
-									// weapon position
-									p.x = gfx.x + (mc.weapon ? mc.weapon.x : 0);
-									p.y = gfx.y + (mc.weapon ? mc.weapon.y : 0);
-									// nudge
-									if(!(target.type & (STONE | GATE))) target.collider.pushDamping = 1;
-									// effects
-									if(weapon && weapon.effects && target.active && !(target.type & (STONE | GATE))){
-										target.applyWeaponEffects(weapon);
-									}
-									if(specialAttack && target.active && (!(target.type & STONE) || name == NYMPH) && !(target.type & GATE)) racialAttack(target, hitResult);
-									var meleeWeapon:Boolean = Boolean(weapon && (weapon.range & Item.MELEE));
-									// knockback
-									var enduranceDamping:Number = 1.0 - (target.endurance + (target.armour ? target.armour.endurance : 0));
-									if(enduranceDamping < 0) enduranceDamping = 0;
-									var hitKnockback:Number = (knockback + (meleeWeapon ? weapon.knockback : 0)) * enduranceDamping;
-									if(dir & LEFT) hitKnockback = -hitKnockback;
-									// stun
-									if(hitResult & STUN){
-										var hitStun:Number = (stun + (meleeWeapon ? weapon.stun : 0)) * enduranceDamping;
-										if(hitStun) target.applyStun(hitStun);
-									}
-									// damage
-									var hitDamage:Number = damage + (meleeWeapon ? weapon.damage : 0);
-									if(target.protectionModifier < 1){
-										hitDamage *= target.protectionModifier < MIN_PROTECTION_MODIFIER ? MIN_PROTECTION_MODIFIER : target.protectionModifier;
-									}
-									// rogue's backstab multiplier
-									if(name == ROGUE && (looking & (LEFT | RIGHT)) == (target.looking & (LEFT | RIGHT))){
-										hitDamage *= 2;
-										renderer.createDebrisRect(target.collider, (looking & (LEFT | RIGHT)) == RIGHT ? 8 : -8, 30, target.debrisType);
-									}
-									// crit multiplier
-									if(hitResult & CRITICAL){
-										hitDamage *= 2;
-									}
-									// falling attack or blessed weapon? roll for smite
-									if(
-										(
-											collider.state == Collider.FALL && (
-												(hitResult & CRITICAL) ||
-												game.random.value() < SMITE_PER_LEVEL * level
-											)
-										) || (
-											(weapon && weapon.holyState == Item.BLESSED) && (
-												(hitResult & CRITICAL) ||
-												game.random.value() < SMITE_PER_LEVEL * weapon.level
-											)
-										)
-									){
-										target.smite(looking, hitDamage * 0.5);
-										// half of hitDamage is transferred to the smite state
-										hitDamage *= 0.5;
-									}
-									// leech
-									if((leech || (weapon && weapon.leech)) && !(target.armour && target.armour.name == Item.BLOOD) && !(target.type & (STONE | GATE))){
-										var leechValue:Number = leech + (weapon ? weapon.leech : 0);
-										if(leechValue > 1) leechValue = 1;
-										leechValue *= hitDamage;
-										if(leechValue > target.health) leechValue = target.health;
-										applyHealth(leechValue);
-									}
-									// damage applied
-									target.applyDamage(hitDamage, nameToString(), hitKnockback, Boolean(hitResult & CRITICAL), this);
-									// thorns
-									if(target.thorns){
-										renderer.createDebrisRect(collider, 0, 10, debrisType);
-										applyDamage(hitDamage * (target.thorns <= 1 ? target.thorns : 1), target.nameToString(), 0, false);
-									}
-									// blood
-									if(dir & RIGHT){
-										renderer.createDebrisSpurt(p.x < target.collider.x ? p.x : target.collider.x - 1, p.y, -2, 8, target.debrisType);
-									} else if(dir & LEFT){
-										renderer.createDebrisSpurt(p.x >= target.collider.x + target.collider.width ? p.x : target.collider.x + target.collider.width, p.y, 2, 8, target.debrisType);
-									}
-									
-								} else {
-									game.soundQueue.add("miss");
-								}
-								if(state != QUICKENING){
-									state = LUNGING;
-									
-									// bravery check - quick monsters may favour running away
-									if(this != game.player){
-										if(
-											bravery < 1 &&
-											speed * speedModifier >= target.speed * target.speedModifier &&
-											game.random.value() >= bravery
-										){
-											brain.flee(target);
-										}
-									}
-								}
+								meleeAttack(target);
 							}
-							victim = target;
 						}
 					}
 					
@@ -623,7 +532,36 @@
 				
 			} else if(state == LUNGING){
 				if(attackCount > 0.5){
-					state = WALKING;
+					// check for whirlwind attack
+					if(throwable && (dir & (LEFT | RIGHT))){
+						var enemiesBehind:Vector.<Collider>;
+						if(
+							(lungeState == LUNGE_FORWARD && (dir & RIGHT)) ||
+							(lungeState == LUNGE_BACK && (dir & LEFT))
+						){
+							enemiesBehind = game.world.getCollidersIn(new Rectangle(collider.x - moveSpeedTemp, collider.y, moveSpeedTemp, collider.height), collider, Collider.CHARACTER, missileIgnore | Collider.GATE | Collider.STONE);
+						} else if(
+							(lungeState == LUNGE_FORWARD && (dir & LEFT)) ||
+							(lungeState == LUNGE_BACK && (dir & RIGHT))
+						){
+							enemiesBehind = game.world.getCollidersIn(new Rectangle(collider.x + collider.width, collider.y, moveSpeedTemp, collider.height), collider, Collider.CHARACTER, missileIgnore | Collider.GATE | Collider.STONE);
+						}
+						if(enemiesBehind.length){
+							target = enemiesBehind[0].userData as Character;
+							if(!enemy(target)) target = null;
+						}
+					}
+					if(target){
+						lungeState = lungeState == LUNGE_FORWARD ? LUNGE_BACK : LUNGE_FORWARD;
+						setEquipmentLayers();
+						meleeAttack(target);
+					} else {
+						state = WALKING;
+						if(lungeState != LUNGE_FORWARD){
+							lungeState = LUNGE_FORWARD;
+							setEquipmentLayers();
+						}
+					}
 				}
 			} else if(state == QUICKENING){
 				collider.vy = -1.5;
@@ -735,6 +673,112 @@
 			if(dir) collider.awake = Collider.AWAKE_DELAY;
 		}
 		
+		/* Handles all the logic for a single melee attack */
+		protected function meleeAttack(target:Character):void{
+			hitResult = hit(target, Item.MELEE);
+			if(hitResult){
+				var mc:MovieClip = gfx as MovieClip;
+				var item:Item = lungeState == LUNGE_FORWARD ? weapon : throwable;
+				// weapon position
+				p.x = gfx.x + (mc.weapon ? mc.weapon.x : 0);
+				p.y = gfx.y + (mc.weapon ? mc.weapon.y : 0);
+				// nudge
+				if(!(target.type & (STONE | GATE))) target.collider.pushDamping = 1;
+				// effects
+				if(item && item.effects && target.active && !(target.type & (STONE | GATE))){
+					target.applyWeaponEffects(item);
+				}
+				if(specialAttack && target.active && (!(target.type & STONE) || name == NYMPH) && !(target.type & GATE)) racialAttack(target, hitResult);
+				var meleeWeapon:Boolean = Boolean(item && (item.range & Item.MELEE));
+				// knockback
+				var enduranceDamping:Number = 1.0 - (target.endurance + (target.armour ? target.armour.endurance : 0));
+				if(enduranceDamping < 0) enduranceDamping = 0;
+				var hitKnockback:Number = (knockback + (meleeWeapon ? item.knockback : 0)) * enduranceDamping;
+				if(dir & LEFT) hitKnockback = -hitKnockback;
+				// stun
+				if(hitResult & STUN){
+					var hitStun:Number = (stun + (meleeWeapon ? item.stun : 0)) * enduranceDamping;
+					if(hitStun) target.applyStun(hitStun);
+				}
+				// damage
+				var hitDamage:Number = damage + (meleeWeapon ? item.damage : 0);
+				if(target.protectionModifier < 1){
+					hitDamage *= target.protectionModifier < MIN_PROTECTION_MODIFIER ? MIN_PROTECTION_MODIFIER : target.protectionModifier;
+				}
+				// rogue's backstab multiplier
+				if(name == ROGUE && (looking & (LEFT | RIGHT)) == (target.looking & (LEFT | RIGHT))){
+					hitDamage *= 2;
+					renderer.createDebrisRect(target.collider, (looking & (LEFT | RIGHT)) == RIGHT ? 8 : -8, 30, target.debrisType);
+				}
+				// crit multiplier
+				if(hitResult & CRITICAL){
+					hitDamage *= 2;
+				}
+				// falling attack or blessed weapon? roll for smite
+				if(
+					(
+						collider.state == Collider.FALL && (
+							(hitResult & CRITICAL) ||
+							game.random.value() < SMITE_PER_LEVEL * level
+						)
+					) || (
+						(item && item.holyState == Item.BLESSED) && (
+							(hitResult & CRITICAL) ||
+							game.random.value() < SMITE_PER_LEVEL * weapon.level
+						)
+					)
+				){
+					target.smite(looking, hitDamage * 0.5);
+					// half of hitDamage is transferred to the smite state
+					hitDamage *= 0.5;
+				}
+				// leech
+				if((leech || (item && item.leech)) && !(target.armour && target.armour.name == Item.BLOOD) && !(target.type & (STONE | GATE))){
+					var leechValue:Number = leech + (item ? item.leech : 0);
+					if(leechValue > 1) leechValue = 1;
+					leechValue *= hitDamage;
+					if(leechValue > target.health) leechValue = target.health;
+					applyHealth(leechValue);
+				}
+				// damage applied
+				target.applyDamage(hitDamage, nameToString(), hitKnockback, Boolean(hitResult & CRITICAL), this);
+				// thorns
+				if(target.thorns){
+					renderer.createDebrisRect(collider, 0, 10, debrisType);
+					applyDamage(hitDamage * (target.thorns <= 1 ? target.thorns : 1), target.nameToString(), 0, false);
+				}
+				// blood
+				if((dir & RIGHT) || ((dir & LEFT) && lungeState == LUNGE_BACK)){
+					renderer.createDebrisSpurt(p.x < target.collider.x ? p.x : target.collider.x - 1, p.y, -2, 8, target.debrisType);
+				} else if((dir & LEFT) || ((dir & RIGHT) && lungeState == LUNGE_BACK)){
+					renderer.createDebrisSpurt(p.x >= target.collider.x + target.collider.width ? p.x : target.collider.x + target.collider.width, p.y, 2, 8, target.debrisType);
+				}
+				
+			} else {
+				game.soundQueue.add("miss");
+			}
+			if(state != QUICKENING){
+				state = LUNGING;
+				
+				// bravery check - quick monsters may favour running away
+				if(this != game.player){
+					if(
+						bravery < 1 &&
+						speed * speedModifier >= target.speed * target.speedModifier &&
+						game.random.value() >= bravery
+					){
+						brain.flee(target);
+					}
+				}
+			} else {
+				if(lungeState != LUNGE_FORWARD){
+					lungeState = LUNGE_FORWARD;
+					setEquipmentLayers();
+				}
+			}
+			victim = target;
+		}
+		
 		protected function stompCallback(stomper:Collider):void{
 			if(state == QUICKENING || state == SMITED || !active) return;
 			applyStun(0.5);
@@ -818,6 +862,10 @@
 			quickeningCount = QUICKENING_DELAY;
 			stunCount = 0;
 			attackCount = 1;
+			if(lungeState != LUNGE_FORWARD){
+				lungeState = LUNGE_FORWARD;
+				setEquipmentLayers();
+			}
 			// since the minion and player quicken together, we try to avoid phased sound effects
 			if(!(this == game.minion && game.player.state == QUICKENING)){
 				game.soundQueue.addRandom("quickening", QUICKENING_SOUNDS);
@@ -929,9 +977,7 @@
 			}
 			
 			item.addBuff(this);
-			if(throwing) (gfx as Sprite).addChildAt(item.gfx, 0);
-			else if(item.name == Item.YENDOR && item.type == Item.ARMOUR) (gfx as Sprite).addChildAt(item.gfx, 0);
-			else (gfx as Sprite).addChild(item.gfx);
+			setEquipmentLayers();
 			if(item.gfx is ItemMovieClip) (item.gfx as ItemMovieClip).setEquipRender();
 			return item;
 		}
@@ -969,6 +1015,27 @@
 			return item;
 		}
 		
+		/* Juggles the graphics layers so that the items are on the right layers at the right time */
+		protected function setEquipmentLayers():void{
+			var mc:MovieClip = gfx as MovieClip;
+			if(lungeState == LUNGE_FORWARD){
+				if(armour){
+					if(armour.name == Item.YENDOR) mc.addChildAt(armour.gfx, 0);
+					else mc.addChild(armour.gfx);
+				}
+				if(weapon) mc.addChild(weapon.gfx);
+				if(throwable) mc.addChildAt(throwable.gfx, 0);
+				
+			} else if(lungeState == LUNGE_BACK){
+				if(armour){
+					if(armour.name == Item.YENDOR) mc.addChildAt(armour.gfx, 0);
+					else mc.addChild(armour.gfx);
+				}
+				if(throwable) mc.addChild(throwable.gfx);
+				if(weapon) mc.addChildAt(weapon.gfx, 0);
+			}
+		}
+		
 		/* Drops an item from the Character's loot */
 		public function dropItem(item:Item):void{
 			var n:int = loot.indexOf(item);
@@ -980,15 +1047,18 @@
 			if(indifferent) return MISS;
 			attackCount = 0;
 			var attackRoll:Number = game.random.value();
+			var item:Item = lungeState == LUNGE_FORWARD ? weapon : throwable;
 			if(attackRoll >= CRITICAL_HIT)
 				return CRITICAL | STUN;
 			else if(attackRoll <= CRITICAL_MISS)
 				return MISS;
-			else if(attack + attackRoll + (weapon && (weapon.range & range) ? weapon.attack : 0) > character.defence + (character.armour ? character.armour.defence : 0)){
+			else if(
+				attack + attackRoll + (item && (item.range & range) ? item.attack : 0) > character.defence + (character.armour ? character.armour.defence : 0
+			)){
 				// stun roll
 				var enduranceDamping:Number = 1.0 - (character.endurance + (character.armour ? character.armour.endurance : 0));
 				if(enduranceDamping < 0) enduranceDamping = 0;
-				var stunCheck:Number = (stun + (weapon && (weapon.range & range) ? weapon.stun : 0)) * enduranceDamping;
+				var stunCheck:Number = (stun + (item && (item.range & range) ? item.stun : 0)) * enduranceDamping;
 				if(stunCheck && game.random.value() <= stunCheck) return HIT | STUN;
 				return HIT;
 			}
@@ -1004,6 +1074,10 @@
 			if(state == QUICKENING) finishQuicken();
 			stunCount = delay;
 			state = STUNNED;
+			if(lungeState != LUNGE_FORWARD){
+				lungeState = LUNGE_FORWARD;
+				setEquipmentLayers();
+			}
 			if(collider.state == Collider.HOVER){
 				collider.state = Collider.FALL;
 			}
@@ -1393,6 +1467,10 @@
 				}
 			} else if(state == LUNGING){
 				if(mc.currentLabel != "lunge") mc.gotoAndStop("lunge");
+				if(lungeState == LUNGE_BACK){
+					if((looking & RIGHT) && mc.scaleX != -1) mc.scaleX = -1;
+					else if((looking & LEFT) && mc.scaleX != 1) mc.scaleX = 1;
+				}
 				
 			} else if(state == QUICKENING){
 				if(mc.currentLabel != "quicken") mc.gotoAndStop("quicken");
@@ -1415,10 +1493,17 @@
 			}
 			if(weapon){
 				if((gfx as MovieClip).weapon){
-					weapon.gfx.x = mc.weapon.x;
-					weapon.gfx.y = mc.weapon.y;
 					if(collider.state == Collider.HOVER) weapon.gfx.visible = false;
-					else weapon.gfx.visible = true;
+					else {
+						weapon.gfx.visible = true;
+						if(state == LUNGING && lungeState == LUNGE_BACK){
+							weapon.gfx.x = mc.throwable.x;
+							weapon.gfx.y = mc.throwable.y;
+						} else {
+							weapon.gfx.x = mc.weapon.x;
+							weapon.gfx.y = mc.weapon.y;
+						}
+					}
 				}
 				if(weapon.gfx is ItemMovieClip){
 					(weapon.gfx as ItemMovieClip).render(this, mc);
@@ -1426,10 +1511,17 @@
 			}
 			if(throwable){
 				if((gfx as MovieClip).throwable){
-					throwable.gfx.x = mc.throwable.x;
-					throwable.gfx.y = mc.throwable.y;
 					if(collider.state == Collider.HOVER) throwable.gfx.visible = false;
-					else throwable.gfx.visible = true;
+					else {
+						throwable.gfx.visible = true;
+						if(state == LUNGING && lungeState == LUNGE_BACK){
+							throwable.gfx.x = mc.weapon.x;
+							throwable.gfx.y = mc.weapon.y;
+						} else {
+							throwable.gfx.x = mc.throwable.x;
+							throwable.gfx.y = mc.throwable.y;
+						}
+					}
 				}
 				if(throwable.gfx is ItemMovieClip){
 					(throwable.gfx as ItemMovieClip).render(this, mc);

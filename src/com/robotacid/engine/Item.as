@@ -301,7 +301,14 @@
 			}
 			
 			// check for collection by player
-			if((game.player.actions & Collider.UP) && collider.intersects(game.player.collider) && !game.player.indifferent){
+			if(
+				(game.player.actions & Collider.UP) &&
+				!game.player.indifferent &&
+				collider.x + collider.width > game.player.collider.x &&
+				game.player.collider.x + game.player.collider.width > collider.x &&
+				collider.y + collider.height > game.player.collider.y &&
+				game.player.collider.y + game.player.collider.height > collider.y
+			){
 				if(type == KEY && game.player.keyItem){
 					// fires a warning once if a key is already carried
 					game.player.setKeyItem(true);

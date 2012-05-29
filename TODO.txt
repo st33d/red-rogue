@@ -1,4 +1,4 @@
-Change log: fixed confusion screenshot bug, this upload is to create a restore point before I wreck everything with the whirlwind attack
+Change log: whirlwind attack added for surrounded characters, setEquipmentLayers method created to manage whirlwind attack graphics and keep item layers consistent, meleeAttack method created to modularise attacks, fixed head and corpses to spew the debris type of the victim, refactored most high-cpu rectangle intersection tests to inline tests, changed traps to be disarmable when not revealed, fixed disarming not removing trap from MapTileManager
 
 Bug hunt
 	collection lock out on chests after playing for a while - bugged chest or item?
@@ -7,13 +7,6 @@ Bug hunt
 
 create nanny
 	updates a render around the player detailing how to play
-
-combat options
-	whirlwind
-		add spin attack to dual wielding
-		animation frame required - duh! - it's the same frame as lunge
-			manage switching weapon layers
-		two different states in lunge, monitor for attack state switch after half action bar recovery
 
 always put something in a secret room
 

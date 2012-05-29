@@ -15,15 +15,15 @@ package com.robotacid.engine {
 	 */
 	public class Corpse extends ColliderEntity{
 		
-		public var state:int;
-		public var looking:int;
-		public var dir:int;
-		public var speed:Number;
-		public var moving:Boolean;
-		public var moveFrame:int;
-		public var moveCount:int;
-		
-		public var boomCount:int;
+		private var state:int;
+		private var looking:int;
+		private var dir:int;
+		private var speed:Number;
+		private var moving:Boolean;
+		private var moveFrame:int;
+		private var moveCount:int;
+		private var debrisType:int;
+		private var boomCount:int;
 		
 		public static const WALKING:int = Character.WALKING;
 		
@@ -48,6 +48,7 @@ package com.robotacid.engine {
 			speed = victim.speed;
 			moving = victim.moving;
 			dir = victim.looking;
+			debrisType = victim.debrisType;
 			var mcClass:Class = (Object(victim.gfx).constructor as Class);
 			gfx = new mcClass();
 			super(gfx, true);
@@ -73,7 +74,7 @@ package com.robotacid.engine {
 		}
 		
 		public function kill():void{
-			renderer.createDebrisRect(collider, 0, 20, Renderer.BLOOD);
+			renderer.createDebrisRect(collider, 0, 20, debrisType);
 			game.world.removeCollider(collider);
 			active = false;
 		}
@@ -130,11 +131,11 @@ package com.robotacid.engine {
 			
 			for(var i:int = 0; i < 8; i++){
 				if(game.random.value() < 0.8){
-					blit = renderer.smallDebrisBlits[Renderer.BLOOD];
-					print = renderer.smallFadeBlits[Renderer.BLOOD];
+					blit = renderer.smallDebrisBlits[debrisType];
+					print = renderer.smallFadeBlits[debrisType];
 				} else {
-					blit = renderer.bigDebrisBlits[Renderer.BLOOD];
-					print = renderer.bigFadeBlits[Renderer.BLOOD];
+					blit = renderer.bigDebrisBlits[debrisType];
+					print = renderer.bigFadeBlits[debrisType];
 				}
 				renderer.addDebris(point.x + collider.vx * collider.dampingX, point.y + 5, blit, -1 + game.random.range(2), -5 -game.random.range(5), print, true);
 			}

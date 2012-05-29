@@ -145,7 +145,7 @@
 			tileCenter = (mapX + 0.5) * SCALE;
 			
 			// keyboard input is managed from the PlayerBrain - thus psychological states can be inflicted upon the player
-			if(state == WALKING && !asleep) brain.main();
+			if((state == WALKING || state == LUNGING) && !asleep) brain.main();
 			
 			super.main();
 			
@@ -250,7 +250,15 @@
 						game.menu.inventoryOption.active = Boolean(game.menu.inventoryList.options.length);
 						game.menu.update();
 					}
-					if(!portalContact.rect.intersects(collider) || state != Character.WALKING){
+					if(
+						state != Character.WALKING ||
+						!(
+							portalContact.rect.x + portalContact.rect.width > collider.x &&
+							collider.x + collider.width > portalContact.rect.x &&
+							portalContact.rect.y + portalContact.rect.height > collider.y &&
+							collider.y + collider.height > portalContact.rect.y
+						)
+					){
 						portalContact = null;
 					} else {
 						// Cave Story style doorway access - clean down press
@@ -265,7 +273,14 @@
 					
 					for(i = 0; i < game.portals.length; i++){
 						portal = game.portals[i];
-						if(portal.playerPortal && portal.rect.intersects(collider) && state == Character.WALKING){
+						if(
+							portal.playerPortal &&
+							state == Character.WALKING &&
+							portal.rect.x + portal.rect.width > collider.x &&
+							collider.x + collider.width > portal.rect.x &&
+							portal.rect.y + portal.rect.height > collider.y &&
+							collider.y + collider.height > portal.rect.y
+						){
 							if(!portalContact){
 								portalContact = portal;
 								break;

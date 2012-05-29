@@ -17,6 +17,7 @@
 		
 		public var damage:Number;
 		
+		private var debrisType:int;
 		private var bloodCount:int;
 		private var uniqueNameStr:String;
 		
@@ -37,6 +38,7 @@
 			gfx = game.library.getCharacterHeadGfx(victim.name);
 			super(gfx, true);
 			name = victim.name;
+			debrisType = victim.debrisType;
 			if(victim.uniqueNameStr){
 				uniqueNameStr = victim.uniqueNameStr + (
 					(victim.uniqueNameStr.charAt(victim.uniqueNameStr.length - 1) == "s") ? "' " : "'s "
@@ -72,11 +74,11 @@
 					bloodCount--;
 					var blit:BlitRect, print:BlitRect;
 					if(game.random.coinFlip()){
-						blit = renderer.smallDebrisBlits[Renderer.BLOOD];
-						print = renderer.smallFadeBlits[Renderer.BLOOD];
+						blit = renderer.smallDebrisBlits[debrisType];
+						print = renderer.smallFadeBlits[debrisType];
 					} else {
-						blit = renderer.bigDebrisBlits[Renderer.BLOOD];
-						print = renderer.bigFadeBlits[Renderer.BLOOD];
+						blit = renderer.bigDebrisBlits[debrisType];
+						print = renderer.bigFadeBlits[debrisType];
 					}
 					renderer.addDebris(collider.x + collider.width * 0.5, collider.y + collider.height, blit, -1 + collider.vx + game.random.value(), -game.random.value(), print, true);
 				}
@@ -108,7 +110,7 @@
 				face.dropToMap(mapX, mapY);
 				game.console.print("a " + Character.stats["names"][name] + " face is created");
 			}
-			renderer.createDebrisRect(collider, 0, 10, Renderer.BLOOD);
+			renderer.createDebrisRect(collider, 0, 10, debrisType);
 			game.world.removeCollider(collider);
 			active = false;
 		}

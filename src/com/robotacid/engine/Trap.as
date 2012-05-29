@@ -63,6 +63,9 @@
 		
 		public function Trap(gfx:DisplayObject, mapX:int, mapY:int, type:int, dartPos:Pixel = null) {
 			super(gfx, false, false);
+			this.mapX = mapX;
+			this.mapY = mapY;
+			mapZ = MapTileManager.ENTITY_LAYER;
 			this.type = type;
 			revealed = false;
 			var sprite:Sprite = gfx as Sprite;
@@ -145,8 +148,13 @@
 				}
 			}
 			
-			// disarm check
-			if(revealed && disarmingRect.intersects(game.player.collider)){
+			// disarm check - intersection check
+			if(
+				disarmingRect.x + disarmingRect.width > game.player.collider.x &&
+				game.player.collider.x + game.player.collider.width > disarmingRect.x &&
+				disarmingRect.y + disarmingRect.height > game.player.collider.y &&
+				game.player.collider.y + game.player.collider.height > disarmingRect.y
+			){
 				if(!disarmingContact){
 					disarmingContact = true;
 					game.player.addDisarmableTrap(this);
@@ -324,6 +332,7 @@
 			} else if(type == POISON_DART || type == TELEPORT_DART){
 				renderer.createDebrisRect(new Rectangle(dartGun.x - 2, dartGun.y, 4, 2), 0, 10, Renderer.STONE);
 			}
+			game.mapTileManager.removeTile(this, mapX, mapY, mapZ);
 		}
 		
 		/* Launches a missile from the ceiling that bears a magic effect */

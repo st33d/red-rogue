@@ -114,14 +114,29 @@
 				}
 				if(type == UNDERWORLD){
 					// heal the undead
-					if(game.player.undead && game.player.health < game.player.totalHealth && game.player.collider.intersects(rect)){
+					if(
+						game.player.undead &&
+						game.player.health < game.player.totalHealth &&
+						game.player.collider.x + game.player.collider.width > rect.x &&
+						rect.x + rect.width > game.player.collider.x &&
+						game.player.collider.y + game.player.collider.height > rect.y &&
+						rect.y + rect.height > game.player.collider.y
+					){
 						game.player.applyHealth(game.player.totalHealth * UNDEAD_HEAL_RATE);
 						renderer.createTeleportSparkRect(game.player.collider, 5);
 					}
 					var character:Character;
 					for(var i:int = 0; i < game.entities.length; i++){
 						character = game.entities[i] as Character;
-						if(character && character.undead && character.health < character.totalHealth && character.collider.intersects(rect)){
+						if(
+							character &&
+							character.undead &&
+							character.health < character.totalHealth &&
+							character.collider.x + character.collider.width > rect.x &&
+							rect.x + rect.width > character.collider.x &&
+							character.collider.y + character.collider.height > rect.y &&
+							rect.y + rect.height > character.collider.y
+						){
 							character.applyHealth(character.totalHealth * UNDEAD_HEAL_RATE);
 							renderer.createTeleportSparkRect(character.collider, 5);
 						}

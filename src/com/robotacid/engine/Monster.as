@@ -73,7 +73,7 @@
 				return;
 			}
 			tileCenter = (mapX + 0.5) * SCALE;
-			if(state == WALKING) brain.main();
+			if(state == WALKING || state == LUNGING) brain.main();
 			super.main();
 		}
 		

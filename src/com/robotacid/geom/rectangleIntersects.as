@@ -8,7 +8,10 @@ package com.robotacid.geom {
 	 */
 	
 	public function rectangleIntersection(a:Rectangle, b:Rectangle):Boolean {
-		return !(a.x > b.x + (b.width - 1) || a.x + (a.width - 1) < b.x || a.y > b.y + (b.height - 1) || a.y + (a.height - 1) < b.y);
+		return 	a.x + a.width > b.x &&
+				b.x + b.width > a.x &&
+				a.y + a.height > b.y &&
+				b.y + b.height > a.y;
 	}
 
 }

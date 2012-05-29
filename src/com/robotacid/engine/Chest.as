@@ -82,6 +82,12 @@
 			} else {
 				// concealing the twinkle in the dark will help avoid showing a clipped effect on the edge
 				// of the light map
+				
+				var playerIntersectsRect:Boolean = 	rect.x + rect.width > game.player.collider.x &&
+													game.player.collider.x + game.player.collider.width > rect.x &&
+													rect.y + rect.height > game.player.collider.y &&
+													game.player.collider.y + game.player.collider.height > rect.y;
+				
 				if(game.lightMap.darkImage.getPixel32(mapX, mapY) != 0xFF000000){
 					// create a twinkle twinkle effect so the player knows this is a collectable
 					if(twinkleCount-- <= 0){
@@ -90,7 +96,7 @@
 					}
 					// detect the player for transform
 					if(mimicState == WAITING){
-						if(rect.intersects(game.player.collider) && !game.player.indifferent){
+						if(playerIntersectsRect && !game.player.indifferent){
 							mimicState = TRANSFORM;
 							(gfx as MovieClip).gotoAndPlay("mimic");
 							game.soundQueue.add("chestOpen");
@@ -100,7 +106,7 @@
 				}
 				
 				// check for collection by player
-				if(mimicState == NONE && (game.player.actions & Collider.UP) && rect.intersects(game.player.collider) && !game.player.indifferent){
+				if(mimicState == NONE && (game.player.actions & Collider.UP) && playerIntersectsRect && !game.player.indifferent){
 					collect(game.player);
 				}
 			}

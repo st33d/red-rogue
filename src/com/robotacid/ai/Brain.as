@@ -383,7 +383,13 @@
 			if(target.mapX == char.mapX && target.mapY == char.mapY){
 				
 				// when no-clipping a target, get out of the current tile
-				if(!following && target.collider.intersects(char.collider)) avoid(target);
+				if(
+					!following &&
+					target.collider.x + target.collider.width > char.collider.x &&
+					char.collider.x + char.collider.width > target.collider.x &&
+					target.collider.y + target.collider.height > char.collider.y &&
+					char.collider.y + char.collider.height > target.collider.y
+				) avoid(target);
 				// else approach the target
 				else if(targetX < charPos.x) char.actions |= LEFT;
 				else if(targetX > charPos.x) char.actions |= RIGHT;
