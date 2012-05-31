@@ -717,16 +717,16 @@
 				// falling attack or blessed weapon? roll for smite
 				if(
 					(
-						collider.state == Collider.FALL && (
-							(hitResult & CRITICAL) ||
-							game.random.value() < SMITE_PER_LEVEL * level
-						)
-					) || (
 						(item && item.holyState == Item.BLESSED) && (
 							(hitResult & CRITICAL) ||
 							game.random.value() < SMITE_PER_LEVEL * (
 								item.level + (collider.state == Collider.FALL ? level : 0)
 							)
+						)
+					) || (
+						collider.state == Collider.FALL && (
+							(hitResult & CRITICAL) ||
+							game.random.value() < SMITE_PER_LEVEL * level
 						)
 					)
 				){

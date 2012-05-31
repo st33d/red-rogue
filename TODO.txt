@@ -1,4 +1,4 @@
-Change log: drop smite with blessed weapon now adds the character's level to the item level, Key.as now repairs damage to the keysDown buffer when keyboard layout is switched, secret room content bug fixed, key ui bug fixed
+Change log: forgot to swap smite logic >:(
 
 Bug hunt
 	collection lock out on chests after playing for a while - bugged chest or item?
