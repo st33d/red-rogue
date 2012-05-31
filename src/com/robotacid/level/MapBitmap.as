@@ -1050,6 +1050,7 @@
 					if(mapPixels[i + width] == LEDGE) properties = Collider.UP | Collider.LEDGE;
 					else if(mapPixels[i + width] == LADDER_LEDGE) properties = Collider.UP | Collider.LEDGE | Collider.LADDER;
 					else if(mapPixels[i + width] == WALL) properties = Collider.SOLID | Collider.WALL;
+					if(mapPixels[i] == LADDER || mapPixels[i] == LADDER_LEDGE) properties |= Collider.LADDER;
 					if(properties){
 						surface = new Surface(c, r, properties);
 						Surface.map[r][c] = surface;

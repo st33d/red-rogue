@@ -1,4 +1,4 @@
-Change log: whirlwind attack added for surrounded characters, setEquipmentLayers method created to manage whirlwind attack graphics and keep item layers consistent, meleeAttack method created to modularise attacks, fixed head and corpses to spew the debris type of the victim, refactored most high-cpu rectangle intersection tests to inline tests, changed traps to be disarmable when not revealed, fixed disarming not removing trap from MapTileManager
+Change log: drop smite with blessed weapon now adds the character's level to the item level, Key.as now repairs damage to the keysDown buffer when keyboard layout is switched, secret room content bug fixed, key ui bug fixed
 
 Bug hunt
 	collection lock out on chests after playing for a while - bugged chest or item?
@@ -8,16 +8,11 @@ Bug hunt
 create nanny
 	updates a render around the player detailing how to play
 
-always put something in a secret room
-
 secret items
 	chest col
 	leech gun
 	fez
 	bug
-
-install new sounds
-	checklist to do
 	
 title screen
 	title menu

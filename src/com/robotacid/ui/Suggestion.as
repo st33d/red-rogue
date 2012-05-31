@@ -56,7 +56,8 @@ package com.robotacid.ui {
 		public static const KILL:int = 1 << 3;
 		public static const EXIT:int = 1 << 4;
 		public static const COLLECT:int = 1 << 5;
-		public static const DISARM:int = 1 << 6;
+		public static const READ:int = 1 << 6;
+		public static const DISARM:int = 1 << 7;
 		
 		public function Suggestion() {
 			
@@ -93,7 +94,10 @@ package com.robotacid.ui {
 		}
 		
 		public function render():void{
-			if(!game.player.active || game.player.indifferent || game.player.state != Character.WALKING || game.player.asleep) return;
+			if(!game.player.active || game.player.indifferent || game.player.asleep) return;
+			
+			// combat involves a lot of state changes, we monitor exiting it from within the teach
+			if(skill != KILL && game.player.state != Character.WALKING) return;
 			
 			if(showCount) showCount--;
 			else {
@@ -191,6 +195,23 @@ package com.robotacid.ui {
 								}
 								if(i == game.items.length) entity = null;
 							}
+							if(skill == 0 && (teach & (READ | DISARM))){
+								
+								
+								
+								
+								
+								
+								// to do
+								
+								
+								
+								
+								
+								
+								
+								
+							}
 						}
 					}
 					if(skill && skillPrompt.visible){
@@ -239,8 +260,18 @@ package com.robotacid.ui {
 								entity = null;
 							}
 						} else {
-							// if they are too far away, abort
-							if(character.mapY != game.player.mapY || Math.abs(character.mapX - game.player.mapX) > 1){
+							// if they are too far away,
+							// have changed which side of the player they are on
+							// or the player is in a state where they can't attack, abort
+							if(
+								character.mapY != game.player.mapY ||
+								Math.abs(character.mapX - game.player.mapX) > 1 ||
+								(movementMovieClips[LEFT_MOVE].visible && (game.player.mapX < character.mapX)) ||
+								(movementMovieClips[RIGHT_MOVE].visible && (game.player.mapX > character.mapX)) ||
+								game.player.state == Character.QUICKENING ||
+								game.player.state == Character.EXITING ||
+								game.player.state == Character.ENTERING
+							){
 								needsTeaching = false;
 								entity = null;
 							}

@@ -724,7 +724,9 @@
 					) || (
 						(item && item.holyState == Item.BLESSED) && (
 							(hitResult & CRITICAL) ||
-							game.random.value() < SMITE_PER_LEVEL * weapon.level
+							game.random.value() < SMITE_PER_LEVEL * (
+								item.level + (collider.state == Collider.FALL ? level : 0)
+							)
 						)
 					)
 				){

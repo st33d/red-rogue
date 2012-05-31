@@ -89,7 +89,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 380;
+		public static const BUILD_NUM:int = 381;
 		
 		public static const TEST_BED_INIT:Boolean = false;
 		
@@ -658,6 +658,8 @@
 				player.mapY = (player.collider.y + player.collider.height * 0.5) * INV_SCALE;
 				player.snapCamera();
 			}
+			keyItemStatus.visible = player.keyItem;
+			
 			
 			if(minion){
 				minion.collider.x = -minion.collider.width * 0.5 + (map.start.x + 0.5) * SCALE;
@@ -677,6 +679,7 @@
 				
 				renderer.lightBitmap.visible = false;
 				miniMap.visible = false;
+				keyItemStatus.visible = false;
 				mapTileManager.setLayerUpdate(MapTileManager.BLOCK_LAYER, false);
 				SoundManager.fadeMusic("music1", -SoundManager.DEFAULT_FADE_STEP);
 				
@@ -1012,7 +1015,7 @@
 			if(state == UNFOCUSED) return;
 			previousState = state;
 			state = UNFOCUSED;
-			Key.forceClearKeys();
+			Key.clearKeys();
 			addChild(focusPrompt);
 			changeMusic();
 		}

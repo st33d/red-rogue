@@ -388,11 +388,16 @@
 			
 			if(mapType != Map.AREA){
 				
-				// get monster xp split (there are level 0 monsters, so we add an extra level to divide by)
+				// get monster xp split
 				if(monsterXp || monsters.length) monsterXpSplit = monsterXp / monsters.length;
 				else monsterXpSplit = 0;
 				
+				completionCount += monsters.length;
+				completionCount += chests.length;
+				completionCount += questGems;
+				
 				var roomList:Vector.<Room> = bitmap.rooms.slice();
+				var secretRoomList:Vector.<Room> = new Vector.<Room>();
 				// remove the start room
 				for(i = roomList.length - 1; i > -1; i--){
 					if(roomList[i].start){
@@ -400,14 +405,16 @@
 						break;
 					}
 				}
-				if(bitmap.leftSecretRoom) bitmap.rooms.push(bitmap.leftSecretRoom);
-				if(bitmap.rightSecretRoom) bitmap.rooms.push(bitmap.rightSecretRoom);
+				if(bitmap.leftSecretRoom){
+					roomList.push(bitmap.leftSecretRoom);
+					secretRoomList.push(bitmap.leftSecretRoom);
+				}
+				if(bitmap.rightSecretRoom){
+					roomList.push(bitmap.rightSecretRoom);
+					secretRoomList.push(bitmap.rightSecretRoom);
+				}
 				// randomise
 				for(i = roomList.length; i; j = random.rangeInt(i), room = roomList[--i], roomList[i] = roomList[j], roomList[j] = room){}
-				
-				completionCount += monsters.length;
-				completionCount += chests.length;
-				completionCount += questGems;
 				
 				// drop chests into rooms
 				while(chests.length){

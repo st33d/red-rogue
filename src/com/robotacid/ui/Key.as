@@ -151,22 +151,22 @@ package com.robotacid.ui {
         */
         private static function keyReleased(event:KeyboardEvent):void {
             keysDown[event.keyCode] = false;
-			keysPressed--;
+			if(keysPressed > 0) keysPressed--;
+			else {
+				// the keyboard layout may have changed, clear the buffer to repair damage
+				clearKeys();
+			}
         }
 		
         /**
         * Event handler for Flash Player deactivation
         */
-        private static function clearKeys(event:Event):void {
+        public static function clearKeys(event:Event = null):void {
             // clear all keys in keysDown since the player cannot
             // detect keys being pressed or released when not focused
             keysDown = [];
 			keysPressed = 0;
         }
-		public static function forceClearKeys():void{
-            keysDown = [];
-			keysPressed = 0;
-		}
 		
 		/*
 		 * Return a string representing a key pressed
