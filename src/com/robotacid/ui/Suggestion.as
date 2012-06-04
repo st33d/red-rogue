@@ -3,6 +3,8 @@ package com.robotacid.ui {
 	import com.robotacid.engine.Chest;
 	import com.robotacid.engine.Entity;
 	import com.robotacid.engine.Item;
+	import com.robotacid.engine.Trap;
+	import com.robotacid.engine.Writing;
 	import com.robotacid.gfx.Renderer;
 	import com.robotacid.phys.Collider;
 	import flash.display.MovieClip;
@@ -24,6 +26,7 @@ package com.robotacid.ui {
 		public var skill:int;
 		
 		private var showCount:int;
+		private var impressionCount:int;
 		private var skillPrompt:TextBox;
 		private var menuPrompt:TextBox;
 		private var movementMovieClips:Vector.<MovieClip>;
@@ -34,6 +37,8 @@ package com.robotacid.ui {
 		private var i:int, movieClip:MovieClip;
 		
 		public static const SHOW_DELAY:int = 30;
+		public static const IMPRESSION_DELAY:int = 30;
+		public static const IMPRESSION_COL_STEP:Number = 1 / IMPRESSION_DELAY;
 		public static const TEXT_BACKGROUND_COL:uint = 0x99000000;
 		public static var col:ColorTransform = new ColorTransform(1, 0, 0);
 		
@@ -62,7 +67,7 @@ package com.robotacid.ui {
 		public function Suggestion() {
 			
 			
-			active = false;
+			//active = true;
 			
 			
 			sprite = new Sprite();
@@ -94,6 +99,10 @@ package com.robotacid.ui {
 		}
 		
 		public function render():void{
+			if(impressionCount){
+				impressionRender();
+				return;
+			}
 			if(!game.player.active || game.player.indifferent || game.player.asleep) return;
 			
 			// combat involves a lot of state changes, we monitor exiting it from within the teach
@@ -139,10 +148,12 @@ package com.robotacid.ui {
 								(
 									game.player.collider.leftContact &&
 									(game.player.collider.leftContact.properties & Collider.CHARACTER) &&
+									!(game.player.collider.leftContact.properties & (Collider.GATE | Collider.STONE)) &&
 									game.player.enemy(game.player.collider.leftContact.userData)
 								) || (
 									game.player.collider.rightContact &&
 									(game.player.collider.rightContact.properties & Collider.CHARACTER) &&
+									!(game.player.collider.rightContact.properties & (Collider.GATE | Collider.STONE)) &&
 									game.player.enemy(game.player.collider.rightContact.userData)
 								)
 							)
@@ -197,20 +208,31 @@ package com.robotacid.ui {
 							}
 							if(skill == 0 && (teach & (READ | DISARM))){
 								
-								
-								
-								
-								
-								
-								// to do
-								
-								
-								
-								
-								
-								
-								
-								
+								for(i = 0; i < game.entities.length; i++){
+									entity = game.entities[i];
+									if(
+										(entity is Writing) &&
+										(entity as Writing).rect.intersects(game.player.collider)
+									){
+										skill = READ;
+										movementMovieClips[UP_MOVE].visible = true;
+										skillPrompt.visible = true;
+										skillPrompt.text = "read";
+										break;
+										
+									} else if(
+										(entity is Trap) &&
+										(entity as Trap).disarmingRect.intersects(game.player.collider)
+									){
+										skill = DISARM;
+										menuPrompt.visible = true;
+										menuPrompt.text = "menu > actions > disarm trap";
+										skillPrompt.visible = true;
+										skillPrompt.text = "disarm";
+										break;
+									}
+								}
+								if(i == game.entities.length) entity = null;
 							}
 						}
 					}
@@ -225,12 +247,14 @@ package com.robotacid.ui {
 						if(game.player.actions){
 							known |= MOVE;
 							teach &= ~MOVE;
+							impressionCount = IMPRESSION_DELAY;
 							needsTeaching = false;
 						}
 					} else if(skill == CLIMB){
 						if(game.player.collider.state == Collider.HOVER){
 							known |= CLIMB;
 							teach &= ~CLIMB;
+							impressionCount = IMPRESSION_DELAY;
 							needsTeaching = false;
 						} else if(!game.player.canClimb()){
 							needsTeaching = false;
@@ -239,6 +263,7 @@ package com.robotacid.ui {
 						if(game.player.dir & DOWN){
 							known |= DROP;
 							teach &= ~DROP;
+							impressionCount = IMPRESSION_DELAY;
 							needsTeaching = false;
 						} else if(
 							game.player.collider.parent &&
@@ -257,7 +282,7 @@ package com.robotacid.ui {
 							){
 								known |= KILL;
 								teach &= ~KILL;
-								entity = null;
+								impressionCount = IMPRESSION_DELAY;
 							}
 						} else {
 							// if they are too far away,
@@ -273,15 +298,20 @@ package com.robotacid.ui {
 								game.player.state == Character.ENTERING
 							){
 								needsTeaching = false;
-								entity = null;
 							}
 						}
 					} else if(skill == EXIT){
 						if(!game.player.portalContact) needsTeaching = false;
-						else if(game.player.portal || (game.player.actions & DOWN)){
+						
+						
+						else if(game.player.portal && (game.player.actions & DOWN)){
+						
+							
+							
 							needsTeaching = false;
 							known |= EXIT;
 							teach &= ~EXIT;
+							impressionCount = IMPRESSION_DELAY;
 						}
 						
 					} else if(skill == COLLECT){
@@ -298,12 +328,44 @@ package com.robotacid.ui {
 							needsTeaching = false;
 							known |= COLLECT;
 							teach &= ~COLLECT;
+							impressionCount = IMPRESSION_DELAY;
+						}
+					} else if(skill == READ){
+						if(!(entity as Writing).rect.intersects(game.player.collider)){
+							needsTeaching = false;
+							
+						} else if(game.player.actions & UP){
+							needsTeaching = false;
+							known |= READ;
+							teach &= ~READ;
+							impressionCount = IMPRESSION_DELAY;
+						}
+					} else if(skill == DISARM){
+						if(!(entity as Trap).disarmingRect.intersects(game.player.collider)){
+							needsTeaching = false;
+							
+						} else if(!entity.active){
+							needsTeaching = false;
+							// a pit trap that's inactive because it was triggered will have its
+							// disarming rect moved
+							if((entity as Trap).disarmingRect.width != 1){
+								known |= DISARM;
+								teach &= ~DISARM;
+								impressionCount = IMPRESSION_DELAY;
+							}
 						}
 					}
 					
 					if(!needsTeaching){
 						skill = 0;
+						entity = null;
 						showCount = SHOW_DELAY;
+						if(impressionCount){
+							col.greenMultiplier = 1;
+							col.blueMultiplier = 1;
+							col.alphaMultiplier = 1;
+							impressionRender();
+						}
 						
 					} else {
 						// render
@@ -317,6 +379,21 @@ package com.robotacid.ui {
 						}
 					}
 				}
+			}
+		}
+		
+		/* Renders the event of a player learning a skill by flashing the teaching prompt white and fading away */
+		private function impressionRender():void{
+			impressionCount--;
+			col.alphaMultiplier = impressionCount * IMPRESSION_COL_STEP;
+			sprite.x = -renderer.bitmap.x + game.player.gfx.x;
+			sprite.y = -renderer.bitmap.y + game.player.gfx.y;
+			renderer.bitmapData.draw(sprite, sprite.transform.matrix, col);
+			if(menuPrompt.visible){
+				renderer.bitmapData.draw(menuPrompt, menuPrompt.transform.matrix, col);
+			}
+			if(impressionCount == 0){
+				col.greenMultiplier = col.blueMultiplier = 0;
 			}
 		}
 		

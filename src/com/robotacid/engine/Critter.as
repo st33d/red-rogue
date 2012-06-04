@@ -217,16 +217,16 @@ package com.robotacid.engine {
 				} else {
 					kill();
 				}
-				// play a sound when the player kills a critter
-				if(!active && contact == game.player.collider){
+				// death sounds
+				if(!active){
 					if(name & COG){
-						game.soundQueue.addRandom("cogDeath", COG_DEATH_SOUNDS);
+						game.createDistSound(mapX, mapY, "cogDeath", COG_DEATH_SOUNDS);
 					} else if(name & SPIDER){
-						game.soundQueue.addRandom("spiderDeath", SPIDER_DEATH_SOUNDS);
+						game.createDistSound(mapX, mapY, "spiderDeath", SPIDER_DEATH_SOUNDS);
 					} else if(name & RAT){
-						game.soundQueue.addRandom("ratDeath", RAT_DEATH_SOUNDS);
+						game.createDistSound(mapX, mapY, "ratDeath", RAT_DEATH_SOUNDS);
 					} else if(name & BAT){
-						game.soundQueue.addRandom("batDeath", BAT_DEATH_SOUNDS);
+						game.createDistSound(mapX, mapY, "batDeath", BAT_DEATH_SOUNDS);
 					}
 				}
 			} else if((name & COG) && chaosMissiles){
