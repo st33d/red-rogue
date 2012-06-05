@@ -268,6 +268,9 @@
 				
 				monsters[equippedMonsters].appendChild(loot);
 				
+				// promote equipped monsters to champions
+				monsters[equippedMonsters].@rank = Character.CHAMPION;
+				
 				// bonus equipment - if the order of the items alternates between
 				// weapons and armour, we take it as a sign to double equip the monster
 				if((equippedMonsters) && loot.@type != equipment[0].@type){
@@ -880,7 +883,7 @@
 		public static function XMLToEntity(x:int, y:int, xml:XML):*{
 			var objectType:String = xml.name();
 			var i:int, children:XMLList, item:XML, mc:DisplayObject, obj:*;
-			var name:int, level:int, type:int;
+			var name:int, level:int, type:int, rank:int;
 			var className:Class;
 			var items:Vector.<Item>;
 			if(objectType == "chest"){
@@ -926,6 +929,7 @@
 				name = xml.@name;
 				level = xml.@level;
 				type = xml.@type;
+				rank = xml.@rank;
 				if(xml.item.length()){
 					items = new Vector.<Item>();
 					for each(item in xml.item){
@@ -934,7 +938,7 @@
 				}
 				if(type == Character.MONSTER){
 					mc = game.library.getCharacterGfx(name);
-					obj = new Monster(mc, (x + 0.5) * Game.SCALE, (y + 1) * Game.SCALE, name, level, items);
+					obj = new Monster(mc, (x + 0.5) * Game.SCALE, (y + 1) * Game.SCALE, name, level, items, rank);
 					obj.characterNum = xml.@characterNum;
 					if(xml.@uniqueNameStr && xml.@uniqueNameStr != "null") obj.uniqueNameStr = xml.@uniqueNameStr;
 					if(xml.@questVictim == "true") obj.questTarget();

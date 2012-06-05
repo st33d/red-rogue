@@ -17,6 +17,11 @@
 		
 		public var mapInitialised:Boolean;
 		
+		// ranks
+		public static const NORMAL:int = 0;
+		public static const CHAMPION:int = 1;
+		public static const ELITE:int = 2;
+		
 		// Heart items are this game's equivalent of health potions
 		// they are harvested randomly during a kill
 		// more likely is it that a bare handed player will pluck a heart
@@ -24,7 +29,8 @@
 		public static const MINION_BUTCHER_CHANCE:Number = 0.05;
 		public static const BARE_HANDED_BUTCHER_BONUS:Number = 0.15;
 		
-		public function Monster(gfx:DisplayObject, x:Number, y:Number, name:int, level:int, items:Vector.<Item>){
+		public function Monster(gfx:DisplayObject, x:Number, y:Number, name:int, level:int, items:Vector.<Item>, rank:int = NORMAL){
+			this.rank = rank;
 			super(gfx, x, y, name, MONSTER, level, false);
 			
 			// we do want monsters on the Entities list, but not just yet

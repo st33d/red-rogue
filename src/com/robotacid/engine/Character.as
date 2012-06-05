@@ -98,6 +98,7 @@
 		public var protectionModifier:Number;
 		public var bravery:Number;
 		public var smiteDamage:Number;
+		public var rank:int;
 		
 		private var hitResult:int;
 		
@@ -141,6 +142,11 @@
 		public static const ENTERING:int = 5;
 		public static const STUNNED:int = 6;
 		public static const SMITED:int = 7;
+		
+		// ranks
+		public static const NORMAL:int = 0;
+		public static const CHAMPION:int = 1;
+		public static const ELITE:int = 2;
 		
 		// directions - from com.robotacid.phys.Collider
 		public static const UP:int = 1;
@@ -262,6 +268,10 @@
 			
 			nameStr = stats["names"][name];
 			health = stats["healths"][name] + stats["health levels"][name] * level;
+			if(rank != NORMAL){
+				if(rank == CHAMPION) health *= 2;
+				else if(rank == ELITE) health *= 3;
+			}
 			totalHealth = health;
 			attack = stats["attacks"][name] + stats["attack levels"][name] * level;
 			defence = stats["defences"][name] + stats["defence levels"][name] * level;
@@ -1389,7 +1399,7 @@
 		}
 		
 		override public function toXML():XML {
-			var xml:XML = <character characterNum={characterNum} name={name} type={type} level={level} questVictim={questVictim} />;
+			var xml:XML = <character characterNum={characterNum} name={name} type={type} level={level} rank={rank} questVictim={questVictim} />;
  			if(effects && effects.length){
 				for(var i:int = 0; i < effects.length; i++){
 					if(effects[i].source != Effect.ARMOUR){

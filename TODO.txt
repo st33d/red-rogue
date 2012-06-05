@@ -1,29 +1,27 @@
-Change log: critter death sounds are now distance based, this build a restore point for testing multiplayer
+Change log: fixed missile vs gate bug, added rank to Character class to define elite and champion states, restore point for creating menu carousel
 
 Bug hunt
 	collection lock out on chests after playing for a while - bugged chest or item?
 	chaos wall colliders can child a character and pull it into a wall - how?
 	null Monster collider.world spotted - why?
-	
 	full crash observed in chaos - game frozen, menu operational
 
+rotate between a selection of menus
+	reset menu
+	title screen
+		title menu
+		refactor "sure" option in game menu
+
 create nanny
-	menu text under lightmap for some reason
-	exit learning condition flawed
+	menu text under lightmap
+		change to suggesting the correct key?
 
 secret items
 	chest col
+		put a chest on the overworld grindstone, put one secret item in it
 	leech gun
 	fez
 	bug
-
-rotate between a selection of menus
-
-reset menu
-	
-title screen
-	title menu
-	refactor "sure" option in game menu
 
 endings
 
@@ -33,28 +31,19 @@ save and quit
 			save location
 				add location to item xml
 		figure out what to do with underworld items
+			secondary warehouse?
 
 
 sounds
 	mimic voice
-	disarm trap
-	unlock gate
-	arquebus
-	gunblade
-	explosion
-	lighting (short calls of quickening samples)
-	telport (whoomph)
-	search
-		ping
-		discovery
+	lightning (short calls of quickening samples)
+
+status animations for effects
+	red drip for poison
 
 yendor
 	jumping
 		jumping ai
-
-	
-gates
-	pressure pads
 	
 create Editor in debug menu
 	create option
@@ -62,8 +51,6 @@ create Editor in debug menu
 			traps
 			chaos walls
 		items
-
-hide a plus one mace in a secret room above the grindstone
 
 AI problems:
 
@@ -76,25 +63,19 @@ AI problems:
 	explore - monsters should check out ladders when alone
 	rally - a monster could see the character and could call other monsters to aid, there should be a rallying pose and a shockwave type graphic, implying he's just told everyone on screen to mob the player
 
-help on menu has not been fully written out
-
 level generator overhaul:
-	dramatis personae creator:
-		champions
-			only champions have equipment and always have equipment, health is doubled
-			
-		elite:
-			
-			named, one level below player, health x 4, special ability
-			
-			one elite per race, spawns at the end of each zone
-			
-			drow - crowley: regenerating
-			the balrog: the boss - yendor and weapon
-			kobold - pun pun: max stats
-			vampire - edward: twinkles
-			goblin - golfimbul: always decaptiated on death
-			troll - forchan: a max regenerating troll
-			nymph - the bitch: never fails a steal roll
-			gorgon - medusa: slow attack as well as stun attack
+	elite: add an elite character to every fourth level
+		
+		named, one level below dungeon level (as opposed to 2 levels below), health x 3, special ability
+		
+		one elite per race - special ability checked against rank status
+		
+		drow - crowley: regenerating
+		the balrog: the boss - yendor and weapon
+		kobold - pun pun: max stats
+		vampire - edward: twinkles
+		goblin - golfimbul: always decaptiated on death
+		troll - forchan: a max regenerating troll
+		nymph - the bitch: never fails a steal roll
+		gorgon - medusa: slow attack as well as stun attack
 			

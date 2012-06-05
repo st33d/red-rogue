@@ -66,9 +66,7 @@ package com.robotacid.ui {
 		
 		public function Suggestion() {
 			
-			
-			//active = true;
-			
+			active = false;
 			
 			sprite = new Sprite();
 			skillPrompt = new TextBox(100, 13, TEXT_BACKGROUND_COL, TEXT_BACKGROUND_COL);
@@ -78,8 +76,9 @@ package com.robotacid.ui {
 			skillPrompt.alignVert = "center";
 			skillPrompt.wordWrap = false;
 			sprite.addChild(skillPrompt);
-			menuPrompt = new TextBox(Game.WIDTH, 13, TEXT_BACKGROUND_COL, TEXT_BACKGROUND_COL);
-			menuPrompt.y = Game.HEIGHT - (Console.HEIGHT + menuPrompt.height);
+			menuPrompt = new TextBox(200, 13, TEXT_BACKGROUND_COL, TEXT_BACKGROUND_COL);
+			menuPrompt.y = 2;
+			sprite.addChild(menuPrompt);
 			movementMovieClips = new Vector.<MovieClip>(4, true);
 			for(i = 0; i < movementMovieClips.length; i++){
 				movementMovieClips[i] = new MenuArrowMC();
@@ -95,7 +94,7 @@ package com.robotacid.ui {
 			movementMovieClips[LEFT_MOVE].y = -Game.SCALE * 0.5;
 			movementMovieClips[LEFT_MOVE].rotation = -90;
 			showCount = SHOW_DELAY;
-			teach = MOVE | CLIMB | DROP | KILL | EXIT | COLLECT | COLLECT | DISARM;
+			teach = MOVE | CLIMB | DROP | KILL | EXIT | COLLECT | COLLECT | DISARM | READ;
 		}
 		
 		public function render():void{
@@ -105,8 +104,9 @@ package com.robotacid.ui {
 			}
 			if(!game.player.active || game.player.indifferent || game.player.asleep) return;
 			
-			// combat involves a lot of state changes, we monitor exiting it from within the teach
-			if(skill != KILL && game.player.state != Character.WALKING) return;
+			// combat involves a lot of state changes, exiting requires the EXITING state
+			// we monitor dismissing the suggestion from within the teaching logic
+			if(skill != KILL && skill != EXIT && game.player.state != Character.WALKING) return;
 			
 			if(showCount) showCount--;
 			else {
@@ -211,6 +211,7 @@ package com.robotacid.ui {
 								for(i = 0; i < game.entities.length; i++){
 									entity = game.entities[i];
 									if(
+										(teach & READ) &&
 										(entity is Writing) &&
 										(entity as Writing).rect.intersects(game.player.collider)
 									){
@@ -221,12 +222,13 @@ package com.robotacid.ui {
 										break;
 										
 									} else if(
+										(teach & DISARM) &&
 										(entity is Trap) &&
 										(entity as Trap).disarmingRect.intersects(game.player.collider)
 									){
 										skill = DISARM;
 										menuPrompt.visible = true;
-										menuPrompt.text = "menu > actions > disarm trap";
+										menuPrompt.text = "menu - actions";
 										skillPrompt.visible = true;
 										skillPrompt.text = "disarm";
 										break;
@@ -239,6 +241,10 @@ package com.robotacid.ui {
 					if(skill && skillPrompt.visible){
 						skillPrompt.setSize(skillPrompt.lineWidths[0] + 6, 13);
 						skillPrompt.x = -(skillPrompt.width * 0.5) >> 0;
+						if(menuPrompt.visible){
+							menuPrompt.setSize(menuPrompt.lineWidths[0] + 6, 13);
+							menuPrompt.x = -(menuPrompt.width * 0.5) >> 0;
+						}
 					}
 					
 				} else {
@@ -302,12 +308,7 @@ package com.robotacid.ui {
 						}
 					} else if(skill == EXIT){
 						if(!game.player.portalContact) needsTeaching = false;
-						
-						
-						else if(game.player.portal && (game.player.actions & DOWN)){
-						
-							
-							
+						else if(game.player.state == Character.EXITING){
 							needsTeaching = false;
 							known |= EXIT;
 							teach &= ~EXIT;
@@ -374,9 +375,6 @@ package com.robotacid.ui {
 						sprite.x = -renderer.bitmap.x + game.player.gfx.x;
 						sprite.y = -renderer.bitmap.y + game.player.gfx.y;
 						renderer.bitmapData.draw(sprite, sprite.transform.matrix, col);
-						if(menuPrompt.visible){
-							renderer.bitmapData.draw(menuPrompt, menuPrompt.transform.matrix, col);
-						}
 					}
 				}
 			}
@@ -389,9 +387,6 @@ package com.robotacid.ui {
 			sprite.x = -renderer.bitmap.x + game.player.gfx.x;
 			sprite.y = -renderer.bitmap.y + game.player.gfx.y;
 			renderer.bitmapData.draw(sprite, sprite.transform.matrix, col);
-			if(menuPrompt.visible){
-				renderer.bitmapData.draw(menuPrompt, menuPrompt.transform.matrix, col);
-			}
 			if(impressionCount == 0){
 				col.greenMultiplier = col.blueMultiplier = 0;
 			}

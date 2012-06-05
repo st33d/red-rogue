@@ -147,7 +147,7 @@
 									if(hitResult){
 										hitCharacter(target, hitResult);
 									} else {
-										if(target is Stone){
+										if(target is Stone || target is Gate){
 											kill();
 										} else {
 											// if the character is facing a throwable missile, they can catch it

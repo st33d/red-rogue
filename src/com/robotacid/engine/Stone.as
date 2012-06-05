@@ -94,7 +94,7 @@
 			if(name == DEATH){
 				super.createCollider(x, y, Collider.CHARACTER | Collider.SOLID, Collider.CORPSE | Collider.ITEM, Collider.STACK, true);
 			} else {
-				collider = new Collider(x - 1, y, Game.SCALE + 2, Game.SCALE, Game.SCALE, Collider.CHARACTER | Collider.SOLID, Collider.CORPSE | Collider.ITEM, Collider.HOVER);
+				collider = new Collider(x - 1, y, Game.SCALE + 2, Game.SCALE, Game.SCALE, Collider.CHARACTER | Collider.SOLID | Collider.STONE, Collider.CORPSE | Collider.ITEM, Collider.HOVER);
 				collider.userData = this;
 			}
 			collider.pushDamping = 0;
@@ -103,7 +103,11 @@
 		override public function applyDamage(n:Number, source:String, knockback:Number = 0, critical:Boolean = false, aggressor:Character = null, defaultSound:Boolean = true):void {
 			var mc:MovieClip = gfx as MovieClip;
 			if(name == SECRET_WALL){
-				if(!revealed) reveal();
+				if(!revealed){
+					// give experience for not using search skill
+					game.player.addXP(SECRET_XP_REWARD * Content.getLevelXp(game.map.level));
+					reveal();
+				}
 				super.applyDamage(n, source, 0, critical, aggressor, defaultSound);
 				
 			} else if(name == HEAL){
