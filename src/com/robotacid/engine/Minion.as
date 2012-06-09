@@ -36,7 +36,7 @@
 			
 			super(gfx, x, y, name, MINION, game.player.level, false);
 			
-			inventory = game.menu.inventoryList;
+			inventory = game.gameMenu.inventoryList;
 			
 			missileIgnore |= Collider.PLAYER | Collider.MINION | Collider.PLAYER_MISSILE;
 			uniqueNameStr = DEFAULT_UNIQUE_NAME_STR;
@@ -46,9 +46,9 @@
 			
 			game.minionHealthBar.visible = true;
 			game.minionHealthBar.setValue(health, totalHealth);
-			game.menu.summonOption.active = true;
+			game.gameMenu.summonOption.active = true;
 			queueSummons = false;
-			game.menu.update();
+			game.gameMenu.update();
 		}
 		
 		public function addMinimapFeature():void{
@@ -147,8 +147,8 @@
 				Brain.playerCharacters.splice(Brain.playerCharacters.indexOf(this), 1);
 				game.minion = null;
 				game.minionHealthBar.visible = false;
-				game.menu.summonOption.active = false;
-				game.menu.update();
+				game.gameMenu.summonOption.active = false;
+				game.gameMenu.update();
 				minimapFX.active = false;
 			} else {
 				if(temp_weapon) equip(temp_weapon);

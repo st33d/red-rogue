@@ -121,7 +121,7 @@
 			
 			game.console.print("welcome rogue");
 			
-			inventory = game.menu.inventoryList;
+			inventory = game.gameMenu.inventoryList;
 			
 			brain = new PlayerBrain(this);
 			Brain.playerCharacters.push(this);
@@ -245,10 +245,10 @@
 			} else {
 				if(portalContact){
 					// restore access to menu after entering level
-					if(collider.world && !game.menu.actionsOption.active){
-						game.menu.actionsOption.active = true;
-						game.menu.inventoryOption.active = Boolean(game.menu.inventoryList.options.length);
-						game.menu.update();
+					if(collider.world && !game.gameMenu.actionsOption.active){
+						game.gameMenu.actionsOption.active = true;
+						game.gameMenu.inventoryOption.active = Boolean(game.gameMenu.inventoryList.options.length);
+						game.gameMenu.update();
 					}
 					if(
 						state != Character.WALKING ||
@@ -344,8 +344,8 @@
 						// exit the level
 						exitLevel(portalContact);
 						disarmableTraps.length = 0;
-						game.menu.disarmTrapOption.active = false;
-						game.menu.update();
+						game.gameMenu.disarmTrapOption.active = false;
+						game.gameMenu.update();
 					},
 					function():void{}
 				);
@@ -468,19 +468,19 @@
 			if(item.holyState == Item.CURSE_HIDDEN) item.revealCurse();
 			// set the active state and name of the missile option in the menu
 			if(item.type == Item.WEAPON){
-				game.menu.missileOption.active = (
+				game.gameMenu.missileOption.active = (
 					!indifferent && canMenuAction &&
 					(
 						(weapon && weapon.range & Item.MISSILE) ||
 						(throwable && !(throwable.holyState == Item.CURSE_REVEALED && !undead))
 					)
 				);
-				if(game.menu.missileOption.active){
-					game.menu.missileOption.state = throwable ? GameMenu.THROW : GameMenu.SHOOT;
+				if(game.gameMenu.missileOption.active){
+					game.gameMenu.missileOption.state = throwable ? GameMenu.THROW : GameMenu.SHOOT;
 				}
 			} else if(item.type == Item.ARMOUR){
 				// update the menu if jumping is unlocked
-				game.menu.jumpOption.active = canJump;
+				game.gameMenu.jumpOption.active = canJump;
 			}
 			inventory.updateItem(item);
 			return item;
@@ -488,10 +488,10 @@
 		
 		/* Unselect item as equipped */
 		override public function unequip(item:Item):Item{
-			if(item == throwable || (item.type == Item.WEAPON && item.range & Item.MISSILE)) game.menu.missileOption.active = false;
+			if(item == throwable || (item.type == Item.WEAPON && item.range & Item.MISSILE)) game.gameMenu.missileOption.active = false;
 			super.unequip(item);
 			if(item.type == Item.ARMOUR){
-				game.menu.jumpOption.active = canJump;
+				game.gameMenu.jumpOption.active = canJump;
 			}
 			inventory.updateItem(item);
 			return item;
@@ -504,14 +504,14 @@
 			brain.clear();
 			if(!active){
 				// is the lives cheat on?
-				if(game.lives){
+				if(game.lives.value){
 					active = true;
 					game.world.restoreCollider(collider);
 					applyHealth(totalHealth);
 					game.loseLife();
 				} else {
 					Brain.playerCharacters.splice(Brain.playerCharacters.indexOf(this), 1);
-					game.menu.death();
+					game.gameMenu.death();
 					var deathLight:FadeLight = new FadeLight(FadeLight.DEATH, mapX, mapY);
 					tidyUp();
 				}
@@ -521,9 +521,9 @@
 		
 		public function exitLevel(portal:Portal):void{
 			// the player must be denied the opportunity to dick about whilst exiting a level
-			game.menu.actionsOption.active = false;
-			game.menu.inventoryOption.active = false;
-			game.menu.update();
+			game.gameMenu.actionsOption.active = false;
+			game.gameMenu.inventoryOption.active = false;
+			game.gameMenu.update();
 			this.portal = portal;
 			gfx.x = (portal.mapX + 0.5) * Game.SCALE;
 			state = EXITING;
@@ -578,24 +578,24 @@
 		/* Prevents the player from gaming the state machine with state changing menu actions */
 		public function lockMenuActions():void{
 			canMenuAction = false;
-			game.menu.inventoryList.throwRuneOption.active = false;
-			game.menu.missileOption.active = false;
+			game.gameMenu.inventoryList.throwRuneOption.active = false;
+			game.gameMenu.missileOption.active = false;
 			game.playerActionBar.setValue(attackCount, 1);
-			game.menu.update();
+			game.gameMenu.update();
 		}
 		
 		/* Releases the lockout on locked menu actions */
 		public function unlockMenuActions():void{
 			canMenuAction = true;
-			game.menu.missileOption.active = (
+			game.gameMenu.missileOption.active = (
 				!indifferent &&
 				(
 					(weapon && weapon.range & Item.MISSILE) ||
 					(throwable && !(throwable.holyState == Item.CURSE_REVEALED && !undead))
 				)
 			);
-			game.menu.inventoryList.throwRuneOption.active = true;
-			game.menu.update();
+			game.gameMenu.inventoryList.throwRuneOption.active = true;
+			game.gameMenu.update();
 			game.playerActionBar.barCol = Game.DEFAULT_BAR_COL;
 			game.playerActionBar.update();
 		}
@@ -627,10 +627,10 @@
 			super.changeName(name, gfx);
 			// a change to the undead stat affects throwables
 			if(throwable){
-				game.menu.missileOption.active = (
+				game.gameMenu.missileOption.active = (
 					!indifferent && !(throwable.holyState == Item.CURSE_REVEALED && !undead)
 				);
-				game.menu.missileOption.state = GameMenu.THROW;
+				game.gameMenu.missileOption.state = GameMenu.THROW;
 			}
 		}
 		
@@ -647,17 +647,17 @@
 		/* Adds a trap that the rogue could possibly disarm and updates the menu */
 		public function addDisarmableTrap(trap:Trap):void{
 			disarmableTraps.push(trap);
-			if(!game.menu.disarmTrapOption.active){
-				game.menu.disarmTrapOption.active = true;
-				game.menu.update();
+			if(!game.gameMenu.disarmTrapOption.active){
+				game.gameMenu.disarmTrapOption.active = true;
+				game.gameMenu.update();
 			}
 		}
 		/* Removes a trap that the rogue could possibly disarm and updates the menu */
 		public function removeDisarmableTrap(trap:Trap):void{
 			disarmableTraps.splice(disarmableTraps.indexOf(trap), 1);
 			if(disarmableTraps.length == 0){
-				game.menu.disarmTrapOption.active = false;
-				game.menu.update();
+				game.gameMenu.disarmTrapOption.active = false;
+				game.gameMenu.update();
 			}
 		}
 		

@@ -328,14 +328,14 @@
 			if(character == game.player || character == game.minion){
 				if(print) game.console.print(character.nameToString() + (caught ? " caught " : " picked up ") + nameToString());
 				if(type == QUEST_GEM){
-					game.menu.loreList.questsList.questCheck(QuestMenuOption.COLLECT);
+					game.gameMenu.loreList.questsList.questCheck(QuestMenuOption.COLLECT);
 					return;
 				}
 				if(type == KEY){
 					game.player.setKeyItem(true);
 					return;
 				}
-				game.menu.inventoryList.addItem(this, autoEquip > 0);
+				game.gameMenu.inventoryList.addItem(this, autoEquip > 0);
 				if(type == WEAPON && (range & THROWN) && autoEquip){
 					if((autoEquip & Character.MINION) && game.minion && !game.minion.throwable) game.minion.equip(this, true);
 					else if((autoEquip & Character.PLAYER) && !game.player.throwable) game.player.equip(this, true);
@@ -444,7 +444,7 @@
 							if(brain && brain.target == user) brain.clear();
 						}
 						if(character.type == Character.PLAYER && character.weapon){
-							game.menu.missileOption.active = false;
+							game.gameMenu.missileOption.active = false;
 						}
 					} else if(character.type == Character.MONSTER){
 						character.collider.ignoreProperties |= Collider.PLAYER | Collider.HEAD | Collider.GATE;
@@ -473,7 +473,7 @@
 					if(character.type == Character.PLAYER || character.type == Character.MINION){
 						character.collider.ignoreProperties &= ~(Collider.MONSTER | Collider.HEAD | Collider.GATE);
 						if(character.type == Character.PLAYER && character.weapon){
-							game.menu.missileOption.active = Boolean(character.weapon.range & (MISSILE | THROWN));
+							game.gameMenu.missileOption.active = Boolean(character.weapon.range & (MISSILE | THROWN));
 						}
 						// teleport the player out of locked areas
 						if(

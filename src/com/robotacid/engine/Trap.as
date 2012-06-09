@@ -314,9 +314,7 @@
 				minimapFX.active = false;
 				minimapFX = null;
 			}
-			trace(revealed, game.player.xp);
 			game.player.addXP(DISARM_XP_REWARD * Content.getLevelXp(game.map.level) * (revealed ? 2 : 1));
-			trace(game.player.xp);
 			game.content.removeTrap(game.map.level, game.map.type);
 			if(--game.map.completionCount == 0) game.levelCompleteMsg();
 			renderer.createDebrisRect(new Rectangle(mapX * SCALE, -6 + mapY * SCALE, SCALE, 6), 0, 20, Renderer.STONE);

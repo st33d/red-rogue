@@ -72,8 +72,8 @@ package com.robotacid.ui {
 			
 			// save the hotkeymaps
 			var hotKeyMaps:Vector.<XML> = new Vector.<XML>();
-			for(i = 0; i < game.menu.hotKeyMaps.length; i++){
-				if(game.menu.hotKeyMaps[i]) hotKeyMaps.push(game.menu.hotKeyMaps[i].toXML());
+			for(i = 0; i < game.gameMenu.hotKeyMaps.length; i++){
+				if(game.gameMenu.hotKeyMaps[i]) hotKeyMaps.push(game.gameMenu.hotKeyMaps[i].toXML());
 				else hotKeyMaps.push(null);
 			}
 			obj.hotKeyMaps = hotKeyMaps;
@@ -117,8 +117,8 @@ package com.robotacid.ui {
 				
 				if(obj.playerData){
 					// first reset the game
-					game.menu.inventoryList.reset();
-					game.menu.inventoryOption.active = false;
+					game.gameMenu.inventoryList.reset();
+					game.gameMenu.inventoryOption.active = false;
 					game.reset();
 					// then restructure player and the minion
 					var playerXML:XML = obj.player;
@@ -160,7 +160,7 @@ package com.robotacid.ui {
 					var name:int, level:int, type:int;
 					var className:Class;
 					for(i = 0; i < obj.items.length; i++){
-						game.menu.inventoryOption.active = true;
+						game.gameMenu.inventoryOption.active = true;
 						xml = obj.items[i];
 						name = xml.@name;
 						level = xml.@level;
@@ -173,7 +173,7 @@ package com.robotacid.ui {
 							effect = new Effect(enchantment.@name, enchantment.@level);
 							effect.enchant(item);
 						}
-						game.menu.inventoryList.addItem(item);
+						game.gameMenu.inventoryList.addItem(item);
 						if(xml.@user == "rogue"){
 							game.player.equip(item);
 						} else if(xml.@user == "minion"){
@@ -222,11 +222,11 @@ package com.robotacid.ui {
 				// load the hotkeymaps
 				for(i = 0; i < obj.hotKeyMaps.length; i++){
 					if(obj.hotKeyMaps[i]){
-						var hotKeyMap:HotKeyMap = new HotKeyMap(i, game.menu);
+						var hotKeyMap:HotKeyMap = new HotKeyMap(i, game.gameMenu);
 						hotKeyMap.init(obj.hotKeyMaps[i]);
-						game.menu.hotKeyMaps[i] = hotKeyMap;
+						game.gameMenu.hotKeyMaps[i] = hotKeyMap;
 					}
-					else game.menu.hotKeyMaps[i] = null;
+					else game.gameMenu.hotKeyMaps[i] = null;
 				}
 				
 				game.console.print("loaded game data");

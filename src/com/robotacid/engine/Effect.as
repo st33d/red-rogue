@@ -389,7 +389,7 @@
 					item.createUniqueNameStr();
 					game.console.print("the " + str + (str.charAt(str.length - 1) == "s" ? "'" : "'s") + " true name is " + item.uniqueNameStr);
 				}
-				game.menu.loreList.unlockLore(item);
+				game.gameMenu.loreList.unlockLore(item);
 				if(inventoryList) inventoryList.updateItem(item);
 				return item;
 				
@@ -697,8 +697,8 @@
 				
 			} else if(name == IDENTIFY){
 				if(target is Player){
-					game.menu.inventoryList.identifyRunes();
-					game.menu.inventoryList.revealCurses();
+					game.gameMenu.inventoryList.identifyRunes();
+					game.gameMenu.inventoryList.revealCurses();
 					game.miniMap.reveal();
 					
 				} else if(target is Minion){
@@ -706,15 +706,15 @@
 						target.createUniqueNameStr();
 						game.console.print("the minion's true name is @");
 					}
-					game.menu.loreList.unlockLore(target);
-					game.menu.loreList.questsList.createQuest();
+					game.gameMenu.loreList.unlockLore(target);
+					game.gameMenu.loreList.questsList.createQuest();
 					
 				} else if(target is Monster){
 					if(!target.uniqueNameStr){
 						target.createUniqueNameStr();
 						game.console.print("the " + target.nameStr + (target.nameStr.charAt(target.nameStr.length - 1) == "s" ? "'" : "'s") + " true name is " + target.uniqueNameStr);
 					}
-					game.menu.loreList.unlockLore(target);
+					game.gameMenu.loreList.unlockLore(target);
 				}
 				return;
 				

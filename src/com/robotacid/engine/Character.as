@@ -685,6 +685,7 @@
 		
 		/* Handles all the logic for a single melee attack */
 		protected function meleeAttack(target:Character):void{
+			attackCount = 0;
 			hitResult = hit(target, Item.MELEE);
 			if(hitResult){
 				var mc:MovieClip = gfx as MovieClip;
@@ -816,7 +817,7 @@
 				var corpse:Corpse = new Corpse(this);
 			}
 			game.console.print(nameToString() + " " + method + " by " + cause);
-			if(questVictim) game.menu.loreList.questsList.questCheck(QuestMenuOption.KILL, this);
+			if(questVictim) game.gameMenu.loreList.questsList.questCheck(QuestMenuOption.KILL, this);
 			renderer.shake(0, 3);
 			game.soundQueue.add("kill");
 			if(type == MONSTER) game.player.addXP(xpReward);
@@ -1057,7 +1058,6 @@
 		/* Determine if we have hit another character */
 		public function hit(character:Character, range:int):int{
 			if(indifferent) return MISS;
-			attackCount = 0;
 			var attackRoll:Number = game.random.value();
 			var item:Item = lungeState == LUNGE_FORWARD ? weapon : throwable;
 			if(attackRoll >= CRITICAL_HIT)
@@ -1122,7 +1122,7 @@
 			} else if(type == Missile.ITEM){
 				if(throwable){
 					item = unequip(throwable);
-					if(this == game.player || this == game.minion) item = game.menu.inventoryList.removeItem(item);
+					if(this == game.player || this == game.minion) item = game.gameMenu.inventoryList.removeItem(item);
 					else dropItem(item);
 					item.location = Item.FLIGHT;
 					missileMc = item.gfx;
@@ -1269,7 +1269,7 @@
 					var user:Character = item.user;
 					item = target.unequip(item);
 					if(user == game.player || user == game.minion){
-						item = game.menu.inventoryList.removeItem(item);
+						item = game.gameMenu.inventoryList.removeItem(item);
 					}
 					target.dropItem(item);
 					item.collect(this, false);
@@ -1379,7 +1379,7 @@
 			// and move the marker to the new graphic
 			if(questVictim){
 				questTarget();
-				game.menu.loreList.questsList.updateName(this);
+				game.gameMenu.loreList.questsList.updateName(this);
 			}
 		}
 		

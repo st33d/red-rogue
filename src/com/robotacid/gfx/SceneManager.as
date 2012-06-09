@@ -114,7 +114,7 @@ package com.robotacid.gfx {
 			} else if(type == Map.MAIN_DUNGEON || type == Map.ITEM_DUNGEON){
 				// account for being in the test bed
 				if(level == -1){
-					level = game.menu.editorList.dungeonLevelList.selection
+					level = game.gameMenu.editorList.dungeonLevelList.selection
 				}
 				var zone:int = (level - 1) / Map.LEVELS_PER_ZONE;
 				if(zone >= Map.ZONE_TOTAL) zone = Map.ZONE_TOTAL - 1;

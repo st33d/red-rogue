@@ -84,11 +84,11 @@ package com.robotacid.ai {
 		
 		public function renderConfusion():void{
 			confusionOverlay.visible = false;
-			game.menu.visible = false;
+			game.gameMenu.visible = false;
 			if(Game.dialog) Game.dialog.visible = false;
 			confusionOverlay.bitmapData.draw(game);
 			if(Game.dialog) Game.dialog.visible = true;
-			game.menu.visible = true;
+			game.gameMenu.visible = true;
 			confusionOverlay.visible = true;
 		}
 		

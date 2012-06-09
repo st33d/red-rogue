@@ -1,4 +1,4 @@
-Change log: fixed missile vs gate bug, added rank to Character class to define elite and champion states, restore point for creating menu carousel
+Change log: forgot to mention secret wall and trap xp bonus for disarming/attacking whilst not revealed, attackCount was being reset in hit() causing bugs with missile attacks - moved to meleeAttack() (shoot was set up properly), obfuscated limit of 3 lives total per play session, refactored new game "sure" list, created menu carousel and death menu
 
 Bug hunt
 	collection lock out on chests after playing for a while - bugged chest or item?
@@ -7,10 +7,15 @@ Bug hunt
 	full crash observed in chaos - game frozen, menu operational
 
 rotate between a selection of menus
+	
+	fullscreen changed to Game variable
+	
+	create MenuCarousel to switch between the current menu
 	reset menu
+		new game
+		save log and stats of previous game
 	title screen
 		title menu
-		refactor "sure" option in game menu
 
 create nanny
 	menu text under lightmap

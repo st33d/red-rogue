@@ -115,8 +115,8 @@ package com.robotacid.engine {
 			active = true;
 			fadeLight = new FadeLight(FadeLight.SLEEP, game.player.mapX, game.player.mapY, game.player);
 			aggroCount = 0;
-			game.menu.sleepOption.state = MENU_WAKE_UP;
-			game.menu.update();
+			game.gameMenu.sleepOption.state = MENU_WAKE_UP;
+			game.gameMenu.update();
 			aggroBegins = false;
 		}
 		
@@ -125,8 +125,8 @@ package com.robotacid.engine {
 			active = false;
 			if(fadeLight.active) fadeLight.active = false;
 			fadeLight = null;
-			game.menu.sleepOption.state = MENU_SLEEP;
-			game.menu.update();
+			game.gameMenu.sleepOption.state = MENU_SLEEP;
+			game.gameMenu.update();
 			if(nightmare){
 				var effect:Effect = new Effect(Effect.FEAR, game.player.level, Effect.EATEN, game.player);
 			}

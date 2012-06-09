@@ -47,7 +47,7 @@
 	public class Menu extends Sprite{
 		
 		// gfx
-		public var holder:DisplayObjectContainer;
+		public var carousel:MenuCarousel;
 		public var textHolder:Sprite;
 		public var help:TextBox;
 		public var selectionWindow:Bitmap;
@@ -86,9 +86,9 @@
 		
 		public var maskShape:Shape;
 		
-		// animation and key states
+		// animation and key states - move delay is consistent through all menus
 		public var keyLock:Boolean;
-		public var moveDelay:int = 4;
+		public static var moveDelay:int = 4;
 		
 		private var dirStack:Vector.<int>;
 		private var dir:int;
@@ -190,7 +190,7 @@
 			maskShape.graphics.endFill();
 			mask = maskShape;
 			
-			help = new TextBox(320, 36, BACKGROUND_COL, BACKGROUND_COL);
+			help = new TextBox(320, 36, BACKGROUND_COL, BORDER_COL);
 			
 			// create TextBoxes to render the current state of the menu
 			textHolder = new Sprite();
@@ -988,7 +988,7 @@
 			alpha = 0;
 			alphaStep = 1.0 / moveDelay;
 			renderMenu();
-			holder.addChild(this);
+			carousel.addChild(this);
 		}
 		
 		/* Called when closing the menu */

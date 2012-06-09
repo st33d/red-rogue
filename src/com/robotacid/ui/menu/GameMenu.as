@@ -51,6 +51,7 @@
 		public var giveItemList:GiveItemMenuList;
 		public var changeRaceList:MenuList;
 		public var portalTeleportList:MenuList;
+		
 		public var sureList:MenuList;
 		public var soundList:MenuList;
 		public var menuMoveList:MenuList;
@@ -77,12 +78,14 @@
 		public var changeMinionRaceOption:MenuOption;
 		public var portalTeleportOption:MenuOption;
 		public var giveDebugEquipmentOption:MenuOption;
-		public var quitToTitleOption:MenuOption;
+		
 		public var newGameOption:MenuOption;
 		public var seedOption:MenuOption;
 		public var dogmaticOption:MenuOption;
-		public var sureOption:MenuOption;
 		public var consoleDirOption:MenuOption;
+		private var soundOption:MenuOption;
+		private var fullScreenOption:MenuOption;
+		private var menuMoveOption:MenuOption;
 		
 		public var stairsUpPortalOption:MenuOption;
 		public var stairsDownPortalOption:MenuOption;
@@ -95,10 +98,11 @@
 		public var onOffOption:ToggleMenuOption;
 		public var upDownOption:ToggleMenuOption;
 		
-		private var fullscreenOn:Boolean;
-		
 		public static const SHOOT:int = 0;
 		public static const THROW:int = 1;
+		
+		public static const NO:int = 0;
+		public static const YES:int = 1;
 		
 		public function GameMenu(width:Number, height:Number, game:Game) {
 			this.game = game;
@@ -117,8 +121,12 @@
 			debugList = new MenuList();
 			creditsList = new MenuList();
 			
+			sureList = new MenuList(Vector.<MenuOption>([
+				new MenuOption("no", null, false),
+				new MenuOption("yes")
+			]));
+			sureList.options[YES].selectionStep = MenuOption.EXIT_MENU;
 			onOffList = new MenuList();
-			sureList = new MenuList();
 			upDownList = new MenuList();
 			seedInputList = new MenuInputList("" + Map.random.seed,/[0-9]/, String(uint.MAX_VALUE).length, seedInputCallback);
 			seedInputList.promptName = "enter number";
@@ -195,11 +203,11 @@
 			initHotKeyMenuOption(trunk);
 			hotKeyOption.help = "set up a key to perform a menu action. the hot key will work even if the menu is hidden, the hot key will also adapt to menu changes";
 			
-			var soundOption:MenuOption = new MenuOption("sound", soundList);
+			soundOption = new MenuOption("sound", soundList);
 			soundOption.help = "toggle sound";
 			var sfxOption:MenuOption = new MenuOption("sfx", onOffList);
 			var musicOption:MenuOption = new MenuOption("music", onOffList);
-			var fullScreenOption:MenuOption = new MenuOption("fullscreen", onOffList);
+			fullScreenOption = new MenuOption("fullscreen", onOffList);
 			fullScreenOption.help = "toggle fullscreen.\nthe flash player only allows use of the cursor keys and space when fullscreen in a browser.";
 			screenshotOption = new MenuOption("screenshot");
 			screenshotOption.help = "take a screen shot of the game (making the menu temporarily invisible) and open a filebrowser to save the screenshot to the desktop.";
@@ -209,12 +217,10 @@
 			seedOption.help = "set the current random seed value used to generate levels and content.\nenter no value for a random seed value.";
 			dogmaticOption = new MenuOption("dogmatic mode", onOffList);
 			dogmaticOption.help = "in dogmatic mode time will only pass when the player is performing an action.";
-			var menuMoveOption:MenuOption = new MenuOption("menu move speed", menuMoveList);
+			menuMoveOption = new MenuOption("menu move speed", menuMoveList);
 			menuMoveOption.help = "change the speed that the menu moves. lower values move the menu faster. simply move the selection to change the speed.";
 			consoleDirOption = new MenuOption("console scroll direction", upDownList);
 			consoleDirOption.help = "change the direction the console at the bottom of the screen scrolls";
-			quitToTitleOption = new MenuOption("quit", sureList, false);
-			quitToTitleOption.help = "currently disabled until title screen completed";
 			newGameOption = new MenuOption("new game", sureList);
 			newGameOption.help = "start a new game";
 			
@@ -225,8 +231,6 @@
 			
 			onOffOption = new ToggleMenuOption(["turn off", "turn on"]);
 			onOffOption.selectionStep = 1;
-			sureOption = new MenuOption("sure?");
-			sureOption.selectionStep = MenuOption.EXIT_MENU;
 			upDownOption = new ToggleMenuOption(["up", "down"]);
 			upDownOption.selectionStep = 1;
 			
@@ -256,7 +260,6 @@
 			optionsList.options.push(hotKeyOption);
 			optionsList.options.push(seedOption);
 			optionsList.options.push(dogmaticOption);
-			optionsList.options.push(quitToTitleOption);
 			optionsList.options.push(newGameOption);
 			
 			debugList.options.push(editorOption);
@@ -280,8 +283,6 @@
 			
 			soundList.options.push(sfxOption);
 			soundList.options.push(musicOption);
-			
-			sureList.options.push(sureOption);
 			
 			onOffList.options.push(onOffOption);
 			
@@ -323,7 +324,7 @@
 			}
 			
 			// this boolean allows the fullscreen option to "bounce"
-			fullscreenOn = false;
+			Game.fullscreenOn = false;
 			
 		}
 		
@@ -446,9 +447,14 @@
 				onOffOption.state = SoundManager.music ? 0 : 1;
 				renderMenu();
 				
+			} else if(option == newGameOption){
+				// make sure that visiting the sure list always defaults to NO
+				sureList.selection = NO;
+				renderMenu();
+				
 			} else if(option.name == "fullscreen"){
 				//onOffOption.state = game.stage.displayState == "normal" ? 1 : 0;
-				onOffOption.state = fullscreenOn ? 0 : 1;
+				onOffOption.state = Game.fullscreenOn ? 0 : 1;
 				renderMenu();
 				
 			} else if(option == dogmaticOption){
@@ -485,7 +491,7 @@
 			}
 		}
 		
-		override public function executeSelection():void {
+		override public function executeSelection():void{
 			var option:MenuOption = currentMenuList.options[selection];
 			var item:Item, n:int, i:int, effect:Effect, prevItem:Item, character:Character, throwing:Boolean;
 			var health:Number;
@@ -588,16 +594,9 @@
 				}
 				inventoryList.removeItem(item);
 			
-			// loading / saving / new game
-			} else if(option == sureOption){
-				if(previousMenuList.options[previousMenuList.selection] == quitToTitleOption){
-					//QuickSave.save(game);
-				} else if(previousMenuList.options[previousMenuList.selection] == newGameOption){
-					inventoryList.reset();
-					loreList.questsList.reset();
-					actionsOption.active = false;
-					game.reset();
-				}
+			// new game
+			} else if(currentMenuList == sureList && currentMenuList.selection == YES){
+				reset();
 			
 			} else if(option == onOffOption){
 				
@@ -624,7 +623,7 @@
 				// toggle fullscreen
 				} else if(previousMenuList.options[previousMenuList.selection].name == "fullscreen"){
 					if(onOffOption.state == 1){
-						fullscreenOn = true;
+						Game.fullscreenOn = true;
 						if(Capabilities.playerType == "StandAlone"){
 							fullscreen();
 						} else {
@@ -637,7 +636,7 @@
 							}
 						}
 					} else {
-						fullscreenOn = false;
+						Game.fullscreenOn = false;
 						stage.displayState = "normal";
 						stage.scaleMode = StageScaleMode.NO_SCALE;
 					}
@@ -836,8 +835,8 @@
 			
 		}
 		
-		/* In the event of player death, we need to change the menu to deactivate the inventory,
-		 * and maybe some other stuff in future
+		/* In the event of player death, we need to change the menu to deactivate some options
+		 * and switch over to the DeathMenu
 		 */
 		public function death():void{
 			if(listInBranch(inventoryList)) while(branch.length > 1) stepLeft();
@@ -845,6 +844,8 @@
 			missileOption.active = false;
 			disarmTrapOption.active = false;
 			update();
+			game.deathMenu.select(0);
+			game.menuCarousel.setCurrentMenu(game.deathMenu);
 		}
 		
 		/* Activates fullscreen mode */
@@ -860,7 +861,7 @@
 						"well whoever runs this site doesn't want you to run the game fullscreen.\n\nthey've locked the flash player out of that option.\n\nwhat a dick."
 					);
 				}
-				fullscreenOn = false;
+				Game.fullscreenOn = false;
 			}
 		}
 		
@@ -966,6 +967,14 @@
 			for(var i:int = 0; i < xmls.length; i++){
 				inventoryList.addItemFromXML(xmls[i]);
 			}
+		}
+		
+		/* Resets the game and the GameMenu for a new play session */
+		public function reset():void{
+			inventoryList.reset();
+			loreList.questsList.reset();
+			actionsOption.active = false;
+			game.reset();
 		}
 		
 	}

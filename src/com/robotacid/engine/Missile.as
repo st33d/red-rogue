@@ -255,7 +255,7 @@
 					game.console.print("grindstone created");
 					debrisType = Renderer.STONE;
 				}
-				Item.revealName(effect.name, game.menu.inventoryList.runesList);
+				Item.revealName(effect.name, game.gameMenu.inventoryList.runesList);
 				
 				entity.mapX = mapX;
 				entity.mapY = mapY;
@@ -339,7 +339,7 @@
 					kill();
 					return;
 				}
-				Item.revealName(effect.name, game.menu.inventoryList.runesList);
+				Item.revealName(effect.name, game.gameMenu.inventoryList.runesList);
 				game.console.print(effect.nameToString() + " cast upon " + character.nameToString());
 				effect.apply(character);
 				game.soundQueue.add("runeHit");

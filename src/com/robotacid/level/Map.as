@@ -163,7 +163,7 @@
 			start = portals[0];
 			
 			// set zone for background debugging
-			zone = (game.menu.editorList.dungeonLevelList.selection) / LEVELS_PER_ZONE;
+			zone = (game.gameMenu.editorList.dungeonLevelList.selection) / LEVELS_PER_ZONE;
 		}
 		
 		/* This is where we convert our map template into a level proper made of tileIds and other

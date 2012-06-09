@@ -34,8 +34,10 @@
 	import com.robotacid.ui.Console;
 	import com.robotacid.ui.Dialog;
 	import com.robotacid.ui.Editor;
+	import com.robotacid.ui.menu.DeathMenu;
 	import com.robotacid.ui.menu.EditorMenuList;
 	import com.robotacid.ui.menu.GameMenu;
+	import com.robotacid.ui.menu.MenuCarousel;
 	import com.robotacid.ui.menu.QuestMenuList;
 	import com.robotacid.ui.menu.QuestMenuOption;
 	import com.robotacid.ui.ProgressBar;
@@ -89,7 +91,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 384;
+		public static const BUILD_NUM:int = 385;
 		
 		public static const TEST_BED_INIT:Boolean = false;
 		
@@ -120,11 +122,12 @@
 		
 		// ui
 		public var focusPrompt:Sprite;
-		public var menuHolder:Sprite;
 		public var miniMapHolder:Sprite;
 		public var console:Console;
 		public var confusionOverlayHolder:Sprite;
-		public var menu:GameMenu;
+		public var menuCarousel:MenuCarousel;
+		public var gameMenu:GameMenu;
+		public var deathMenu:DeathMenu;
 		public var miniMap:MiniMap;
 		public var playerActionBar:ProgressBar;
 		public var playerHealthBar:ProgressBar;
@@ -161,7 +164,8 @@
 		public var forceFocus:Boolean = true;
 		public var portalHash:Object;
 		public var dogmaticMode:Boolean;
-		public var lives:int;
+		public var lives:HiddenInt;
+		public var livesAvailable:HiddenInt;
 		public var visitedHash:Object;
 		
 		// temp variables
@@ -200,6 +204,8 @@
 		public static const SOUND_DIST_MAX:int = 12;
 		public static const INV_SOUND_DIST_MAX:Number = 1.0 / SOUND_DIST_MAX;
 		public static const SOUND_HORIZ_DIST_MULTIPLIER:Number = 1.5;
+		
+		public static var fullscreenOn:Boolean;
 		
 		public function Game():void {
 			
@@ -269,6 +275,9 @@
 			soundQueue = new SoundQueue();
 			
 			dogmaticMode = false;
+			
+			lives = new HiddenInt();
+			livesAvailable = new HiddenInt(3);
 			
 			if (stage) addedToStage();
 			else addEventListener(Event.ADDED_TO_STAGE, addedToStage);
@@ -374,18 +383,22 @@
 			
 			addChild(transition);
 			
-			if(!menu){
-				menu = new GameMenu(WIDTH, console.y, this);
+			// menu init
+			
+			if(!menuCarousel){
+				menuCarousel = new MenuCarousel();
+				gameMenu = new GameMenu(WIDTH, console.y, this);
+				deathMenu = new DeathMenu(WIDTH, console.y, this);
+				menuCarousel.addMenu(gameMenu);
+				menuCarousel.addMenu(deathMenu);
 			} else {
 				// update the rng seed
-				if(Map.seed == 0) menu.seedInputList.option.name = "" + Map.random.seed;
+				if(Map.seed == 0) gameMenu.seedInputList.option.name = "" + Map.random.seed;
 			}
-			menuHolder = new Sprite();
-			addChild(menuHolder);
-			menu.holder = menuHolder;
-			if(state == MENU){
-				menuHolder.addChild(menu);
-			}
+			addChild(menuCarousel);
+			
+			// REFACTOR WHEN TITLE MENU IS MADE:
+			menuCarousel.setCurrentMenu(gameMenu);
 			
 			if(!focusPrompt){
 				focusPrompt = new Sprite();
@@ -432,7 +445,7 @@
 			
 			frameCount = 1;
 			deepestLevelReached = 1;
-			lives = 0;
+			lives.value = 0;
 			
 			// LISTS
 			
@@ -520,14 +533,14 @@
 		/* Enters the testing area */
 		public function launchTestBed():void{
 			setLevel( -1, Portal.STAIRS);
-			menu.editorList.setLight(menu.editorList.lightList.selection);
+			gameMenu.editorList.setLight(gameMenu.editorList.lightList.selection);
 		}
 		
 		/* Enters the the testing area from game init */
 		public function initTestBed():void{
-			menu.editorList.renderAIPathsList.selection = EditorMenuList.ON;
-			menu.editorList.renderAIGraphList.selection = EditorMenuList.ON;
-			menu.editorList.renderCollisionList.selection = EditorMenuList.ON;
+			gameMenu.editorList.renderAIPathsList.selection = EditorMenuList.ON;
+			gameMenu.editorList.renderAIGraphList.selection = EditorMenuList.ON;
+			gameMenu.editorList.renderCollisionList.selection = EditorMenuList.ON;
 			launchTestBed();
 		}
 		
@@ -870,22 +883,22 @@
 					
 				
 				}
+			
+				if(player.brain.confusedCount) (player.brain as PlayerBrain).renderConfusion();
 				
 			}
 			
-			menu.main();
-			
-			if(player.brain.confusedCount) (player.brain as PlayerBrain).renderConfusion();
+			menuCarousel.currentMenu.main();
 		}
 		
 		/* Pause the game and make the inventory screen visible */
 		public function pauseGame():void{
 			if(state == GAME){
 				state = MENU;
-				menu.activate();
+				menuCarousel.activate();
 			} else if(state == MENU){
 				state = GAME;
-				menu.deactivate();
+				menuCarousel.deactivate();
 			}
 		}
 		
@@ -954,22 +967,22 @@
 		
 		/* A cheat for adding lives */
 		private function addLife():void{
-			if(lives >= 3){
+			if(livesAvailable.value <= 0){
 				console.print("3 is your limit cheater");
 				return;
 			}
-			lives++;
+			lives.value++;
 			console.print("1up");
 			soundQueue.add("jump");
 			livesPanel.visible = true;
-			livesPanel["_" + lives].gotoAndPlay("fadeIn");
+			livesPanel["_" + lives.value].gotoAndPlay("fadeIn");
 		}
 		
 		/* Called only when lives are above 0 */
 		public function loseLife():void{
-			livesPanel["_" + lives].gotoAndStop("dead");
-			lives--;
-			if(lives == 0) livesPanel.visible = false;
+			livesPanel["_" + lives.value].gotoAndStop("dead");
+			lives.value--;
+			if(lives.value == 0) livesPanel.visible = false;
 			console.print("this is not how the game is meant to be played");
 		}
 		
