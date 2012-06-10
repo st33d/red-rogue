@@ -452,6 +452,53 @@
 		private function getArmourValue(item:Item):Number{
 			return item.defence * 10 + item.endurance + item.thorns;
 		}
+		
+		/* Create a description of the inventory for the epitaph file */
+		public function getEpitaph():String{
+			var i:int, item:Item;
+			var str:String = "INVENTORY:\n";
+			str += "\nweapons:";
+			if(weaponsList.options.length){
+				for(i = 0; i < weaponsList.options.length; i++){
+					item = weaponsList.options[i].userData as Item;
+					if(item) str += " " + item.getEpitaph();
+					if(i < weaponsList.options.length - 1) str += ",";
+				}
+			} else {
+				str += " none";
+			}
+			str += "\narmour:"
+			if(armourList.options.length){
+				for(i = 0; i < armourList.options.length; i++){
+					item = armourList.options[i].userData as Item;
+					if(item) str += " " + item.getEpitaph();
+					if(i < armourList.options.length - 1) str += ",";
+				}
+			} else {
+				str += " none";
+			}
+			str += "\nrunes:"
+			if(runesList.options.length){
+				for(i = 0; i < runesList.options.length; i++){
+					item = runesList.options[i].userData as Item;
+					if(item) str += " " + item.getEpitaph();
+					if(i < runesList.options.length - 1) str += ",";
+				}
+			} else {
+				str += " none";
+			}
+			str += "\n\hearts:"
+			if(heartsList.options.length){
+				for(i = 0; i < heartsList.options.length; i++){
+					item = heartsList.options[i].userData as Item;
+					if(item) str += " " + item.getEpitaph();
+					if(i < heartsList.options.length - 1) str += ",";
+				}
+			} else {
+				str += " none";
+			}
+			return str;
+		}
 	}
 
 }

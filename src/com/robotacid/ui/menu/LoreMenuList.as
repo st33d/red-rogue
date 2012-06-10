@@ -60,16 +60,19 @@ package com.robotacid.ui.menu {
 			for(i = 0; i < Character.stats["names"].length; i++){
 				option = new MenuOption(Character.stats["names"][i], raceInfo, i == 0);
 				option.recordable = false;
+				option.hidden = (i != 0);
 				racesList.options.push(option);
 			}
 			for(i = 0; i < Item.stats["weapon names"].length; i++){
 				option = new MenuOption(Item.stats["weapon names"][i], weaponInfo, false);
 				option.recordable = false;
+				option.hidden = true;
 				weaponsList.options.push(option);
 			}
 			for(i = 0; i < Item.stats["armour names"].length; i++){
 				option = new MenuOption(Item.stats["armour names"][i], armourInfo, false);
 				option.recordable = false;
+				option.hidden = true;
 				armourList.options.push(option);
 			}
 			
@@ -125,6 +128,7 @@ package com.robotacid.ui.menu {
 			if(newLore){
 				option.active = true;
 				option.visited = false;
+				option.hidden = false;
 				menu.update();
 				game.console.print("new lore unlocked");
 			}

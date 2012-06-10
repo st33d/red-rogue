@@ -31,8 +31,10 @@
 		
 		public function optionsToString(separator:String = "\n", hotKeyMapStrings:Vector.<String> = null):String{
 			var str:String = "";
+			var option:MenuOption;
 			for(var i:int = 0; i < options.length; i++){
-				str += options[i].name;
+				option = options[i];
+				str += option.hidden ? "" : option.name;
 				if(hotKeyMapStrings && hotKeyMapStrings[i] != "") str += hotKeyMapStrings[i];
 				if(i < options.length - 1) str += separator;
 			}

@@ -1,4 +1,4 @@
-Change log: forgot to mention secret wall and trap xp bonus for disarming/attacking whilst not revealed, attackCount was being reset in hit() causing bugs with missile attacks - moved to meleeAttack() (shoot was set up properly), obfuscated limit of 3 lives total per play session, refactored new game "sure" list, created menu carousel and death menu
+Change log: added debugging option to death menu, lore option names now hidden until unlocked, epitaph file now savable
 
 Bug hunt
 	collection lock out on chests after playing for a while - bugged chest or item?
@@ -16,6 +16,8 @@ rotate between a selection of menus
 		save log and stats of previous game
 	title screen
 		title menu
+
+split story into tips.json and story.json - add tips to writings on new games
 
 create nanny
 	menu text under lightmap

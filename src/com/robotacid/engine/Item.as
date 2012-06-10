@@ -531,6 +531,22 @@
 			return str
 		}
 		
+		/* Create a description of the item for the epitaph file */
+		public function getEpitaph():String{
+			var str:String = nameToString();
+			if(effects){
+				str += "("
+				var effect:Effect;
+				for(var i:int = 0; i < effects.length; i++){
+					effect = effects[i];
+					str += effect.level + " " + effect.nameToString();
+					if(i < effects.length - 1) str += ", ";
+				}
+				str += ")"
+			}
+			return str;
+		}
+		
 		public static function revealName(n:int, runesList:MenuList):void{
 			if(runeNames[n] != "?" || n == CHAOS) return;
 			runeNames[n] = stats["rune names"][n];
