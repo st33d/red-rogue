@@ -1,19 +1,15 @@
-Change log: added debugging option to death menu, lore option names now hidden until unlocked, epitaph file now savable
+Change log: underworld portal start moved to level 15, story.json contracted to 15 levels, implemented variable zone length, identify runes can no longer be eaten in areas, fixed minion identify whilst polymorphed, added lore unlocking races when polymorphed and eating IDENTIFY
 
 Bug hunt
 	collection lock out on chests after playing for a while - bugged chest or item?
 	chaos wall colliders can child a character and pull it into a wall - how?
 	null Monster collider.world spotted - why?
 	full crash observed in chaos - game frozen, menu operational
+	
+	patrol bug spotted - a monster will become frozen in its patrol cycle
+	minion dither spotted - caught in a probable follow/avoid loop
 
 rotate between a selection of menus
-	
-	fullscreen changed to Game variable
-	
-	create MenuCarousel to switch between the current menu
-	reset menu
-		new game
-		save log and stats of previous game
 	title screen
 		title menu
 

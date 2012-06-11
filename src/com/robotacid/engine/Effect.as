@@ -700,14 +700,16 @@
 					game.gameMenu.inventoryList.identifyRunes();
 					game.gameMenu.inventoryList.revealCurses();
 					game.miniMap.reveal();
+					if(target.name != Character.ROGUE) game.gameMenu.loreList.unlockLore(target);
 					
 				} else if(target is Minion){
 					if(target.uniqueNameStr == Minion.DEFAULT_UNIQUE_NAME_STR){
-						target.createUniqueNameStr();
+						target.uniqueNameStr = "@";
 						game.console.print("the minion's true name is @");
 					}
 					game.gameMenu.loreList.unlockLore(target);
 					game.gameMenu.loreList.questsList.createQuest();
+					if(target.name != Character.SKELETON) game.gameMenu.loreList.unlockLore(target);
 					
 				} else if(target is Monster){
 					if(!target.uniqueNameStr){

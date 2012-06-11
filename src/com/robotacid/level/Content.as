@@ -44,6 +44,9 @@
 		public var seedsByLevel:Vector.<uint>;
 		public var monsterXpByLevel:Vector.<Number>;
 		
+		private var levelZones:Vector.<int>;
+		private var zoneSizes:Vector.<int>;
+		
 		public static var xpTable:Vector.<Number>;
 		
 		public var itemDungeonContent:Object;
@@ -108,6 +111,33 @@
 				total += xp;
 			}
 			
+			// create the number of levels per zone
+			levelZones = new Vector.<int>();
+			zoneSizes = new Vector.<int>(4);
+			var zoneLevels:Array = [];
+			var levelsInZone:Array;
+			var pruneChoice:Array = [];
+			for(i = 0; i < 4; i++){
+				levelsInZone = [];
+				for(j = 0; j < Map.LEVELS_PER_ZONE; j++){
+					levelsInZone.push(i);
+				}
+				zoneLevels.push(levelsInZone);
+				pruneChoice.push(i);
+			}
+			// prune a couple of levels (levels pruned in chaos won't be noticed, making the game length vary)
+			randomiseArray(pruneChoice, Map.random);
+			zoneLevels[pruneChoice[0]].pop();
+			zoneLevels[pruneChoice[1]].pop();
+			for(i = 0; i < zoneLevels.length - 1; i++){
+				levelsInZone = zoneLevels[i];
+				for(j = 0; j < levelsInZone.length; j++){
+					levelZones.push(levelsInZone[j]);
+					zoneSizes[levelsInZone[j]]++;
+				}
+			}
+			//trace(zoneSizes);
+			
 			//trace("xp table", xpTable.length, xpTable);
 			//trace("monster xp by level", monsterXpByLevel.length, monsterXpByLevel);
 			
@@ -126,6 +156,7 @@
 			var template:Array;
 			var target:Array;
 			var zone:Array;
+			var zoneLevelsMax:int;
 			
 			// each zone's list is randomised and then added to the target levels
 			for(i = 0; i < templates.length; i++){
@@ -133,10 +164,12 @@
 				target = targets[i];
 				// level 1 always starts with the the first content to keep the entry point easy
 				target.push(template[0].shift());
+				zoneLevelsMax = 0;
 				for(j = 0; j < template.length; j++){
 					zone = template[j];
 					randomiseArray(zone, Map.random);
-					while(target.length < Map.LEVELS_PER_ZONE * (j + 1)) target.push(zone.pop());
+					zoneLevelsMax += zoneSizes[j];
+					while(target.length < zoneLevelsMax) target.push(zone.pop());
 					
 					// the remainder is added to the pool for the next zone
 					if(j < template.length - 1){
@@ -147,6 +180,7 @@
 						while(zone.length) target.push(zone.pop());
 					}
 				}
+				//trace(target);
 			}
 			
 			// initialise content lists
@@ -178,12 +212,12 @@
 				});
 			}
 			
-			// set up underworld portal on level 16
+			// set up underworld portal on level 15
 			var portalXML:XML = <portal />;
 			portalXML.@type = Portal.UNDERWORLD;
 			portalXML.@targetLevel = Map.UNDERWORLD;
-			portalsByLevel[16].push(portalXML);
-			setUnderworldPortal(16);
+			portalsByLevel[15].push(portalXML);
+			setUnderworldPortal(15);
 			createUniqueItems();
 		}
 		
@@ -223,6 +257,14 @@
 		public function trapQuantityPerLevel(level:int):int{
 			if(level > TOTAL_LEVELS) level = TOTAL_LEVELS;
 			return 1 + Math.ceil(level / (2 + Map.random.rangeInt(3)));
+		}
+		
+		/* Returns the zone a level is in */
+		public function getLevelZone(level:int):int{
+			level--;
+			if(level <= 0) return 0;
+			if(level < levelZones.length) return levelZones[level];
+			return Map.CHAOS;
 		}
 		
 		/* Create a satisfactory amount of monsters and loot for a level

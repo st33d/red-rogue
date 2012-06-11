@@ -43,8 +43,7 @@ package com.robotacid.gfx {
 		public function SceneManager(mapLevel:int, mapType:int) {
 			this.mapLevel = mapLevel;
 			this.mapType = mapType;
-			mapZone = (mapLevel - 1) / Map.LEVELS_PER_ZONE;
-			if(mapZone >= Map.ZONE_TOTAL) mapZone = Map.ZONE_TOTAL - 1;
+			mapZone = game.content.getLevelZone(mapLevel);
 			if(mapLevel == Map.UNDERWORLD && mapType == Map.AREA){
 				fx = new Vector.<FX>();
 				for(i = 0; i < UNDERWORLD_NOVAS; i++){
@@ -116,8 +115,7 @@ package com.robotacid.gfx {
 				if(level == -1){
 					level = game.gameMenu.editorList.dungeonLevelList.selection
 				}
-				var zone:int = (level - 1) / Map.LEVELS_PER_ZONE;
-				if(zone >= Map.ZONE_TOTAL) zone = Map.ZONE_TOTAL - 1;
+				var zone:int = game.content.getLevelZone(level);
 				if(zone == Map.CHAOS){
 					return new SceneManager(level, type);
 				}

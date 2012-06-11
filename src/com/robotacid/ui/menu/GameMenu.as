@@ -434,6 +434,9 @@
 					} else if(item.name == Effect.POLYMORPH){
 						inventoryList.eatOption.active = !(game.map.type == Map.AREA && game.map.level == Map.OVERWORLD);
 						if(game.minion) inventoryList.feedMinionOption.active = inventoryList.eatOption.active;
+					} else if(item.name == Effect.IDENTIFY){
+						inventoryList.eatOption.active = (game.map.type != Map.AREA);
+						if(game.minion) inventoryList.feedMinionOption.active = inventoryList.eatOption.active;
 					}
 				}
 				

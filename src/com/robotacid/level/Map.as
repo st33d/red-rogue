@@ -102,8 +102,7 @@
 			layers = [];
 			portals = new Vector.<Pixel>();
 			if(type == MAIN_DUNGEON || type == ITEM_DUNGEON){
-				zone = (level - 1) / LEVELS_PER_ZONE;
-				if(zone >= ZONE_TOTAL) zone = ZONE_TOTAL - 1;
+				zone = game.content.getLevelZone(level);
 			}
 			
 			if(type == MAIN_DUNGEON){
@@ -1296,8 +1295,7 @@
 		/* All of the levels have names, either being a subset of a zone or a specific area */
 		public static function getName(type:int, level:int):String{
 			if(type == MAIN_DUNGEON){
-				var zone:int = (level - 1) / LEVELS_PER_ZONE;
-				if(zone >= ZONE_TOTAL) zone = ZONE_TOTAL - 1;
+				var zone:int = game.content.getLevelZone(level);
 				return ZONE_NAMES[zone];
 			} else if(type == AREA){
 				if(level == OVERWORLD) return "overworld";
