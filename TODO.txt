@@ -1,4 +1,4 @@
-Change log: underworld portal start moved to level 15, story.json contracted to 15 levels, implemented variable zone length, identify runes can no longer be eaten in areas, fixed minion identify whilst polymorphed, added lore unlocking races when polymorphed and eating IDENTIFY
+Change log: fixed extra gates erasing keys
 
 Bug hunt
 	collection lock out on chests after playing for a while - bugged chest or item?

@@ -779,7 +779,7 @@
 					}
 				} while(
 					!surface.nearEntrance ||
-					layers[ENTITIES][site.y][site.x] ||
+					layers[ENTITIES][surface.y][surface.x] ||
 					(
 						Math.abs(start.x - surface.x) < minDist &&
 						Math.abs(start.y - surface.y) < minDist
@@ -822,6 +822,7 @@
 				i = -1 + random.rangeInt(4);
 				while(i-- > 0){
 					site = bitmap.gates[random.rangeInt(bitmap.gates.length)];
+					if(layers[ENTITIES][site.y][site.x]) continue;
 					if(zone == CHAOS) gateType = random.coinFlip() ? Gate.CHAOS : Gate.RAISE;
 					else gateType = Gate.RAISE;
 					gate = new Gate(site.x * Game.SCALE, site.y * Game.SCALE, gateType);
