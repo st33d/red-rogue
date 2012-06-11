@@ -80,6 +80,7 @@ package com.robotacid.ui.menu {
 				str += "whose husband waits in the underworld" + "\n\n";
 			}
 			str += "random seed to recreate: " + Map.random.seed + "\n\n";
+			str += "xp level: " + game.player.level + " \nxp: " + game.player.xp + "\n\n";
 			// equipment list
 			str += "runes identified: ";
 			var runesList:Array = [];
