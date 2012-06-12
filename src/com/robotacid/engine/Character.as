@@ -1288,9 +1288,9 @@
 				changeName(target.name);
 				renderer.createTeleportSparkRect(collider, 20);
 				
-			// poison attack
+			// bleed attack
 			} else if(name == NAGA){
-				effect = new Effect(Effect.POISON, level, Effect.THROWN, target);
+				effect = new Effect(Effect.BLEED, level, Effect.THROWN, target);
 				
 			// stun attack
 			} else if(name == GORGON){

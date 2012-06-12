@@ -24,13 +24,13 @@
 		["snicker snack", "slice n dice"], ["anonymous", "unknown"], ["madness", "foolscap"] , [], ["yendor"]
 	],
 	"rune names":[
-		"light", "heal", "poison", "identify", "undead",
+		"light", "heal", "bleed", "identify", "undead",
 		"teleport", "thorns", "null", "portal", "slow",
 		"haste", "holy", "protection", "stun", "polymorph",
 		"confusion", "fear", "leech", "xp", "?"
 	],
 	"rune descriptions":[
-		"glows brightly", "makes you feel better", "makes you feel sick", "grants knowledge undiscovered", "is connected to the underworld",
+		"glows brightly", "makes you feel better", "makes you sweat blood", "grants knowledge undiscovered", "is connected to the underworld",
 		"appears and disappears in your hand", "is covered in spikes", "destroys magic", "has a hole in it", "m a k e s  t h i n g s  s l o w e r",
 		"mks thngs fstr", "answers prayers to the gods", "protects and reflects", "err, what does it do again?", "constantly changes shape",
 		"drah gnikniht sekam", "fills you with dread", "is the magic of blood demons", "imbues wisdom and quality", "?"

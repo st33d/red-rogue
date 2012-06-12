@@ -1,6 +1,7 @@
 ﻿package com.robotacid.engine {
 	import com.robotacid.ai.Brain;
 	import com.robotacid.ai.PlayerBrain;
+	import com.robotacid.gfx.BlitRect;
 	import com.robotacid.level.Content;
 	import com.robotacid.level.Map;
 	import com.robotacid.geom.Pixel;
@@ -40,7 +41,7 @@
 		
 		public static const LIGHT:int = Item.LIGHT;
 		public static const HEAL:int = Item.HEAL;
-		public static const POISON:int = Item.POISON;
+		public static const BLEED:int = Item.BLEED;
 		public static const IDENTIFY:int = Item.IDENTIFY;
 		public static const UNDEAD:int = Item.UNDEAD;
 		public static const TELEPORT:int = Item.TELEPORT;
@@ -61,7 +62,7 @@
 		
 		public static var BANNED_RANDOM_ENCHANTMENTS:Object = {};
 		
-		public static const FAVOURABLE_WEAPON_ENCHANTMENTS:Array = [POISON, UNDEAD, TELEPORT, SLOW, STUN, CONFUSION, FEAR, LEECH];
+		public static const FAVOURABLE_WEAPON_ENCHANTMENTS:Array = [BLEED, UNDEAD, TELEPORT, SLOW, STUN, CONFUSION, FEAR, LEECH];
 		public static const FAVOURABLE_ARMOUR_ENCHANTMENTS:Array = [LIGHT, HEAL, UNDEAD, THORNS, HASTE, PROTECTION];
 		
 		public static const WEAPON:int = Item.WEAPON;
@@ -155,10 +156,27 @@
 					}
 				}
 				
-			} else if(name == POISON){
+			} else if(name == BLEED){
 				if(count){
 					count--;
-					if(!target.undead) target.applyDamage(healthStep, nameToString(), 0, false, null, false);
+					if(!target.undead){
+						target.applyDamage(healthStep, nameToString(), 0, false, null, false);
+						// drip blood
+						var blit:BlitRect, print:BlitRect;
+						if(game.random.coinFlip()){
+							blit = renderer.smallDebrisBlits[target.debrisType];
+							print = renderer.smallFadeBlits[target.debrisType];
+						} else {
+							blit = renderer.bigDebrisBlits[target.debrisType];
+							print = renderer.bigFadeBlits[target.debrisType];
+						}
+						renderer.addDebris(
+							target.collider.x + game.random.range(target.collider.width),
+							target.collider.y + game.random.range(target.collider.height),
+							blit,
+							0 , 0, print, true
+						);
+					}
 				} else {
 					if(source == ARMOUR){
 						if(target is Player && consolePrint) game.console.print("the " + nameToString() + " wears off");
@@ -505,9 +523,9 @@
 					callMain = true;
 				}
 				
-			} else if(name == POISON){
-				// poison affects a percentage of the victim's health over the decay delay period
-				// making poison armour pinch some of your health for putting it on, thrown runes and
+			} else if(name == BLEED){
+				// bleed affects a percentage of the victim's health over the decay delay period
+				// making bleed armour pinch some of your health for putting it on, thrown runes and
 				// eaten runes take half health (unless you replenish health) and weapons steal a
 				// percentage of health per hit
 				healthStep = (target.totalHealth * 0.5) / (1 + Game.MAX_LEVEL - level);
@@ -516,7 +534,7 @@
 				callMain = true;
 				
 			} else if(name == HEAL){
-				// heal is the inverse of poison, but will restore twice all health
+				// heal is the inverse of bleed, but will restore twice all health
 				// except on armour - where it affects the amount of time it will take for the player
 				// to reach full health whilst wearing
 				if(source == WEAPON || source == EATEN || source == THROWN){

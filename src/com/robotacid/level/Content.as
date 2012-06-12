@@ -89,7 +89,7 @@
 			[Item.INDIFFERENCE, Item.CHAOS_HELM, Item.CHAOS_WAND, Item.FACE]
 		];
 		public static const RUNE_ZONE_DECKS:Array = [
-			[Item.LIGHT, Item.HEAL, Item.POISON, Item.IDENTIFY, Item.UNDEAD],
+			[Item.LIGHT, Item.HEAL, Item.BLEED, Item.IDENTIFY, Item.UNDEAD],
 			[Item.TELEPORT, Item.THORNS, Item.NULL, Item.PORTAL, Item.SLOW],
 			[Item.HASTE, Item.HOLY, Item.PROTECTION, Item.STUN, Item.POLYMORPH],
 			[Item.CONFUSION, Item.FEAR, Item.LEECH_RUNE, Item.XP, Item.CHAOS]

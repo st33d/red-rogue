@@ -139,7 +139,7 @@
 		// runes
 		public static const LIGHT:int = 0;
 		public static const HEAL:int = 1;
-		public static const POISON:int = 2;
+		public static const BLEED:int = 2;
 		public static const IDENTIFY:int = 3;
 		public static const UNDEAD:int = 4;
 		public static const TELEPORT:int = 5;

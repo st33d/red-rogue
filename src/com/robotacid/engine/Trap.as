@@ -49,7 +49,7 @@
 		public static const PIT:int = 0;
 		public static const TELEPORT_DART:int = 1;
 		public static const STUN_MUSHROOM:int = 2;
-		public static const POISON_DART:int = 3;
+		public static const BLEED_DART:int = 3;
 		public static const CONFUSION_MUSHROOM:int = 4;
 		public static const FEAR_MUSHROOM:int = 5;
 		public static const MONSTER_PORTAL:int = 6;
@@ -73,11 +73,11 @@
 				rect = new Rectangle(mapX * Game.SCALE, -1 + mapY * Game.SCALE, SCALE, SCALE);
 			} else if(
 				type == TELEPORT_DART ||
-				type == POISON_DART ||
+				type == BLEED_DART ||
 				type == MONSTER_PORTAL
 			){
 				if(type == TELEPORT_DART) effectName = Effect.TELEPORT;
-				else if(type == TELEPORT_DART) effectName = Effect.POISON;
+				else if(type == TELEPORT_DART) effectName = Effect.BLEED;
 				rect = new Rectangle(mapX * Game.SCALE, -1 + mapY * Game.SCALE, SCALE, 1);
 				if(dartPos){
 					dartGun = new Point((dartPos.x + 0.5) * Game.SCALE, (dartPos.y + 1) * Game.SCALE);
@@ -261,7 +261,7 @@
 			} else if(type == FEAR_MUSHROOM || type == CONFUSION_MUSHROOM || type == STUN_MUSHROOM || type == HEAL_MUSHROOM){
 				if(gasCount == 0) gasCount = GAS_DELAY;
 				
-			} else if(type == POISON_DART || type == TELEPORT_DART){
+			} else if(type == BLEED_DART || type == TELEPORT_DART){
 				shootDart(new Effect(effectName, game.map.level < Game.MAX_LEVEL ? game.map.level : Game.MAX_LEVEL, Effect.THROWN));
 				
 			} else if(type == MONSTER_PORTAL){
@@ -329,7 +329,7 @@
 				gasRect.height = SCALE * 0.5;
 				renderer.createDebrisRect(gasRect, 0, 10, Renderer.BLOOD);
 				
-			} else if(type == POISON_DART || type == TELEPORT_DART){
+			} else if(type == BLEED_DART || type == TELEPORT_DART){
 				renderer.createDebrisRect(new Rectangle(dartGun.x - 2, dartGun.y, 4, 2), 0, 10, Renderer.STONE);
 			}
 			game.mapTileManager.removeTile(this, mapX, mapY, mapZ);
@@ -347,7 +347,7 @@
 			if(type == PIT) return "pit";
 			else if(type == TELEPORT_DART) return "teleport";
 			else if(type == STUN_MUSHROOM) return "stun";
-			else if(type == POISON_DART) return "poison";
+			else if(type == BLEED_DART) return "bleed";
 			else if(type == CONFUSION_MUSHROOM) return "confusion";
 			else if(type == FEAR_MUSHROOM) return "fear";
 			else if(type == MONSTER_PORTAL) return "monster";
