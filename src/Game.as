@@ -37,6 +37,7 @@
 	import com.robotacid.ui.menu.DeathMenu;
 	import com.robotacid.ui.menu.EditorMenuList;
 	import com.robotacid.ui.menu.GameMenu;
+	import com.robotacid.ui.menu.Menu;
 	import com.robotacid.ui.menu.MenuCarousel;
 	import com.robotacid.ui.menu.QuestMenuList;
 	import com.robotacid.ui.menu.QuestMenuOption;
@@ -91,7 +92,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 389;
+		public static const BUILD_NUM:int = 390;
 		
 		public static const TEST_BED_INIT:Boolean = false;
 		
@@ -167,6 +168,7 @@
 		public var lives:HiddenInt;
 		public var livesAvailable:HiddenInt;
 		public var visitedHash:Object;
+		public var multiplayer:Boolean;
 		
 		// temp variables
 		private var i:int;
@@ -231,6 +233,7 @@
 			Dialog.game = this;
 			EditorMenuList.game = this;
 			Suggestion.game = this;
+			Menu.game = this;
 			DebrisFX.IGNORE_PROPERTIES = (
 				Collider.CHARACTER | Collider.LEDGE | Collider.LADDER | Collider.HEAD | Collider.CORPSE
 			);
@@ -276,6 +279,8 @@
 			
 			dogmaticMode = false;
 			
+			multiplayer = false;
+			
 			lives = new HiddenInt();
 			livesAvailable = new HiddenInt(3);
 			
@@ -289,7 +294,7 @@
 			// KEYS INIT
 			if(!Key.initialized){
 				Key.init(stage);
-				Key.custom = [Key.W, Key.S, Key.A, Key.D, Keyboard.SPACE, Key.F, Key.Z, Key.X, Key.C, Key.V, Key.NUMBER_1, Key.NUMBER_2, Key.NUMBER_3, Key.NUMBER_4];
+				Key.custom = [Key.W, Key.S, Key.A, Key.D, Keyboard.SPACE, Key.F, Key.Z, Key.X, Key.C, Key.V, Key.M, Key.NUMBER_2, Key.NUMBER_3, Key.NUMBER_4];
 				Key.hotKeyTotal = 10;
 			}
 			

@@ -46,6 +46,8 @@
 	 */
 	public class Menu extends Sprite{
 		
+		public static var game:Game;
+		
 		// gfx
 		public var carousel:MenuCarousel;
 		public var textHolder:Sprite;
@@ -741,25 +743,38 @@
 				// bypass reading keys if the menu is not on the display list
 				if(parent){
 					if(!keyLock){
-						if((Key.isDown(Keyboard.UP) || Key.customDown(UP_KEY)) && !(Key.isDown(Keyboard.DOWN) || Key.customDown(DOWN_KEY))){
+						
+						if(
+							((!game.multiplayer && Key.isDown(Keyboard.UP)) || Key.customDown(Game.UP_KEY)) &&
+							!((!game.multiplayer && Key.isDown(Keyboard.DOWN)) || Key.customDown(Game.DOWN_KEY))
+						){
 							keysDown |= UP;
 							keysDown &= ~DOWN;
 						} else {
 							keysLocked &= ~UP;
 						}
-						if((Key.isDown(Keyboard.DOWN) || Key.customDown(DOWN_KEY)) && !(Key.isDown(Keyboard.UP) || Key.customDown(UP_KEY))){
+						if (
+							((!game.multiplayer && Key.isDown(Keyboard.DOWN)) || Key.customDown(Game.DOWN_KEY)) &&
+							!((!game.multiplayer && Key.isDown(Keyboard.UP)) || Key.customDown(Game.UP_KEY))
+						){
 							keysDown |= DOWN;
 							keysDown &= ~UP;
 						} else {
 							keysLocked &= ~DOWN;
 						}
-						if((Key.isDown(Keyboard.LEFT) || Key.customDown(LEFT_KEY)) && !(Key.isDown(Keyboard.RIGHT) || Key.customDown(RIGHT_KEY))){
+						if(
+							((!game.multiplayer && Key.isDown(Keyboard.LEFT)) || Key.customDown(Game.LEFT_KEY)) &&
+							!((!game.multiplayer && Key.isDown(Keyboard.RIGHT)) || Key.customDown(Game.RIGHT_KEY))
+						){
 							keysDown |= LEFT;
 							keysDown &= ~RIGHT;
 						} else {
 							keysLocked &= ~LEFT;
 						}
-						if((Key.isDown(Keyboard.RIGHT) || Key.customDown(RIGHT_KEY)) && !(Key.isDown(Keyboard.LEFT) || Key.customDown(LEFT_KEY))){
+						if(
+							((!game.multiplayer && Key.isDown(Keyboard.RIGHT)) || Key.customDown(Game.RIGHT_KEY)) &&
+							!((!game.multiplayer && Key.isDown(Keyboard.LEFT)) || Key.customDown(Game.LEFT_KEY))
+						){
 							keysDown |= RIGHT;
 							keysDown &= ~LEFT;
 						} else {

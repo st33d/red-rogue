@@ -1,4 +1,4 @@
-Change log: POISON changed to BLEED, BLEED drops blood debris from affected targets, dream text levels reduced to 15, added headstones to player usable portals
+Change log: POISON changed to BLEED, BLEED drops blood debris from affected targets, dream text levels reduced to 15, added headstones to player usable portals, added a "t" to items equipped as throwable, implemented multiplayer
 
 Bug hunt
 	collection lock out on chests after playing for a while - bugged chest or item?

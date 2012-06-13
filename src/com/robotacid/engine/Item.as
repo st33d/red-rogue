@@ -511,8 +511,15 @@
 		
 		override public function nameToString():String {
 			var str:String = "";
-			if(user && user == game.player) str += "w: ";
-			else if(user && user == game.minion) str += "m: ";
+			if(user && user == game.player){
+				str += "w";
+				if(game.player.throwable == this) str += "t";
+				str += ": ";
+			} else if(user && user == game.minion){
+				str += "m";
+				if(game.minion.throwable == this) str += "t";
+				str += ": ";
+			}
 			//if(stack > 0) str += stack + "x ";
 			//if(level > 0) str += "+" + level + " ";
 			

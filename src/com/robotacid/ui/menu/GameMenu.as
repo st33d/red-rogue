@@ -1,5 +1,6 @@
 ﻿package com.robotacid.ui.menu {
 	import com.robotacid.ai.Brain;
+	import com.robotacid.ai.PlayerBrain;
 	import com.robotacid.level.Map;
 	import com.robotacid.engine.Character;
 	import com.robotacid.engine.Effect;
@@ -58,6 +59,7 @@
 		public var seedInputList:MenuInputList;
 		public var upDownList:MenuList;
 		public var onOffList:MenuList;
+		public var multiplayerList:MenuList;
 		
 		public var inventoryOption:MenuOption;
 		public var actionsOption:MenuOption;
@@ -69,6 +71,7 @@
 		public var missileOption:ToggleMenuOption;
 		public var jumpOption:MenuOption;
 		public var sleepOption:ToggleMenuOption;
+		public var minionMissileOption:ToggleMenuOption;
 		
 		public var screenshotOption:MenuOption;
 		public var saveLogOption:MenuOption;
@@ -130,6 +133,7 @@
 			upDownList = new MenuList();
 			seedInputList = new MenuInputList("" + Map.random.seed,/[0-9]/, String(uint.MAX_VALUE).length, seedInputCallback);
 			seedInputList.promptName = "enter number";
+			multiplayerList = new MenuList();
 			
 			editorList = new EditorMenuList(this, game.editor);
 			giveItemList = new GiveItemMenuList(this, game);
@@ -191,12 +195,15 @@
 			disarmTrapOption = new MenuOption("disarm trap", null, false);
 			disarmTrapOption.help = "disarms any revealed traps that the rogue is standing next to";
 			missileOption = new ToggleMenuOption(["shoot", "throw"], null, false);
-			missileOption.help = "shoot/throw a missile using one's equipped weapon";
+			missileOption.help = "shoot an equipped main missile weapon / throw a throwing weapon";
 			missileOption.context = "missile";
 			jumpOption = new MenuOption("jump", null, false);
 			jumpOption.help = "makes the player leap into the air";
 			sleepOption = new ToggleMenuOption(["sleep", "wake up"]);
 			sleepOption.help = "sleep recovers health after a short pause";
+			minionMissileOption = new ToggleMenuOption(["minion shoot", "minion throw"], null, false);
+			minionMissileOption.help = "minion: shoot an equipped main missile weapon / throw a throwing weapon";
+			minionMissileOption.context = "minion missile";
 			
 			initChangeKeysMenuOption();
 			changeKeysOption.help = "change the movement keys, menu key and hot keys"
@@ -221,6 +228,8 @@
 			menuMoveOption.help = "change the speed that the menu moves. lower values move the menu faster. simply move the selection to change the speed.";
 			consoleDirOption = new MenuOption("console scroll direction", upDownList);
 			consoleDirOption.help = "change the direction the console at the bottom of the screen scrolls";
+			var multiplayerOption:MenuOption = new MenuOption("multiplayer", multiplayerList);
+			multiplayerOption.help = "allow the minion to be controlled with the arrow keys. the rogue is controlled by the alternative direction keys."
 			newGameOption = new MenuOption("new game", sureList);
 			newGameOption.help = "start a new game";
 			
@@ -260,6 +269,7 @@
 			optionsList.options.push(hotKeyOption);
 			optionsList.options.push(seedOption);
 			optionsList.options.push(dogmaticOption);
+			optionsList.options.push(multiplayerOption);
 			optionsList.options.push(newGameOption);
 			
 			debugList.options.push(editorOption);
@@ -283,6 +293,9 @@
 			
 			soundList.options.push(sfxOption);
 			soundList.options.push(musicOption);
+			
+			multiplayerList.options.push(onOffOption);
+			multiplayerList.options.push(minionMissileOption);
 			
 			onOffList.options.push(onOffOption);
 			
@@ -314,6 +327,11 @@
 				<hotKey>
 				  <branch selection="0" name="actions" context="null"/>
 				  <branch selection="4" name="jump" context="null"/>
+				</hotKey>,
+				<hotKey>
+				  <branch selection="3" name="options" context="null"/>
+				  <branch selection="10" name="multiplayer" context="null"/>
+				  <branch selection="1" name="minion shoot" context="minion missile"/>
 				</hotKey>
 			];
 			var hotKeyMap:HotKeyMap;
@@ -458,6 +476,11 @@
 			} else if(option.name == "fullscreen"){
 				//onOffOption.state = game.stage.displayState == "normal" ? 1 : 0;
 				onOffOption.state = Game.fullscreenOn ? 0 : 1;
+				renderMenu();
+				
+			} else if(option.name == "multiplayer"){
+				//onOffOption.state = game.stage.displayState == "normal" ? 1 : 0;
+				onOffOption.state = game.multiplayer ? 0 : 1;
 				renderMenu();
 				
 			} else if(option == dogmaticOption){
@@ -606,6 +629,16 @@
 				// toggle dogmatic mode
 				if(previousMenuList.options[previousMenuList.selection] == dogmaticOption){
 					game.dogmaticMode = onOffOption.state == 1;
+					if(game.multiplayer){
+						game.multiplayer = false;
+						if(game.minion) game.minion.setMultiplayer();
+					}
+				
+				// toggle multiplayer mode
+				} else if(previousMenuList.options[previousMenuList.selection].name == "multiplayer"){
+					game.multiplayer = onOffOption.state == 1;
+					if(game.minion) game.minion.setMultiplayer();
+					game.dogmaticMode = false;
 				
 				// turning off sfx
 				} else if(previousMenuList.options[previousMenuList.selection].name == "sfx"){
@@ -732,6 +765,13 @@
 			} else if(option == missileOption){
 				if(game.player.mapProperties & Collider.WALL) game.console.print("the stone around you resists...");
 				else game.player.shoot(Missile.ITEM);
+			
+			// minion missile weapons
+			} else if(option == minionMissileOption){
+				if(game.minion){
+					if(game.minion.mapProperties & Collider.WALL) game.console.print("the stone around the minion resists...");
+					else game.minion.shoot(Missile.ITEM);
+				}
 			
 			// jumping
 			} else if(option == jumpOption){

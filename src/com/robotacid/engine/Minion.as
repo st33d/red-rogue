@@ -1,9 +1,11 @@
 ﻿package com.robotacid.engine {
 	import com.robotacid.ai.Brain;
+	import com.robotacid.ai.PlayerBrain;
 	import com.robotacid.engine.Character;
 	import com.robotacid.engine.Item;
 	import com.robotacid.phys.Collider;
 	import com.robotacid.sound.SoundManager;
+	import com.robotacid.ui.menu.GameMenu;
 	import com.robotacid.ui.menu.InventoryMenuList;
 	import com.robotacid.ui.MinimapFX;
 	import flash.display.BitmapData;
@@ -27,6 +29,8 @@
 		public var enterCount:int;
 		public var queueSummons:Boolean;
 		
+		public var canMenuAction:Boolean;
+		
 		private var minimapFX:MinimapFX;
 		
 		public static const ENTER_DELAY:int = 30;
@@ -41,7 +45,8 @@
 			missileIgnore |= Collider.PLAYER | Collider.MINION | Collider.PLAYER_MISSILE;
 			uniqueNameStr = DEFAULT_UNIQUE_NAME_STR;
 			
-			brain = new Brain(this, Brain.PLAYER, game.player);
+			//brain = game.multiplayer ? new PlayerBrain(this, game.player) : new Brain(this, Brain.PLAYER, game.player);
+			setMultiplayer();
 			Brain.playerCharacters.push(this);
 			
 			game.minionHealthBar.visible = true;
@@ -80,6 +85,15 @@
 			super.main();
 			minimapFX.x = mapX;
 			minimapFX.y = mapY;
+			
+			if(game.multiplayer){
+				// check for menu action locking
+				if(state == WALKING && attackCount >= 1){
+					if(!canMenuAction) unlockMenuActions();
+				} else {
+					if(canMenuAction) lockMenuActions();
+				}
+			}
 		}
 		
 		/* The minion waits for the player to finish using the stairs */
@@ -92,6 +106,21 @@
 		override public function equip(item:Item, throwing:Boolean = false):Item {
 			super.equip(item, throwing);
 			if(item.holyState == Item.CURSE_HIDDEN) item.revealCurse();
+			if(game.multiplayer){
+				// set the active state and name of the minion missile option in the menu
+				if(item.type == Item.WEAPON){
+					game.gameMenu.minionMissileOption.active = (
+						!indifferent && canMenuAction &&
+						(
+							(weapon && weapon.range & Item.MISSILE) ||
+							(throwable && !(throwable.holyState == Item.CURSE_REVEALED && !undead))
+						)
+					);
+					if(game.gameMenu.minionMissileOption.active){
+						game.gameMenu.minionMissileOption.state = throwable ? GameMenu.THROW : GameMenu.SHOOT;
+					}
+				}
+			}
 			inventory.updateItem(item);
 			return item;
 		}
@@ -155,6 +184,38 @@
 				if(temp_throwable) equip(temp_throwable);
 				if(temp_armour) equip(temp_armour);
 			}
+		}
+		
+		/* Prepares for the current state of multiplayer */
+		public function setMultiplayer():void{
+			if(game.multiplayer){
+				brain = new PlayerBrain(this, game.player);
+				canMenuAction = attackCount >= 1;
+				if(canMenuAction) unlockMenuActions();
+			} else {
+				brain = new Brain(this, Brain.PLAYER, game.player);
+				game.gameMenu.minionMissileOption.active = false;
+			}
+		}
+		
+		/* Prevents the player from gaming the state machine with state changing menu actions */
+		public function lockMenuActions():void{
+			canMenuAction = false;
+			game.gameMenu.minionMissileOption.active = false;
+			game.gameMenu.update();
+		}
+		
+		/* Releases the lockout on locked menu actions */
+		public function unlockMenuActions():void{
+			canMenuAction = true;
+			game.gameMenu.minionMissileOption.active = (
+				!indifferent &&
+				(
+					(weapon && weapon.range & Item.MISSILE) ||
+					(throwable && !(throwable.holyState == Item.CURSE_REVEALED && !undead))
+				)
+			);
+			game.gameMenu.update();
 		}
 		
 	}
