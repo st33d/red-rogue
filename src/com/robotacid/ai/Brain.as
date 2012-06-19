@@ -114,9 +114,9 @@
 			playerCharacters = new Vector.<Character>();
 			monsterCharacters = new Vector.<Character>();
 		}
-		public static function initMapGraph(bitmap:MapBitmap):void{
-			mapGraph = new MapGraph(bitmap);
-			walkWalkGraph = new WallWalkGraph(bitmap);
+		public static function initMapGraph(bitmap:MapBitmap, exit:Pixel):void{
+			mapGraph = new MapGraph(bitmap, exit);
+			walkWalkGraph = new WallWalkGraph(bitmap, exit);
 		}
 		
 		public function Brain(char:Character, allegiance:int, leader:Character = null) {

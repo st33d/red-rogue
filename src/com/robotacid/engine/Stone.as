@@ -106,6 +106,7 @@
 				if(!revealed){
 					// give experience for not using search skill
 					game.player.addXP(SECRET_XP_REWARD * Content.getLevelXp(game.map.level));
+					game.console.print("secret expertly discovered");
 					reveal();
 				}
 				super.applyDamage(n, source, 0, critical, aggressor, defaultSound);

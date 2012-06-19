@@ -663,7 +663,10 @@
 		
 		/* Disarms any traps on the disarmableTraps list - effectively destroying them */
 		public function disarmTraps():void{
+			var trap:Trap;
 			for(var i:int = 0; i < disarmableTraps.length; i++){
+				trap = disarmableTraps[i];
+				game.console.print(Trap.getName(trap.type) + " trap " + (trap.revealed ? "" : "expertly") + " disarmed");
 				disarmableTraps[i].disarm();
 			}
 			disarmableTraps.length = 0;

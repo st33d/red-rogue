@@ -92,7 +92,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 390;
+		public static const BUILD_NUM:int = 391;
 		
 		public static const TEST_BED_INIT:Boolean = false;
 		
@@ -617,7 +617,7 @@
 			
 			map = new Map(n, mapType);
 			
-			Brain.initMapGraph(map.bitmap);
+			Brain.initMapGraph(map.bitmap, map.stairsDown);
 			
 			if(!mapTileManager){
 				mapTileManager = new MapTileManager(this, renderer.canvas, SCALE, map.width, map.height, WIDTH, HEIGHT);
@@ -865,9 +865,9 @@
 					
 					if(player.active) miniMap.render();
 					
-					renderer.main();
-					
 					if(editor.active) editor.main();
+					
+					renderer.main();
 					
 					/*var mx:int = renderer.canvas.mouseX * INV_SCALE;
 					var my:int = renderer.canvas.mouseY * INV_SCALE;

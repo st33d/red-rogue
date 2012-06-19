@@ -1,4 +1,4 @@
-Change log: POISON changed to BLEED, BLEED drops blood debris from affected targets, dream text levels reduced to 15, added headstones to player usable portals, added a "t" to items equipped as throwable, implemented multiplayer
+Change log: editor graph render bug fixed, added expert messages to hidden trap/secret disarm, ai nodes were being created over pit traps (fixed), created first draft of escape graph and debug rendering tools for it - escape graph creation needed to be built into core graph creation
 
 Bug hunt
 	collection lock out on chests after playing for a while - bugged chest or item?
@@ -8,6 +8,12 @@ Bug hunt
 	
 	patrol bug spotted - a monster will become frozen in its patrol cycle
 	minion dither spotted - caught in a probable follow/avoid loop
+
+the balrog
+	create escape ai
+		create escape graph
+			create editor render
+			create escape node MapGraph function
 
 rotate between a selection of menus
 	title screen

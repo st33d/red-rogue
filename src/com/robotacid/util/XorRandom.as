@@ -17,7 +17,7 @@ package com.robotacid.util {
 		
 		public function XorRandom(seed:uint = 0) {
 			
-			//seed = 3716521630;
+			//seed = 23726488;
 			
 			if(seed){
 				r = seed;

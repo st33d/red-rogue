@@ -757,7 +757,6 @@
 			
 			// disarming
 			} else if(option == disarmTrapOption){
-				game.console.print("trap" + (game.player.disarmableTraps.length > 1 ? "s" : "") + " disarmed");
 				game.player.disarmTraps();
 				disarmTrapOption.active = false;
 			
@@ -861,7 +860,7 @@
 				
 			// remapping the ai graph
 			} else if(option == editorList.remapAIGraphOption){
-				Brain.initMapGraph(game.map.bitmap);
+				Brain.initMapGraph(game.map.bitmap, game.map.stairsDown);
 				for(i = 0; i < Brain.monsterCharacters.length; i++){
 					character = Brain.monsterCharacters[i];
 					character.brain.clear();

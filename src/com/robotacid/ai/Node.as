@@ -66,6 +66,15 @@ package com.robotacid.ai {
 			// therefore w equals:
 			w = g - h;
 		}
+		
+		/* Calculate g - the distance travelled to this node */
+		public function setG():void{
+			
+			// Manhattan distance measuring - Math.abs inlined for speed
+			
+			// set g - goal value, how far we have travelled
+			g = parent.g + (parent.x < x ? x - parent.x : parent.x - x) + (parent.y < y ? y - parent.y : parent.y - y);
+		}
 	}
 
 }

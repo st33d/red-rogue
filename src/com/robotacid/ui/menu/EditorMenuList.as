@@ -39,7 +39,9 @@ package com.robotacid.ui.menu {
 		
 		public var renderCollisionList:MenuList;
 		public var renderAIGraphList:MenuList;
+		public var renderAIEscapeGraphList:MenuList;
 		public var renderAIWallWalkGraphList:MenuList;
+		public var renderAIWallWalkEscapeGraphList:MenuList;
 		public var renderAIPathsList:MenuList;
 		public var renderSurfacesList:MenuList;
 		public var lightList:MenuList;
@@ -79,7 +81,9 @@ package com.robotacid.ui.menu {
 			renderList = new MenuList();
 			renderCollisionList = new MenuList();
 			renderAIGraphList = new MenuList();
+			renderAIEscapeGraphList = new MenuList();
 			renderAIWallWalkGraphList = new MenuList();
+			renderAIWallWalkEscapeGraphList = new MenuList();
 			renderAIPathsList = new MenuList();
 			renderSurfacesList = new MenuList();
 			lightList = new MenuList();
@@ -109,7 +113,9 @@ package com.robotacid.ui.menu {
 			
 			var renderCollisionOption:MenuOption = new MenuOption("collision", renderCollisionList);
 			var renderAIGraphOption:MenuOption = new MenuOption("ai graph", renderAIGraphList);
+			var renderAIEscapeGraphOption:MenuOption = new MenuOption("ai escape graph", renderAIEscapeGraphList);
 			var renderAIWallWalkGraphOption:MenuOption = new MenuOption("ai wall walk graph", renderAIWallWalkGraphList);
+			var renderAIWallWalkEscapeGraphOption:MenuOption = new MenuOption("ai wall walk escape graph", renderAIWallWalkEscapeGraphList);
 			var renderAIPathsOption:MenuOption = new MenuOption("ai paths", renderAIPathsList);
 			var renderSurfacesOption:MenuOption = new MenuOption("surfaces", renderSurfacesList);
 			var lightOption:MenuOption = new MenuOption("light", lightList);
@@ -161,7 +167,9 @@ package com.robotacid.ui.menu {
 			// render settings
 			renderList.options.push(renderCollisionOption);
 			renderList.options.push(renderAIGraphOption);
+			renderList.options.push(renderAIEscapeGraphOption);
 			renderList.options.push(renderAIWallWalkGraphOption);
+			renderList.options.push(renderAIWallWalkEscapeGraphOption);
 			renderList.options.push(renderAIPathsOption);
 			renderList.options.push(renderSurfacesOption);
 			renderList.options.push(lightOption);
@@ -170,8 +178,12 @@ package com.robotacid.ui.menu {
 			renderCollisionList.options.push(onOption);
 			renderAIGraphList.options.push(offOption);
 			renderAIGraphList.options.push(onOption);
+			renderAIEscapeGraphList.options.push(offOption);
+			renderAIEscapeGraphList.options.push(onOption);
 			renderAIWallWalkGraphList.options.push(offOption);
 			renderAIWallWalkGraphList.options.push(onOption);
+			renderAIWallWalkEscapeGraphList.options.push(offOption);
+			renderAIWallWalkEscapeGraphList.options.push(onOption);
 			renderAIPathsList.options.push(offOption);
 			renderAIPathsList.options.push(onOption);
 			renderSurfacesList.options.push(offOption);

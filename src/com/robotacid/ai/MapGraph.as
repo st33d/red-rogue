@@ -13,6 +13,7 @@ package com.robotacid.ai {
 		public var width:int;
 		public var height:int;
 		public var nodes:Vector.<Vector.<Node>>;
+		public var escapeNodes:Vector.<Vector.<Node>>;
 		
 		// A* vars
 		private var searchId:int;
@@ -20,18 +21,20 @@ package com.robotacid.ai {
 		
 		// temp vars
 		private var node:Node;
-		private var adjacentTile:Node;
 		
-		public function MapGraph(bitmap:MapBitmap) {
+		public function MapGraph(bitmap:MapBitmap, exitPos:Pixel) {
 			searchId = 0;
 			nodes = new Vector.<Vector.<Node>>();
+			escapeNodes = new Vector.<Vector.<Node>>();
 			width = bitmap.bitmapData.width;
 			height = bitmap.bitmapData.height;
 			var r:int, c:int, i:int;
 			for(r = 0; r < height; r++){
 				nodes.push(new Vector.<Node>());
+				escapeNodes.push(new Vector.<Node>());
 				for(c = 0; c < width; c++){
 					nodes[r].push(null);
+					escapeNodes[r].push(null);
 				}
 			}
 			// there is a node on every surface and ladder, and on nodes in space adjacent to surfaces
@@ -39,7 +42,7 @@ package com.robotacid.ai {
 			for(i = width; i < pixels.length - width; i++){
 				if(
 					(
-						pixels[i] != MapBitmap.WALL && 
+						(pixels[i] != MapBitmap.WALL && pixels[i] != MapBitmap.PIT) &&
 						(
 							(
 								pixels[i + width] == MapBitmap.PIT ||
@@ -70,41 +73,62 @@ package com.robotacid.ai {
 					r = i / width;
 					c = i % width;
 					nodes[r][c] = new Node(c, r);
+					escapeNodes[r][c] = new Node(c, r);
 				}
 			}
 			connectNodes(pixels);
+			connectEscapeNodes(escapeNodes[exitPos.y][exitPos.x]);
 		}
 		
 		/* Create connections between the nodes based on the navigation behaviour desired */
 		public function connectNodes(pixels:Vector.<uint>):void{
 			// connect the nodes
 			var r:int, c:int, n:int, i:int;
+			var node:Node, escapeNode:Node, connection:Node, escapeConnection:Node;
 			for(r = 1; r < height - 1; r++){
 				for(c = 1; c < width - 1; c++){
-					if(nodes[r][c]){
+					node = nodes[r][c];
+					if(node){
 						n = c + r * width;
+						escapeNode = escapeNodes[r][c];
 						// because we are walking top to bottom, left to right
 						// we only look right and down
-						if(nodes[r][c + 1]){
+						connection = nodes[r][c + 1];
+						escapeConnection = escapeNodes[r][c + 1];
+						if(connection){
 							// check for cliff nodes, they are one way only
-							if(pixels[n + width] != MapBitmap.EMPTY) nodes[r][c].connections.push(nodes[r][c + 1]);
-							if(pixels[n + 1 + width] != MapBitmap.EMPTY) nodes[r][c + 1].connections.push(nodes[r][c]);
+							if(pixels[n + width] != MapBitmap.EMPTY){
+								node.connections.push(connection);
+								// reverse the connection for the escape node - we need to search backwards
+								escapeConnection.connections.push(escapeNode);
+							}
+							if(pixels[n + 1 + width] != MapBitmap.EMPTY){
+								connection.connections.push(node);
+								// reverse the connection for the escape node - we need to search backwards
+								escapeNode.connections.push(escapeConnection);
+							}
 						}
+						// create a drop node
 						if(
 							pixels[n + width] == MapBitmap.LEDGE || pixels[n + width] == MapBitmap.EMPTY
 						){
 							for(i = r + 1; i < height; i++){
 								if(nodes[i][c]){
-									nodes[r][c].connections.push(nodes[i][c]);
+									node.connections.push(nodes[i][c]);
+									// reverse the connection for the escape node - we need to search backwards
+									escapeNodes[i][c].connections.push(escapeNode);
 									break;
 								}
 							}
+						// create a climbing node
 						} else if(
 							pixels[n + width] == MapBitmap.LADDER_LEDGE ||
 							pixels[n + width] == MapBitmap.LADDER
 						){
-							nodes[r][c].connections.push(nodes[r + 1][c]);
-							nodes[r + 1][c].connections.push(nodes[r][c]);
+							node.connections.push(nodes[r + 1][c]);
+							nodes[r + 1][c].connections.push(node);
+							escapeNode.connections.push(escapeNodes[r + 1][c]);
+							escapeNodes[r + 1][c].connections.push(escapeNode);
 						}
 					}
 				}
@@ -116,8 +140,9 @@ package com.robotacid.ai {
 			for(r = 1; r < height - 1; r++){
 				for(c = 1; c < width - 1; c++){
 					n = c + r * width;
+					node = nodes[r][c];
 					if(
-						nodes[r][c] &&
+						node &&
 						pixels[n] != MapBitmap.WALL && pixels[n] != MapBitmap.PIT &&
 						pixels[n + width] != MapBitmap.WALL && pixels[n + width] != MapBitmap.PIT &&
 						pixels[n - width] != MapBitmap.WALL && pixels[n - width] != MapBitmap.PIT
@@ -132,7 +157,7 @@ package com.robotacid.ai {
 								pixels[n - width] == MapBitmap.WALL || pixels[n - width] == MapBitmap.PIT
 							) break;
 							if(nodes[walkR][walkC]){
-								nodes[r][c].connections.push(nodes[walkR][walkC]);
+								node.connections.push(nodes[walkR][walkC]);
 								break;
 							}
 							walkC++;
@@ -148,11 +173,63 @@ package com.robotacid.ai {
 								pixels[n - width] == MapBitmap.WALL || pixels[n - width] == MapBitmap.PIT
 							) break;
 							if(nodes[walkR][walkC]){
-								nodes[r][c].connections.push(nodes[walkR][walkC]);
+								node.connections.push(nodes[walkR][walkC]);
 								break;
 							}
 							walkC--;
 							walkR++;
+						}
+					}
+				}
+			}
+		}
+		
+		/* Creates a directed graph leading towards the level's exit */
+		public function connectEscapeNodes(exit:Node):void{
+			
+			var i:int, j:int, r:int, c:int, lowest:int, escapeNode:Node;
+			var current:Node, adjacentNode:Node;
+			
+			// iterate through the entire graph, creating a one way flow to the exit
+			
+			exit.h = exit.g = exit.f = 0
+			open = new Vector.<Node>();
+			open.push(exit);
+			
+			while(open.length){
+				current = open.shift();
+				current.closedId = searchId;
+				current.openId = 0;
+				for(j = 0; j < current.connections.length; j++){
+					adjacentNode = current.connections[j];
+					if(adjacentNode.closedId != searchId){
+						if(adjacentNode.openId != searchId){
+							open.push(adjacentNode);
+							adjacentNode.openId = searchId;
+							adjacentNode.closedId = 0;
+							adjacentNode.parent = current;
+							adjacentNode.setG();
+						} else if(adjacentNode.g < current.parent.g){
+							current.parent = adjacentNode;
+							current.setG();
+						}
+					} else if(adjacentNode.g < current.parent.g){
+						if(adjacentNode.connections.indexOf(current) > -1){
+							current.parent = adjacentNode;
+							current.setG();
+						}
+					}
+				}
+			}
+			
+			// only the connections that were significant (parents) during the search are used
+			for(r = 0; r < height; r++){
+				for(c = 0; c < width; c++){
+					escapeNode = escapeNodes[r][c];
+					if(escapeNode){
+						escapeNode.connections.length = 0;
+						if(escapeNode.parent){
+							escapeNode.connections.push(escapeNode.parent);
 						}
 					}
 				}
@@ -341,12 +418,13 @@ package com.robotacid.ai {
 		}
 		
 		/* Diagnositic illustration of the AI graph for the map */
-		public function drawGraph(gfx:Graphics, scale:Number, topLeft:Pixel, bottomRight:Pixel):void{
+		public function drawGraph(nodes:Vector.<Vector.<Node>>, gfx:Graphics, scale:Number, topLeft:Pixel, bottomRight:Pixel):void{
 			var r:int, c:int, i:int;
 			for(r = topLeft.y; r <= bottomRight.y; r++){
 				for(c = topLeft.x; c <= bottomRight.x; c++){
-					if(nodes[r][c]){
-						node = nodes[r][c];
+					node = nodes[r][c];
+					if(node){
+						//if(Game.game.editor.mapX == node.x && Game.game.editor.mapY == node.y) trace(node.g);
 						gfx.drawCircle((node.x + 0.5) * scale, (node.y + 0.5) * scale, scale * 0.1);
 						for(i = 0; i < node.connections.length; i++){
 							gfx.moveTo((node.x + 0.5) * scale, (node.y + 0.5) * scale);

@@ -121,13 +121,25 @@ package com.robotacid.ui {
 			if(menuList.renderAIGraphList.selection == EditorMenuList.ON){
 				gfx.clear();
 				gfx.lineStyle(2, 0xFFFF00, 0.4);
-				graph.drawGraph(gfx, Game.SCALE, topLeft, bottomRight);
+				graph.drawGraph(graph.nodes, gfx, Game.SCALE, topLeft, bottomRight);
+				bitmapData.draw(sprite, new Matrix(1, 0, 0, 1, -renderer.bitmap.x, -renderer.bitmap.y));
+			}
+			if(menuList.renderAIEscapeGraphList.selection == EditorMenuList.ON){
+				gfx.clear();
+				gfx.lineStyle(2, 0xFFFF00, 0.4);
+				graph.drawGraph(graph.escapeNodes, gfx, Game.SCALE, topLeft, bottomRight);
 				bitmapData.draw(sprite, new Matrix(1, 0, 0, 1, -renderer.bitmap.x, -renderer.bitmap.y));
 			}
 			if(menuList.renderAIWallWalkGraphList.selection == EditorMenuList.ON){
 				gfx.clear();
 				gfx.lineStyle(2, 0xFFFF00, 0.4);
-				wallWalkGraph.drawGraph(gfx, Game.SCALE, topLeft, bottomRight);
+				wallWalkGraph.drawGraph(wallWalkGraph.nodes, gfx, Game.SCALE, topLeft, bottomRight);
+				bitmapData.draw(sprite, new Matrix(1, 0, 0, 1, -renderer.bitmap.x, -renderer.bitmap.y));
+			}
+			if(menuList.renderAIWallWalkEscapeGraphList.selection == EditorMenuList.ON){
+				gfx.clear();
+				gfx.lineStyle(2, 0xFFFF00, 0.4);
+				wallWalkGraph.drawGraph(wallWalkGraph.escapeNodes, gfx, Game.SCALE, topLeft, bottomRight);
 				bitmapData.draw(sprite, new Matrix(1, 0, 0, 1, -renderer.bitmap.x, -renderer.bitmap.y));
 			}
 			if(menuList.renderSurfacesList.selection == EditorMenuList.ON){

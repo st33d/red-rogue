@@ -1,4 +1,5 @@
 package com.robotacid.ai {
+	import com.robotacid.geom.Pixel;
 	import com.robotacid.level.MapBitmap;
 	
 	/**
@@ -8,8 +9,8 @@ package com.robotacid.ai {
 	 */
 	public class WallWalkGraph extends MapGraph {
 		
-		public function WallWalkGraph(bitmap:MapBitmap) {
-			super(bitmap);
+		public function WallWalkGraph(bitmap:MapBitmap, exit:Pixel) {
+			super(bitmap, exit);
 		}
 		
 		override public function connectNodes(pixels:Vector.<uint>):void {
@@ -18,7 +19,7 @@ package com.robotacid.ai {
 			
 			// there must be extra nodes in every wall, and where possible cliffs walking out of walls could be
 			var i:int, r:int, c:int, n:int;
-			var node:Node, connection:Node;
+			var node:Node, escapeNode:Node, connection:Node, escapeConnection:Node;
 			const NEW_NODE:int = -2;
 			for(i = width; i < pixels.length - width; i++){
 				if(
@@ -34,18 +35,24 @@ package com.robotacid.ai {
 					if(c == 0 || c == width - 1) continue;
 					
 					node = new Node(c, r);
+					escapeNode = new Node(c, r);
 					nodes[r][c] = node;
+					escapeNodes[r][c] = escapeNode;
 					// the new nodes are tagged using their openId to avoid repeat connecting nodes
 					node.openId = NEW_NODE;
 					// generate cliff nodes to walk out of this wall node
 					if(c < width - 2 && !nodes[r][c + 1]){
-						node = new Node(c + 1, r)
+						node = new Node(c + 1, r);
+						escapeNode = new Node(c + 1, r);
 						nodes[r][c + 1] = node;
+						escapeNodes[r][c + 1] = escapeNode;
 						node.openId = NEW_NODE;
 					}
 					if(c > 1 && !nodes[r][c - 1]){
 						node = new Node(c - 1, r);
+						escapeNode = new Node(c - 1, r);
 						nodes[r][c - 1] = node;
+						escapeNodes[r][c - 1] = escapeNode;
 						node.openId = NEW_NODE;
 					}
 				}
@@ -55,12 +62,23 @@ package com.robotacid.ai {
 				for(c = 1; c < width - 1; c++){
 					node = nodes[r][c];
 					if(node){
+						escapeNode = escapeNodes[r][c];
 						n = c + r * width;
 						// connect new nodes rightwards
 						connection = nodes[r][c + 1];
+						escapeConnection = escapeNodes[r][c + 1];
 						if(connection && (node.openId == NEW_NODE || connection.openId == NEW_NODE)){
-							node.connections.push(connection);
-							connection.connections.push(node);
+							// check for cliff nodes, they are one way only
+							if(pixels[n + width] != MapBitmap.EMPTY){
+								node.connections.push(connection);
+								// reverse the connection for the escape node - we need to search backwards
+								escapeConnection.connections.push(escapeNode);
+							}
+							if(pixels[n + 1 + width] != MapBitmap.EMPTY){
+								connection.connections.push(node);
+								// reverse the connection for the escape node - we need to search backwards
+								escapeNode.connections.push(escapeConnection);
+							}
 						}
 						// connect new nodes downwards
 						if(
@@ -70,6 +88,8 @@ package com.robotacid.ai {
 							for(i = r + 1; i < height; i++){
 								if(nodes[i][c]){
 									node.connections.push(nodes[i][c]);
+									// reverse the connection for the escape node - we need to search backwards
+									escapeNodes[i][c].connections.push(escapeNode);
 									break;
 								}
 							}
