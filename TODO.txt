@@ -1,4 +1,4 @@
-Change log: editor graph render bug fixed, added expert messages to hidden trap/secret disarm, ai nodes were being created over pit traps (fixed), created first draft of escape graph and debug rendering tools for it - escape graph creation needed to be built into core graph creation
+Change log: fixed child Colliders losing the ability to move away from a wall they are pulled towards, fixed basic escape graph by treating nodes in lowest cost order (wall walk graph still problematic)
 
 Bug hunt
 	collection lock out on chests after playing for a while - bugged chest or item?
@@ -62,7 +62,8 @@ create Editor in debug menu
 		items
 
 AI problems:
-
+	
+	escape graph imperfect
 	meta-heuristic block - path too long
 		genius chase solver backup graph
 			genius class

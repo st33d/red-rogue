@@ -159,12 +159,12 @@
 				(prevCenter > char.tileCenter && charPos.x < char.tileCenter)
 			);
 			
+			// only random targets whilst confused
 			if(confusedCount){
 				confusedCount--;
 				if(confusedCount == 0) clear();
 				else if(confusedCount % 30 == 0) confusedBehaviour();
 				
-			// only random targets whilst confused
 			} else {
 				if(allegiance == PLAYER){
 					if(monsterCharacters.length){
@@ -797,7 +797,7 @@
 		}
 		
 		/* Randomly assigns a target - any target */
-		private function confusedBehaviour():void{
+		protected function confusedBehaviour():void{
 			
 			var characters:Vector.<Character> = monsterCharacters.concat(playerCharacters);
 			

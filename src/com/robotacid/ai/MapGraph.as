@@ -197,7 +197,18 @@ package com.robotacid.ai {
 			open.push(exit);
 			
 			while(open.length){
-				current = open.shift();
+				
+				// get lowest cost open node
+				lowest = int.MAX_VALUE;
+				c = -1;
+				for(j = 0; j < open.length; j++) {
+					if(open[j].g < lowest) {
+						lowest = open[j].g;
+						c = j;
+					}
+				}
+				current = open.splice(c, 1)[0];
+				//current = open.shift();
 				current.closedId = searchId;
 				current.openId = 0;
 				for(j = 0; j < current.connections.length; j++){
@@ -210,11 +221,6 @@ package com.robotacid.ai {
 							adjacentNode.parent = current;
 							adjacentNode.setG();
 						} else if(adjacentNode.g < current.parent.g){
-							current.parent = adjacentNode;
-							current.setG();
-						}
-					} else if(adjacentNode.g < current.parent.g){
-						if(adjacentNode.connections.indexOf(current) > -1){
 							current.parent = adjacentNode;
 							current.setG();
 						}

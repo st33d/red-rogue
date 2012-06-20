@@ -325,7 +325,7 @@ package com.robotacid.phys {
 							property = world.map[mapY][mapX];
 							if(mapX * world.scale < (x + width - INTERVAL_TOLERANCE) + vx && (property & LEFT) && !(property & ignoreProperties)){
 								vx -= (x + width + vx) - mapX * world.scale;
-								this.vx = 0;
+								if(this.vx > 0) this.vx = 0;
 								pressure |= RIGHT;
 								break scanForwards;
 							}
@@ -412,7 +412,7 @@ package com.robotacid.phys {
 							property = world.map[mapY][mapX];
 							if((mapX + 1) * world.scale - INTERVAL_TOLERANCE > x + vx && (property & RIGHT) && !(property & ignoreProperties)){
 								vx -= (x + vx) - (mapX + 1) * world.scale;
-								this.vx = 0;
+								if(this.vx < 0) this.vx = 0;
 								pressure |= LEFT;
 								break scanBackwards;
 							}
@@ -540,7 +540,7 @@ package com.robotacid.phys {
 							property = world.map[mapY][mapX];
 							if(mapY * world.scale < y + height + vy && (property & UP) && !(property & ignoreProperties)){
 								vy -= (y + height + vy) - mapY * world.scale;
-								this.vy = 0;
+								if(this.vy > 0) this.vy = 0;
 								pressure |= DOWN;
 								// create a dummy collider surface to stand on
 								if(stackable && parent != mapCollider){
@@ -671,7 +671,7 @@ package com.robotacid.phys {
 							property = world.map[mapY][mapX];
 							if((mapY + 1) * world.scale > y + vy && (property & DOWN) && !(property & ignoreProperties)){
 								vy -= (y + vy) - ((mapY + 1) * world.scale);
-								this.vy = 0;
+								if(this.vy < 0) this.vy = 0;
 								pressure |= UP;
 								break scanBackwards;
 							}
