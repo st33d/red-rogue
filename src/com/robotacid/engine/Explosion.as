@@ -113,7 +113,7 @@ package com.robotacid.engine {
 					// apply damage
 					character.applyDamage(item.damage, "explosion", 0, false, sender);
 					// blood
-					renderer.createDebrisRect(character.collider, 0, 20, character.debrisType);
+					renderer.createDebrisExplosion(character.collider, 5, 20, character.debrisType);
 				}
 			}
 			game.explosions.push(this);

@@ -575,7 +575,7 @@
 				if(!layers[Map.ENTITIES][r][c] && layers[Map.BLOCKS][r][c] != MapTileConverter.WALL && layers[Map.BLOCKS][r + 1][c] == MapTileConverter.WALL){
 					item = new Item(new QuestGemMC, 0, Item.QUEST_GEM, 0);
 					item.dropToMap(c, r, dropToMap);
-					if(dropToMap) renderer.createTeleportSparkRect(item.collider, 30);
+					if(dropToMap) renderer.createSparkRect(item.collider, 30);
 					else layers[Map.ENTITIES][r][c] = item;
 					total--;
 				}

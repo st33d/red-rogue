@@ -807,7 +807,7 @@
 		/* Kill the Character, printing a cause to the console and generating a Head object on decapitation */
 		public function death(cause:String = "crushing", decapitation:Boolean = false, aggressor:Character = null):void{
 			active = false;
-			renderer.createDebrisRect(collider, 0, 32, debrisType);
+			renderer.createDebrisExplosion(collider, 1, 32, debrisType);
 			var method:String = decapitation ? "decapitated" : stats["death strings"][name];
 			
 			//decapitation = true;
@@ -1281,12 +1281,12 @@
 			} else if(name == WEREWOLF){
 				game.console.print(target.nameToString() + " falls to the werewolf curse");
 				target.changeName(WEREWOLF);
-				renderer.createTeleportSparkRect(collider, 20);
+				renderer.createSparkRect(collider, 20);
 			
 			// polymorph into target
 			} else if(name == MIMIC){
 				changeName(target.name);
-				renderer.createTeleportSparkRect(collider, 20);
+				renderer.createSparkRect(collider, 20);
 				
 			// bleed attack
 			} else if(name == NAGA){

@@ -263,7 +263,7 @@
 				game.mapTileManager.addTile(entity, mapX, mapY, MapTileManager.ENTITY_LAYER);
 				game.world.restoreCollider(entity.collider);
 				
-				renderer.createDebrisRect(entity.collider, 0, 30, debrisType);
+				renderer.createDebrisExplosion(entity.collider, 5, 30, debrisType);
 				for(var i:int = 0; i < 30; i++){
 					if(game.random.coinFlip()){
 						blit = renderer.smallDebrisBlits[debrisType];

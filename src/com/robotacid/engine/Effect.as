@@ -361,7 +361,7 @@
 			} else if(name == PORTAL){
 				// create an item portal and send the item into the level it leads to
 				if(inventoryList){
-					renderer.createTeleportSparkRect(user.collider, 10);
+					renderer.createSparkRect(user.collider, 10);
 					item = inventoryList.removeItem(item);
 					item = randomEnchant(item, game.map.level);
 					item.location = Item.UNASSIGNED;
@@ -384,7 +384,7 @@
 					// now we try putting it back in
 					if(inventoryList) inventoryList.addItem(item);
 					game.console.print("blood armour created");
-					if(user) renderer.createDebrisRect(user.collider, 0, 10, Renderer.BLOOD);
+					if(user) renderer.createDebrisExplosion(user.collider, 8, 30, Renderer.BLOOD);
 					
 				} else {
 					// strip all enchantments
@@ -457,7 +457,7 @@
 				// casting teleport on an item in your inventory (suprise, surprise) teleports it to another location
 				// in the level
 				// at least if it was cursed this is a good thing
-				if(user) renderer.createTeleportSparkRect(user.collider, 10);
+				if(user) renderer.createSparkRect(user.collider, 10);
 				item = inventoryList.removeItem(item);
 				dest = getTeleportTarget(game.player.mapX, game.player.mapY, game.world.map, game.mapTileManager.mapRect, Boolean(Surface.fragmentationMap));
 				item.dropToMap(dest.x, dest.y);
@@ -846,7 +846,7 @@
 							if(game.minion){
 								game.minion.applyHealth(game.minion.totalHealth);
 								game.console.print("the minion is healed by this sacrifice");
-								renderer.createTeleportSparkRect(game.minion.collider, 20);
+								renderer.createSparkRect(game.minion.collider, 20);
 							
 							// or open the underworld portal here if the minion had been destroyed
 							} else {
@@ -896,7 +896,7 @@
 		
 		/* Effects a teleportation upon a character */
 		public static function teleportCharacter(target:Character, dest:Pixel = null):void{
-			renderer.createTeleportSparkRect(target.collider, 20);
+			renderer.createSparkRect(target.collider, 20);
 			target.collider.divorce();
 			if(!dest) dest = getTeleportTarget(target.mapX, target.mapY, game.world.map, game.mapTileManager.mapRect, (target == game.player && !game.player.keyItem && Surface.fragmentationMap));
 			target.collider.x = -target.collider.width * 0.5 + (dest.x + 0.5) * Game.SCALE;
@@ -907,7 +907,7 @@
 			} else if(target is Monster){
 				(target as Monster).brain.clear();
 			}
-			renderer.createTeleportSparkRect(target.collider, 20);
+			renderer.createSparkRect(target.collider, 20);
 			game.soundQueue.addRandom("teleport", ["teleport1", "teleport2", "teleport3"]);
 		}
 		

@@ -1,4 +1,4 @@
-Change log: fixed child Colliders losing the ability to move away from a wall they are pulled towards, fixed basic escape graph by treating nodes in lowest cost order (wall walk graph still problematic)
+Change log: ai targets now drawn in cyan under ai path rendering, fixed minion teleport sound, created debris explosion method to better describe some events
 
 Bug hunt
 	collection lock out on chests after playing for a while - bugged chest or item?
@@ -18,6 +18,11 @@ the balrog
 rotate between a selection of menus
 	title screen
 		title menu
+
+chaos bolts and runes create chaos walls
+	chaos wall creation anim?
+		chaos gate that fills in
+			chaos gate - chaos wall?
 
 split story into tips.json and story.json - add tips to writings on new games
 

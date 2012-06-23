@@ -156,6 +156,21 @@ package com.robotacid.ui {
 					rect.x = -renderer.bitmap.x + character.mapX * Game.SCALE;
 					rect.y = -renderer.bitmap.y + character.mapY * Game.SCALE;
 					bitmapData.fillRect(rect, 0xCCFF00FF);
+					if(character.brain.target && character.collider){
+						gfx.lineStyle(2, 0x00FFFF, 0.5);
+						gfx.drawCircle(
+							(character.brain.target.mapX + 0.5) * Game.SCALE,
+							(character.brain.target.mapY + 0.5) * Game.SCALE,
+						Game.SCALE * 0.3);
+						gfx.moveTo(
+							character.collider.x + character.collider.width * 0.5,
+							character.collider.y + character.collider.height * 0.5
+						);
+						gfx.lineTo(
+							(character.brain.target.mapX + 0.5) * Game.SCALE,
+							(character.brain.target.mapY + 0.5) * Game.SCALE
+						);
+					}
 					if(character.brain.state != Brain.PATROL && character.brain.state != Brain.PAUSE){
 						gfx.lineStyle(2, 0xFF0000, 0.5);
 						if(character.brain.path) graph.drawPath(character.brain.path, gfx, Game.SCALE);
@@ -173,17 +188,32 @@ package com.robotacid.ui {
 						}
 					}
 				}
-				gfx.lineStyle(2, 0xFF0000, 0.5);
 				for(i = 0; i < Brain.playerCharacters.length; i++){
 					character = Brain.playerCharacters[i];
 					rect.x = -renderer.bitmap.x + character.mapX * Game.SCALE;
 					rect.y = -renderer.bitmap.y + character.mapY * Game.SCALE;
 					bitmapData.fillRect(rect, 0xCCFF00FF);
+					if(character.brain.target && character.collider){
+						gfx.lineStyle(2, 0x00FFFF, 0.5);
+						gfx.drawCircle(
+							(character.brain.target.mapX + 0.5) * Game.SCALE,
+							(character.brain.target.mapY + 0.5) * Game.SCALE,
+						Game.SCALE * 0.3);
+						gfx.moveTo(
+							character.collider.x + character.collider.width * 0.5,
+							character.collider.y + character.collider.height * 0.5
+						);
+						gfx.lineTo(
+							(character.brain.target.mapX + 0.5) * Game.SCALE,
+							(character.brain.target.mapY + 0.5) * Game.SCALE
+						);
+					}
+					gfx.lineStyle(2, 0xFF0000, 0.5);
 					if(character.brain.path) graph.drawPath(character.brain.path, gfx, Game.SCALE);
-						if(character.brain.altNode) gfx.drawCircle(
-							(character.brain.altNode.x + 0.5) * Game.SCALE,
-							(character.brain.altNode.y + 0.5) * Game.SCALE,
-						Game.SCALE * 0.2);
+					if(character.brain.altNode) gfx.drawCircle(
+						(character.brain.altNode.x + 0.5) * Game.SCALE,
+						(character.brain.altNode.y + 0.5) * Game.SCALE,
+					Game.SCALE * 0.2);
 				}
 				bitmapData.draw(sprite, new Matrix(1, 0, 0, 1, -renderer.bitmap.x, -renderer.bitmap.y));
 			}

@@ -74,7 +74,7 @@ package com.robotacid.engine {
 		}
 		
 		public function kill():void{
-			renderer.createDebrisRect(collider, 0, 20, debrisType);
+			renderer.createDebrisExplosion(collider, 10, 20, debrisType);
 			game.world.removeCollider(collider);
 			active = false;
 		}

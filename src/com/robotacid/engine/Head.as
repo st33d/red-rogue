@@ -110,7 +110,7 @@
 				face.dropToMap(mapX, mapY);
 				game.console.print("a " + Character.stats["names"][name] + " face is created");
 			}
-			renderer.createDebrisRect(collider, 0, 10, debrisType);
+			renderer.createDebrisExplosion(collider, 4, 10, debrisType);
 			game.world.removeCollider(collider);
 			active = false;
 		}

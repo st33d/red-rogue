@@ -423,6 +423,13 @@ package com.robotacid.ai {
 			return start.connections[random.rangeInt(start.connections.length)];
 		}
 		
+		/* Chooses the next node in the escape graph (leading towards the exit)
+		 * "start" is a node in the escapeNodes */
+		public function getEscapeNode(start:Node):Node{
+			if(start.connections.length) return start.connections[0];
+			return null;
+		}
+		
 		/* Diagnositic illustration of the AI graph for the map */
 		public function drawGraph(nodes:Vector.<Vector.<Node>>, gfx:Graphics, scale:Number, topLeft:Pixel, bottomRight:Pixel):void{
 			var r:int, c:int, i:int;

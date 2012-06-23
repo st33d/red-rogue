@@ -276,10 +276,10 @@ package com.robotacid.engine {
 		public function kill():void{
 			active = false;
 			collider.world.removeCollider(collider);
-			renderer.createDebrisRect(collider, 0, 10, debrisType);
+			renderer.createDebrisExplosion(collider, 2, 10, debrisType);
 			
 			if(name & COG){
-				renderer.createDebrisRect(new Rectangle(collider.x - 4, collider.y - 4, 12, 12), 0, 20, debrisType);
+				renderer.createDebrisExplosion(new Rectangle(collider.x - 4, collider.y - 4, 12, 12), 10, 20, debrisType);
 			}
 		}
 		

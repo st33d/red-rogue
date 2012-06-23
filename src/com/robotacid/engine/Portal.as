@@ -123,7 +123,7 @@
 						rect.y + rect.height > game.player.collider.y
 					){
 						game.player.applyHealth(game.player.totalHealth * UNDEAD_HEAL_RATE);
-						renderer.createTeleportSparkRect(game.player.collider, 5);
+						renderer.createSparkRect(game.player.collider, 5);
 					}
 					var character:Character;
 					for(var i:int = 0; i < game.entities.length; i++){
@@ -138,7 +138,7 @@
 							rect.y + rect.height > character.collider.y
 						){
 							character.applyHealth(character.totalHealth * UNDEAD_HEAL_RATE);
-							renderer.createTeleportSparkRect(character.collider, 5);
+							renderer.createSparkRect(character.collider, 5);
 						}
 					}
 					// resurrect the minion if dead

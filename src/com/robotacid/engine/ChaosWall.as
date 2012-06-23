@@ -212,7 +212,6 @@ package com.robotacid.engine {
 			gfx.visible = true;
 			free = true;
 			game.createDistSound(mapX, mapY, "pitTrap", Stone.DEATH_SOUNDS);
-			renderer.createDebrisRect(collider, 0, 100, Renderer.STONE);
 			// create a golem?
 			if(game.random.value() < GOLEM_CHANCE){
 				renderer.shake(0, 5, new Pixel(mapX, mapY));
@@ -221,6 +220,9 @@ package com.robotacid.engine {
 				var monster:Monster = Content.XMLToEntity(mapX, mapY, xml);
 				monster.xpReward = GOLEM_XP_REWARD * Content.getLevelXp(game.map.level);
 				game.mapTileManager.converter.convertIndicesToObjects(mapX, mapY, monster);
+				renderer.createDebrisExplosion(collider, 10, 140, Renderer.STONE);
+			} else {
+				renderer.createDebrisRect(collider, 0, 100, Renderer.STONE);
 			}
 			kill();
 		}
@@ -231,7 +233,6 @@ package com.robotacid.engine {
 				if(chaosWalls[target.y][target.x]) chaosWalls[target.y][target.x].callMain = true;
 			}
 			active = false;
-			//renderer.createDebrisRect(collider, 0, 100, debrisType);
 			collider.world.removeCollider(collider);
 		}
 		
