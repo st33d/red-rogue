@@ -270,7 +270,7 @@ package com.robotacid.engine {
 				else if(surface == LEFT) dx = -1;
 			}
 			
-			var missile:Missile = new Missile(missileMc, x, y, Missile.CHAOS, null, dx, dy, 5, Collider.LADDER | Collider.LEDGE | Collider.HEAD | Collider.ITEM | Collider.CORPSE, new Effect(Item.CHAOS, 1 + game.random.rangeInt(Game.MAX_LEVEL - 1), Effect.THROWN));
+			var missile:Missile = new Missile(missileMc, x, y, Missile.CHAOS, null, dx, dy, 5, Collider.LADDER | Collider.LEDGE | Collider.HEAD | Collider.ITEM | Collider.CORPSE, new Effect(Item.CHAOS, 1 + game.random.rangeInt(Game.MAX_LEVEL - 1), Effect.THROWN), null, null, 0, 0, true);
 		}
 		
 		public function kill():void{

@@ -376,6 +376,7 @@
 		/* Adjusts the graphics for the Item for being dropped to the map and adds a GlowFilter to make it more
 		 * visible against the grey background */
 		public function setDroppedRender():void{
+			gfx.transform.colorTransform = new ColorTransform();
 			if(gfx is ItemMovieClip) (gfx as ItemMovieClip).setDropRender();
 			gfx.scaleX = 1;
 			gfx.filters = [DROP_GLOW_FILTER];

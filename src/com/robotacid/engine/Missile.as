@@ -42,7 +42,7 @@
 		public static const RUNE_REFLECTIONS:int = 5;
 		public static const CHAOS_MISSILE_RADIUS:Number = 3;
 		
-		// missile names
+		// missile types
 		public static const ITEM:int = 1;
 		public static const RUNE:int = 2;
 		public static const DART:int = 3;
@@ -90,23 +90,31 @@
 			collider.dampingY = 1;
 			game.world.restoreCollider(collider);
 			
-			// runes glow when they are converted to missiles
-			if(type == RUNE || type == CHAOS){
+			// enchanted missiles glow
+			if((effect && type != DART) || (item && item.effects)){
 				var lightRadius:int = 3;
 				var lightValue:int = 112;
+				var effectName:int;
+				var effectLevel:int;
+				if(effect){
+					effectName = effect.name;
+					effectLevel = effect.level;
+				} else {
+					var itemEffect:Effect = item.effects[game.random.rangeInt(item.effects.length)];
+					effectName = itemEffect.name;
+					effectLevel = itemEffect.level;
+				}
 				// light runes generate max-light missiles
-				if(effect && effect.name == Effect.LIGHT){
-					lightRadius = 15;
-					lightValue= 255;
+				if(effectName == Effect.LIGHT){
+					lightRadius = 5 + Math.ceil(effectLevel * 0.5);
+					lightValue = 255;
 				}
 				game.lightMap.setLight(this, lightRadius, lightValue);
 				
-				// xp, light, chaos and leech runes are coloured
-				if(item){
-					if(item.name == Item.CHAOS) gfx.transform.colorTransform = new ColorTransform(0, 0, 0);
-					else if(item.name == Item.LIGHT || item.name == Item.XP) gfx.transform.colorTransform = new ColorTransform(0, 0, 0, 1, 255, 255, 255);
-					else if(item.name == Item.LEECH_RUNE) gfx.transform.colorTransform = new ColorTransform(1, 0, 0);
-				}
+				// xp, light, chaos and leech effects are coloured
+				if(effectName == Item.CHAOS) gfx.transform.colorTransform = new ColorTransform(0, 0, 0);
+				else if(effectName == Item.LIGHT || effectName == Item.XP) gfx.transform.colorTransform = new ColorTransform(0, 0, 0, 1, 255, 255, 255);
+				else if(effectName == Item.LEECH_RUNE) gfx.transform.colorTransform = new ColorTransform(1, 0, 0);
 			}
 			// set graphic offset
 			var bounds:Rectangle = gfx.getBounds(gfx);
@@ -222,6 +230,9 @@
 		
 		/* Can the map location be converted to a Stone? */
 		public function transmutable(mapX:int, mapY:int):Boolean{
+			if(effect && effect.name == Effect.CHAOS){
+				return (game.world.map[mapY][mapX] & Collider.SOLID) == Collider.SOLID;
+			}
 			var trap:Trap;
 			var rect:Rectangle = new Rectangle(mapX * SCALE, mapY * SCALE, SCALE, SCALE);
 			for(var i:int = 0; i < game.entities.length; i++){
@@ -245,24 +256,35 @@
 				var print:FadingBlitRect;
 				var debrisType:int;
 				
-				if(effect.name == Effect.HEAL){
-					entity = new Stone(mapX * SCALE, mapY * SCALE, Stone.HEAL);
-					game.console.print("healstone created");
-					debrisType = Renderer.BLOOD;
+				if(effect.name == Effect.HEAL || effect.name == Effect.XP){
+					var stoneName:int;
+					if(effect.name == Effect.HEAL){
+						entity = new Stone(mapX * SCALE, mapY * SCALE, Stone.HEAL);
+						game.console.print("healstone created");
+						debrisType = Renderer.BLOOD;
+					} else if(effect.name == Effect.XP){
+						entity = new Stone(mapX * SCALE, mapY * SCALE, Stone.GRIND);
+						game.console.print("grindstone created");
+						debrisType = Renderer.STONE;
+					}
+					entity.mapX = mapX;
+					entity.mapY = mapY;
+					entity.mapZ = MapTileManager.ENTITY_LAYER;
+					game.mapTileManager.addTile(entity, mapX, mapY, MapTileManager.ENTITY_LAYER);
+					game.world.restoreCollider(entity.collider);
 					
-				} else if(effect.name == Effect.XP){
-					entity = new Stone(mapX * SCALE, mapY * SCALE, Stone.GRIND);
-					game.console.print("grindstone created");
+				} else if(effect.name == Effect.CHAOS){
+					entity = ChaosWall.initInvasionSite(mapX, mapY, collider);
+					// if a chaos wall can't be created then instigate reflection or kill
+					if(!entity){
+						if(reflections) reflect();
+						else kill();
+						return;
+					}
+					if(item) game.console.print("chaos wall created");
 					debrisType = Renderer.STONE;
 				}
 				Item.revealName(effect.name, game.gameMenu.inventoryList.runesList);
-				
-				entity.mapX = mapX;
-				entity.mapY = mapY;
-				entity.mapZ = MapTileManager.ENTITY_LAYER;
-				game.mapTileManager.addTile(entity, mapX, mapY, MapTileManager.ENTITY_LAYER);
-				game.world.restoreCollider(entity.collider);
-				
 				renderer.createDebrisExplosion(entity.collider, 5, 30, debrisType);
 				for(var i:int = 0; i < 30; i++){
 					if(game.random.coinFlip()){

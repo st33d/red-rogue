@@ -55,6 +55,7 @@ package com.robotacid.ui.menu {
 		public var teleportMinionOption:MenuOption;
 		public var enterDungeonLevelOption:MenuOption;
 		public var chaosWallOption:MenuOption;
+		public var chaosWallInvasionOption:MenuOption;
 		
 		public var deleteOption:MenuOption;
 		public var onOption:MenuOption;
@@ -105,6 +106,7 @@ package com.robotacid.ui.menu {
 			var critterOption:MenuOption = new MenuOption("critter", critterList);
 			var gateOption:MenuOption = new MenuOption("gate", gateList);
 			chaosWallOption = new MenuOption("chaos wall", null, false);
+			chaosWallInvasionOption = new MenuOption("chaos wall invasion", null, false);
 			
 			var wallOption:MenuOption = new MenuOption("wall", null, false);
 			var ladderOption:MenuOption = new MenuOption("ladder", null, false);
@@ -142,6 +144,7 @@ package com.robotacid.ui.menu {
 			createObjectList.options.push(critterOption);
 			createObjectList.options.push(gateOption);
 			createObjectList.options.push(chaosWallOption);
+			createObjectList.options.push(chaosWallInvasionOption);
 			
 			for(i = 1; i <= 20; i++){
 				dungeonLevelList.options.push(new MenuOption(i + " (level)", null, false));
@@ -253,7 +256,7 @@ package com.robotacid.ui.menu {
 					
 				} else if(option == chaosWallOption){
 					if(!ChaosWall.chaosWalls[mapY][mapX]){
-						game.world.map[mapY][mapX] = MapTileConverter.getMapProperties(id);
+						game.world.map[mapY][mapX] = MapTileConverter.getMapProperties(MapTileConverter.WALL);
 						game.mapTileManager.changeLayer(MapTileManager.BLOCK_LAYER);
 						blit = converter.convertIndicesToObjects(mapX, mapY, MapTileConverter.WALL) as BlitRect;
 						blit.x = mapX * Game.SCALE;
@@ -264,6 +267,9 @@ package com.robotacid.ui.menu {
 							mapX, mapY, new ChaosWall(mapX, mapY)
 						);
 					}
+					
+				} else if(option == chaosWallInvasionOption){
+					ChaosWall.initInvasionSite(mapX, mapY);
 					
 				} else if(option == teleportMinionOption){
 					if(game.minion) Effect.teleportCharacter(game.minion, new Pixel(mapX, mapY));

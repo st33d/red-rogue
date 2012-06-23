@@ -1117,7 +1117,8 @@
 				item = rune;
 				alchemical = (
 					effect.name == Item.HEAL ||
-					effect.name == Item.XP
+					effect.name == Item.XP ||
+					effect.name == Item.CHAOS
 				);
 			} else if(type == Missile.ITEM){
 				if(throwable){

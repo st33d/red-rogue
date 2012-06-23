@@ -1,4 +1,4 @@
-Change log: ai targets now drawn in cyan under ai path rendering, fixed minion teleport sound, created debris explosion method to better describe some events
+Change log: chaos wall alchemy added to chaos missiles and bolts, enchanted missiles now glow and have the same tints as their runes, light enchanted missiles emit light, added chaos wall invasion creation in editor menu
 
 Bug hunt
 	collection lock out on chests after playing for a while - bugged chest or item?
