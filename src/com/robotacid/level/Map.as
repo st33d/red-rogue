@@ -736,7 +736,7 @@
 						fragmentationSites.push(site);
 						bitmap.gates.splice(i, 1);
 						
-						trace("fragmentation", site);
+						//trace("fragmentation", site);
 					}
 					// revert to buffer
 					connections = connectionsBuffer.clone();

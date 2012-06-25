@@ -143,7 +143,7 @@
 				searchSteps = MONSTER_SEARCH_STEPS;
 			}
 			// assign the correct graph for the brain to use
-			wallWalker = char.name == Character.WRAITH;
+			wallWalker = (char.name == Character.WRAITH || (char.rank == Character.ELITE && char.name == Character.BANSHEE));
 		}
 		
 		public function main():void{
@@ -724,7 +724,7 @@
 				(
 					!(map[char.mapY][((patrolMinX - Game.SCALE) * Game.INV_SCALE) >> 0] & Collider.WALL) ||
 					(
-						char.name == Character.WRAITH &&
+						wallWalker &&
 						!(map[char.mapY][((patrolMinX - Game.SCALE) * Game.INV_SCALE) >> 0] & Collider.MAP_EDGE)
 					)
 				) &&
@@ -737,7 +737,7 @@
 				(
 					!(map[char.mapY][((patrolMaxX + Game.SCALE) * Game.INV_SCALE) >> 0] & Collider.WALL) ||
 					(
-						char.name == Character.WRAITH &&
+						wallWalker &&
 						!(map[char.mapY][((patrolMaxX + Game.SCALE) * Game.INV_SCALE) >> 0] & Collider.MAP_EDGE)
 					)
 				)&&

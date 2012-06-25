@@ -1025,9 +1025,10 @@
 				}
 			}
 			
-			trace("gate total", gates.length);
+			//trace("gate total", gates.length);
 		}
 		
+		/* Mark where all usable sections of floor are on a level */
 		public function createSurfaces():void{
 			
 			// initial sweep to get all usable surfaces in the level

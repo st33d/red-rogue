@@ -1,4 +1,4 @@
-Change log: chaos wall alchemy added to chaos missiles and bolts, enchanted missiles now glow and have the same tints as their runes, light enchanted missiles emit light, added chaos wall invasion creation in editor menu
+Change log: elite monsters now appear at the end of each zone (except chaos), added a lot of exceptions for elites (may have introduced bugs), fixed many typos and incorrect logic declarations whilst installing new logic
 
 Bug hunt
 	collection lock out on chests after playing for a while - bugged chest or item?
@@ -15,14 +15,13 @@ the balrog
 			create editor render
 			create escape node MapGraph function
 
+
+Guide -
+	copy over races guide for elites (check racial bonuses are accurate), then fill out
+
 rotate between a selection of menus
 	title screen
 		title menu
-
-chaos bolts and runes create chaos walls
-	chaos wall creation anim?
-		chaos gate that fills in
-			chaos gate - chaos wall?
 
 split story into tips.json and story.json - add tips to writings on new games
 
@@ -77,20 +76,3 @@ AI problems:
 
 	explore - monsters should check out ladders when alone
 	rally - a monster could see the character and could call other monsters to aid, there should be a rallying pose and a shockwave type graphic, implying he's just told everyone on screen to mob the player
-
-level generator overhaul:
-	elite: add an elite character to every fourth level
-		
-		named, one level below dungeon level (as opposed to 2 levels below), health x 3, special ability
-		
-		one elite per race - special ability checked against rank status
-		
-		drow - crowley: regenerating
-		the balrog: the boss - yendor and weapon
-		kobold - pun pun: max stats
-		vampire - edward: twinkles
-		goblin - golfimbul: always decaptiated on death
-		troll - forchan: a max regenerating troll
-		nymph - the bitch: never fails a steal roll
-		gorgon - medusa: slow attack as well as stun attack
-			

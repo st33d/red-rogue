@@ -63,8 +63,6 @@
 		/* When setting stats for an item, this flag is used to block a recursive loop */
 		private static var recursionBlock:Boolean = false;
 		
-		public static const TWINKLE_DELAY:int = 20;
-		
 		// types
 		public static const WEAPON:int = 0;
 		public static const ARMOUR:int = 1;
@@ -170,6 +168,7 @@
 		/* We don't want the RNG to create leech and yendor items */
 		public static const ITEM_MAX:int = 19;
 		public static const HEALTH_PER_HEART:Number = 0.333;
+		public static const TWINKLE_DELAY:int = 20;
 		
 		[Embed(source = "itemStats.json", mimeType = "application/octet-stream")] public static var statsData:Class;
 		public static var stats:Object;
@@ -291,14 +290,6 @@
 			// of the light map
 			if(game.map.level <= 0) gfx.visible = true;
 			else gfx.visible = game.lightMap.darkImage.getPixel32(mapX, mapY) != 0xFF000000 || game.player.infravision > 1;
-			
-			if(gfx.visible){
-				// create a twinkle twinkle effect when the item is on the map to collect
-				if(twinkleCount-- <= 0){
-					renderer.addFX(collider.x + game.random.range(collider.width), collider.y + game.random.range(collider.height), renderer.twinkleBlit);
-					twinkleCount = TWINKLE_DELAY + game.random.range(TWINKLE_DELAY);
-				}
-			}
 			
 			// check for collection by player
 			if(
@@ -628,6 +619,12 @@
 		override public function render():void {
 			gfx.x = collider.x - bounds.left;
 			gfx.y = collider.y - bounds.top;
+			
+			// create a twinkle twinkle effect when the item is on the map to collect
+			if(twinkleCount-- <= 0){
+				renderer.addFX(collider.x + game.random.range(collider.width), collider.y + game.random.range(collider.height), renderer.twinkleBlit);
+				twinkleCount = TWINKLE_DELAY + game.random.range(TWINKLE_DELAY);
+			}
 			super.render();
 		}
 	}

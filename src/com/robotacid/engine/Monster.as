@@ -55,7 +55,7 @@
 				var item:Item;
 				for(var i:int = 0; i < loot.length; i++){
 					item = loot[i];
-					if((!weapon && item.type == Item.WEAPON) || (!armour && item.type == Item.ARMOUR)){
+					if((!weapon && item.type == Item.WEAPON) || (!armour && item.type == Item.ARMOUR && item.name != Item.INDIFFERENCE)){
 						equip(item);
 					} else if(!throwable && item.type == Item.WEAPON && (item.range & Item.THROWN)){
 						equip(item, true);
@@ -103,6 +103,22 @@
 			}
 			loot = new Vector.<Item>();
 			super.death(cause, decapitation);
+			
+			// elites explode when they die
+			if(rank == ELITE){
+				// the umber hulk elite can survive death by spending experience levels
+				if(name == UMBER_HULK && !active){
+					level -= 1 + game.random.rangeInt(3);
+					if(level > 0){
+						xpReward *= 0.5
+						active = true;
+						game.world.restoreCollider(collider);
+						applyHealth(totalHealth);
+						return;
+					}
+				}
+				var explosion:Explosion = new Explosion(0, mapX, mapY, 3, totalHealth, game.player, null, game.player.missileIgnore);
+			}
 			game.enemyHealthBar.deactivate();
 			
 			// determine if the player manages to pluck out the monster's heart

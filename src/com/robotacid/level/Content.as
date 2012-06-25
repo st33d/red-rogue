@@ -46,6 +46,7 @@
 		
 		private var levelZones:Vector.<int>;
 		private var zoneSizes:Vector.<int>;
+		private var eliteNames:Object;
 		
 		public static var xpTable:Vector.<Number>;
 		
@@ -56,6 +57,7 @@
 		public static var weaponNameDeck:Array;
 		public static var armourNameDeck:Array;
 		public static var runeNameDeck:Array;
+		public static var holyStateIntroLevel:int;
 		
 		// special items
 		public var deathsScythe:Item;
@@ -136,6 +138,7 @@
 					zoneSizes[levelsInZone[j]]++;
 				}
 			}
+			holyStateIntroLevel = zoneSizes[0] + 1;
 			//trace(zoneSizes);
 			
 			//trace("xp table", xpTable.length, xpTable);
@@ -210,6 +213,17 @@
 					monsters:new Vector.<XML>,
 					portals:new Vector.<XML>
 				});
+			}
+			
+			// create the elite monsters
+			var zoneNum:int = 0;
+			eliteNames = {};
+			for(level = 1; level < TOTAL_LEVELS; level++){
+				if(level >= levelZones.length || zoneNum < levelZones[level - 1]){
+					zoneNum++;
+					monstersByLevel[level - 1].push(createEliteXML(level - 1, eliteNames));
+					if(zoneNum == Map.CHAOS) break;
+				}
 			}
 			
 			// set up underworld portal on level 15
@@ -823,6 +837,45 @@
 			return <character characterNum={(Character.characterNumCount++)} name={name} type={characterType} level={level} />;
 		}
 		
+		/* Create a random elite mob */
+		public static function createEliteXML(mapLevel:int, eliteNames:Object):XML{
+			var name:int;
+			var level:int = mapLevel - 2;
+			if(level < -1) level = 0;
+			// pick a monster the player may not have seen, do not pick the same race twice
+			var nameRange:int = mapLevel + 1 > monsterNameDeck.length ? monsterNameDeck.length : mapLevel + 1;
+			do{
+				name = monsterNameDeck[Map.random.rangeInt(nameRange)];
+			} while(eliteNames[name]);
+			eliteNames[name] = true;
+			var xml:XML =<character characterNum={(Character.characterNumCount++)} name={name} type={Character.MONSTER} level={level} rank={Character.ELITE} />;
+			
+			// generate some powerful items
+			var weaponXML:XML = createItemXML(mapLevel, Item.WEAPON);
+			level = weaponXML.@level;
+			// the elite orc always has a bow
+			if(name == Character.ORC){
+				weaponXML.@name = [Item.SHORT_BOW, Item.LONG_BOW, Item.ARBALEST][Map.random.rangeInt(3)];
+			// the elite rakshasa always has a blessed weapon
+			} else if(name == Character.RAKSHASA){
+				weaponXML.@holyState = Item.BLESSED;
+			}
+			level += 1 + Map.random.rangeInt(3);
+			if(level > Game.MAX_LEVEL) level = Game.MAX_LEVEL;
+			
+			weaponXML.@level = level;
+			var armourXML:XML = createItemXML(mapLevel, Item.ARMOUR);
+			level = weaponXML.@level;
+			level += 1 + Map.random.rangeInt(3);
+			if(level > Game.MAX_LEVEL) level = Game.MAX_LEVEL;
+			armourXML.@level = level;
+			
+			xml.appendChild(weaponXML);
+			xml.appendChild(armourXML);
+			
+			return xml;
+		}
+		
 		/* Create a random item appropriate for the dungeon level */
 		public static function createItemXML(mapLevel:int, type:int):XML{
 			var enchantments:int = -2 + Map.random.range(mapLevel);
@@ -850,8 +903,8 @@
 			
 			var itemXML:XML =<item name={name} type={type} level={level} />;
 			
-			// naturally occurring cursed and blessed items appear level 6+, at the point you can do something about them
-			if((type == Item.ARMOUR || type == Item.WEAPON) && mapLevel >= 6){
+			// naturally occurring cursed and blessed items appear sewers zone+, at the point you can do something about them
+			if((type == Item.ARMOUR || type == Item.WEAPON) && mapLevel >= holyStateIntroLevel){
 				var holyState:int = 0;
 				var roll:Number = Map.random.value();
 				if(roll < CURSED_CHANCE) holyState = Item.CURSE_HIDDEN;
@@ -965,7 +1018,9 @@
 				obj.holyState = int(xml.@holyState);
 				
 				// does it have a name?
-				if(xml.@uniqueNameStr && xml.@uniqueNameStr != "null") obj.uniqueNameStr = xml.@uniqueNameStr;
+				if(xml.hasOwnProperty("@uniqueNameStr") && xml.@uniqueNameStr != "null" && xml.@uniqueNameStr != ""){
+					obj.uniqueNameStr = xml.@uniqueNameStr;
+				}
 				
 			} else if(objectType == "character"){
 				name = xml.@name;
@@ -982,7 +1037,10 @@
 					mc = game.library.getCharacterGfx(name);
 					obj = new Monster(mc, (x + 0.5) * Game.SCALE, (y + 1) * Game.SCALE, name, level, items, rank);
 					obj.characterNum = xml.@characterNum;
-					if(xml.@uniqueNameStr && xml.@uniqueNameStr != "null") obj.uniqueNameStr = xml.@uniqueNameStr;
+					// does it have a name?
+					if(xml.hasOwnProperty("@uniqueNameStr") && xml.@uniqueNameStr != "null" && xml.@uniqueNameStr != ""){
+						obj.uniqueNameStr = xml.@uniqueNameStr;
+					}
 					if(xml.@questVictim == "true") obj.questTarget();
 				}
 				

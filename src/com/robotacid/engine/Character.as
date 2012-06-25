@@ -73,6 +73,7 @@
 		public var asleep:Boolean;
 		public var resurrect:Boolean;
 		public var lungeState:int;
+		public var twinkleCount:int;
 		
 		// stats
 		public var speed:Number;
@@ -269,8 +270,13 @@
 			nameStr = stats["names"][name];
 			health = stats["healths"][name] + stats["health levels"][name] * level;
 			if(rank != NORMAL){
-				if(rank == CHAMPION) health *= 2;
-				else if(rank == ELITE) health *= 3;
+				if(rank == CHAMPION){
+					health *= 2.5;
+					createUniqueNameStr();
+				} else if(rank == ELITE){
+					health *= 4;
+					uniqueNameStr = stats["elite names"][name];
+				}
 			}
 			totalHealth = health;
 			attack = stats["attacks"][name] + stats["attack levels"][name] * level;
@@ -282,6 +288,7 @@
 			knockback = stats["knockbacks"][name] * KNOCKBACK_DIST;
 			endurance = stats["endurances"][name];
 			undead = stats["undeads"][name] == 1;
+			if(rank == ELITE && name == GNOLL) undead = true;
 			bravery = stats["braveries"][name];
 			voice = stats["voices"][name];
 			debrisType = Renderer.BLOOD;
@@ -296,7 +303,7 @@
 			// racial modifications
 			if(name == SKELETON){
 				debrisType = Renderer.BONE;
-			} else if(name == GOLEM){
+			} else if(name == GOLEM && rank != ELITE){
 				debrisType = Renderer.STONE;
 			}
 			if(name == DROW){
@@ -316,13 +323,24 @@
 			}
 			if(name == KOBOLD && level){
 				// kobolds have chaotic stat bonuses
-				health += stats["health levels"][name] * level * game.random.value();
-				totalHealth = health;
-				attack += stats["attack levels"][name] * level * game.random.value();
-				defence += stats["defence levels"][name] * level * game.random.value();
-				attackSpeed += stats["attack speed levels"][name] * level * game.random.value();
-				damage += stats["damage levels"][name] * level * game.random.value();
-				speed += stats["speed levels"][name] * level * game.random.value();
+				if(rank != ELITE){
+					health += stats["health levels"][name] * level * game.random.value();
+					totalHealth = health;
+					attack += stats["attack levels"][name] * level * game.random.value();
+					defence += stats["defence levels"][name] * level * game.random.value();
+					attackSpeed += stats["attack speed levels"][name] * level * game.random.value();
+					damage += stats["damage levels"][name] * level * game.random.value();
+					speed += stats["speed levels"][name] * level * game.random.value();
+				// the elite character pun pun has max stats
+				} else {
+					health += stats["health levels"][name] * level;
+					totalHealth = health;
+					attack += stats["attack levels"][name] * level;
+					defence += stats["defence levels"][name] * level;
+					attackSpeed += stats["attack speed levels"][name] * level;
+					damage += stats["damage levels"][name] * level;
+					speed += stats["speed levels"][name] * level;
+				}
 			}
 			
 			// reapply effects
@@ -348,9 +366,15 @@
 			}
 			
 			if(name == TROLL){
-				racialEffect = new Effect(Effect.HEAL, level, Effect.ARMOUR, this, 0, true, false);
+				racialEffect = new Effect(Effect.HEAL, rank == ELITE ? Game.MAX_LEVEL : level, Effect.ARMOUR, this, 0, true, false);
 			} else if(name == WEREWOLF){
 				racialEffect = new Effect(Effect.STUN, level, Effect.ARMOUR, this, 0, true, false);
+			} else if(rank == ELITE){
+				if(name == DROW || name == GOLEM){
+					racialEffect = new Effect(Effect.HEAL, level, Effect.ARMOUR, this, 0, true, false);
+				} else if(name == MIMIC){
+					racialEffect = new Effect(Effect.TELEPORT, level, Effect.ARMOUR, this, 0, true, false);
+				}
 			} else {
 				racialEffect = null;
 			}
@@ -365,7 +389,11 @@
 				name == BANSHEE ||
 				name == MIND_FLAYER ||
 				name == RAKSHASA ||
-				name == BALROG;
+				name == BALROG ||
+				(rank == ELITE && (
+					name == CACTUAR ||
+					name == WRAITH
+				));
 			
 			indifferent = false;
 			
@@ -380,7 +408,7 @@
 			var bounds:Rectangle = gfx.getBounds(gfx);
 			var w:Number = stats["widths"][name];
 			// wraiths can wall walk
-			if(name == WRAITH){
+			if(name == WRAITH || (rank == ELITE && name == Character.BANSHEE)){
 				collider = new FilterCollider(x - w * 0.5, y - bounds.height, w, bounds.height, Game.SCALE, properties, ignoreProperties, state);
 				(collider as FilterCollider).setFilter(Collider.WALL, Collider.WALL | Collider.UP | Collider.DOWN, Collider.MAP_EDGE);
 			} else {
@@ -808,10 +836,12 @@
 		public function death(cause:String = "crushing", decapitation:Boolean = false, aggressor:Character = null):void{
 			active = false;
 			renderer.createDebrisExplosion(collider, 1, 32, debrisType);
+			
+			// the goblin elite is always decapitated
+			if(rank == ELITE && name == GOBLIN) decapitation = true;
+			
 			var method:String = decapitation ? "decapitated" : stats["death strings"][name];
-			
 			//decapitation = true;
-			
 			if(decapitation){
 				var head:Head = new Head(this, totalHealth * 0.5);
 				var corpse:Corpse = new Corpse(this);
@@ -820,7 +850,12 @@
 			if(questVictim) game.gameMenu.loreList.questsList.questCheck(QuestMenuOption.KILL, this);
 			renderer.shake(0, 3);
 			game.soundQueue.add("kill");
-			if(type == MONSTER) game.player.addXP(xpReward);
+			if(type == MONSTER){
+				var xp:Number = xpReward;
+				if(rank == CHAMPION) xp *= 2;
+				else if(rank == ELITE) xp *= 3;
+				game.player.addXP(xp);
+			}
 			if(effects) removeEffects();
 			// character may have been resurrected -
 			// skin change must occur here outside of changes to effects list
@@ -1249,8 +1284,12 @@
 			// racial attacks require a roll to see if they are executed (level based with racial modifiers)
 			if(!(hitResult & CRITICAL)){
 				var roll:Number = game.random.value();
-				if(name == NYMPH) roll *= 1.5;
-				else if(name == MIND_FLAYER) roll *= 0.5;
+				if(name == NYMPH){
+					roll *= 0.5;
+					if(rank == ELITE) roll = 0;
+				} else if(name == MIND_FLAYER){
+					roll *= 1.5;
+				}
 				if(roll > level * SPECIAL_ATTACK_PER_LEVEL) return;
 			}
 			
@@ -1280,9 +1319,20 @@
 				
 			// polymorph target into a werewolf
 			} else if(name == WEREWOLF){
-				game.console.print(target.nameToString() + " falls to the werewolf curse");
-				target.changeName(WEREWOLF);
-				renderer.createSparkRect(collider, 20);
+				if(rank != ELITE){
+					if(target.name != WEREWOLF){
+						game.console.print(target.nameToString() + " falls to the werewolf curse");
+						target.changeName(WEREWOLF);
+					} else {
+						game.console.print(target.nameToString() + " is still a werewolf");
+					}
+				} else {
+					game.console.print(target.nameToString() + " falls to the " + uniqueNameStr + " curse");
+					var newName:int = target.name;
+					while(newName == target.name) newName = game.random.rangeInt(stats["names"].length);
+					target.changeName(newName);
+				}
+				renderer.createSparkRect(target.collider, 20);
 			
 			// polymorph into target
 			} else if(name == MIMIC){
@@ -1292,18 +1342,24 @@
 			// bleed attack
 			} else if(name == NAGA){
 				effect = new Effect(Effect.BLEED, level, Effect.THROWN, target);
+				if(rank == ELITE) effect = new Effect(Effect.FEAR, level, Effect.THROWN, target);
 				
 			// stun attack
 			} else if(name == GORGON){
 				effect = new Effect(Effect.STUN, level, Effect.THROWN, target);
+				if(rank == ELITE) effect = new Effect(Effect.SLOW, level, Effect.THROWN, target);
 				
 			// confuse attack
-			} else if(name == UMBER_HULK){
+			} else if(name == UMBER_HULK || (rank == ELITE && name == CACTUAR)){
 				effect = new Effect(Effect.CONFUSION, level, Effect.THROWN, target);
 				
 			// fear attack
 			} else if(name == BANSHEE){
 				effect = new Effect(Effect.FEAR, level, Effect.THROWN, target);
+				
+			// teleport attack
+			} else if(rank == ELITE && name == WRAITH){
+				effect = new Effect(Effect.TELEPORT, level, Effect.THROWN, target);
 				
 			// level drain attack
 			} else if(name == MIND_FLAYER){
@@ -1317,10 +1373,18 @@
 						game.player.addXP(0);
 					}
 				}
+				if(rank == ELITE){
+					effect = new Effect(Effect.FEAR, level, Effect.THROWN, target);
+					effect = new Effect(Effect.CONFUSION, level, Effect.THROWN, target);
+				}
 				
 			// chaos attack
 			} else if(name == RAKSHASA){
 				effect = new Effect(Effect.CHAOS, level, Effect.THROWN, target);
+				if(rank == ELITE){
+					if(looking & RIGHT) effect = new Effect(Effect.BLEED, level, Effect.THROWN, target);
+					else if(looking & LEFT) effect = new Effect(Effect.HEAL, level, Effect.THROWN, target);
+				}
 				
 			// smite
 			} else if(name == BALROG){
@@ -1351,11 +1415,14 @@
 			createCollider(collider.x + collider.width * 0.5, collider.y + collider.height, collider.properties, collider.ignoreProperties, Collider.FALL);
 			if(restore){
 				game.world.restoreCollider(collider);
-				if(name != WRAITH) collider.resolveMapInsertion();
+				if(!(name == WRAITH || (rank == ELITE && name == Character.BANSHEE))) collider.resolveMapInsertion();
 				// if a character ceases to be a wraith whilst wall-walking, teleport them out
 				// also teleport the player out of locked areas
 				if(
-					previousName == WRAITH && (
+					(
+						previousName == WRAITH ||
+						(rank == ELITE && previousName == Character.BANSHEE)
+					) && (
 						(game.world.map[mapY][mapX] & Collider.WALL) ||
 						(
 							Surface.fragmentationMap &&
@@ -1368,7 +1435,7 @@
 			}
 			
 			// set the correct ai graph for the character's brain
-			brain.wallWalker = name == WRAITH;
+			brain.wallWalker = (name == WRAITH || (rank == ELITE && name == Character.BANSHEE));
 			
 			// change stats - items will be equipped to the new graphic in the setStats method
 			var originalHealthRatio:Number = health / totalHealth;
@@ -1566,6 +1633,14 @@
 						renderer.stunBlit.x = -renderer.bitmap.x + gfx.x;
 						renderer.stunBlit.y = -renderer.bitmap.y + gfx.y - (collider.height + 2);
 						renderer.stunBlit.render(renderer.bitmapData, game.frameCount % renderer.stunBlit.totalFrames);
+					}
+				}
+				
+				// the elite vampire sparkles
+				if(rank == ELITE && name == VAMPIRE){
+					if(twinkleCount-- <= 0){
+						renderer.addFX(collider.x + game.random.range(collider.width), collider.y + game.random.range(collider.height), renderer.twinkleBlit);
+						twinkleCount = Item.TWINKLE_DELAY + game.random.range(Item.TWINKLE_DELAY);
 					}
 				}
 			}

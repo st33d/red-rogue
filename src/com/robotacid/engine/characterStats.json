@@ -9,9 +9,16 @@
 	"unique names":[
 		["rogue"], ["skree", "krilitz", "krellax", "pun pun son"], ["yubnub", "noobub", "gilbub"] , ["grom", "hrash", "thogar"], ["goom", "hoor", "boor"],
 		["rofl", "lol", "flol"], ["drizzt", "traxex", "crowleyson"], ["spike", "ge-ka", "saboten"] , ["calypso", "creusa", "echo", "harmonia", "arethusa"], ["bram", "dracula", "vlad", "alucard", "demitri"],
-		["talbot", "talbain", "plague"], ["bridget", "xana"], ["hissa", "sri", "astika", "vasuki"], ["medusa", "stheno", "euryale"], ["xit't't'k", "k'tch'k", "xt'chk't"],
-		["emet", "met"], ["sadako", "eevul", "maeveen"], ["gul", "khamul", "ulaire"], ["rlyeh", "ph'nglui", "wgah'nagl", "fhtagri"], ["alamvusha", "bakasura", "kirmira", "virakshi"],
+		["talbot", "talbain", "plague"], ["bridget", "xana"], ["hissa", "sri", "astika", "vasuki"], ["stheno", "euryale"], ["xit't't'k", "k'tch'k", "xt'chk't"],
+		["emet", "met"], ["eevul", "maeveen"], ["gul", "khamul", "ulaire"], ["rlyeh", "ph'nglui", "wgah'nagl", "fhtagri"], ["alamvusha", "bakasura", "kirmira", "virakshi"],
 		["diablo", "azazel", "beelzebub", "mestopheles"], ["@"]
+	],
+	"elite names":[
+		"rogue", "pun pun", "golfimbul", "lurtz", "forchan",
+		"anubis", "crowley", "sabotenquid", "the bitch", "edward",
+		"roulette", "tengu", "aapep", "medusa", "khepri",
+		"frankenstein", "sadako", "stygian", "cthulu", "baihu",
+		"the balrog", "the minion"
 	],
 	"attacks":[
 		0.3, 0.1, 0.15, 0.35, 0.2,
