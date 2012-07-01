@@ -60,6 +60,7 @@
 		public var upDownList:MenuList;
 		public var onOffList:MenuList;
 		public var multiplayerList:MenuList;
+		public var recordGifList:MenuList;
 		
 		public var inventoryOption:MenuOption;
 		public var actionsOption:MenuOption;
@@ -72,6 +73,7 @@
 		public var jumpOption:MenuOption;
 		public var sleepOption:ToggleMenuOption;
 		public var minionMissileOption:ToggleMenuOption;
+		public var saveGifOption:MenuOption;
 		
 		public var screenshotOption:MenuOption;
 		public var saveLogOption:MenuOption;
@@ -134,6 +136,7 @@
 			seedInputList = new MenuInputList("" + Map.random.seed,/[0-9]/, String(uint.MAX_VALUE).length, seedInputCallback);
 			seedInputList.promptName = "enter number";
 			multiplayerList = new MenuList();
+			recordGifList = new MenuList();
 			
 			editorList = new EditorMenuList(this, game.editor);
 			giveItemList = new GiveItemMenuList(this, game);
@@ -204,6 +207,8 @@
 			minionMissileOption = new ToggleMenuOption(["minion shoot", "minion throw"], null, false);
 			minionMissileOption.help = "minion: shoot an equipped main missile weapon / throw a throwing weapon";
 			minionMissileOption.context = "minion missile";
+			saveGifOption = new MenuOption("save gif", null, false);
+			saveGifOption.help = "save out the last 4 seconds of action around the player. may crash the game.";
 			
 			initChangeKeysMenuOption();
 			changeKeysOption.help = "change the movement keys, menu key and hot keys"
@@ -218,6 +223,8 @@
 			fullScreenOption.help = "toggle fullscreen.\nthe flash player only allows use of the cursor keys and space when fullscreen in a browser.";
 			screenshotOption = new MenuOption("screenshot");
 			screenshotOption.help = "take a screen shot of the game (making the menu temporarily invisible) and open a filebrowser to save the screenshot to the desktop.";
+			var recordGifOption:MenuOption = new MenuOption("record gif animation", recordGifList);
+			recordGifOption.help = "record a 4 second animation of action around the player.";
 			saveLogOption = new MenuOption("save log");
 			saveLogOption.help = "open a filebrowser to save this game's log to the desktop.";
 			seedOption = new MenuOption("set rng seed", seedInputList);
@@ -262,6 +269,7 @@
 			optionsList.options.push(soundOption);
 			optionsList.options.push(fullScreenOption);
 			optionsList.options.push(screenshotOption);
+			optionsList.options.push(recordGifOption);
 			optionsList.options.push(saveLogOption);
 			optionsList.options.push(menuMoveOption);
 			optionsList.options.push(consoleDirOption);
@@ -297,6 +305,9 @@
 			multiplayerList.options.push(onOffOption);
 			multiplayerList.options.push(minionMissileOption);
 			
+			recordGifList.options.push(onOffOption);
+			recordGifList.options.push(saveGifOption);
+			
 			onOffList.options.push(onOffOption);
 			
 			upDownList.options.push(upDownOption);
@@ -330,7 +341,7 @@
 				</hotKey>,
 				<hotKey>
 				  <branch selection="3" name="options" context="null"/>
-				  <branch selection="10" name="multiplayer" context="null"/>
+				  <branch selection="11" name="multiplayer" context="null"/>
 				  <branch selection="1" name="minion shoot" context="minion missile"/>
 				</hotKey>
 			];
@@ -479,8 +490,11 @@
 				renderMenu();
 				
 			} else if(option.name == "multiplayer"){
-				//onOffOption.state = game.stage.displayState == "normal" ? 1 : 0;
 				onOffOption.state = game.multiplayer ? 0 : 1;
+				renderMenu();
+				
+			} else if(option.name == "record gif animation"){
+				onOffOption.state = Game.renderer.gifBuffer.active ? 0 : 1;
 				renderMenu();
 				
 			} else if(option == dogmaticOption){
@@ -676,6 +690,16 @@
 						stage.displayState = "normal";
 						stage.scaleMode = StageScaleMode.NO_SCALE;
 					}
+					
+				// toggle gif recording
+				} else if(previousMenuList.options[previousMenuList.selection].name == "record gif animation"){
+					if(onOffOption.state == 1){
+						Game.renderer.gifBuffer.activate();
+						saveGifOption.active = true;
+					} else {
+						Game.renderer.gifBuffer.deactivate();
+						saveGifOption.active = false;
+					}
 				}
 			
 			// taking a screenshot
@@ -690,6 +714,17 @@
 							screenshot
 						);
 					}
+				}
+			
+			// saving a gif
+			} else if(option == saveGifOption){
+				if(!Game.dialog){
+					Game.dialog = new Dialog(
+						"warning",
+						"this will cause the game to freeze for a long time and may crash the game entirely.\nare you sure you want to do this?",
+						Game.renderer.gifBuffer.save,
+						function():void{}
+					);
 				}
 			
 			// taking a screenshot

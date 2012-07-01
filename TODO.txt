@@ -1,4 +1,4 @@
-Change log: fixed physics bug pertaining to being pushed into a wall cancelling all velocity, created allowScriptAccess detection to avoid tracking calls crashing the game, revised pillar and chain decor spawning rules
+Change log: stopped recess decor spawning above portals, added gif-buffer for recording short game play animations
 
 Bug hunt
 	collection lock out on chests after playing for a while - bugged chest or item?

@@ -92,7 +92,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 397;
+		public static const BUILD_NUM:int = 398;
 		
 		public static const TEST_BED_INIT:Boolean = false;
 		
@@ -1032,6 +1032,9 @@
 			/*if(Key.isDown(Key.K)){
 				//player.jump();
 				player.setAsleep(true);
+			}
+			if(Key.isDown(Key.T)){
+				renderer.gifBuffer.save();
 			}
 			if(Key.isDown(Key.T)){
 				miniMap.reveal();

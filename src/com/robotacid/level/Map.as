@@ -973,8 +973,8 @@
 						} else if((pixels[i + width] == MapBitmap.WALL || pixels[i + width] == MapBitmap.LEDGE) && random.value() < 0.01 && !layers[BACKGROUND][r][c]){
 							layers[BACKGROUND][r][c] = MapTileConverter.SKULL;
 							
-						// recess
-						} else if(random.value() < 0.05 && !layers[BACKGROUND][r][c]){
+						// recess (avoid putting a recess above a portal)
+						} else if(random.value() < 0.05 && !layers[BACKGROUND][r][c] && pixels[i + width] != MapBitmap.GATE){
 							layers[BACKGROUND][r][c] = MapTileConverter.RECESS;
 						}
 						
