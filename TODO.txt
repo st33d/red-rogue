@@ -1,9 +1,9 @@
-Change log: added event tracking for loading, entering levels, deaths and reset. disarm trap option unlocked, two second penalty to trap xp for calling disarm trap on no traps (solves disarm trap spamming for bonus xp), fixed bug entering underworld caused by escape node graph, added random background decoration to all zones, removed writing from pocket dungeon
+Change log: fixed physics bug pertaining to being pushed into a wall cancelling all velocity, created allowScriptAccess detection to avoid tracking calls crashing the game, revised pillar and chain decor spawning rules
 
 Bug hunt
 	collection lock out on chests after playing for a while - bugged chest or item?
 	chaos wall colliders can child a character and pull it into a wall - how?
-	null Monster collider.world spotted - why?
+	null Monster colliderd.world spotted - why?
 	full crash observed in chaos - game frozen, menu operational
 	
 	patrol bug spotted - a monster will become frozen in its patrol cycle

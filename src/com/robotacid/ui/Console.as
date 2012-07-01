@@ -156,9 +156,9 @@
 			}
 			insertionPointPos.x = lineWidthBuffer[lineWidthBuffer.length - 1];
 			scrolling = true;
-			try{
+			if(Game.allowScriptAccess){
 				ExternalInterface.call("printToLog", str);
-			}catch(e:Error){}
+			}
 			log += str + "\n";
 			logLines++;
 		}

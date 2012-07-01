@@ -915,7 +915,7 @@
 		/* Generate decorative background graphics */
 		public function createDecor(pixels:Vector.<uint>):void{
 			
-			var pixel:uint, i:int, n:int, r:int, c:int, good:Boolean;
+			var pixel:uint, i:int, n:int, r:int, c:int, good:Boolean, type:String;
 			
 			for(i = width; i < pixels.length - width; i++){
 				pixel = pixels[i];
@@ -925,16 +925,18 @@
 					// pillar, chain, recess
 					if(zone == DUNGEONS){
 						// pillar / chain
-						if(pixels[i - width] == MapBitmap.WALL && random.value() < 0.2){
-							if(pixels[i + width] == MapBitmap.WALL){
+						if(pixels[i - width] == MapBitmap.WALL && random.value() < 0.4){
+							// single pillars spawn very easily, so they need to be reduced in popularity
+							if(pixels[i + width] == MapBitmap.WALL && random.value() < 0.4){
 								layers[BACKGROUND][r][c] = random.coinFlip() ? MapTileConverter.PILLAR_SINGLE1 : MapTileConverter.PILLAR_SINGLE2;
 							} else if(pixels[i + width] == MapBitmap.EMPTY){
 								// test for pillar or chain
 								good = true;
 								for(n = i + width; n < pixels.length; n += width){
 									if(pixels[n] != MapBitmap.EMPTY){
-										if(pixels[n] == MapBitmap.WALL){
-											
+										if(pixels[n] == MapBitmap.WALL || pixels[n] == MapBitmap.LEDGE){
+											if(pixels[n] == MapBitmap.WALL) type = "pillar";
+											else if(pixels[n] == MapBitmap.LEDGE) type = "chain";
 											n -= width;
 										} else {
 											good = false;
@@ -944,7 +946,7 @@
 								}
 								if(good){
 									// choose pillar or chain
-									if(random.coinFlip()){
+									if(type == "pillar"){
 										layers[BACKGROUND][r][c] = MapTileConverter.PILLAR_TOP;
 										r = n / width;
 										c = n % width;
@@ -954,7 +956,7 @@
 											c = n % width;
 											layers[BACKGROUND][r][c] = random.coinFlip() ? MapTileConverter.PILLAR_MID1 : MapTileConverter.PILLAR_MID2;
 										}
-									} else {
+									} else if(type == "chain"){
 										layers[BACKGROUND][r][c] = MapTileConverter.CHAIN_TOP;
 										r = n / width;
 										c = n % width;
@@ -972,7 +974,7 @@
 							layers[BACKGROUND][r][c] = MapTileConverter.SKULL;
 							
 						// recess
-						} else if(random.value() < 0.01 && !layers[BACKGROUND][r][c]){
+						} else if(random.value() < 0.05 && !layers[BACKGROUND][r][c]){
 							layers[BACKGROUND][r][c] = MapTileConverter.RECESS;
 						}
 						

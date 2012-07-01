@@ -92,7 +92,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 396;
+		public static const BUILD_NUM:int = 397;
 		
 		public static const TEST_BED_INIT:Boolean = false;
 		
@@ -172,7 +172,6 @@
 		
 		// temp variables
 		private var i:int;
-		
 		public static var point:Point = new Point();
 		
 		// CONSTANTS
@@ -208,8 +207,19 @@
 		public static const SOUND_HORIZ_DIST_MULTIPLIER:Number = 1.5;
 		
 		public static var fullscreenOn:Boolean;
+		public static var allowScriptAccess:Boolean;
 		
 		public function Game():void {
+			
+			// detect allowScriptAccess for tracking
+			allowScriptAccess = ExternalInterface.available;
+			if(allowScriptAccess){
+				try{
+					ExternalInterface.call("");
+				} catch(e:Error){
+					allowScriptAccess = false;
+				}
+			}
 			
 			library = new Library;
 			
@@ -1061,8 +1071,7 @@
 		/* Sends information to the Google Analytics tracking widget on the home page of redrogue.net */
 		public function trackEvent(action:String, label:String = "", value:int = 0):void{
 			var params:Array = ["_trackEvent", "game_events", action, label, value];
-			if(ExternalInterface.available){
-				
+			if(allowScriptAccess){
 				ExternalInterface.call("_gaq.push", params);
 			}
 			trace(params);

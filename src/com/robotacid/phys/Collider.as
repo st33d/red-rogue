@@ -371,7 +371,7 @@ package com.robotacid.phys {
 									if(obstacleActuallyMoved < obstacleShouldMove){
 										vx -= obstacleShouldMove - obstacleActuallyMoved;
 										// kill energy when recursively hitting bounds
-										if(collider.vx == 0) this.vx = 0;
+										if(collider.vx == 0 && this.vx > 0) this.vx = 0;
 									}
 									pressure |= RIGHT;
 								} else {
@@ -458,7 +458,7 @@ package com.robotacid.phys {
 									if(obstacleActuallyMoved > obstacleShouldMove){
 										vx += obstacleActuallyMoved - obstacleShouldMove;
 										// kill energy when recursively hitting bounds
-										if(collider.vx == 0) this.vx = 0;
+										if(collider.vx == 0 && this.vx < 0) this.vx = 0;
 									}
 									pressure |= LEFT;
 								} else {
@@ -623,7 +623,7 @@ package com.robotacid.phys {
 										if(obstacleActuallyMoved < obstacleShouldMove){
 											vy -= obstacleShouldMove - obstacleActuallyMoved;
 											// kill energy when recursively hitting bounds
-											if(collider.vy == 0) this.vy = 0;
+											if(collider.vy == 0 && this.vy > 0) this.vy = 0;
 										}
 										pressure |= DOWN;
 									
@@ -717,7 +717,7 @@ package com.robotacid.phys {
 									if(obstacleActuallyMoved > obstacleShouldMove){
 										vy += obstacleActuallyMoved - obstacleShouldMove;
 										// kill energy when recursively hitting bounds
-										if(collider.vy == 0) this.vy = 0;
+										if(collider.vy == 0 && this.vy < 0) this.vy = 0;
 									}
 									pressure |= UP;
 								} else {
