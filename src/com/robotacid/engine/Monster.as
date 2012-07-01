@@ -17,11 +17,6 @@
 		
 		public var mapInitialised:Boolean;
 		
-		// ranks
-		public static const NORMAL:int = 0;
-		public static const CHAMPION:int = 1;
-		public static const ELITE:int = 2;
-		
 		// Heart items are this game's equivalent of health potions
 		// they are harvested randomly during a kill
 		// more likely is it that a bare handed player will pluck a heart

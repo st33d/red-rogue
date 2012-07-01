@@ -1,5 +1,6 @@
 package com.robotacid.ai {
 	import com.robotacid.engine.Character;
+	import com.robotacid.engine.Item;
 	import com.robotacid.phys.Cast;
 	import com.robotacid.phys.Collider;
 	
@@ -85,17 +86,17 @@ package com.robotacid.ai {
 			} else if(state == ESCAPE || state == PAUSE){
 				
 				if(state == ESCAPE){
-					
 					if(distSq > ESCAPE_PAUSE_EDGE_SQ){
 						if(count-- <= 0){
 							state = PAUSE;
-							
 						}
 					} else {
 						// we have found the exit - the player has lost this level
 						if(char.mapX == game.map.stairsDown.x && char.mapY == game.map.stairsDown.y){
 							state = TAUNT;
 							return;
+						} else {
+							gotoExit();
 						}
 						count = delay;
 					}
@@ -124,14 +125,8 @@ package com.robotacid.ai {
 				
 			} else if(state == ATTACK){
 				
-				
-				
-				
 				// attack only for a short duration
-				
-				
-				
-				if(!target || !target.active){
+				if(count-- <= 0 || !target || !target.active){
 					clear();
 					
 				} else if(
@@ -186,7 +181,6 @@ package com.robotacid.ai {
 			
 			prevCenter = charPos.x;
 		}
-		
 		
 		override public function clear():void{
 			target = null;

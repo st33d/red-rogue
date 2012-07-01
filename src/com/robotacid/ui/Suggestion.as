@@ -7,6 +7,7 @@ package com.robotacid.ui {
 	import com.robotacid.engine.Writing;
 	import com.robotacid.gfx.Renderer;
 	import com.robotacid.phys.Collider;
+	import com.robotacid.ui.menu.HotKeyMap;
 	import flash.display.MovieClip;
 	import flash.display.Sprite;
 	import flash.geom.ColorTransform;
@@ -226,11 +227,16 @@ package com.robotacid.ui {
 										(entity is Trap) &&
 										(entity as Trap).disarmingRect.intersects(game.player.collider)
 									){
-										skill = DISARM;
-										menuPrompt.visible = true;
-										menuPrompt.text = "menu - actions";
-										skillPrompt.visible = true;
-										skillPrompt.text = "disarm";
+										// check for a hotkey that's been assigned
+										// disarm trap is at index 2
+										var keys:Vector.<String> = HotKeyMap.getOptionsHotKeyed(game.gameMenu.actionsList, game.gameMenu.hotKeyMaps);
+										if(keys[2] != ""){
+											skill = DISARM;
+											menuPrompt.visible = true;
+											menuPrompt.text = keys[2];
+											skillPrompt.visible = true;
+											skillPrompt.text = "disarm";
+										}
 										break;
 									}
 								}

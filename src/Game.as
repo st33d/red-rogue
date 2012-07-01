@@ -92,7 +92,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 395;
+		public static const BUILD_NUM:int = 396;
 		
 		public static const TEST_BED_INIT:Boolean = false;
 		
@@ -283,6 +283,8 @@
 			
 			lives = new HiddenInt();
 			livesAvailable = new HiddenInt(3);
+			
+			trackEvent("load complete");
 			
 			if (stage) addedToStage();
 			else addEventListener(Event.ADDED_TO_STAGE, addedToStage);
@@ -625,10 +627,13 @@
 			} else {
 				mapTileManager.newMap(map.width, map.height, map.layers);
 			}
-			renderer.blockBitmapData = mapTileManager.layerToBitmapData(MapTileManager.BACKGROUND_LAYER);
+			renderer.backBitmapData = mapTileManager.layerToBitmapData(MapTileManager.BACKGROUND_LAYER);
+			if(map.type != Map.AREA){
+				Writing.renderWritings();
+			}
+			renderer.blockBitmapData = renderer.backBitmapData.clone();
 			if(map.type != Map.AREA){
 				renderer.blockBitmapData = mapTileManager.layerToBitmapData(MapTileManager.BLOCK_LAYER, renderer.blockBitmapData);
-				Writing.renderWritings();
 			}
 			
 			// modify the mapRect to conceal secrets
@@ -740,6 +745,8 @@
 			}
 			player.enterLevel(entrance, Player.previousLevel < game.map.level ? Collider.RIGHT : Collider.LEFT);
 			changeMusic();
+			
+			trackEvent("set level", Map.getName(map.type, map.level));
 		}
 		
 		private function addListeners():void{
@@ -1049,6 +1056,16 @@
 			if(focusPrompt.parent) focusPrompt.parent.removeChild(focusPrompt);
 			if(state == UNFOCUSED) state = previousState;
 			changeMusic();
+		}
+		
+		/* Sends information to the Google Analytics tracking widget on the home page of redrogue.net */
+		public function trackEvent(action:String, label:String = "", value:int = 0):void{
+			var params:Array = ["_trackEvent", "game_events", action, label, value];
+			if(ExternalInterface.available){
+				
+				ExternalInterface.call("_gaq.push", params);
+			}
+			trace(params);
 		}
 	}
 	

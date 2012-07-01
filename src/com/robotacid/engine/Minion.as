@@ -3,6 +3,7 @@
 	import com.robotacid.ai.PlayerBrain;
 	import com.robotacid.engine.Character;
 	import com.robotacid.engine.Item;
+	import com.robotacid.level.Map;
 	import com.robotacid.phys.Collider;
 	import com.robotacid.sound.SoundManager;
 	import com.robotacid.ui.menu.GameMenu;
@@ -179,6 +180,7 @@
 				game.gameMenu.summonOption.active = false;
 				game.gameMenu.update();
 				minimapFX.active = false;
+				game.trackEvent("minion death", Map.getName(game.map.type, game.map.level));
 			} else {
 				if(temp_weapon) equip(temp_weapon);
 				if(temp_throwable) equip(temp_throwable);

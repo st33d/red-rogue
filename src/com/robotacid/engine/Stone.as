@@ -13,6 +13,7 @@
 	import flash.display.MovieClip;
 	import flash.display.Sprite;
 	import flash.geom.Matrix;
+	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	
 	/**
@@ -149,7 +150,8 @@
 			game.player.addXP(SECRET_XP_REWARD * Content.getLevelXp(game.map.level));
 			game.world.removeMapPosition(mapX, mapY);
 			game.mapTileManager.removeTile(this, mapX, mapY, mapZ);
-			renderer.blockBitmapData.fillRect(new Rectangle(mapX * SCALE, mapY * SCALE, SCALE, SCALE), 0x0);
+			//renderer.blockBitmapData.fillRect(new Rectangle(mapX * SCALE, mapY * SCALE, SCALE, SCALE), 0x0);
+			renderer.blockBitmapData.copyPixels(renderer.backBitmapData, new Rectangle(mapX * SCALE, mapY * SCALE, SCALE, SCALE), new Point(mapX * SCALE, mapY * SCALE));
 			// adjust the mapRect to show new content
 			if(side == LEFT){
 				game.mapTileManager.mapRect.x = 0;

@@ -77,7 +77,7 @@ package com.robotacid.ai {
 				}
 			}
 			connectNodes(pixels);
-			connectEscapeNodes(escapeNodes[exitPos.y][exitPos.x]);
+			if(exitPos) connectEscapeNodes(escapeNodes[exitPos.y][exitPos.x]);
 		}
 		
 		/* Create connections between the nodes based on the navigation behaviour desired */

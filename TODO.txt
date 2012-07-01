@@ -1,4 +1,4 @@
-Change log: elite monsters now appear at the end of each zone (except chaos), added a lot of exceptions for elites (may have introduced bugs), fixed many typos and incorrect logic declarations whilst installing new logic
+Change log: added event tracking for loading, entering levels, deaths and reset. disarm trap option unlocked, two second penalty to trap xp for calling disarm trap on no traps (solves disarm trap spamming for bonus xp), fixed bug entering underworld caused by escape node graph, added random background decoration to all zones, removed writing from pocket dungeon
 
 Bug hunt
 	collection lock out on chests after playing for a while - bugged chest or item?
@@ -9,11 +9,16 @@ Bug hunt
 	patrol bug spotted - a monster will become frozen in its patrol cycle
 	minion dither spotted - caught in a probable follow/avoid loop
 
+
 the balrog
 	create escape ai
 		create escape graph
 			create editor render
 			create escape node MapGraph function
+
+create nanny
+	menu text under lightmap
+		change to suggesting the correct key?
 
 
 Guide -
@@ -24,10 +29,6 @@ rotate between a selection of menus
 		title menu
 
 split story into tips.json and story.json - add tips to writings on new games
-
-create nanny
-	menu text under lightmap
-		change to suggesting the correct key?
 
 secret items
 	chest col

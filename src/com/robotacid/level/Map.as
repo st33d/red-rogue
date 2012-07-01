@@ -14,6 +14,7 @@
 	import com.robotacid.engine.Trap;
 	import com.robotacid.engine.Writing;
 	import com.robotacid.geom.Pixel;
+	import com.robotacid.gfx.BlitRect;
 	import com.robotacid.gfx.BlitSprite;
 	import com.robotacid.gfx.Renderer;
 	import com.robotacid.phys.Collider;
@@ -349,6 +350,9 @@
 				createAccessPoint(portalType, sortRoomsTopWards, portalXMLs[0]);
 			}
 			
+			// reload pixels - access point creation altered the bitmap
+			pixels = bitmapData.getVector(bitmapData.rect);
+			
 			// gates may fragment the level, so we need as many options for placing a key as possible
 			if(bitmap.gates.length) createGates();
 			
@@ -360,7 +364,8 @@
 			// now add some extra flavour
 			createOtherTraps(pixels);
 			// below level 16 the minion cannot have written anything
-			if(level <= Writing.story.length) createWritings(pixels);
+			if(level <= Writing.story.length && type == MAIN_DUNGEON) createWritings(pixels);
+			createDecor(pixels);
 			createChaosWalls(pixels);
 			createCritters();
 			
@@ -518,6 +523,7 @@
 		/* Creates a stairway up */
 		public function setStairsUp(x:int, y:int):void{
 			layers[ENTITIES][y][x] = MapTileConverter.STAIRS_UP;
+			bitmap.bitmapData.setPixel32(x, y, MapBitmap.GATE);
 			stairsUp = new Pixel(x, y);
 			if(isPortalToPreviousLevel(x, y, Portal.STAIRS, level - 1)){
 				start = stairsUp;
@@ -528,6 +534,7 @@
 		/* Creates a stairway down */
 		public function setStairsDown(x:int, y:int):void{
 			layers[ENTITIES][y][x] = MapTileConverter.STAIRS_DOWN;
+			bitmap.bitmapData.setPixel32(x, y, MapBitmap.GATE);
 			stairsDown = new Pixel(x, y);
 			if(isPortalToPreviousLevel(x, y, Portal.STAIRS, level + 1)){
 				start = stairsDown;
@@ -546,6 +553,7 @@
 				}
 			}
 			layers[ENTITIES][y][x] = portal;
+			bitmap.bitmapData.setPixel32(x, y, MapBitmap.GATE);
 			if(isPortalToPreviousLevel(x, y, int(xml.@type), int(xml.@targetLevel))){
 				start = p;
 				if(Surface.map[y][x] && Surface.map[y][x].room) Surface.map[y][x].room.start = true;
@@ -795,7 +803,7 @@
 				var xml:XML =<item name={0} type={Item.KEY} level={0} />;
 				item = Content.XMLToEntity(surface.x, surface.y, xml);
 				item.dropToMap(surface.x, surface.y, false);
-				layers[Map.ENTITIES][surface.y][surface.x] = item;
+				layers[ENTITIES][surface.y][surface.x] = item;
 				gateType = Gate.LOCK;
 				Surface.removeSurface(surface.x, surface.y);
 				
@@ -899,6 +907,122 @@
 						pixels[i] = MapBitmap.GATE;
 						pixels[i + 1] = MapBitmap.GATE;
 						pixels[i - 1] = MapBitmap.GATE;
+					}
+				}
+			}
+		}
+		
+		/* Generate decorative background graphics */
+		public function createDecor(pixels:Vector.<uint>):void{
+			
+			var pixel:uint, i:int, n:int, r:int, c:int, good:Boolean;
+			
+			for(i = width; i < pixels.length - width; i++){
+				pixel = pixels[i];
+				if(pixel == MapBitmap.EMPTY){
+					r = i / width;
+					c = i % width;
+					// pillar, chain, recess
+					if(zone == DUNGEONS){
+						// pillar / chain
+						if(pixels[i - width] == MapBitmap.WALL && random.value() < 0.2){
+							if(pixels[i + width] == MapBitmap.WALL){
+								layers[BACKGROUND][r][c] = random.coinFlip() ? MapTileConverter.PILLAR_SINGLE1 : MapTileConverter.PILLAR_SINGLE2;
+							} else if(pixels[i + width] == MapBitmap.EMPTY){
+								// test for pillar or chain
+								good = true;
+								for(n = i + width; n < pixels.length; n += width){
+									if(pixels[n] != MapBitmap.EMPTY){
+										if(pixels[n] == MapBitmap.WALL){
+											
+											n -= width;
+										} else {
+											good = false;
+										}
+										break;
+									}
+								}
+								if(good){
+									// choose pillar or chain
+									if(random.coinFlip()){
+										layers[BACKGROUND][r][c] = MapTileConverter.PILLAR_TOP;
+										r = n / width;
+										c = n % width;
+										layers[BACKGROUND][r][c] = MapTileConverter.PILLAR_BOTTOM;
+										for(n -= width; n > i; n -= width){
+											r = n / width;
+											c = n % width;
+											layers[BACKGROUND][r][c] = random.coinFlip() ? MapTileConverter.PILLAR_MID1 : MapTileConverter.PILLAR_MID2;
+										}
+									} else {
+										layers[BACKGROUND][r][c] = MapTileConverter.CHAIN_TOP;
+										r = n / width;
+										c = n % width;
+										layers[BACKGROUND][r][c] = MapTileConverter.CHAIN_BOTTOM;
+										for(n -= width; n > i; n -= width){
+											r = n / width;
+											c = n % width;
+											layers[BACKGROUND][r][c] = MapTileConverter.CHAIN_MID;
+										}
+									}
+								}
+							}
+						// skull
+						} else if((pixels[i + width] == MapBitmap.WALL || pixels[i + width] == MapBitmap.LEDGE) && random.value() < 0.01 && !layers[BACKGROUND][r][c]){
+							layers[BACKGROUND][r][c] = MapTileConverter.SKULL;
+							
+						// recess
+						} else if(random.value() < 0.01 && !layers[BACKGROUND][r][c]){
+							layers[BACKGROUND][r][c] = MapTileConverter.RECESS;
+						}
+						
+					// outlet, drain
+					} else if(zone == SEWERS){
+						// skull
+						if((pixels[i + width] == MapBitmap.WALL || pixels[i + width] == MapBitmap.LEDGE) && random.value() < 0.01){
+							layers[BACKGROUND][r][c] = MapTileConverter.SKULL;
+							
+						// drain
+						} else if(pixels[i + width] == MapBitmap.WALL && random.value() < 0.05){
+							layers[BACKGROUND][r][c] = MapTileConverter.DRAIN;
+							
+						// outlet
+						} else if(pixels[i - width] == MapBitmap.WALL && random.value() < 0.05){
+							layers[BACKGROUND][r][c] = MapTileConverter.OUTLET;
+						}
+					// stalagmite, crack
+					} else if(zone == CAVES){
+						// crack
+						if(random.value() < 0.01 && !layers[BACKGROUND][r][c]){
+							layers[BACKGROUND][r][c] = [MapTileConverter.CRACK1, MapTileConverter.CRACK2, MapTileConverter.CRACK3][game.random.rangeInt(3)];
+							
+						// skull
+						} else if((pixels[i + width] == MapBitmap.WALL || pixels[i + width] == MapBitmap.LEDGE) && random.value() < 0.01){
+							layers[BACKGROUND][r][c] = MapTileConverter.SKULL;
+							
+						// stalagmite
+						} else if(pixels[i + width] == MapBitmap.WALL && random.value() < 0.4){
+							layers[BACKGROUND][r][c] = [MapTileConverter.STALAGMITE1, MapTileConverter.STALAGMITE2, MapTileConverter.STALAGMITE3, MapTileConverter.STALAGMITE4][game.random.rangeInt(4)];
+							
+						// stalagtite
+						} else if(pixels[i - width] == MapBitmap.WALL && random.value() < 0.4){
+							layers[BACKGROUND][r][c] = [MapTileConverter.STALAGTITE1, MapTileConverter.STALAGTITE2, MapTileConverter.STALAGTITE3, MapTileConverter.STALAGTITE4][game.random.rangeInt(4)];
+						}
+						
+					// growth
+					} else if(zone == CHAOS){
+						// skull
+						if((pixels[i + width] == MapBitmap.WALL || pixels[i + width] == MapBitmap.LEDGE) && random.value() < 0.01){
+							layers[BACKGROUND][r][c] = MapTileConverter.SKULL;
+							
+						// growth up
+						} else if(pixels[i + width] == MapBitmap.WALL && random.value() < 0.5){
+							layers[BACKGROUND][r][c] = [MapTileConverter.GROWTH1, MapTileConverter.GROWTH2, MapTileConverter.GROWTH3, MapTileConverter.GROWTH4, MapTileConverter.GROWTH5, MapTileConverter.GROWTH6][game.random.rangeInt(6)];
+							
+						// growth down
+						} else if(pixels[i - width] == MapBitmap.WALL && random.value() < 0.5){
+							layers[BACKGROUND][r][c] = [MapTileConverter.GROWTH7, MapTileConverter.GROWTH8, MapTileConverter.GROWTH9, MapTileConverter.GROWTH10, MapTileConverter.GROWTH11, MapTileConverter.GROWTH12][game.random.rangeInt(6)];
+						}
 					}
 				}
 			}

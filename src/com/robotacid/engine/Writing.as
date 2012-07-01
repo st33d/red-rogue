@@ -103,8 +103,8 @@ package com.robotacid.engine {
 				underBlit.chars = overBlit.chars = chars;
 				underBlit.x = overBlit.x = writing.rect.x + 1;
 				underBlit.y = overBlit.y = writing.rect.y;
-				underBlit.render(renderer.blockBitmapData);
-				overBlit.render(renderer.blockBitmapData);
+				underBlit.render(renderer.backBitmapData);
+				overBlit.render(renderer.backBitmapData);
 			}
 		}
 		

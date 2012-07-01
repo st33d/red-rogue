@@ -1186,7 +1186,7 @@
 				}
 			} else if (type == Missile.RUNE){
 				game.soundQueue.add("throw");
-				reflections = Missile.RUNE_REFLECTIONS;
+				if(rune) reflections = Missile.RUNE_REFLECTIONS;
 			}
 			missileMc.scaleX = (looking & RIGHT) ? 1 : -1;
 			var missile:Missile = new Missile(missileMc, collider.x + collider.width * 0.5, collider.y + collider.height * 0.5, type, this, (looking & RIGHT) ? 1 : -1, 0, 5, missileIgnore, effect, item, null, reflections, brain.firingTeam, alchemical);

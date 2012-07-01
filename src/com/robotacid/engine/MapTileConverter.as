@@ -122,6 +122,43 @@
 		public static const COG_SPIDER:int = 67;
 		public static const COG_BAT:int = 68;
 		
+		public static const PILLAR_BOTTOM:int = 69;
+		public static const PILLAR_MID1:int = 70;
+		public static const PILLAR_MID2:int = 71;
+		public static const PILLAR_TOP:int = 72;
+		public static const PILLAR_SINGLE1:int = 73;
+		public static const PILLAR_SINGLE2:int = 74;
+		public static const CHAIN_MID:int = 75;
+		public static const CHAIN_BOTTOM:int = 76;
+		public static const CHAIN_TOP:int = 77;
+		public static const RECESS:int = 78;
+		public static const OUTLET:int = 79;
+		public static const DRAIN:int = 80;
+		public static const STALAGMITE1:int = 81;
+		public static const STALAGMITE2:int = 82;
+		public static const STALAGMITE3:int = 83;
+		public static const STALAGMITE4:int = 84;
+		public static const STALAGTITE1:int = 85;
+		public static const STALAGTITE2:int = 86;
+		public static const STALAGTITE3:int = 87;
+		public static const STALAGTITE4:int = 88;
+		public static const CRACK1:int = 89;
+		public static const CRACK2:int = 90;
+		public static const CRACK3:int = 91;
+		public static const SKULL:int = 92;
+		public static const GROWTH1:int = 93;
+		public static const GROWTH2:int = 94;
+		public static const GROWTH3:int = 95;
+		public static const GROWTH4:int = 96;
+		public static const GROWTH5:int = 97;
+		public static const GROWTH6:int = 98;
+		public static const GROWTH7:int = 99;
+		public static const GROWTH8:int = 100;
+		public static const GROWTH9:int = 101;
+		public static const GROWTH10:int = 102;
+		public static const GROWTH11:int = 103;
+		public static const GROWTH12:int = 104;
+		
 		// These references are technically illegal. Game.game doesn't even exist yet, but some how the
 		// compiler is letting the issue slide so long as I don't static reference Game
 		public static var ID_TO_GRAPHIC:Array = [
@@ -192,10 +229,46 @@
 			RatMC,
 			SpiderMC,
 			BatMC,
+			CogMC,//65
 			CogMC,
 			CogMC,
 			CogMC,
-			CogMC
+			,
+			,//70
+			,
+			,
+			,
+			,
+			,//75
+			,
+			,
+			new BlitSprite(new RecessDecorMC),
+			new BlitSprite(new OutletDecorMC),
+			new BlitSprite(new DrainDecorMC),//80
+			,
+			,
+			,
+			,
+			,//85
+			,
+			,
+			,
+			,
+			,//90
+			,
+			new BlitSprite(new SkullDecorMC),
+			,
+			,
+			,//95
+			,
+			,
+			,
+			,
+			,//100
+			,
+			,
+			,
+			,
 		];
 		
 		public function MapTileConverter(r:MapTileManager, game:Game, renderer:Renderer) {
@@ -221,6 +294,38 @@
 			}
 			for(i = 33; i <= 41; i++){
 				ID_TO_GRAPHIC[i].add(ID_TO_GRAPHIC[LADDER_TOP]);
+			}
+			// create background graphics
+			var mc:MovieClip;
+			mc = new PillarDecorMC();
+			for(i = 0; i < mc.totalFrames; i++){
+				mc.gotoAndStop(i + 1);
+				ID_TO_GRAPHIC[PILLAR_BOTTOM + i] = new BlitSprite(mc);
+			}
+			mc = new ChainDecorMC();
+			for(i = 0; i < mc.totalFrames; i++){
+				mc.gotoAndStop(i + 1);
+				ID_TO_GRAPHIC[CHAIN_MID + i] = new BlitSprite(mc);
+			}
+			mc = new StalagmiteDecorMC();
+			for(i = 0; i < mc.totalFrames; i++){
+				mc.gotoAndStop(i + 1);
+				ID_TO_GRAPHIC[STALAGMITE1 + i] = new BlitSprite(mc);
+			}
+			mc = new CrackDecorMC();
+			for(i = 0; i < mc.totalFrames; i++){
+				mc.gotoAndStop(i + 1);
+				ID_TO_GRAPHIC[CRACK1 + i] = new BlitSprite(mc);
+			}
+			mc = new CrackDecorMC();
+			for(i = 0; i < mc.totalFrames; i++){
+				mc.gotoAndStop(i + 1);
+				ID_TO_GRAPHIC[CRACK1 + i] = new BlitSprite(mc);
+			}
+			mc = new GrowthDecorMC();
+			for(i = 0; i < mc.totalFrames; i++){
+				mc.gotoAndStop(i + 1);
+				ID_TO_GRAPHIC[GROWTH1 + i] = new BlitSprite(mc);
 			}
 			preProcessed = true;
 		}

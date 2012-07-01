@@ -192,7 +192,7 @@
 			summonOption.help = "teleport the minion to your location";
 			searchOption = new MenuOption("search");
 			searchOption.help = "search immediate area for traps and secret areas. the player must not move till the search is over, or it will be aborted";
-			disarmTrapOption = new MenuOption("disarm trap", null, false);
+			disarmTrapOption = new MenuOption("disarm trap");
 			disarmTrapOption.help = "disarms any revealed traps that the rogue is standing next to";
 			missileOption = new ToggleMenuOption(["shoot", "throw"], null, false);
 			missileOption.help = "shoot an equipped main missile weapon / throw a throwing weapon";
@@ -758,7 +758,6 @@
 			// disarming
 			} else if(option == disarmTrapOption){
 				game.player.disarmTraps();
-				disarmTrapOption.active = false;
 			
 			// missile weapons
 			} else if(option == missileOption){
@@ -884,7 +883,6 @@
 			if(listInBranch(inventoryList)) while(branch.length > 1) stepLeft();
 			inventoryOption.active = false;
 			missileOption.active = false;
-			disarmTrapOption.active = false;
 			update();
 			game.deathMenu.select(0);
 			game.menuCarousel.setCurrentMenu(game.deathMenu);
@@ -1013,6 +1011,7 @@
 		
 		/* Resets the game and the GameMenu for a new play session */
 		public function reset():void{
+			game.trackEvent("reset game");
 			inventoryList.reset();
 			loreList.questsList.reset();
 			actionsOption.active = false;

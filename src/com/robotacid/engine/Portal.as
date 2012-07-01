@@ -82,17 +82,24 @@
 		
 		override public function main():void {
 			if(state == OPENING){
+				var eraseRect:Rectangle;
 				if(count){
 					count--;
 					gfx.scaleX += SCALE_STEP;
 					gfx.scaleY += SCALE_STEP;
 					gfx.x -= GFX_STEP;
 					gfx.y -= GFX_STEP;
+					// erase the background
+					eraseRect = new Rectangle((mapX + 0.5) * SCALE - count, (mapY + 0.5) * SCALE - count, count * 2, count * 2);
+					renderer.blockBitmapData.fillRect(eraseRect, 0x0);
 				} else {
 					gfx.scaleX = gfx.scaleY = 1;
 					gfx.x = mapX * SCALE;
 					gfx.y = mapY * SCALE;
 					state = OPEN;
+					// erase the background
+					eraseRect = new Rectangle(mapX * SCALE, mapY * SCALE, SCALE, SCALE);
+					trace(eraseRect);
 				}
 			} else if(state == OPEN){
 				// if the portal is visible on the map - then make the portal icon on the map visible

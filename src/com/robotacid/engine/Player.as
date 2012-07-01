@@ -55,6 +55,7 @@
 		
 		public var canMenuAction:Boolean;
 		public var searchRadius:int;
+		public var disarmTrapCount:int;
 		
 		private var searchMax:int;
 		private var searchCount:int;
@@ -81,6 +82,7 @@
 		public static const SEARCH_DELAY:int = 1;
 		public static const ROGUE_SEARCH_MAX:int = 20;
 		public static const DEFAULT_SEARCH_MAX:int = 10;
+		public static const DISARM_TRAP_DELAY:int = 60;
 		
 		public static const CAMERA_DISPLACE_SPEED:Number = 1;
 		public static const CAMERA_DISPLACEMENT:Number = 70;
@@ -332,6 +334,10 @@
 			exitKeyPressReady = Key.keysPressed == 0 || (game.dogmaticMode && !(dir & DOWN));
 			if(keyWarning && (Key.keysPressed == 0 || (game.dogmaticMode && !(dir & UP)))) keyWarning = false;
 			
+			if(disarmTrapCount){
+				disarmTrapCount--;
+				if(disarmTrapCount == 0) game.console.print("disarm trap xp penalty expired");
+			}
 		}
 		
 		/* Opens a confirmation dialog for exiting the level */
@@ -344,7 +350,6 @@
 						// exit the level
 						exitLevel(portalContact);
 						disarmableTraps.length = 0;
-						game.gameMenu.disarmTrapOption.active = false;
 						game.gameMenu.update();
 					},
 					function():void{}
@@ -514,6 +519,7 @@
 					game.gameMenu.death();
 					var deathLight:FadeLight = new FadeLight(FadeLight.DEATH, mapX, mapY);
 					tidyUp();
+					game.trackEvent("player death", Map.getName(game.map.type, game.map.level));
 				}
 			}
 			renderer.shake(0, 5);
@@ -647,30 +653,30 @@
 		/* Adds a trap that the rogue could possibly disarm and updates the menu */
 		public function addDisarmableTrap(trap:Trap):void{
 			disarmableTraps.push(trap);
-			if(!game.gameMenu.disarmTrapOption.active){
-				game.gameMenu.disarmTrapOption.active = true;
-				game.gameMenu.update();
-			}
 		}
 		/* Removes a trap that the rogue could possibly disarm and updates the menu */
 		public function removeDisarmableTrap(trap:Trap):void{
 			disarmableTraps.splice(disarmableTraps.indexOf(trap), 1);
-			if(disarmableTraps.length == 0){
-				game.gameMenu.disarmTrapOption.active = false;
-				game.gameMenu.update();
-			}
 		}
 		
 		/* Disarms any traps on the disarmableTraps list - effectively destroying them */
 		public function disarmTraps():void{
-			var trap:Trap;
-			for(var i:int = 0; i < disarmableTraps.length; i++){
-				trap = disarmableTraps[i];
-				game.console.print(Trap.getName(trap.type) + " trap " + (trap.revealed ? "" : "expertly") + " disarmed");
-				disarmableTraps[i].disarm();
+			if(disarmableTraps.length == 0){
+				game.console.print("there is no trap here");
+				disarmTrapCount = DISARM_TRAP_DELAY;
+			} else {
+				var trap:Trap;
+				for(var i:int = 0; i < disarmableTraps.length; i++){
+					trap = disarmableTraps[i];
+					var expertise:String = "";
+					if(disarmTrapCount) expertise = "poorly";
+					else if(!trap.revealed) expertise = "expertly";
+					game.console.print(Trap.getName(trap.type) + " trap " + expertise + " disarmed");
+					disarmableTraps[i].disarm();
+				}
+				disarmableTraps.length = 0;
+				game.soundQueue.add("trapDisarm");
 			}
-			disarmableTraps.length = 0;
-			game.soundQueue.add("trapDisarm");
 		}
 		
 		/* Set the key carrying status of the player */

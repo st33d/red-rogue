@@ -35,7 +35,7 @@
 			for(var i:int = 0; i < options.length; i++){
 				option = options[i];
 				str += option.hidden ? "" : option.name;
-				if(hotKeyMapStrings && hotKeyMapStrings[i] != "") str += hotKeyMapStrings[i];
+				if(hotKeyMapStrings && hotKeyMapStrings[i] != "") str += " " + hotKeyMapStrings[i];
 				if(i < options.length - 1) str += separator;
 			}
 			return str;

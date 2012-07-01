@@ -15,6 +15,7 @@ package com.robotacid.engine {
 	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
 	import flash.display.Sprite;
+	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	
 	/**
@@ -221,7 +222,8 @@ package com.robotacid.engine {
 				// remove from map renderer
 				game.world.removeMapPosition(mapX, mapY);
 				game.mapTileManager.removeTile(this, mapX, mapY, mapZ);
-				renderer.blockBitmapData.fillRect(new Rectangle(mapX * SCALE, mapY * SCALE, SCALE, SCALE), 0x0);
+				//renderer.blockBitmapData.fillRect(new Rectangle(mapX * SCALE, mapY * SCALE, SCALE, SCALE), 0x0);
+				renderer.blockBitmapData.copyPixels(renderer.backBitmapData, new Rectangle(mapX * SCALE, mapY * SCALE, SCALE, SCALE), new Point(mapX * SCALE, mapY * SCALE));
 				// show empty on minimap
 				game.miniMap.bitmapData.setPixel32(mapX, mapY, LightMap.MINIMAP_EMPTY_COL);
 			}
@@ -294,7 +296,6 @@ package com.robotacid.engine {
 			var blit:BlitRect = game.mapTileManager.converter.convertIndicesToObjects(mapX, mapY, MapTileConverter.WALL) as BlitRect;
 			blit.x = mapX * Game.SCALE;
 			blit.y = mapY * Game.SCALE;
-			renderer.blockBitmapData.fillRect(new Rectangle(mapX * SCALE, mapY * SCALE, SCALE, SCALE), 0x0);
 			blit.render(renderer.blockBitmapData);
 			game.mapTileManager.mapLayers[MapTileManager.ENTITY_LAYER][mapY][mapX] = this;
 			chaosWalls[mapY][mapX] = this;
@@ -308,7 +309,8 @@ package com.robotacid.engine {
 			// remove from map renderer
 			game.world.removeMapPosition(mapX, mapY);
 			game.mapTileManager.removeTile(this, mapX, mapY, mapZ);
-			renderer.blockBitmapData.fillRect(new Rectangle(mapX * SCALE, mapY * SCALE, SCALE, SCALE), 0x0);
+			//renderer.blockBitmapData.fillRect(new Rectangle(mapX * SCALE, mapY * SCALE, SCALE, SCALE), 0x0);
+			renderer.blockBitmapData.copyPixels(renderer.backBitmapData, new Rectangle(mapX * SCALE, mapY * SCALE, SCALE, SCALE), new Point(mapX * SCALE, mapY * SCALE));
 			// show empty on minimap
 			game.miniMap.bitmapData.setPixel32(mapX, mapY, LightMap.MINIMAP_EMPTY_COL);
 			gfx.visible = true;

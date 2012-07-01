@@ -173,7 +173,7 @@
 								option.name == hotKeySelectionOption.name
 							)
 						){
-							str = " (" + Key.keyString(Key.custom[Menu.HOT_KEY_OFFSET + j]) + ")";
+							str = "(" + Key.keyString(Key.custom[Menu.HOT_KEY_OFFSET + j]) + ")";
 							break;
 						}
 					}
