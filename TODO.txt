@@ -1,4 +1,4 @@
-Change log: stopped recess decor spawning above portals, added gif-buffer for recording short game play animations
+Change log: changed tracking events to alpha category with more level and time progressed info, fixed death's scythe disappearing on second visit to underworld, fixed dropped items being invisible in underworld, default inventory selection step increased, fixed help text on identified runes
 
 Bug hunt
 	collection lock out on chests after playing for a while - bugged chest or item?
@@ -8,6 +8,16 @@ Bug hunt
 	
 	patrol bug spotted - a monster will become frozen in its patrol cycle
 	minion dither spotted - caught in a probable follow/avoid loop
+	shot troll with arrow - no aggro, why? - possible frozen monster occurence
+
+
+add red border to screen when low health
+
+make the console glow or something when a new report scrolls in (will have to orientate for different directions)
+	see if possible to create "hot" background for new reports
+
+instruction dialog
+	create transition code for changing to instruction dialog and not immediately starting game
 
 
 the balrog

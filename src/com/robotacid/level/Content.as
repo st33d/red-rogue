@@ -753,7 +753,15 @@
 				portals = areaContent[level].portals;
 			}
 			
-			if(entity is Monster){
+			if(entity is Stone && entity.name == Stone.DEATH){
+				// collect the scythe for safekeeping
+				character = entity as Character;
+				if(character.weapon){
+					deathsScythe = character.unequip(character.weapon);
+					deathsScythe.location = Item.UNASSIGNED;
+				}
+				
+			}if(entity is Monster){
 				// strip Death's Scythe from the level to return it to Death
 				if(deathsScythe.location != Item.UNASSIGNED){
 					character = entity as Character;

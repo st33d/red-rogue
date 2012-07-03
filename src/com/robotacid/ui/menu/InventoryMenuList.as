@@ -57,6 +57,8 @@
 		public static const EQUIP:int = 0;
 		public static const UNEQUIP:int = 1;
 		
+		public static const SELECTION_STEP:int = 3;
+		
 		public function InventoryMenuList(menu:Menu, game:Game) {
 			super();
 			this.menu = menu;
@@ -100,25 +102,25 @@
 			enchantableArmourOption.help = "The list of armour you can enchant.";
 			
 			equipMainOption = new ToggleMenuOption(["equip main", "unequip main"]);
-			equipMainOption.selectionStep = 2;
+			equipMainOption.selectionStep = SELECTION_STEP;
 			equipThrowOption = new ToggleMenuOption(["equip throw", "unequip throw"]);
-			equipThrowOption.selectionStep = 2;
+			equipThrowOption.selectionStep = SELECTION_STEP;
 			equipMinionMainOption = new ToggleMenuOption(["equip minion main", "unequip minion main"]);
-			equipMinionMainOption.selectionStep = 2;
+			equipMinionMainOption.selectionStep = SELECTION_STEP;
 			equipMinionThrowOption = new ToggleMenuOption(["equip minion throw", "unequip minion throw"]);
-			equipMinionThrowOption.selectionStep = 2;
+			equipMinionThrowOption.selectionStep = SELECTION_STEP;
 			equipOption = new ToggleMenuOption(["equip", "unequip"]);
-			equipOption.selectionStep = 2;
+			equipOption.selectionStep = SELECTION_STEP;
 			equipMinionOption = new ToggleMenuOption(["equip minion", "unequip minion"]);
-			equipMinionOption.selectionStep = 2;
+			equipMinionOption.selectionStep = SELECTION_STEP;
 			dropOption = new MenuOption("drop");
-			dropOption.selectionStep = 2;
+			dropOption.selectionStep = SELECTION_STEP;
 			eatOption = new MenuOption("eat");
-			eatOption.selectionStep = 2;
+			eatOption.selectionStep = SELECTION_STEP;
 			feedMinionOption = new MenuOption("feed minion");
-			feedMinionOption.selectionStep = 2;
+			feedMinionOption.selectionStep = SELECTION_STEP;
 			throwRuneOption = new MenuOption("throw");
-			throwRuneOption.selectionStep = 2;
+			throwRuneOption.selectionStep = SELECTION_STEP;
 			enchantmentsOption = new MenuOption("enchantments", enchantmentList);
 			
 			enchantmentList.pointers = new Vector.<MenuOption>();

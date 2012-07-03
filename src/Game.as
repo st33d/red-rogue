@@ -92,7 +92,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 398;
+		public static const BUILD_NUM:int = 399;
 		
 		public static const TEST_BED_INIT:Boolean = false;
 		
@@ -756,7 +756,9 @@
 			player.enterLevel(entrance, Player.previousLevel < game.map.level ? Collider.RIGHT : Collider.LEFT);
 			changeMusic();
 			
-			trackEvent("set level", Map.getName(map.type, map.level));
+			var mapNameStr:String = Map.getName(map.type, map.level);
+			if(map.type == Map.MAIN_DUNGEON) mapNameStr += ":" + map.level;
+			trackEvent("set level", mapNameStr);
 		}
 		
 		private function addListeners():void{
@@ -1072,8 +1074,9 @@
 		}
 		
 		/* Sends information to the Google Analytics tracking widget on the home page of redrogue.net */
-		public function trackEvent(action:String, label:String = "", value:int = 0):void{
-			var params:Array = ["_trackEvent", "game_events", action, label, value];
+		public function trackEvent(action:String, label:String = ""):void{
+			var seconds:int = frameCount / 30;
+			var params:Array = ["_trackEvent", "game_events_alpha", action, label, seconds];
 			if(allowScriptAccess){
 				ExternalInterface.call("_gaq.push", params);
 			}

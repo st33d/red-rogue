@@ -180,7 +180,9 @@
 				game.gameMenu.summonOption.active = false;
 				game.gameMenu.update();
 				minimapFX.active = false;
-				game.trackEvent("minion death", Map.getName(game.map.type, game.map.level));
+				var mapNameStr:String = Map.getName(game.map.type, game.map.level);
+				if(game.map.type == Map.MAIN_DUNGEON) mapNameStr += ":" + game.map.level;
+				game.trackEvent("minion death", mapNameStr);
 			} else {
 				if(temp_weapon) equip(temp_weapon);
 				if(temp_throwable) equip(temp_throwable);

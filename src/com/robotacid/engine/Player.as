@@ -519,7 +519,9 @@
 					game.gameMenu.death();
 					var deathLight:FadeLight = new FadeLight(FadeLight.DEATH, mapX, mapY);
 					tidyUp();
-					game.trackEvent("player death", Map.getName(game.map.type, game.map.level));
+					var mapNameStr:String = Map.getName(game.map.type, game.map.level);
+					if(game.map.type == Map.MAIN_DUNGEON) mapNameStr += ":" + game.map.level;
+					game.trackEvent("player death", mapNameStr);
 				}
 			}
 			renderer.shake(0, 5);

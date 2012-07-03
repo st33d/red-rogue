@@ -288,7 +288,7 @@
 			}
 			// concealing the item in the dark will help avoid showing a clipped effect on the edge
 			// of the light map
-			if(game.map.level <= 0) gfx.visible = true;
+			if(game.map.type == Map.AREA) gfx.visible = true;
 			else gfx.visible = game.lightMap.darkImage.getPixel32(mapX, mapY) != 0xFF000000 || game.player.infravision > 1;
 			
 			// check for collection by player
@@ -557,6 +557,7 @@
 				if(item.name == n){
 					optionStack.singleName = item.nameToString();
 					optionStack.updateName();
+					optionStack.help = item.getHelpText();
 					break;
 				}
 			}
@@ -579,6 +580,7 @@
 			var str:String = "";
 			if(type == RUNE){
 				str += "this rune ";
+				trace(runeNames[name]);
 				if(runeNames[name] == "?"){
 					str += "is unknown\nuse it to discover its power";
 				} else {
