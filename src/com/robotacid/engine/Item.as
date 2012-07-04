@@ -580,7 +580,6 @@
 			var str:String = "";
 			if(type == RUNE){
 				str += "this rune ";
-				trace(runeNames[name]);
 				if(runeNames[name] == "?"){
 					str += "is unknown\nuse it to discover its power";
 				} else {

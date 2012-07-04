@@ -67,6 +67,8 @@
 		
 		[Embed(source = 'assets/wave.png')] public var WaveB:Class;
 		
+		[Embed(source = "assets/hurt-red.png")] public var HurtB:Class;
+		
 		public const WEAPON_GFX_CLASSES:Array = [KnifeMC, ItemMovieClip, DaggerMC, MaceMC, ItemMovieClip, ItemMovieClip, SwordMC, ArbalestMC, SpearMC, ItemMovieClip, StaffMC, BombMC, ArquebusMC, HammerMC, ItemMovieClip, GunBladeMC, ScytheMC, ChaosWandMC, LightningMC, ItemMovieClip];
 		public const ARMOUR_GFX_CLASSES:Array = [FliesMC, ItemMovieClip, FedoraMC, TopHatMC, FirefliesMC, ItemMovieClip, BeesMC, VikingHelmMC, ItemMovieClip, ItemMovieClip, ItemMovieClip, ItemMovieClip, WizardHatMC, ItemMovieClip, ItemMovieClip, KnivesMC, ItemMovieClip, ItemMovieClip, Sprite, ItemMovieClip];
 		public const CHARACTER_GFX_CLASSES:Array = [RogueMC, KoboldMC, GoblinMC, OrcMC, TrollMC, GnollMC, DrowMC, CactuarMC, NymphMC, VampireMC, WerewolfMC, MimicMC, NagaMC, GorgonMC, UmberHulkMC, GolemMC, BansheeMC, WraithMC, MindFlayerMC, RakshasaMC, BalrogMC, SkeletonMC];

@@ -554,6 +554,7 @@
 		override public function applyDamage(n:Number, source:String, knockback:Number = 0, critical:Boolean = false, aggressor:Character = null, defaultSound:Boolean = true):void {
 			super.applyDamage(n, source, knockback, critical, aggressor, defaultSound);
 			game.playerHealthBar.setValue(health, totalHealth);
+			if(game.playerHealthBar.glowActive) renderer.painHurtAlpha = 0.5;
 		}
 		
 		override public function applyHealth(n:Number):void {

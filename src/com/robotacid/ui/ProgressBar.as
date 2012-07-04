@@ -17,13 +17,13 @@
 		public var bitmap:Bitmap
 		public var bitmapData:BitmapData;
 		public var glowShape:Shape;
+		public var glowActive:Boolean;
 		
 		public var borderCol:uint = 0xFFFFFFFF;
 		public var backCol:uint = 0xFF000000;
 		public var barCol:uint = 0xFFFFFFFF;
 		
 		private var glowCol:uint;
-		private var glowActive:Boolean;
 		private var glowRatio:Number;
 		
 		private var rect:Rectangle;

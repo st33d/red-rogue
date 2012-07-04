@@ -92,7 +92,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 399;
+		public static const BUILD_NUM:int = 400;
 		
 		public static const TEST_BED_INIT:Boolean = false;
 		
@@ -197,7 +197,7 @@
 		
 		public static const MAX_LEVEL:int = 20;
 		
-		public static const HEALTH_GLOW_RATIO:Number = 0.25;
+		public static const HEALTH_GLOW_RATIO:Number = 0.3;
 		public static const DEFAULT_BAR_COL:uint = 0xFFCCCCCC;
 		public static const DISABLED_BAR_COL:uint = 0xFFAA0000;
 		public static const GLOW_BAR_COL:uint = 0xAA0000;

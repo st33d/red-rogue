@@ -357,7 +357,7 @@
 				renderer.createDebrisSpurt(collider.x + collider.width * 0.5, collider.y + collider.height * 0.5, dx > 0 ? 5 : -5, 5, character.debrisType);
 				
 			} else if(type == RUNE){
-				if(character.type & Character.STONE){
+				if(character.type & (Character.STONE | Character.GATE)){
 					kill();
 					return;
 				}
@@ -368,7 +368,7 @@
 				item = null;
 				
 			} else if(type == DART){
-				if(character.type & Character.STONE){
+				if(character.type & (Character.STONE | Character.GATE)){
 					kill();
 					return;
 				}
@@ -377,7 +377,7 @@
 				game.soundQueue.add("runeHit");
 				
 			} else if(type == CHAOS){
-				if(character.type & Character.STONE){
+				if(character.type & (Character.STONE | Character.GATE)){
 					kill();
 					return;
 				}
