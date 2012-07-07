@@ -77,7 +77,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 401;
+		public static const BUILD_NUM:int = 402;
 		
 		public static const TEST_BED_INIT:Boolean = false;
 		public static const ONLINE:Boolean = true;
@@ -1033,6 +1033,8 @@
 			instructionsPreviousState = state;
 			if(state == MENU){
 				menuCarousel.deactivate();
+			} else if(state == UNFOCUSED){
+				instructionsPreviousState = focusPreviousState;
 			}
 			state = INSTRUCTIONS;
 			
