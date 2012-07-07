@@ -38,7 +38,7 @@ package com.robotacid.ui.menu {
 				xpReward = subject.xpReward;
 				
 			} else if(type == MACGUFFIN){
-				name = "get yendor";
+				name = "get the amulet of yendor";
 				xpReward = 0;
 			}
 			super(name, null, false);

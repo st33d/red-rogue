@@ -11,6 +11,7 @@ package com.robotacid.ui {
 		public var changeOverCallback:Function;
 		public var completeCallback:Function;
 		public var dir:int;
+		public var forceComplete:Boolean;
 		
 		private var textBox:TextBox;
 		private var textCount:int;
@@ -74,9 +75,10 @@ package com.robotacid.ui {
 		}
 		
 		/* Initiate a transition */
-		public function init(changeOverCallback:Function, completeCallback:Function = null, text:String = "", skipToBlack:Boolean = false):void{
+		public function init(changeOverCallback:Function, completeCallback:Function = null, text:String = "", skipToBlack:Boolean = false, forceComplete:Boolean = false):void{
 			this.changeOverCallback = changeOverCallback;
 			this.completeCallback = completeCallback;
+			this.forceComplete = forceComplete;
 			active = true;
 			graphics.beginFill(0);
 			graphics.drawRect(0, 0, Game.WIDTH, Game.HEIGHT);

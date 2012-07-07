@@ -75,6 +75,7 @@
 		public var minionMissileOption:ToggleMenuOption;
 		public var saveGifOption:MenuOption;
 		
+		public var instructionsOption:MenuOption;
 		public var screenshotOption:MenuOption;
 		public var saveLogOption:MenuOption;
 		public var editorOption:MenuOption;
@@ -215,6 +216,7 @@
 			initHotKeyMenuOption(trunk);
 			hotKeyOption.help = "set up a key to perform a menu action. the hot key will work even if the menu is hidden, the hot key will also adapt to menu changes";
 			
+			instructionsOption = new MenuOption("instructions");
 			soundOption = new MenuOption("sound", soundList);
 			soundOption.help = "toggle sound";
 			var sfxOption:MenuOption = new MenuOption("sfx", onOffList);
@@ -266,8 +268,9 @@
 			actionsList.options.push(jumpOption);
 			actionsList.options.push(sleepOption);
 			
-			optionsList.options.push(soundOption);
+			optionsList.options.push(instructionsOption);
 			optionsList.options.push(fullScreenOption);
+			optionsList.options.push(soundOption);
 			optionsList.options.push(screenshotOption);
 			optionsList.options.push(recordGifOption);
 			optionsList.options.push(saveLogOption);
@@ -341,7 +344,7 @@
 				</hotKey>,
 				<hotKey>
 				  <branch selection="3" name="options" context="null"/>
-				  <branch selection="11" name="multiplayer" context="null"/>
+				  <branch selection="12" name="multiplayer" context="null"/>
 				  <branch selection="1" name="minion shoot" context="minion missile"/>
 				</hotKey>
 			];
@@ -701,6 +704,10 @@
 						saveGifOption.active = false;
 					}
 				}
+			
+			// showing the instructions
+			} else if(option == instructionsOption){
+				game.transition.init(game.initInstructions, null, "", true);
 			
 			// taking a screenshot
 			} else if(option == screenshotOption){

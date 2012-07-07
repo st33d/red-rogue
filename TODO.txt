@@ -1,4 +1,4 @@
-Change log: increased warning health to 30%, added red glow border to edge of screen during warning health, fixed bug with various missiles affecting gates
+Change log: updated dreams.json, added instructions state prior to game, created offline testing mode, created instructions menu option
 
 Bug hunt
 	collection lock out on chests after playing for a while - bugged chest or item?
@@ -10,11 +10,11 @@ Bug hunt
 	minion dither spotted - caught in a probable follow/avoid loop
 	shot troll with arrow - no aggro, why? - possible frozen monster occurence
 
-make the console glow or something when a new report scrolls in (will have to orientate for different directions)
-	see if possible to create "hot" background for new reports
-
 instruction dialog
 	create transition code for changing to instruction dialog and not immediately starting game
+
+make the console glow or something when a new report scrolls in (will have to orientate for different directions)
+	see if possible to create "hot" background for new reports
 
 
 the balrog

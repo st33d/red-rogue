@@ -4,25 +4,10 @@
 	import com.robotacid.ai.HorrorBrain;
 	import com.robotacid.ai.Node;
 	import com.robotacid.ai.PlayerBrain;
-	import com.robotacid.engine.FadeLight;
-	import com.robotacid.engine.Sleep;
-	import com.robotacid.engine.Writing;
 	import com.robotacid.level.Content;
 	import com.robotacid.level.MapBitmap;
 	import com.robotacid.level.Map;
-	import com.robotacid.engine.ChaosWall;
-	import com.robotacid.engine.Character;
-	import com.robotacid.engine.Effect;
-	import com.robotacid.engine.Explosion;
-	import com.robotacid.engine.Minion;
-	import com.robotacid.engine.Portal;
-	import com.robotacid.engine.Entity;
-	import com.robotacid.engine.MapTileManager;
-	import com.robotacid.engine.Player;
-	import com.robotacid.engine.MapTileConverter;
-	import com.robotacid.engine.Item;
-	import com.robotacid.engine.Stone;
-	import com.robotacid.engine.Trap;
+	import com.robotacid.engine.*;
 	import com.robotacid.geom.Pixel;
 	import com.robotacid.geom.Trig;
 	import com.robotacid.gfx.*;
@@ -92,9 +77,10 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 400;
+		public static const BUILD_NUM:int = 401;
 		
 		public static const TEST_BED_INIT:Boolean = false;
+		public static const ONLINE:Boolean = true;
 		
 		public static var game:Game;
 		public static var renderer:Renderer;
@@ -140,6 +126,8 @@
 		public var keyItemStatus:Sprite;
 		public var suggestion:Suggestion;
 		public var fpsText:TextBox;
+		public var instructions:MovieClip;
+		public var instructionsHolder:Sprite;
 		
 		// debug
 		public var info:TextField;
@@ -154,7 +142,8 @@
 		
 		// states
 		public var state:int;
-		public var previousState:int;
+		public var focusPreviousState:int;
+		public var instructionsPreviousState:int;
 		public var frameCount:int;
 		public var mousePressedCount:int;
 		public var mousePressed:Boolean;
@@ -169,6 +158,7 @@
 		public var livesAvailable:HiddenInt;
 		public var visitedHash:Object;
 		public var multiplayer:Boolean;
+		public var firstInstructions:Boolean;
 		
 		// temp variables
 		private var i:int;
@@ -183,7 +173,8 @@
 		public static const MENU:int = 1;
 		public static const DIALOG:int = 2;
 		public static const TITLE:int = 3;
-		public static const UNFOCUSED:int = 4;
+		public static const INSTRUCTIONS:int = 4;
+		public static const UNFOCUSED:int = 5;
 		
 		public static const WIDTH:Number = 320;
 		public static const HEIGHT:Number = 240;
@@ -287,9 +278,14 @@
 			gameSoundsInit();
 			soundQueue = new SoundQueue();
 			
+			// LOAD SETTINGS
+			// to do
+			
 			dogmaticMode = false;
 			
 			multiplayer = false;
+			
+			firstInstructions = ONLINE;
 			
 			lives = new HiddenInt();
 			livesAvailable = new HiddenInt(3);
@@ -397,6 +393,9 @@
 			
 			confusionOverlayHolder = new Sprite();
 			addChild(confusionOverlayHolder);
+			
+			instructionsHolder = new Sprite();
+			addChild(instructionsHolder);
 			
 			addChild(transition);
 			
@@ -516,7 +515,13 @@
 			}
 			
 			if(TEST_BED_INIT) initTestBed();
-			else transition.init(function():void{}, null, levelName, true);
+			else if(ONLINE){
+				if(firstInstructions){
+					transition.init(initInstructions, null, "", true);
+				} else {
+					transition.init(function():void{}, null, levelName, true);
+				}
+			}
 		}
 		
 		/* Pedantically clear all memory and re-init the project */
@@ -783,7 +788,6 @@
 			//info.text = game.player.mapX + " " + game.player.mapY;
 			//info.appendText("pixels" + (getTimer() - t) + "\n"); t = getTimer();
 			
-			
 			if(state == GAME) {
 				
 				var advance:Boolean = true;
@@ -910,6 +914,12 @@
 			
 				if(player.brain.confusedCount) (player.brain as PlayerBrain).renderConfusion();
 				
+			} else if(state == INSTRUCTIONS){
+				if(transition.active) transition.main();
+				
+			} else if(state == MENU){
+				if(transition.active && transition.forceComplete) transition.main();
+				
 			}
 			
 			menuCarousel.currentMenu.main();
@@ -962,7 +972,7 @@
 			var start:int;
 			var name:String;
 			if(SoundManager.soundLoops["underworldMusic2"]) SoundManager.fadeLoopSound("underworldMusic2", -SoundManager.DEFAULT_FADE_STEP)
-			if(state == UNFOCUSED){
+			if(state == UNFOCUSED || state == INSTRUCTIONS){
 				if(SoundManager.currentMusic){
 					SoundManager.fadeMusic(SoundManager.currentMusic, -SoundManager.DEFAULT_FADE_STEP);
 				}
@@ -1010,11 +1020,74 @@
 			console.print("this is not how the game is meant to be played");
 		}
 		
+		/* Called when all salient features in the dungeon level are dealt with */
 		public function levelCompleteMsg():void{
 			var nameStr:String;
 			if(game.map.type == Map.MAIN_DUNGEON) nameStr = "level " + game.map.level;
 			else nameStr = Map.getName(game.map.type, game.map.level);
 			console.print(nameStr + " cleared");
+		}
+		
+		/* Creates the instructions splash screen and switches to INSTRUCTIONS state*/
+		public function initInstructions():void{
+			instructionsPreviousState = state;
+			if(state == MENU){
+				menuCarousel.deactivate();
+			}
+			state = INSTRUCTIONS;
+			
+			// generate splash
+			var mc:MovieClip = new InstructionsMC();
+			var combatText:TextBox = new TextBox(215, 62, 0x0, 0x0);
+			combatText.alignVert = "center";
+			combatText.text = "walk into monsters to auto-attack";
+			mc.addChild(combatText);
+			combatText.x = mc.combat.x + mc.combat.width + 3;
+			combatText.y = mc.combat.y;
+			var collectText:TextBox = new TextBox(215, 62, 0x0, 0x0);
+			collectText.alignVert = "center";
+			collectText.text = "press up to collect and to read";
+			mc.addChild(collectText);
+			collectText.x = mc.collect.x + mc.collect.width + 3;
+			collectText.y = mc.collect.y;
+			var exitText:TextBox = new TextBox(215, 62, 0x0, 0x0);
+			exitText.alignVert = "center";
+			exitText.text = "press down to exit a level";
+			mc.addChild(exitText);
+			exitText.x = mc.exit.x + mc.exit.width + 3;
+			exitText.y = mc.exit.y;
+			var menuText:TextBox = new TextBox(WIDTH, 12, 0x0, 0x0);
+			menuText.align = "center";
+			menuText.text = "use the menu key (" + Key.keyString(Key.custom[MENU_KEY]) + ") for items and skills";
+			mc.addChild(menuText);
+			var pressMenuText:TextBox = new TextBox(Menu.LIST_WIDTH * 2, 12, Dialog.ROLL_OUT_COL);
+			pressMenuText.align = "center";
+			pressMenuText.text = "press menu key " + (firstInstructions ? "to play" : "to resume");
+			mc.addChild(pressMenuText);
+			pressMenuText.x = (WIDTH * 0.5 - pressMenuText.width * 0.5) >> 0;
+			pressMenuText.y = HEIGHT - (pressMenuText.height + 2);
+			menuText.y = pressMenuText.y - (menuText.height + 5);
+			instructions = mc;
+			instructionsHolder.addChild(instructions);
+			
+			changeMusic();
+		}
+		
+		private function clearInstructions():void{
+			var levelName:String = "";
+			if(firstInstructions){
+				levelName = Map.getName(map.type, map.level);
+				firstInstructions = false;
+			}
+			transition.init(function():void{
+				if(instructions.parent) instructions.parent.removeChild(instructions);
+				instructions = null;
+				state = instructionsPreviousState;
+				if(state == MENU){
+					menuCarousel.activate();
+				}
+				changeMusic();
+			}, null, levelName, false, instructionsPreviousState == MENU);
 		}
 		
 		private function mouseDown(e:MouseEvent):void{
@@ -1029,7 +1102,13 @@
 		private function keyPressed(e:KeyboardEvent):void{
 			if(Key.lockOut) return;
 			if(Key.customDown(MENU_KEY) && !Game.dialog){
-				pauseGame();
+				if(state == INSTRUCTIONS){
+					clearInstructions();
+				} else if(state == TITLE){
+					
+				} else {
+					pauseGame();
+				}
 			}
 			/*if(Key.isDown(Key.K)){
 				//player.jump();
@@ -1053,7 +1132,7 @@
 		/* When the flash object loses focus we put up a splash screen to encourage players to click to play */
 		private function onFocusLost(e:Event = null):void{
 			if(state == UNFOCUSED) return;
-			previousState = state;
+			focusPreviousState = state;
 			state = UNFOCUSED;
 			Key.clearKeys();
 			addChild(focusPrompt);
@@ -1069,7 +1148,7 @@
 		 */
 		private function onFocus(e:Event = null):void{
 			if(focusPrompt.parent) focusPrompt.parent.removeChild(focusPrompt);
-			if(state == UNFOCUSED) state = previousState;
+			if(state == UNFOCUSED) state = focusPreviousState;
 			changeMusic();
 		}
 		
