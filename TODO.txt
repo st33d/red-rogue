@@ -1,4 +1,4 @@
-Change log: updated dreams.json, added instructions state prior to game, created offline testing mode, created instructions menu option
+Change log: lock gate cogs now retract before disappearing, rects of debris added to debris explosions to give them more central weight, removed suggestion class, minor adjustment to default camera y position
 
 Bug hunt
 	collection lock out on chests after playing for a while - bugged chest or item?
@@ -10,23 +10,11 @@ Bug hunt
 	minion dither spotted - caught in a probable follow/avoid loop
 	shot troll with arrow - no aggro, why? - possible frozen monster occurence
 
-instruction dialog
-	create transition code for changing to instruction dialog and not immediately starting game
-
-make the console glow or something when a new report scrolls in (will have to orientate for different directions)
-	see if possible to create "hot" background for new reports
-
-
 the balrog
 	create escape ai
 		create escape graph
 			create editor render
 			create escape node MapGraph function
-
-create nanny
-	menu text under lightmap
-		change to suggesting the correct key?
-
 
 Guide -
 	copy over races guide for elites (check racial bonuses are accurate), then fill out
@@ -59,9 +47,6 @@ sounds
 	mimic voice
 	lightning (short calls of quickening samples)
 
-status animations for effects
-	red drip for poison
-
 yendor
 	jumping
 		jumping ai
@@ -70,7 +55,6 @@ create Editor in debug menu
 	create option
 		map features
 			traps
-			chaos walls
 		items
 
 AI problems:

@@ -835,7 +835,8 @@
 		/* Kill the Character, printing a cause to the console and generating a Head object on decapitation */
 		public function death(cause:String = "crushing", decapitation:Boolean = false, aggressor:Character = null):void{
 			active = false;
-			renderer.createDebrisExplosion(collider, 1, 32, debrisType);
+			renderer.createDebrisExplosion(collider, 3, 20, debrisType);
+			renderer.createDebrisRect(collider, 0, 20, debrisType);
 			
 			// the goblin elite is always decapitated
 			if(rank == ELITE && name == GOBLIN) decapitation = true;

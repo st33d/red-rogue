@@ -324,7 +324,8 @@ package com.robotacid.engine {
 				var monster:Monster = Content.XMLToEntity(mapX, mapY, xml);
 				monster.xpReward = GOLEM_XP_REWARD * Content.getLevelXp(game.map.level);
 				game.mapTileManager.converter.convertIndicesToObjects(mapX, mapY, monster);
-				renderer.createDebrisExplosion(collider, 10, 140, Renderer.STONE);
+				renderer.createDebrisExplosion(collider, 10, 80, Renderer.STONE);
+				renderer.createDebrisRect(collider, 0, 60, Renderer.STONE);
 			} else {
 				renderer.createDebrisRect(collider, 0, 100, Renderer.STONE);
 			}

@@ -453,8 +453,8 @@
 		
 		public function snapCamera():void{
 			renderer.camera.setTarget(
-				collider.x +  collider.width * 0.5 +  cameraDisplacement.x,
-				collider.y +  collider.height * 0.5 +  cameraDisplacement.y
+				collider.x + collider.width * 0.5 + cameraDisplacement.x,
+				collider.y + cameraDisplacement.y
 			);
 			renderer.camera.skipPan();
 		}

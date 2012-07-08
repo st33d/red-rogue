@@ -28,7 +28,6 @@
 	import com.robotacid.ui.menu.QuestMenuOption;
 	import com.robotacid.ui.ProgressBar;
 	import com.robotacid.ui.QuickSave;
-	import com.robotacid.ui.Suggestion;
 	import com.robotacid.ui.TextBox;
 	import com.robotacid.ui.MiniMap;
 	import com.robotacid.ui.Key;
@@ -80,7 +79,7 @@
 		public static const BUILD_NUM:int = 402;
 		
 		public static const TEST_BED_INIT:Boolean = false;
-		public static const ONLINE:Boolean = true;
+		public static const ONLINE:Boolean = false;
 		
 		public static var game:Game;
 		public static var renderer:Renderer;
@@ -124,7 +123,6 @@
 		public var enemyHealthBar:ProgressBar;
 		public var livesPanel:LivesPanel;
 		public var keyItemStatus:Sprite;
-		public var suggestion:Suggestion;
 		public var fpsText:TextBox;
 		public var instructions:MovieClip;
 		public var instructionsHolder:Sprite;
@@ -233,7 +231,6 @@
 			QuestMenuOption.game = this;
 			Dialog.game = this;
 			EditorMenuList.game = this;
-			Suggestion.game = this;
 			Menu.game = this;
 			DebrisFX.IGNORE_PROPERTIES = (
 				Collider.CHARACTER | Collider.LEDGE | Collider.LADDER | Collider.HEAD | Collider.CORPSE
@@ -259,8 +256,6 @@
 			transition = new Transition();
 			
 			lightning = new Lightning();
-			
-			suggestion = new Suggestion();
 			
 			editor = new Editor(this, renderer);
 			

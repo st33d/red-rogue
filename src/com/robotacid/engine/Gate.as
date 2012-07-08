@@ -44,6 +44,7 @@
 		public static const OPENING:int = 2;
 		public static const CLOSED:int = 3;
 		public static const CLOSING:int = 4;
+		public static const RETIRING:int = 5;
 		
 		// names
 		public static const RAISE:int = 0;
@@ -112,13 +113,8 @@
 					gateState = OPEN;
 					if(name == CHAOS){
 						holdCount = HOLD_DELAY * 2 + game.random.range(HOLD_DELAY * 2);
-					} else {
-						if(name == LOCK){
-							// Surface.fragmentationMap is no longer necessary - delete it
-							Surface.fragmentationMap = null;
-							death();
-						}
-						callMain = false;
+					} else if(name == LOCK){
+						gateState = RETIRING;
 					}
 				}
 				
@@ -172,6 +168,15 @@
 					gateState = OPENING;
 					collider.awake = Collider.AWAKE_DELAY;
 					game.createDistSound(mapX, mapY, "gateOpen");
+				}
+				
+			} else if(gateState == RETIRING){
+				if(cogDisplacement <= 0){
+					if(name == LOCK){
+						// Surface.fragmentationMap is no longer necessary - delete it
+						Surface.fragmentationMap = null;
+						death();
+					}
 				}
 			}
 			//Game.debug.drawRect(collider.x, collider.y, collider.width, collider.height);
@@ -289,7 +294,7 @@
 				}
 				renderer.cogRectBlit.dirs[CogRectBlit.BOTTOM_RIGHT] = 1;
 				renderer.cogRectBlit.dirs[CogRectBlit.BOTTOM_LEFT] = -1;
-			} else if(gateState == CLOSED || gateState == CLOSING){
+			} else if(gateState == CLOSED || gateState == CLOSING || gateState == RETIRING){
 				if(cogDisplacement > 0){
 					cogDisplacement--;
 				}
