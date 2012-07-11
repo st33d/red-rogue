@@ -212,7 +212,6 @@
 		public static const SMITE_PER_LEVEL:Number = 0.05;
 		public static const QUICKENING_PER_LEVEL:Number = 0.5;
 		public static const JUMP_VELOCITY:Number = -7;
-		public static const BALROG_SMITE_DAMAGE_PER_LEVEL:Number = 1 / 40;
 		
 		public static const DEFAULT_COL:ColorTransform = new ColorTransform();
 		public static const INFRAVISION_COLS:Vector.<ColorTransform> = Vector.<ColorTransform>([DEFAULT_COL, new ColorTransform(1, 0, 0, 1, 255), new ColorTransform(1, 0.7, 0.7, 1, 50)]);
@@ -389,7 +388,6 @@
 				name == BANSHEE ||
 				name == MIND_FLAYER ||
 				name == RAKSHASA ||
-				name == BALROG ||
 				(rank == ELITE && (
 					name == CACTUAR ||
 					name == WRAITH
@@ -1387,9 +1385,6 @@
 					else if(looking & LEFT) effect = new Effect(Effect.HEAL, level, Effect.THROWN, target);
 				}
 				
-			// smite
-			} else if(name == BALROG){
-				target.smite(looking, target.totalHealth * BALROG_SMITE_DAMAGE_PER_LEVEL * level);
 			}
 		}
 		
@@ -1431,7 +1426,7 @@
 						)
 					)
 				){
-					Effect.teleportCharacter(this, Effect.getTeleportTarget(mapX, mapY, game.world.map, game.mapTileManager.mapRect, (this == game.player && !game.player.keyItem && Surface.fragmentationMap)));
+					Effect.teleportCharacter(this);
 				}
 			}
 			

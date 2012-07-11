@@ -1,4 +1,4 @@
-Change log: lock gate cogs now retract before disappearing, rects of debris added to debris explosions to give them more central weight, removed suggestion class, minor adjustment to default camera y position
+Change log: changed Effect.teleportCharacter to call Brain.clear on all NPCs, added silent teleport to teleportCharacter for positioning Balrog in level, changed usage of Effect.teleportCharacter where redundant calls to getTeleportTarget were used, removed balrog racial attack (character already very powerful, plus he can generate golems via chaos wall destruction)
 
 Bug hunt
 	collection lock out on chests after playing for a while - bugged chest or item?
@@ -11,10 +11,16 @@ Bug hunt
 	shot troll with arrow - no aggro, why? - possible frozen monster occurence
 
 the balrog
+	entry point into game
+		taunting at exit
+		the chase
 	create escape ai
 		create escape graph
 			create editor render
 			create escape node MapGraph function
+
+
+gates destroyed by bombs (or simply explosions?)
 
 Guide -
 	copy over races guide for elites (check racial bonuses are accurate), then fill out
@@ -39,6 +45,7 @@ save and quit
 		save overworld items
 			save location
 				add location to item xml
+		save portals
 		figure out what to do with underworld items
 			secondary warehouse?
 

@@ -76,7 +76,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 402;
+		public static const BUILD_NUM:int = 404;
 		
 		public static const TEST_BED_INIT:Boolean = false;
 		public static const ONLINE:Boolean = false;
@@ -90,6 +90,7 @@
 		// core engine objects
 		public var player:Player;
 		public var minion:Minion;
+		public var balrog:Balrog;
 		public var library:Library;
 		public var map:Map;
 		public var content:Content;
@@ -827,6 +828,10 @@
 						player.main();
 						if(player.asleep) sleep.main();
 						if(transition.active) return;
+					}
+					
+					if(balrog && balrog.active){
+						balrog.main();
 					}
 					
 					// update items

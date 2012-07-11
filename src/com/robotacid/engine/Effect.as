@@ -895,20 +895,24 @@
 		}
 		
 		/* Effects a teleportation upon a character */
-		public static function teleportCharacter(target:Character, dest:Pixel = null):void{
-			renderer.createSparkRect(target.collider, 20);
+		public static function teleportCharacter(target:Character, dest:Pixel = null, silent:Boolean = false):void{
+			
+			if(!silent) renderer.createSparkRect(target.collider, 20);
+			
 			target.collider.divorce();
 			if(!dest) dest = getTeleportTarget(target.mapX, target.mapY, game.world.map, game.mapTileManager.mapRect, (target == game.player && !game.player.keyItem && Surface.fragmentationMap));
 			target.collider.x = -target.collider.width * 0.5 + (dest.x + 0.5) * Game.SCALE;
 			target.collider.y = -target.collider.height + (dest.y + 1) * Game.SCALE;
+			if(target.brain && !(target.brain is PlayerBrain)) target.brain.clear();
 			if(target is Player){
 				game.lightMap.blackOut();
 				(target as Player).snapCamera();
-			} else if(target is Monster){
-				(target as Monster).brain.clear();
 			}
-			renderer.createSparkRect(target.collider, 20);
-			game.soundQueue.addRandom("teleport", ["teleport1", "teleport2", "teleport3"]);
+			
+			if(!silent){
+				renderer.createSparkRect(target.collider, 20);
+				game.soundQueue.addRandom("teleport", ["teleport1", "teleport2", "teleport3"]);
+			}
 		}
 		
 		public function nameToString():String{

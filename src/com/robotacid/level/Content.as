@@ -1,4 +1,5 @@
 ﻿package com.robotacid.level {
+	import com.robotacid.engine.Balrog;
 	import com.robotacid.engine.Character;
 	import com.robotacid.engine.Chest;
 	import com.robotacid.engine.ColliderEntity;
@@ -58,6 +59,7 @@
 		public static var armourNameDeck:Array;
 		public static var runeNameDeck:Array;
 		public static var holyStateIntroLevel:int;
+		public static var balrogIntroLevel:int;
 		
 		// special items
 		public var deathsScythe:Item;
@@ -138,8 +140,13 @@
 					zoneSizes[levelsInZone[j]]++;
 				}
 			}
+			// introduce holy items at the beginning of the sewers
 			holyStateIntroLevel = zoneSizes[0] + 1;
+			// introduce the balrog at the end of the caves
+			balrogIntroLevel = zoneSizes[0] + zoneSizes[1] + zoneSizes[2];
+			
 			//trace(zoneSizes);
+			//trace(balrogIntroLevel);
 			
 			//trace("xp table", xpTable.length, xpTable);
 			//trace("monster xp by level", monsterXpByLevel.length, monsterXpByLevel);
@@ -233,6 +240,9 @@
 			portalsByLevel[15].push(portalXML);
 			setUnderworldPortal(15);
 			createUniqueItems();
+			
+			// generate the balrog
+			//monstersByLevel[1].push(createBalrogXML());
 		}
 		
 		/* All unique items exist in Content as well as outside */
@@ -494,9 +504,14 @@
 				var group:String;
 				for(i = 0; i < monsters.length; i++){
 					name = monsters[i].@name;
-					group = Character.stats["groups"][name];
-					if(!groups[group]) groups[group] = [monsters[i]];
-					else groups[group].push(monsters[i]);
+					if(name == Character.BALROG){
+						// the balrog manages its own entry point and location
+						game.balrog = XMLToEntity(0, 0, monsters[i]);
+					} else {
+						group = Character.stats["groups"][name];
+						if(!groups[group]) groups[group] = [monsters[i]];
+						else groups[group].push(monsters[i]);
+					}
 				}
 				
 				// get the mean quantity of monsters per room
@@ -695,6 +710,10 @@
 			for(i = 0; i < game.items.length; i++){
 				recycleEntity(game.items[i], level, mapType);
 			}
+			if(game.balrog){
+				recycleEntity(game.balrog, level, mapType);
+				game.balrog = null;
+			}
 			var portal:Portal;
 			for(i = 0; i < game.portals.length; i++){
 				portal = game.portals[i];
@@ -761,7 +780,7 @@
 					deathsScythe.location = Item.UNASSIGNED;
 				}
 				
-			}if(entity is Monster){
+			} else if(entity is Monster){
 				// strip Death's Scythe from the level to return it to Death
 				if(deathsScythe.location != Item.UNASSIGNED){
 					character = entity as Character;
@@ -779,6 +798,11 @@
 				else if(mapType == Map.ITEM_DUNGEON) itemDungeonContent.monsterXp += (entity as Monster).xpReward;
 				// do not recycle generated monsters
 				if((entity as Monster).characterNum > -1) monsters.push(entity.toXML());
+				
+			} else if(entity is Balrog){
+				// the balrog could only have been recycled from the player leaving the level before it did
+				(entity as Balrog).levelState = Balrog.WANDER_LEVEL;
+				monsters.push(entity.toXML());
 				
 			} else if(entity is Item){
 				item = entity as Item;
@@ -881,6 +905,14 @@
 			xml.appendChild(weaponXML);
 			xml.appendChild(armourXML);
 			
+			return xml;
+		}
+		
+		/* Create xml for The Balrog */
+		public static function createBalrogXML():XML{
+			var xml:XML =<character characterNum={-1} name={Character.BALROG} type={Character.MONSTER} level={1} rank={Character.ELITE} levelState={Balrog.STAIRS_DOWN_TAUNT} />;
+			var yendorXML:XML =<item name={Item.YENDOR} type={Item.ARMOUR} level={Game.MAX_LEVEL} />;
+			xml.appendChild(yendorXML);
 			return xml;
 		}
 		
@@ -1043,7 +1075,11 @@
 				}
 				if(type == Character.MONSTER){
 					mc = game.library.getCharacterGfx(name);
-					obj = new Monster(mc, (x + 0.5) * Game.SCALE, (y + 1) * Game.SCALE, name, level, items, rank);
+					if(name == Character.BALROG){
+						obj = new Balrog(mc, items, int(xml.@levelState));
+					} else {
+						obj = new Monster(mc, (x + 0.5) * Game.SCALE, (y + 1) * Game.SCALE, name, level, items, rank);
+					}
 					obj.characterNum = xml.@characterNum;
 					// does it have a name?
 					if(xml.hasOwnProperty("@uniqueNameStr") && xml.@uniqueNameStr != "null" && xml.@uniqueNameStr != ""){

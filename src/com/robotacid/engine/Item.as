@@ -467,13 +467,14 @@
 						if(character.type == Character.PLAYER && character.weapon){
 							game.gameMenu.missileOption.active = Boolean(character.weapon.range & (MISSILE | THROWN));
 						}
-						// teleport the player out of locked areas
+						// teleport the player out of locked areas if they have no key
 						if(
 							character.type == Character.PLAYER &&
+							!game.player.keyItem &&
 							Surface.fragmentationMap &&
 							Surface.fragmentationMap.getPixel32(character.mapX, character.mapY) != Surface.entranceCol
 						){
-							Effect.teleportCharacter(character, Effect.getTeleportTarget(character.mapX, character.mapY, game.world.map, game.mapTileManager.mapRect, true));
+							Effect.teleportCharacter(character);
 						}
 						
 					} else if(character.type == Character.MONSTER){

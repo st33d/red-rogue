@@ -363,7 +363,7 @@
 			
 			// now add some extra flavour
 			createOtherTraps(pixels);
-			// below level 16 the minion cannot have written anything
+			// beyond the starting position of the underworld portal, the minion cannot have written anything
 			if(level <= Writing.story.length && type == MAIN_DUNGEON) createWritings(pixels);
 			createDecor(pixels);
 			createChaosWalls(pixels);
