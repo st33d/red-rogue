@@ -1,4 +1,4 @@
-Change log: changed Effect.teleportCharacter to call Brain.clear on all NPCs, added silent teleport to teleportCharacter for positioning Balrog in level, changed usage of Effect.teleportCharacter where redundant calls to getTeleportTarget were used, removed balrog racial attack (character already very powerful, plus he can generate golems via chaos wall destruction)
+Change log: fixed minion entering a level thru stairs down in wrong direction, fixed AI graph generation bug caused by using gate markers to keep background graphics from spawning on portals
 
 Bug hunt
 	collection lock out on chests after playing for a while - bugged chest or item?
@@ -11,9 +11,12 @@ Bug hunt
 	shot troll with arrow - no aggro, why? - possible frozen monster occurence
 
 the balrog
-	entry point into game
-		taunting at exit
-		the chase
+	create a minimap feature for the balrog
+	yendor is being stripped from the balrog
+	*entry point into game
+		*taunting at exit
+		*the chase
+			*set up pause for player entering level due to balrog entering first
 	create escape ai
 		create escape graph
 			create editor render
@@ -21,6 +24,8 @@ the balrog
 
 
 gates destroyed by bombs (or simply explosions?)
+
+make yendor's chain slightly transparent so it doesn't look like weird horns
 
 Guide -
 	copy over races guide for elites (check racial bonuses are accurate), then fill out

@@ -133,6 +133,14 @@
 				}
 			}
 			createBackground();
+			
+			// remove gate pixels over exits for ai graph
+			if(stairsDown) bitmap.bitmapData.setPixel32(stairsDown.x, stairsDown.y, MapBitmap.EMPTY);
+			if(stairsUp) bitmap.bitmapData.setPixel32(stairsUp.x, stairsUp.y, MapBitmap.EMPTY);
+			for(i = 0; i < portals.length; i++){
+				bitmap.bitmapData.setPixel32(portals[i].x, portals[i].y, MapBitmap.EMPTY);
+			}
+			
 			//bitmap.scaleX = bitmap.scaleY = 2;
 			//game.addChild(bitmap);
 			

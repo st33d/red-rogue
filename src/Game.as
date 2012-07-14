@@ -76,10 +76,10 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 404;
+		public static const BUILD_NUM:int = 405;
 		
 		public static const TEST_BED_INIT:Boolean = false;
-		public static const ONLINE:Boolean = false;
+		public static const ONLINE:Boolean = true;
 		
 		public static var game:Game;
 		public static var renderer:Renderer;
@@ -694,7 +694,6 @@
 			}
 			keyItemStatus.visible = player.keyItem;
 			
-			
 			if(minion){
 				minion.collider.x = -minion.collider.width * 0.5 + (map.start.x + 0.5) * SCALE;
 				minion.collider.y = -minion.collider.height + (map.start.y + 1) * SCALE;
@@ -705,6 +704,10 @@
 				minion.prepareToEnter(entrance);
 				minion.brain.clear();
 				minion.addMinimapFeature();
+			}
+			
+			if(balrog){
+				balrog.addMinimapFeature();
 			}
 			
 			// outside areas are set pieces, meant to give contrast to the dungeon and give the player
@@ -754,7 +757,20 @@
 					player.changeName(Character.ROGUE, new RogueMC);
 				}
 			}
-			player.enterLevel(entrance, Player.previousLevel < game.map.level ? Collider.RIGHT : Collider.LEFT);
+			// when chasing the balrog the player will enter the level after the balrog
+			// emphasising the nature of the chase
+			if(
+				balrog &&
+				balrog.levelState == Balrog.ENTER_STAIRS_UP &&
+				entrance.type == Portal.STAIRS &&
+				Player.previousLevel < map.level
+			){
+				player.prepareToEnter(entrance);
+				if(minion) minion.enterCount *= 2;
+				balrog.enterLevel(entrance);
+			} else {
+				player.enterLevel(entrance, Player.previousLevel < map.level ? Collider.RIGHT : Collider.LEFT);
+			}
 			changeMusic();
 			
 			var mapNameStr:String = Map.getName(map.type, map.level);

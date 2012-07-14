@@ -56,6 +56,7 @@
 		public var canMenuAction:Boolean;
 		public var searchRadius:int;
 		public var disarmTrapCount:int;
+		public var enterCount:int;
 		
 		private var searchMax:int;
 		private var searchCount:int;
@@ -83,6 +84,7 @@
 		public static const ROGUE_SEARCH_MAX:int = 20;
 		public static const DEFAULT_SEARCH_MAX:int = 10;
 		public static const DISARM_TRAP_DELAY:int = 60;
+		public static const ENTER_DELAY:int = 30;
 		
 		public static const CAMERA_DISPLACE_SPEED:Number = 1;
 		public static const CAMERA_DISPLACEMENT:Number = 70;
@@ -143,6 +145,14 @@
 		
 		// Loop
 		override public function main():void{
+			if(enterCount){
+				enterCount--;
+				if(enterCount == 0){
+					enterLevel(portal);
+				} else {
+					return;
+				}
+			}
 			
 			tileCenter = (mapX + 0.5) * SCALE;
 			
@@ -271,20 +281,20 @@
 					
 				} else {
 					// check for portals
-					var portal:Portal;
+					var portalCheck:Portal;
 					
 					for(i = 0; i < game.portals.length; i++){
-						portal = game.portals[i];
+						portalCheck = game.portals[i];
 						if(
-							portal.playerPortal &&
+							portalCheck.playerPortal &&
 							state == Character.WALKING &&
-							portal.rect.x + portal.rect.width > collider.x &&
-							collider.x + collider.width > portal.rect.x &&
-							portal.rect.y + portal.rect.height > collider.y &&
-							collider.y + collider.height > portal.rect.y
+							portalCheck.rect.x + portalCheck.rect.width > collider.x &&
+							collider.x + collider.width > portalCheck.rect.x &&
+							portalCheck.rect.y + portalCheck.rect.height > collider.y &&
+							collider.y + collider.height > portalCheck.rect.y
 						){
 							if(!portalContact){
-								portalContact = portal;
+								portalContact = portalCheck;
 								break;
 							}
 						}
@@ -338,6 +348,12 @@
 				disarmTrapCount--;
 				if(disarmTrapCount == 0) game.console.print("disarm trap xp penalty expired");
 			}
+		}
+		
+		/* The player waits for the balrog to finish using the stairs */
+		public function prepareToEnter(portal:Portal):void{
+			enterCount = ENTER_DELAY;
+			this.portal = portal;
 		}
 		
 		/* Opens a confirmation dialog for exiting the level */

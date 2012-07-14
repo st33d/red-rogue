@@ -143,7 +143,8 @@
 			// introduce holy items at the beginning of the sewers
 			holyStateIntroLevel = zoneSizes[0] + 1;
 			// introduce the balrog at the end of the caves
-			balrogIntroLevel = zoneSizes[0] + zoneSizes[1] + zoneSizes[2];
+			//balrogIntroLevel = zoneSizes[0] + zoneSizes[1] + zoneSizes[2];
+			balrogIntroLevel = 1;
 			
 			//trace(zoneSizes);
 			//trace(balrogIntroLevel);
@@ -242,7 +243,7 @@
 			createUniqueItems();
 			
 			// generate the balrog
-			//monstersByLevel[1].push(createBalrogXML());
+			//monstersByLevel[balrogIntroLevel].push(createBalrogXML());
 		}
 		
 		/* All unique items exist in Content as well as outside */

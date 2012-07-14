@@ -30,6 +30,7 @@ package com.robotacid.ai {
 		}
 		
 		override public function main():void {
+			trace(state, count);
 			
 			charPos.x = char.collider.x + char.collider.width * 0.5;
 			charPos.y = char.collider.y + char.collider.height * 0.5;
@@ -72,6 +73,7 @@ package com.robotacid.ai {
 			
 			// stand by the exit to the dungeon, waiting for the player or minion to attack, then exit
 			if(state == TAUNT){
+				char.actions = char.dir = 0;
 				if(game.player.mapX < char.mapX) char.looking = LEFT;
 				else if(game.player.mapX > char.mapX) char.looking = RIGHT;
 				

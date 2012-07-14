@@ -72,7 +72,7 @@
 			if(enterCount){
 				enterCount--;
 				if(enterCount == 0){
-					enterLevel(portal);
+					enterLevel(portal, Player.previousLevel < game.map.level ? Collider.RIGHT : Collider.LEFT);
 				} else {
 					return;
 				}
