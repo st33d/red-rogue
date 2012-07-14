@@ -135,10 +135,10 @@
 			createBackground();
 			
 			// remove gate pixels over exits for ai graph
-			if(stairsDown) bitmap.bitmapData.setPixel32(stairsDown.x, stairsDown.y, MapBitmap.EMPTY);
-			if(stairsUp) bitmap.bitmapData.setPixel32(stairsUp.x, stairsUp.y, MapBitmap.EMPTY);
+			if(stairsDown && bitmap.bitmapData.getPixel32(stairsDown.x, stairsDown.y) == MapBitmap.GATE) bitmap.bitmapData.setPixel32(stairsDown.x, stairsDown.y, MapBitmap.EMPTY);
+			if(stairsUp && bitmap.bitmapData.getPixel32(stairsUp.x, stairsUp.y) == MapBitmap.GATE) bitmap.bitmapData.setPixel32(stairsUp.x, stairsUp.y, MapBitmap.EMPTY);
 			for(i = 0; i < portals.length; i++){
-				bitmap.bitmapData.setPixel32(portals[i].x, portals[i].y, MapBitmap.EMPTY);
+				if(bitmap.bitmapData.getPixel32(portals[i].x, portals[i].y) == MapBitmap.GATE) bitmap.bitmapData.setPixel32(portals[i].x, portals[i].y, MapBitmap.EMPTY);
 			}
 			
 			//bitmap.scaleX = bitmap.scaleY = 2;
@@ -531,7 +531,8 @@
 		/* Creates a stairway up */
 		public function setStairsUp(x:int, y:int):void{
 			layers[ENTITIES][y][x] = MapTileConverter.STAIRS_UP;
-			bitmap.bitmapData.setPixel32(x, y, MapBitmap.GATE);
+			// prevent background decorator from creating graphics covering portals
+			if(bitmap.bitmapData.getPixel32(x, y) == MapBitmap.EMPTY) bitmap.bitmapData.setPixel32(x, y, MapBitmap.GATE);
 			stairsUp = new Pixel(x, y);
 			if(isPortalToPreviousLevel(x, y, Portal.STAIRS, level - 1)){
 				start = stairsUp;
@@ -542,7 +543,8 @@
 		/* Creates a stairway down */
 		public function setStairsDown(x:int, y:int):void{
 			layers[ENTITIES][y][x] = MapTileConverter.STAIRS_DOWN;
-			bitmap.bitmapData.setPixel32(x, y, MapBitmap.GATE);
+			// prevent background decorator from creating graphics covering portals
+			if(bitmap.bitmapData.getPixel32(x, y) == MapBitmap.EMPTY) bitmap.bitmapData.setPixel32(x, y, MapBitmap.GATE);
 			stairsDown = new Pixel(x, y);
 			if(isPortalToPreviousLevel(x, y, Portal.STAIRS, level + 1)){
 				start = stairsDown;
@@ -561,7 +563,8 @@
 				}
 			}
 			layers[ENTITIES][y][x] = portal;
-			bitmap.bitmapData.setPixel32(x, y, MapBitmap.GATE);
+			// prevent background decorator from creating graphics covering portals
+			if(bitmap.bitmapData.getPixel32(x, y) == MapBitmap.EMPTY) bitmap.bitmapData.setPixel32(x, y, MapBitmap.GATE);
 			if(isPortalToPreviousLevel(x, y, int(xml.@type), int(xml.@targetLevel))){
 				start = p;
 				if(Surface.map[y][x] && Surface.map[y][x].room) Surface.map[y][x].room.start = true;
