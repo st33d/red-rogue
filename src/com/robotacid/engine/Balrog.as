@@ -224,6 +224,11 @@ package com.robotacid.engine {
 		
 		override public function toXML():XML {
 			var xml:XML = super.toXML();
+			if(loot.length){
+				for(var i:int = 0; i < loot.length; i++){
+					xml.appendChild(loot[i].toXML());
+				}
+			}
 			xml.@levelState = levelState;
 			return xml;
 		}

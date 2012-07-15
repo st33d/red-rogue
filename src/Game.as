@@ -76,7 +76,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 405;
+		public static const BUILD_NUM:int = 406;
 		
 		public static const TEST_BED_INIT:Boolean = false;
 		public static const ONLINE:Boolean = true;
@@ -502,14 +502,6 @@
 			visitedHash = {};
 			visitedHash[levelName] = true;
 			
-			// this is a hack to force clicking on the game when the browser first pulls in the swf
-			if(forceFocus){
-				onFocusLost();
-				forceFocus = false;
-			} else {
-				changeMusic();
-			}
-			
 			if(TEST_BED_INIT) initTestBed();
 			else if(ONLINE){
 				if(firstInstructions){
@@ -517,6 +509,14 @@
 				} else {
 					transition.init(function():void{}, null, levelName, true);
 				}
+			}
+			
+			// this is a hack to force clicking on the game when the browser first pulls in the swf
+			if(forceFocus){
+				onFocusLost();
+				forceFocus = false;
+			} else {
+				changeMusic();
 			}
 		}
 		

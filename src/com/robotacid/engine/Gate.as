@@ -233,7 +233,7 @@
 			gateState = OPENING;
 		}
 		
-		/* Called to remove a LOCK gate permanently or when the balrog touches a gate */
+		/* Called to destroy a gate */
 		override public function death(cause:String = "crushing", decapitation:Boolean = false, aggressor:Character = null):void {
 			if(!active) return;
 			active = false;
@@ -248,9 +248,7 @@
 				minimapFeature.active = false;
 				minimapFeature = null;
 			}
-			if(gateState != OPEN){
-				renderer.createDebrisRect(collider, 0, 50, debrisType);
-			}
+			renderer.createDebrisRect(collider, 0, 50, debrisType);
 		}
 		
 		

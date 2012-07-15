@@ -1,4 +1,4 @@
-Change log: fixed minion entering a level thru stairs down in wrong direction, fixed AI graph generation bug caused by using gate markers to keep background graphics from spawning on portals
+Change log: changed asterisk graphic, changed yendor graphic, fixed bug with explosions pushing gates, explosions now destroy gates, fixed forced UNFOCUSED state being triggered before INSTRUCTIONS state
 
 Bug hunt
 	collection lock out on chests after playing for a while - bugged chest or item?
@@ -12,7 +12,6 @@ Bug hunt
 
 the balrog
 	create a minimap feature for the balrog
-	yendor is being stripped from the balrog
 	*entry point into game
 		*taunting at exit
 		*the chase

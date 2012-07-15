@@ -81,39 +81,43 @@ package com.robotacid.engine {
 			var character:Character, effect:Effect;
 			for(i = 0; i < colliders.length; i++){
 				character = colliders[i].userData as Character;
-				if(
-					character &&
-					character.active &&
-					character.state != Character.QUICKENING &&
-					character.state != Character.ENTERING &&
-					character.state != Character.EXITING
-				){
-					if(item && item.effects && character.active){
-						character.applyWeaponEffects(item);
+				if(character && character.active){
+					if(character.type == Character.GATE){
+						character.death("explosion");
+						game.console.print("gate destroyed by explosion");
+						
+					} else if(
+						character.state != Character.QUICKENING &&
+						character.state != Character.ENTERING &&
+						character.state != Character.EXITING
+					){
+						if(item && item.effects && character.active){
+							character.applyWeaponEffects(item);
+						}
+						// damage
+						var hitDamage:Number = damage;
+						if(character.protectionModifier < 1){
+							hitDamage *= character.protectionModifier < Character.MIN_PROTECTION_MODIFIER ? Character.MIN_PROTECTION_MODIFIER : character.protectionModifier;
+						}
+						// blessed weapon? roll for smite
+						if(item && item.holyState == Item.BLESSED && game.random.value() < Character.SMITE_PER_LEVEL * item.level){
+							character.smite((character.looking & Collider.LEFT) ? Collider.RIGHT : Collider.LEFT, hitDamage * 0.5);
+							// half of hitDamage is transferred to the smite state
+							hitDamage *= 0.5;
+						}
+						// leech
+						if(sender && (sender.leech || (item && item.leech)) && !(character.armour && character.armour.name == Item.BLOOD)){
+							var leechValue:Number = sender.leech + (item ? item.leech : 0);
+							if(leechValue > 1) leechValue = 1;
+							leechValue *= hitDamage;
+							if(leechValue > character.health) leechValue = character.health;
+							sender.applyHealth(leechValue);
+						}
+						// apply damage
+						character.applyDamage(item.damage, "explosion", 0, false, sender);
+						// blood
+						renderer.createDebrisExplosion(character.collider, 5, 20, character.debrisType);
 					}
-					// damage
-					var hitDamage:Number = damage;
-					if(character.protectionModifier < 1){
-						hitDamage *= character.protectionModifier < Character.MIN_PROTECTION_MODIFIER ? Character.MIN_PROTECTION_MODIFIER : character.protectionModifier;
-					}
-					// blessed weapon? roll for smite
-					if(item && item.holyState == Item.BLESSED && game.random.value() < Character.SMITE_PER_LEVEL * item.level){
-						character.smite((character.looking & Collider.LEFT) ? Collider.RIGHT : Collider.LEFT, hitDamage * 0.5);
-						// half of hitDamage is transferred to the smite state
-						hitDamage *= 0.5;
-					}
-					// leech
-					if(sender && (sender.leech || (item && item.leech)) && !(character.armour && character.armour.name == Item.BLOOD)){
-						var leechValue:Number = sender.leech + (item ? item.leech : 0);
-						if(leechValue > 1) leechValue = 1;
-						leechValue *= hitDamage;
-						if(leechValue > character.health) leechValue = character.health;
-						sender.applyHealth(leechValue);
-					}
-					// apply damage
-					character.applyDamage(item.damage, "explosion", 0, false, sender);
-					// blood
-					renderer.createDebrisExplosion(character.collider, 5, 20, character.debrisType);
 				}
 			}
 			game.explosions.push(this);
@@ -134,7 +138,7 @@ package com.robotacid.engine {
 					var collider:Collider;
 					getRect.x = (mapX - 1) * SCALE;
 					getRect.y = (mapY - 1) * SCALE;
-					colliders = game.world.getCollidersIn(getRect, null, Collider.CHARACTER, Collider.HEAD | Collider.STONE | Collider.CHAOS);
+					colliders = game.world.getCollidersIn(getRect, null, Collider.CHARACTER, Collider.HEAD | Collider.STONE | Collider.CHAOS | Collider.GATE);
 					for(i = 0; i < colliders.length; i++){
 						collider = colliders[i];
 						if(dirs & UP){
