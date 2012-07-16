@@ -115,113 +115,134 @@ package com.robotacid.engine {
 			minimapFX.x = mapX;
 			minimapFX.y = mapY;
 			
-			/*
+			
 			// update exiting a level
-			if(state == EXITING){
+			//if(state == EXITING){
 				// capture the exit direction before we clear the reference to the portal
-				var exitDir:int = portal.targetLevel > game.map.level ? 1 : -1;
-				var portalType:int = portal.type;
-				var portalTargetLevel:int = portal.targetLevel;
-				moving = true;
-				if(portal.type == Portal.STAIRS){
-					if(portal.targetLevel > game.map.level){
-						if(moveCount){
-							if(dir == RIGHT) gfx.x += STAIRS_SPEED;
-							else if(dir == LEFT) gfx.x -= STAIRS_SPEED;
-							gfx.y += STAIRS_SPEED;
-						}
-						if(gfx.y >= (portal.mapY + 1) * Game.SCALE + PORTAL_DISTANCE) portal = null;
-					} else if(portal.targetLevel < game.map.level){
-						if(moveCount){
-							if(dir == RIGHT) gfx.x += STAIRS_SPEED;
-							else if(dir == LEFT) gfx.x -= STAIRS_SPEED;
-							gfx.y -= STAIRS_SPEED;
-						}
-						if(gfx.y <= (portal.mapY + 1) * Game.SCALE - PORTAL_DISTANCE) portal = null;
-					}
-				} else {
-					if(dir == RIGHT){
-						gfx.x += speed * collider.dampingX;
-						if(gfx.x > (portal.mapX + 1) * Game.SCALE + PORTAL_DISTANCE) portal = null;
-					} else if(dir == LEFT){
-						gfx.x -= speed * collider.dampingX;
-						if(gfx.x < portal.mapX * Game.SCALE - PORTAL_DISTANCE) portal = null;
-					}
-				}
+				//var exitDir:int = portal.targetLevel > game.map.level ? 1 : -1;
+				//var portalType:int = portal.type;
+				//var portalTargetLevel:int = portal.targetLevel;
+				//moving = true;
+				//if(portal.type == Portal.STAIRS){
+					//if(portal.targetLevel > game.map.level){
+						//if(moveCount){
+							//if(dir == RIGHT) gfx.x += STAIRS_SPEED;
+							//else if(dir == LEFT) gfx.x -= STAIRS_SPEED;
+							//gfx.y += STAIRS_SPEED;
+						//}
+						//if(gfx.y >= (portal.mapY + 1) * Game.SCALE + PORTAL_DISTANCE) portal = null;
+					//} else if(portal.targetLevel < game.map.level){
+						//if(moveCount){
+							//if(dir == RIGHT) gfx.x += STAIRS_SPEED;
+							//else if(dir == LEFT) gfx.x -= STAIRS_SPEED;
+							//gfx.y -= STAIRS_SPEED;
+						//}
+						//if(gfx.y <= (portal.mapY + 1) * Game.SCALE - PORTAL_DISTANCE) portal = null;
+					//}
+				//} else {
+					//if(dir == RIGHT){
+						//gfx.x += speed * collider.dampingX;
+						//if(gfx.x > (portal.mapX + 1) * Game.SCALE + PORTAL_DISTANCE) portal = null;
+					//} else if(dir == LEFT){
+						//gfx.x -= speed * collider.dampingX;
+						//if(gfx.x < portal.mapX * Game.SCALE - PORTAL_DISTANCE) portal = null;
+					//}
+				//}
 				// LEVEL TRANSITION CODE ====================================================================================
 				// 
-				// This occurs in the player class because the player is the one who has control over the game visiting levels
+				// This occurs in the balrog class because he is an asshole that doesn't like to fight fair
 				//
-				if(!portal){
-					
-					// tell the player about the new level / area
-					game.console.print(Portal.usageMsg(portalType, portalTargetLevel));
-					var targetArea:int = Map.MAIN_DUNGEON;
-					if((portalType == Portal.STAIRS && portalTargetLevel == 0) || portalType == Portal.OVERWORLD || portalType == Portal.UNDERWORLD) targetArea = Map.AREA;
-					else if(portalType == Portal.ITEM) targetArea = Map.ITEM_DUNGEON;
-					var levelName:String = Map.getName(targetArea, portalTargetLevel);
-					if(!game.visitedHash[levelName]) game.visitedHash[levelName] = true;
-					else levelName = "";
-					
-					game.transition.init(function():void{
-						game.setLevel(portalTargetLevel, portalType);
+				//if(!portal){
+					//
+					// tell the player about the balrog's escape
+					//game.console.print(nameToString() + " " + Portal.usageMsg(portalType, portalTargetLevel));
+					//
+					//var targetArea:int = Map.MAIN_DUNGEON;
+					//if((portalType == Portal.STAIRS && portalTargetLevel == 0) || portalType == Portal.OVERWORLD || portalType == Portal.UNDERWORLD) targetArea = Map.AREA;
+					//else if(portalType == Portal.ITEM) targetArea = Map.ITEM_DUNGEON;
+					//var levelName:String = Map.getName(targetArea, portalTargetLevel);
+					//if(!game.visitedHash[levelName]) game.visitedHash[levelName] = true;
+					//else levelName = "";
+					//
+					//game.transition.init(function():void{
+						//game.setLevel(portalTargetLevel, portalType);
 						// warm up the renderer
-						renderer.main();
-						if(game.map.type != Map.AREA){
-							for(i = 0; i < 8; i++){
-								game.lightMap.main();
-							}
-							game.miniMap.render();
-						}
-					}, null, levelName);
-				}
-			} else {
-				if(portalContact){
+						//renderer.main();
+						//if(game.map.type != Map.AREA){
+							//for(i = 0; i < 8; i++){
+								//game.lightMap.main();
+							//}
+							//game.miniMap.render();
+						//}
+					//}, null, levelName);
+				//}
+			//} else {
+				//if(portalContact){
 					// restore access to menu after entering level
-					if(collider.world && !game.gameMenu.actionsOption.active){
-						game.gameMenu.actionsOption.active = true;
-						game.gameMenu.inventoryOption.active = Boolean(game.gameMenu.inventoryList.options.length);
-						game.gameMenu.update();
-					}
-					if(
-						state != Character.WALKING ||
-						!(
-							portalContact.rect.x + portalContact.rect.width > collider.x &&
-							collider.x + collider.width > portalContact.rect.x &&
-							portalContact.rect.y + portalContact.rect.height > collider.y &&
-							collider.y + collider.height > portalContact.rect.y
-						)
-					){
-						portalContact = null;
-					} else {
+					//if(collider.world && !game.gameMenu.actionsOption.active){
+						//game.gameMenu.actionsOption.active = true;
+						//game.gameMenu.inventoryOption.active = Boolean(game.gameMenu.inventoryList.options.length);
+						//game.gameMenu.update();
+					//}
+					//if(
+						//state != Character.WALKING ||
+						//!(
+							//portalContact.rect.x + portalContact.rect.width > collider.x &&
+							//collider.x + collider.width > portalContact.rect.x &&
+							//portalContact.rect.y + portalContact.rect.height > collider.y &&
+							//collider.y + collider.height > portalContact.rect.y
+						//)
+					//){
+						//portalContact = null;
+					//} else {
 						// Cave Story style doorway access - clean down press
-						if(dir == DOWN && exitKeyPressReady){
-							openExitDialog();
-						}
-					}
-					
-				} else {
+						//if(dir == DOWN && exitKeyPressReady){
+							//openExitDialog();
+						//}
+					//}
+					//
+				//} else {
 					// check for portals
-					var portal:Portal;
-					
-					for(i = 0; i < game.portals.length; i++){
-						portal = game.portals[i];
-						if(
-							portal.playerPortal &&
-							state == Character.WALKING &&
-							portal.rect.x + portal.rect.width > collider.x &&
-							collider.x + collider.width > portal.rect.x &&
-							portal.rect.y + portal.rect.height > collider.y &&
-							collider.y + collider.height > portal.rect.y
-						){
-							if(!portalContact){
-								portalContact = portal;
-								break;
-							}
-						}
-					}
-				}
-			}*/
+					//var portalCheck:Portal;
+					//
+					//for(i = 0; i < game.portals.length; i++){
+						//portalCheck = game.portals[i];
+						//if(
+							//portalCheck.type == Portal.STAIRS &&
+							//portalCheck.targetLevel > game.map.level &&
+							//state == Character.WALKING &&
+							//portalCheck.rect.x + portalCheck.rect.width > collider.x &&
+							//collider.x + collider.width > portalCheck.rect.x &&
+							//portalCheck.rect.y + portalCheck.rect.height > collider.y &&
+							//collider.y + collider.height > portalCheck.rect.y
+						//){
+							//if(!portalContact){
+								//portalContact = portalCheck;
+								//break;
+							//}
+						//}
+					//}
+				//}
+		}
+		
+		public function exitLevel(portal:Portal):void{
+			//this.portal = portal;
+			//gfx.x = (portal.mapX + 0.5) * Game.SCALE;
+			//state = EXITING;
+			// prepare the dungeon generator for what entrance the player will use
+			//previousLevel = game.map.level;
+			//previousPortalType = portal.type;
+			//previousMapType = game.map.type;
+			//if(portal.targetLevel < game.map.level){
+				//dir = looking = LEFT;
+			//} else if(portal.targetLevel > game.map.level){
+				//dir = looking = RIGHT;
+			//} else {
+				//dir = looking & (LEFT | RIGHT);
+			//}
+			//game.world.removeCollider(collider);
+			// stop the player ledge-dropping when entering the new area
+			//collider.ignoreProperties &= ~Collider.LEDGE;
 		}
 		
 		override public function applyDamage(n:Number, source:String, knockback:Number = 0, critical:Boolean = false, aggressor:Character = null, defaultSound:Boolean = true):void {

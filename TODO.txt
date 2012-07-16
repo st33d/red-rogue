@@ -1,4 +1,4 @@
-Change log: quickening now makes monsters it hits run away, changed brain state copying to let monsters interpret the state change by themselves instead of direct copying behaviour durations, changed chase AI to center on tile when tracking a target downwards (diving off ladders logic broke this)
+Change log: fixed bug with missiles reflected with protection equipping character missile weapons, reflected missiles now change ownership, undead weapon enchant changed to heal over time, undead removed from holy weapon enchants
 
 Bug hunt
 	collection lock out on chests after playing for a while - bugged chest or item?
@@ -9,6 +9,7 @@ Bug hunt
 	patrol bug spotted - a monster will become frozen in its patrol cycle
 	minion dither spotted - caught in a probable follow/avoid loop
 	shot troll with arrow - no aggro, why? - possible frozen monster occurence
+	chaos walls frozen without graphics rendered and no walls beneath them (activated, not on chaos wall render list?)
 
 the balrog
 	*entry point into game

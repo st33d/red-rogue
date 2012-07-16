@@ -149,7 +149,7 @@
 									target.protectionModifier < 1 &&
 									game.random.value() > (target.protectionModifier < Character.MIN_PROTECTION_MODIFIER ? Character.MIN_PROTECTION_MODIFIER : target.protectionModifier)
 								){
-									reflect(); 
+									reflect(target); 
 								} else {
 									var hitResult:int = sender.hit(target, Item.MISSILE | Item.THROWN);
 									if(hitResult){
@@ -181,7 +181,7 @@
 									target.protectionModifier < 1 &&
 									game.random.value() > (target.protectionModifier < Character.MIN_PROTECTION_MODIFIER ? Character.MIN_PROTECTION_MODIFIER : target.protectionModifier)
 								){
-									reflect(); 
+									reflect(target);
 								}
 								else hitCharacter(target);
 							}
@@ -389,7 +389,7 @@
 		}
 		
 		/* Bounces the missile and sends it in the opposite direction */
-		public function reflect():void{
+		public function reflect(target:Character = null):void{
 			if(reflections) reflections--;
 			if(type == RUNE || type == DART || type == CHAOS){
 				renderer.createSparks(collider.x + collider.width * 0.5, collider.y + collider.height * 0.5, -dx, -dy, 10);
@@ -404,7 +404,14 @@
 			}
 			game.soundQueue.add("thud");
 			collider.vx = collider.vy = 0;
-			catchable = true;
+			catchable = item && (item.range & Item.THROWN);
+			// change ownership of missile if reflected by protection effect
+			if(target && target.brain && sender && sender.brain){
+				collider.properties &= ~sender.brain.firingTeam;
+				collider.properties |= target.brain.firingTeam;
+				collider.ignoreProperties &= ~sender.missileIgnore;
+				collider.ignoreProperties |= target.missileIgnore;
+			}
 		}
 		
 		public function kill():void{

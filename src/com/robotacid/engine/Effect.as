@@ -62,7 +62,7 @@
 		
 		public static var BANNED_RANDOM_ENCHANTMENTS:Object = {};
 		
-		public static const FAVOURABLE_WEAPON_ENCHANTMENTS:Array = [BLEED, UNDEAD, TELEPORT, SLOW, STUN, CONFUSION, FEAR, LEECH];
+		public static const FAVOURABLE_WEAPON_ENCHANTMENTS:Array = [BLEED, TELEPORT, SLOW, STUN, CONFUSION, FEAR, LEECH];
 		public static const FAVOURABLE_ARMOUR_ENCHANTMENTS:Array = [LIGHT, HEAL, UNDEAD, THORNS, HASTE, PROTECTION];
 		
 		public static const WEAPON:int = Item.WEAPON;
@@ -147,7 +147,14 @@
 				}
 			} else if(name == UNDEAD){
 				// we get here because the effect is applied actively to undead characters
-				if(source == ARMOUR){
+				if(source == WEAPON){
+					if(count){
+						count--;
+						target.applyHealth(healthStep);
+					} else {
+						dismiss();
+					}
+				} else if(source == ARMOUR){
 					target.applyHealth(healthStep);
 					// track the target's totalHealth, so when they level up we boost the heal
 					if(targetTotalHealth != target.totalHealth){
@@ -573,10 +580,16 @@
 				
 			} else if(name == UNDEAD){
 				// if the target is undead, the effect acts like an instant heal rune
+				// unless on a weapon - it renders undead enchanted weapons useless against undead
 				if(target.undead){
-					if(source == WEAPON || source == THROWN || source == EATEN){
+					if(source == THROWN || source == EATEN){
 						target.applyHealth((target.totalHealth / Game.MAX_LEVEL) * level);
 						return;
+						
+					} else if(source == WEAPON){
+						healthStep = target.totalHealth / (1 + Game.MAX_LEVEL - level);
+						healthStep /= DECAY_DELAY_PER_LEVEL;
+						this.count = count > 0 ? count : DECAY_DELAY_PER_LEVEL;
 						
 					} else if(source == ARMOUR){
 						targetTotalHealth = target.totalHealth;

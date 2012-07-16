@@ -316,7 +316,7 @@
 			) return "returned to level " + targetLevel;
 			else if(type == Portal.ITEM) return "travelled to retrieve item";
 			else if(type == Portal.UNDERWORLD) return "travelled to underworld";
-			return "fuck knows where you're going now";
+			return "went to fuck knows where";
 		}
 	}
 

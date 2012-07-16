@@ -75,15 +75,22 @@ package com.robotacid.ai {
 			
 			// stand by the exit to the dungeon, waiting for the player or minion to attack, then exit
 			if(state == TAUNT){
-				char.actions = char.dir = 0;
-				if(game.player.mapX < char.mapX) char.looking = LEFT;
-				else if(game.player.mapX > char.mapX) char.looking = RIGHT;
-				
-				// exit when any schedule target is too near or a missile weapon is directed at us
-				if(scheduleTarget && distSq < ESCAPE_MOVE_EDGE_SQ){
+				// check we are still at the portal (may have been teleported, etc.)
+				if(char.mapX == game.map.stairsDown.x && char.mapY == game.map.stairsDown.y){
 					
-					// stairs logic
+					char.actions = char.dir = 0;
+					if(game.player.mapX < char.mapX) char.looking = LEFT;
+					else if(game.player.mapX > char.mapX) char.looking = RIGHT;
 					
+					// exit when any schedule target is too near or a missile weapon is directed at us
+					if(scheduleTarget && distSq < ESCAPE_MOVE_EDGE_SQ){
+						
+						// stairs logic
+						
+					}
+				} else {
+					state = ESCAPE;
+					count = delay + game.random.range(delay);
 				}
 				
 			// the balrog will run ahead, then wait for the player or minion - taunting them
@@ -118,6 +125,7 @@ package com.robotacid.ai {
 					if(distSq < ESCAPE_MOVE_EDGE_SQ){
 						
 						state = ESCAPE;
+						count = delay;
 						game.createDistSound(char.mapX, char.mapY, "voice", char.voice);
 						
 					}
