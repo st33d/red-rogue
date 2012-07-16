@@ -632,6 +632,7 @@
 					}
 					if(game.lightning.strike(renderer.lightningShape.graphics, game.world.map, p.x, p.y, tx, ty) && node && enemy(node.collider.userData)){
 						node.applyDamage(game.random.value() * QUICKENING_PER_LEVEL * level, "quickening");
+						if(node.brain) node.brain.flee(this);
 						renderer.createDebrisSpurt(tx, ty, 5, 5, node.debrisType);
 					}
 					// lightning from the left hand
@@ -657,6 +658,7 @@
 					}
 					if(game.lightning.strike(renderer.lightningShape.graphics, game.world.map, p.x, p.y, tx, ty) && node && enemy(node.collider.userData)){
 						node.applyDamage(game.random.value() * QUICKENING_PER_LEVEL * level, "quickening");
+						if(node.brain) node.brain.flee(this);
 						renderer.createDebrisSpurt(tx, ty, -5, 5, node.debrisType);
 					}
 				}

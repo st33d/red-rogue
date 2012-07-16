@@ -23,16 +23,13 @@ package com.robotacid.engine {
 		
 		private var minimapFX:MinimapFX;
 		
-		public static const DEFAULT_LIGHT_RADIUS:int = 5;
+		public static const DEFAULT_LIGHT_RADIUS:int = 3;
 		public static const DEFAULT_UNIQUE_NAME_STR:String = "the balrog";
 		
 		// level states
 		public static const STAIRS_DOWN_TAUNT:int = 0;
 		public static const ENTER_STAIRS_UP:int = 1;
 		public static const WANDER_LEVEL:int = 2;
-		
-		// to do
-		// set stairs down taunt from content - set to wander level during level - set to enter stairs up when escaped
 		
 		public function Balrog(gfx:DisplayObject, items:Vector.<Item>, levelState:int){
 			rank = ELITE;
@@ -55,28 +52,68 @@ package com.robotacid.engine {
 			if(items) loot = items;
 		}
 		
+		/* Called on the balrog's first main() after all initialisation is done */
+		public function mapInit():void{
+			mapInitialised = true;
+			level = game.player.level;
+			setStats();
+			if(loot){
+				var item:Item;
+				for(var i:int = 0; i < loot.length; i++){
+					item = loot[i];
+					if((!weapon && item.type == Item.WEAPON) || (!armour && item.type == Item.ARMOUR && item.name != Item.INDIFFERENCE)){
+						equip(item);
+					} else if(!throwable && item.type == Item.WEAPON && (item.range & Item.THROWN)){
+						equip(item, true);
+					}
+					if(weapon && armour && throwable) break;
+				}
+			}
+			// levelState determines where the balrog will start in the level
+			// Game.setLevel handles the ENTER_STAIRS_UP state, sending the balrog into the
+			// level before the player to emphasise the chase
+			if(levelState == WANDER_LEVEL || levelState == STAIRS_DOWN_TAUNT){
+				if(levelState == STAIRS_DOWN_TAUNT){
+					Effect.teleportCharacter(this, game.map.stairsDown, true);
+				} else if(levelState == WANDER_LEVEL){
+					Effect.teleportCharacter(this, game.map.stairsUp, true);
+					Effect.teleportCharacter(this, null, true);
+				}
+				game.world.restoreCollider(collider);
+				collider.state = Collider.FALL;
+				state = WALKING;
+			}
+			game.lightMap.setLight(this, DEFAULT_LIGHT_RADIUS);
+			Brain.monsterCharacters.push(this);
+		}
+		
+		override public function createCollider(x:Number, y:Number, properties:int, ignoreProperties:int, state:int = 0, positionByBase:Boolean = true):void {
+			super.createCollider(x, y, properties, ignoreProperties, state, positionByBase);
+			collider.properties |= Collider.MONSTER | Collider.BALROG;
+			collider.ignoreProperties |= Collider.MONSTER_MISSILE | Collider.HORROR | Collider.MONSTER;
+			collider.stompProperties = Collider.PLAYER | Collider.MINION;
+		}
+		
 		public function addMinimapFeature():void{
-			minimapFX = game.miniMap.addFeature(mapX, mapY, renderer.minionFeatureBlit);
+			minimapFX = game.miniMap.addFeature(mapX, mapY, renderer.balrogFeatureBlit);
 		}
 		
 		override public function main():void {
 			if(!mapInitialised){
 				mapInit();
 			}
-			// the balrog destroys chaos walls and gates he comes into contact with
-			// this helps him escape as well as generate golems to harry the player
-			var touching:Collider = collider.getContact();
-			if(touching && (touching.properties & (Collider.CHAOS | Collider.GATE))){
-				if(touching.userData is Gate){
-					(touching.userData as Gate).death();
-				} else if(touching.userData is ChaosWall){
-					(touching.userData as ChaosWall).crumble();
-				}
+			// the balrog destroys gates he comes into contact with
+			// this helps him escape
+			var touching:Collider = collider.leftContact || collider.rightContact;
+			if(touching && (touching.properties & Collider.GATE)){
+				(touching.userData as Gate).death();
 			}
 			
 			tileCenter = (mapX + 0.5) * SCALE;
 			if(state == WALKING || state == LUNGING) brain.main();
 			super.main();
+			minimapFX.x = mapX;
+			minimapFX.y = mapY;
 			
 			/*
 			// update exiting a level
@@ -187,39 +224,38 @@ package com.robotacid.engine {
 			}*/
 		}
 		
-		/* Called on the balrog's first main() after all initialisation is done */
-		public function mapInit():void{
-			mapInitialised = true;
-			level = game.player.level;
-			setStats();
-			if(loot){
-				var item:Item;
-				for(var i:int = 0; i < loot.length; i++){
-					item = loot[i];
-					if((!weapon && item.type == Item.WEAPON) || (!armour && item.type == Item.ARMOUR && item.name != Item.INDIFFERENCE)){
-						equip(item);
-					} else if(!throwable && item.type == Item.WEAPON && (item.range & Item.THROWN)){
-						equip(item, true);
-					}
-					if(weapon && armour && throwable) break;
-				}
+		override public function applyDamage(n:Number, source:String, knockback:Number = 0, critical:Boolean = false, aggressor:Character = null, defaultSound:Boolean = true):void {
+			super.applyDamage(n, source, knockback, critical, aggressor, defaultSound);
+			// bleed effects on multiple characters could cause the bar to flicker between victims,
+			// so we focus on the last person who was attacked physically
+			if(active && this == game.player.victim){
+				game.enemyHealthBar.setValue(health, totalHealth);
+				game.enemyHealthBar.activate();
 			}
-			// levelState determines where the balrog will start in the level
-			// Game.setLevel handles the ENTER_STAIRS_UP state, sending the balrog into the
-			// level before the player to emphasise the chase
-			if(levelState == WANDER_LEVEL || levelState == STAIRS_DOWN_TAUNT){
-				if(levelState == STAIRS_DOWN_TAUNT){
-					Effect.teleportCharacter(this, game.map.stairsDown, true);
-				} else if(levelState == WANDER_LEVEL){
-					Effect.teleportCharacter(this, game.map.stairsUp, true);
-					Effect.teleportCharacter(this, null, true);
+		}
+		
+		override public function death(cause:String = "crushing", decapitation:Boolean = false, aggressor:Character = null):void {
+			if(!active) return;
+			for(var i:int = 0; i < loot.length; i++){
+				if(loot[i].location == Item.EQUIPPED){
+					unequip(loot[i]);
 				}
-				game.world.restoreCollider(collider);
-				collider.state = Collider.FALL;
-				state = WALKING;
+				loot[i].dropToMap(mapX, mapY);
 			}
-			game.lightMap.setLight(this, DEFAULT_LIGHT_RADIUS);
-			Brain.monsterCharacters.push(this);
+			loot = new Vector.<Item>();
+			
+			// the balrog is always decapitated - his face is a magic item: it bricks the game if you wear it
+			super.death(cause, true);
+			
+			// the balrog explodes on death
+			var explosion:Explosion = new Explosion(0, mapX, mapY, 5, totalHealth, game.player, null, game.player.missileIgnore);
+			
+			game.enemyHealthBar.deactivate();
+			
+			Brain.monsterCharacters.splice(Brain.monsterCharacters.indexOf(this), 1);
+			if(--game.map.completionCount == 0) game.levelCompleteMsg();
+			
+			game.balrog = null;
 		}
 		
 		override public function toXML():XML {

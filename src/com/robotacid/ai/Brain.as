@@ -312,9 +312,12 @@
 		
 		/* Called when a character fails a bravery check during melee, and used by Horror characters */
 		public function flee(target:Character):void{
+			if(state == FLEE && this.target == target) return;
 			state = FLEE;
 			altNode = null;
 			count = delay + game.random.range(delay * 2);
+			// for characters that fail a bravery check we need to halt lateral movement
+			// else they will enter ATTACK state again
 			char.collider.vx = 0;
 			this.target = target;
 		}
@@ -348,8 +351,14 @@
 			if(confusedCount || template.confusedCount) return;
 			
 			state = template.state;
-			count = template.count;
 			target = template.target;
+			
+			// interpret the state in the character's own fashion
+			if(state == FLEE){
+				flee(template.target);
+			} else if(state == ATTACK){
+				attack(template.target);
+			}
 		}
 		
 		/* This walks a character left and right in their patrol area
@@ -463,11 +472,8 @@
 							// in moving from horizontal to vertical movement
 							if(node.y > char.mapY){
 								// if the target is below, avoid climbing down in favour of dropping
-								if(!following && target.mapX == char.mapX){
-									if(char.collider.state == Collider.HOVER){
-										char.collider.state = Collider.FALL;
-									}
-									if(char.collider.parent) char.actions |= DOWN;
+								if(!following && char.collider.state == Collider.HOVER){
+									char.collider.state = Collider.FALL;
 								} else {
 									char.actions |= DOWN;
 									if(charPos.x > char.tileCenter) char.actions |= LEFT;

@@ -911,7 +911,7 @@
 		
 		/* Create xml for The Balrog */
 		public static function createBalrogXML():XML{
-			var xml:XML =<character characterNum={-1} name={Character.BALROG} type={Character.MONSTER} level={1} rank={Character.ELITE} levelState={Balrog.STAIRS_DOWN_TAUNT} />;
+			var xml:XML =<character characterNum={-1} name={Character.BALROG} type={Character.MONSTER} level={1} rank={Character.ELITE} levelState={Balrog.WANDER_LEVEL} />;
 			var yendorXML:XML =<item name={Item.YENDOR} type={Item.ARMOUR} level={Game.MAX_LEVEL} />;
 			xml.appendChild(yendorXML);
 			return xml;

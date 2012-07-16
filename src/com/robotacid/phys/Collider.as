@@ -129,6 +129,8 @@ package com.robotacid.phys {
 		public static const MAP_EDGE:int = 1 << 24;
 		/* This Collider is a barrier that can be raised */
 		public static const GATE:int = 1 << 25;
+		/* This Collider is the end-game boss */
+		public static const BALROG:int = 1 << 26;
 		
 		public function Collider(x:Number = 0, y:Number = 0, width:Number = 0, height:Number = 0, scale:Number = 0, properties:int = SOLID, ignoreProperties:int = 0, state:int = 0){
 			super(x, y, width, height);

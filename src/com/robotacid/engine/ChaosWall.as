@@ -173,6 +173,14 @@ package com.robotacid.engine {
 						ready();
 					}
 				}
+				// crumble when next to the balrog - this helps him escape and spawn golems to harry the player
+				if(game.balrog){
+					distX = game.balrog.mapX - mapX;
+					if(distX < 0) distX = -distX;
+					distY = game.balrog.mapY - mapY;
+					if(distY < 0) distY = -distY;
+					if(distX + distY <= 1) crumble();
+				}
 			} else if(state == READY){
 				if(count){
 					count--;

@@ -19,8 +19,8 @@ package com.robotacid.ai {
 		public static const ESCAPE:int = 4;
 		public static const TAUNT:int = 5;
 		
-		public static const ESCAPE_PAUSE_EDGE:Number = Game.SCALE * 6.5;
-		public static const ESCAPE_MOVE_EDGE:Number = Game.SCALE * 4;
+		public static const ESCAPE_PAUSE_EDGE:Number = Game.SCALE * 4.5;
+		public static const ESCAPE_MOVE_EDGE:Number = Game.SCALE * 2;
 		public static const ESCAPE_PAUSE_EDGE_SQ:Number = ESCAPE_PAUSE_EDGE_SQ * ESCAPE_PAUSE_EDGE_SQ;
 		public static const ESCAPE_MOVE_EDGE_SQ:Number = ESCAPE_MOVE_EDGE_SQ * ESCAPE_MOVE_EDGE_SQ;
 		
@@ -43,6 +43,8 @@ package com.robotacid.ai {
 				(prevCenter > char.tileCenter && charPos.x < char.tileCenter)
 			);
 			
+			var distSq:Number = Number.POSITIVE_INFINITY;
+			
 			// only random targets whilst confused
 			if(confusedCount){
 				confusedCount--;
@@ -60,16 +62,16 @@ package com.robotacid.ai {
 				if(scheduleTarget){
 					scheduleTargetPos.x = scheduleTarget.collider.x + scheduleTarget.collider.width * 0.5;
 					scheduleTargetPos.y = scheduleTarget.collider.y + scheduleTarget.collider.height * 0.5;
+					
+					// monitor schedule targets for proximity
+					var targetX:Number = scheduleTarget.collider.x + scheduleTarget.collider.width * 0.5;
+					var targetY:Number = scheduleTarget.collider.y + scheduleTarget.collider.height * 0.5;
+					
+					var vx:Number = targetX - charPos.x;
+					var vy:Number = targetY - charPos.y;
+					distSq = vx * vx + vy * vy;
 				}
 			}
-			
-			// monitor schedule targets for proximity
-			var targetX:Number = scheduleTarget.collider.x + scheduleTarget.collider.width * 0.5;
-			var targetY:Number = scheduleTarget.collider.y + scheduleTarget.collider.height * 0.5;
-			
-			var vx:Number = targetX - charPos.x;
-			var vy:Number = targetY - charPos.y;
-			var distSq:Number = vx * vx + vy * vy;
 			
 			// stand by the exit to the dungeon, waiting for the player or minion to attack, then exit
 			if(state == TAUNT){
@@ -78,7 +80,7 @@ package com.robotacid.ai {
 				else if(game.player.mapX > char.mapX) char.looking = RIGHT;
 				
 				// exit when any schedule target is too near or a missile weapon is directed at us
-				if(distSq < ESCAPE_MOVE_EDGE_SQ){
+				if(scheduleTarget && distSq < ESCAPE_MOVE_EDGE_SQ){
 					
 					// stairs logic
 					
@@ -88,19 +90,24 @@ package com.robotacid.ai {
 			} else if(state == ESCAPE || state == PAUSE){
 				
 				if(state == ESCAPE){
-					if(distSq > ESCAPE_PAUSE_EDGE_SQ){
-						if(count-- <= 0){
-							state = PAUSE;
+					if(scheduleTarget){
+						if(distSq > ESCAPE_PAUSE_EDGE_SQ){
+							if(count-- <= 0){
+								state = PAUSE;
+							}
+						} else {
+							// we have found the exit - the player has lost this level
+							if(char.mapX == game.map.stairsDown.x && char.mapY == game.map.stairsDown.y){
+								state = TAUNT;
+								return;
+							} else {
+								gotoExit();
+							}
+							count = delay;
 						}
 					} else {
-						// we have found the exit - the player has lost this level
-						if(char.mapX == game.map.stairsDown.x && char.mapY == game.map.stairsDown.y){
-							state = TAUNT;
-							return;
-						} else {
-							gotoExit();
-						}
-						count = delay;
+						state = TAUNT;
+						return;
 					}
 					
 				} else if(state == PAUSE){
@@ -127,9 +134,12 @@ package com.robotacid.ai {
 				
 			} else if(state == ATTACK){
 				
+				trace("attack");
+				
 				// attack only for a short duration
 				if(count-- <= 0 || !target || !target.active){
 					clear();
+					trace("clear");
 					
 				} else if(
 					char.collider.y >= target.collider.y + target.collider.height &&
@@ -184,6 +194,13 @@ package com.robotacid.ai {
 			prevCenter = charPos.x;
 		}
 		
+		/* Called when a character engages a target */
+		override public function attack(target:Character):void{
+			super.attack(target);
+			// the balrog will engage for a short duration only
+			count = delay + game.random.range(delay);
+		}
+		
 		override public function clear():void{
 			target = null;
 			patrolAreaSet = false;
@@ -210,6 +227,10 @@ package com.robotacid.ai {
 			if(start){
 				
 				node = graph.getEscapeNode(start);
+				
+				if(node){
+					Game.debug.drawCircle((node.x + 0.5) * SCALE, (node.y + 0.5) * SCALE, SCALE * 0.25);
+				}
 				
 				if(node){
 					// navigate to node
@@ -241,11 +262,14 @@ package com.robotacid.ai {
 						// heading up or down it's best to center on a tile to avoid the confusion
 						// in moving from horizontal to vertical movement
 						if(node.y > char.mapY){
-							// avoid climbing down in favour of dropping
+							// if the target is below, avoid climbing down in favour of dropping
 							if(char.collider.state == Collider.HOVER){
 								char.collider.state = Collider.FALL;
+							} else {
+								char.actions |= DOWN;
+								if(charPos.x > char.tileCenter) char.actions |= LEFT;
+								else if(charPos.x < char.tileCenter) char.actions |= RIGHT;
 							}
-							if(char.collider.parent) char.actions |= DOWN;
 							
 						} else if(node.y < char.mapY){
 							if(char.canClimb()){

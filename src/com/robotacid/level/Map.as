@@ -1111,7 +1111,7 @@
 							)
 						){
 							if(random.value() < 0.4 && !layers[ENTITIES][r][c] && !layers[BLOCKS][r][c]){
-							//if(random.value() < 1 && !layers[ENTITIES][r][c]){
+							//if(!layers[ENTITIES][r][c]){
 								layers[ENTITIES][r][c] = new ChaosWall(c, r);
 								layers[BLOCKS][r][c] = MapTileConverter.WALL;
 							}

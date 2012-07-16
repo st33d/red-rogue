@@ -53,6 +53,7 @@ package com.robotacid.ui.menu {
 		public var launchTestBedOption:MenuOption;
 		public var remapAIGraphOption:MenuOption;
 		public var teleportMinionOption:MenuOption;
+		public var teleportBalrogOption:MenuOption;
 		public var enterDungeonLevelOption:MenuOption;
 		public var chaosWallOption:MenuOption;
 		public var chaosWallInvasionOption:MenuOption;
@@ -99,6 +100,7 @@ package com.robotacid.ui.menu {
 			remapAIGraphOption = new MenuOption("remap ai graph");
 			remapAIGraphOption.selectionStep = 1;
 			teleportMinionOption = new MenuOption("teleport minion", null, false);
+			teleportBalrogOption = new MenuOption("teleport balrog", null, false);
 			
 			deleteOption = new MenuOption("delete", null, false);
 			
@@ -131,6 +133,7 @@ package com.robotacid.ui.menu {
 			options.push(renderOption);
 			options.push(remapAIGraphOption);
 			options.push(teleportMinionOption);
+			options.push(teleportBalrogOption);
 			options.push(enterDungeonLevelOption);
 			options.push(launchTestBedOption);
 			
@@ -273,6 +276,9 @@ package com.robotacid.ui.menu {
 					
 				} else if(option == teleportMinionOption){
 					if(game.minion) Effect.teleportCharacter(game.minion, new Pixel(mapX, mapY));
+					
+				} else if(option == teleportBalrogOption){
+					if(game.balrog) Effect.teleportCharacter(game.balrog, new Pixel(mapX, mapY));
 					
 				}
 			}
