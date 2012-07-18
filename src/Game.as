@@ -76,7 +76,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 408;
+		public static const BUILD_NUM:int = 409;
 		
 		public static const TEST_BED_INIT:Boolean = false;
 		public static const ONLINE:Boolean = true;
@@ -707,6 +707,10 @@
 			}
 			
 			if(balrog){
+				balrog.collider.x = -balrog.collider.width * 0.5 + (map.start.x + 0.5) * SCALE;
+				balrog.collider.y = -balrog.collider.height + (map.start.y + 1) * SCALE;
+				balrog.mapX = (balrog.collider.x + balrog.collider.width * 0.5) * INV_SCALE;
+				balrog.mapY = (balrog.collider.y + balrog.collider.height * 0.5) * INV_SCALE;
 				balrog.addMinimapFeature();
 			}
 			

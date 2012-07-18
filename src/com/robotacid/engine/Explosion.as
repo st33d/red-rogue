@@ -114,7 +114,7 @@ package com.robotacid.engine {
 							sender.applyHealth(leechValue);
 						}
 						// apply damage
-						character.applyDamage(item.damage, "explosion", 0, false, sender);
+						character.applyDamage(hitDamage, "explosion", 0, false, sender);
 						// blood
 						renderer.createDebrisExplosion(character.collider, 5, 20, character.debrisType);
 					}

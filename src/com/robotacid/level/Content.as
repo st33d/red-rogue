@@ -59,7 +59,6 @@
 		public static var armourNameDeck:Array;
 		public static var runeNameDeck:Array;
 		public static var holyStateIntroLevel:int;
-		public static var balrogIntroLevel:int;
 		
 		// special items
 		public var deathsScythe:Item;
@@ -143,8 +142,9 @@
 			// introduce holy items at the beginning of the sewers
 			holyStateIntroLevel = zoneSizes[0] + 1;
 			// introduce the balrog at the end of the caves
-			//balrogIntroLevel = zoneSizes[0] + zoneSizes[1] + zoneSizes[2];
-			balrogIntroLevel = 1;
+			Balrog.mapLevel = zoneSizes[0] + zoneSizes[1] + zoneSizes[2];
+			//Balrog.mapLevel = 1;
+			Balrog.xml = createBalrogXML();
 			
 			//trace(zoneSizes);
 			//trace(balrogIntroLevel);
@@ -241,9 +241,6 @@
 			portalsByLevel[15].push(portalXML);
 			setUnderworldPortal(15);
 			createUniqueItems();
-			
-			// generate the balrog
-			//monstersByLevel[balrogIntroLevel].push(createBalrogXML());
 		}
 		
 		/* All unique items exist in Content as well as outside */
@@ -458,6 +455,9 @@
 			
 			if(mapType != Map.AREA){
 				
+				// is the balrog on this level?
+				if(mapType == Map.MAIN_DUNGEON && Balrog.mapLevel == mapLevel) monsters.push(Balrog.xml);
+				
 				// get monster xp split
 				if(monsterXp || monsters.length) monsterXpSplit = monsterXp / monsters.length;
 				else monsterXpSplit = 0;
@@ -605,7 +605,7 @@
 				if(!layers[Map.ENTITIES][r][c] && layers[Map.BLOCKS][r][c] != MapTileConverter.WALL && layers[Map.BLOCKS][r + 1][c] == MapTileConverter.WALL){
 					item = new Item(new QuestGemMC, 0, Item.QUEST_GEM, 0);
 					item.dropToMap(c, r, dropToMap);
-					if(dropToMap) renderer.createSparkRect(item.collider, 30);
+					if(dropToMap) renderer.createSparkRect(item.collider, 30, 0, -1);
 					else layers[Map.ENTITIES][r][c] = item;
 					total--;
 				}
@@ -803,7 +803,7 @@
 			} else if(entity is Balrog){
 				// the balrog could only have been recycled from the player leaving the level before it did
 				(entity as Balrog).levelState = Balrog.WANDER_LEVEL;
-				monsters.push(entity.toXML());
+				Balrog.xml = entity.toXML();
 				
 			} else if(entity is Item){
 				item = entity as Item;
@@ -911,7 +911,7 @@
 		
 		/* Create xml for The Balrog */
 		public static function createBalrogXML():XML{
-			var xml:XML =<character characterNum={-1} name={Character.BALROG} type={Character.MONSTER} level={1} rank={Character.ELITE} levelState={Balrog.WANDER_LEVEL} />;
+			var xml:XML =<character characterNum={-1} name={Character.BALROG} type={Character.MONSTER} level={1} rank={Character.ELITE} levelState={Balrog.STAIRS_DOWN_TAUNT} />;
 			var yendorXML:XML =<item name={Item.YENDOR} type={Item.ARMOUR} level={Game.MAX_LEVEL} />;
 			xml.appendChild(yendorXML);
 			return xml;

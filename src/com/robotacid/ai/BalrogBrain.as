@@ -1,4 +1,5 @@
 package com.robotacid.ai {
+	import com.robotacid.engine.Balrog;
 	import com.robotacid.engine.Character;
 	import com.robotacid.engine.Item;
 	import com.robotacid.phys.Cast;
@@ -21,17 +22,15 @@ package com.robotacid.ai {
 		
 		public static const ESCAPE_PAUSE_EDGE:Number = Game.SCALE * 4.5;
 		public static const ESCAPE_MOVE_EDGE:Number = Game.SCALE * 2;
-		public static const ESCAPE_PAUSE_EDGE_SQ:Number = ESCAPE_PAUSE_EDGE_SQ * ESCAPE_PAUSE_EDGE_SQ;
-		public static const ESCAPE_MOVE_EDGE_SQ:Number = ESCAPE_MOVE_EDGE_SQ * ESCAPE_MOVE_EDGE_SQ;
+		public static const ESCAPE_PAUSE_EDGE_SQ:Number = ESCAPE_PAUSE_EDGE * ESCAPE_PAUSE_EDGE;
+		public static const ESCAPE_MOVE_EDGE_SQ:Number = ESCAPE_MOVE_EDGE * ESCAPE_MOVE_EDGE;
 		
 		public function BalrogBrain(char:Character) {
 			super(char, MONSTER, null);
-			state = ESCAPE;
+			state = PAUSE;
 		}
 		
 		override public function main():void {
-			trace(state, count);
-			
 			charPos.x = char.collider.x + char.collider.width * 0.5;
 			charPos.y = char.collider.y + char.collider.height * 0.5;
 			var charContact:Character;
@@ -83,11 +82,10 @@ package com.robotacid.ai {
 					else if(game.player.mapX > char.mapX) char.looking = RIGHT;
 					
 					// exit when any schedule target is too near or a missile weapon is directed at us
-					if(scheduleTarget && distSq < ESCAPE_MOVE_EDGE_SQ){
-						
-						// stairs logic
-						
+					if(scheduleTarget && (distSq < ESCAPE_MOVE_EDGE_SQ || missileDanger())){
+						(char as Balrog).exitLevelCount = game.frameCount;
 					}
+					
 				} else {
 					state = ESCAPE;
 					count = delay + game.random.range(delay);
@@ -98,22 +96,23 @@ package com.robotacid.ai {
 				
 				if(state == ESCAPE){
 					if(scheduleTarget){
-						if(distSq > ESCAPE_PAUSE_EDGE_SQ){
-							if(count-- <= 0){
-								state = PAUSE;
-							}
+						// we have found the exit - the player has lost this level
+						if(char.mapX == game.map.stairsDown.x && char.mapY == game.map.stairsDown.y){
+							state = TAUNT;
+							char.actions = char.dir = 0;
+							return;
+						}
+						
+						if(distSq < ESCAPE_PAUSE_EDGE_SQ) count = 1 + game.random.range(delay);
+						if(count-- <= 0){
+							state = PAUSE;
+							char.actions = char.dir = 0;
 						} else {
-							// we have found the exit - the player has lost this level
-							if(char.mapX == game.map.stairsDown.x && char.mapY == game.map.stairsDown.y){
-								state = TAUNT;
-								return;
-							} else {
-								gotoExit();
-							}
-							count = delay;
+							gotoExit();
 						}
 					} else {
 						state = TAUNT;
+						char.actions = char.dir = 0;
 						return;
 					}
 					
@@ -123,7 +122,6 @@ package com.robotacid.ai {
 					else if(game.player.mapX > char.mapX) char.looking = RIGHT;
 					
 					if(distSq < ESCAPE_MOVE_EDGE_SQ){
-						
 						state = ESCAPE;
 						count = delay;
 						game.createDistSound(char.mapX, char.mapY, "voice", char.voice);
@@ -142,12 +140,9 @@ package com.robotacid.ai {
 				
 			} else if(state == ATTACK){
 				
-				trace("attack");
-				
 				// attack only for a short duration
 				if(count-- <= 0 || !target || !target.active){
 					clear();
-					trace("clear");
 					
 				} else if(
 					char.collider.y >= target.collider.y + target.collider.height &&
@@ -224,6 +219,7 @@ package com.robotacid.ai {
 		/* Navigate towards the level's stairs down */
 		public function gotoExit():void{
 			
+			
 			char.actions = 0;
 			
 			var graph:MapGraph = wallWalker ? walkWalkGraph : mapGraph;
@@ -236,9 +232,7 @@ package com.robotacid.ai {
 				
 				node = graph.getEscapeNode(start);
 				
-				if(node){
-					Game.debug.drawCircle((node.x + 0.5) * SCALE, (node.y + 0.5) * SCALE, SCALE * 0.25);
-				}
+				//if(node) Game.debug.drawCircle((node.x + 0.5) * SCALE, (node.y + 0.5) * SCALE, SCALE * 0.25);
 				
 				if(node){
 					// navigate to node

@@ -258,11 +258,16 @@
 			} else if(name == TELEPORT){
 				// this here is the constant chaos caused by wearing teleport armour
 				// more so if the armour is cursed and ironically may require a teleport rune to remove it
-				if(count) count--;
-				else {
+				if(count){
+					// being stunned disrupts teleport armour
+					if(target.state != Character.STUNNED){
+						count--;
+					}
+				} else {
 					if(target.state == Character.WALKING){
 						teleportCharacter(target);
-						count = (21 - level) * ARMOUR_COUNTDOWN_STEP;
+						// a variable count is needed, constant teleport is too powerful
+						count = (20 - game.random.rangeInt(level)) * ARMOUR_COUNTDOWN_STEP;
 					}
 				}
 			} else if(name == STUN){
@@ -312,6 +317,7 @@
 		public function enchant(item:Item, inventoryList:InventoryMenuList = null, user:Character = null):Item{
 			
 			var dest:Pixel, str:String;
+			var vx:Number, vy:Number, length:Number;
 			source = item.type;
 			
 			if(name == POLYMORPH){
@@ -368,7 +374,7 @@
 			} else if(name == PORTAL){
 				// create an item portal and send the item into the level it leads to
 				if(inventoryList){
-					renderer.createSparkRect(user.collider, 10);
+					renderer.createSparkRect(user.collider, 10, 0, -1);
 					item = inventoryList.removeItem(item);
 					item = randomEnchant(item, game.map.level);
 					item.location = Item.UNASSIGNED;
@@ -464,9 +470,22 @@
 				// casting teleport on an item in your inventory (suprise, surprise) teleports it to another location
 				// in the level
 				// at least if it was cursed this is a good thing
-				if(user) renderer.createSparkRect(user.collider, 10);
 				item = inventoryList.removeItem(item);
 				dest = getTeleportTarget(game.player.mapX, game.player.mapY, game.world.map, game.mapTileManager.mapRect, Boolean(Surface.fragmentationMap));
+				
+				if(user){
+					vx = dest.x - game.player.mapX;
+					vy = dest.y - game.player.mapY;
+					length = Math.sqrt(vx * vx + vy * vy);
+					if(length){
+						vx /= length;
+						vy /= length;
+					} else {
+						vx = vy = 0;
+					}
+					renderer.createSparkRect(user.collider, 20, vx, vy);
+				}
+				
 				item.dropToMap(dest.x, dest.y);
 				game.soundQueue.addRandom("teleport", ["teleport1", "teleport2", "teleport3"]);
 				game.console.print("the " + item.nameToString() + " teleports away");
@@ -859,7 +878,7 @@
 							if(game.minion){
 								game.minion.applyHealth(game.minion.totalHealth);
 								game.console.print("the minion is healed by this sacrifice");
-								renderer.createSparkRect(game.minion.collider, 20);
+								renderer.createSparkRect(game.minion.collider, 20, 0, -1);
 							
 							// or open the underworld portal here if the minion had been destroyed
 							} else {
@@ -910,10 +929,23 @@
 		/* Effects a teleportation upon a character */
 		public static function teleportCharacter(target:Character, dest:Pixel = null, silent:Boolean = false):void{
 			
-			if(!silent) renderer.createSparkRect(target.collider, 20);
-			
 			target.collider.divorce();
 			if(!dest) dest = getTeleportTarget(target.mapX, target.mapY, game.world.map, game.mapTileManager.mapRect, (target == game.player && !game.player.keyItem && Surface.fragmentationMap));
+			
+			if(!silent){
+				var vx:Number, vy:Number, length:Number;
+				vx = dest.x - target.mapX;
+				vy = dest.y - target.mapY;
+				length = Math.sqrt(vx * vx + vy * vy);
+				if(length){
+					vx /= length;
+					vy /= length;
+				} else {
+					vx = vy = 0;
+				}
+				renderer.createSparkRect(target.collider, 40, vx, vy);
+			}
+			
 			target.collider.x = -target.collider.width * 0.5 + (dest.x + 0.5) * Game.SCALE;
 			target.collider.y = -target.collider.height + (dest.y + 1) * Game.SCALE;
 			if(target.brain && !(target.brain is PlayerBrain)) target.brain.clear();
@@ -923,7 +955,7 @@
 			}
 			
 			if(!silent){
-				renderer.createSparkRect(target.collider, 20);
+				renderer.createSparkRect(target.collider, 40, -vx, -vy);
 				game.soundQueue.addRandom("teleport", ["teleport1", "teleport2", "teleport3"]);
 			}
 		}

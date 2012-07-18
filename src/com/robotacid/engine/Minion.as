@@ -3,6 +3,7 @@
 	import com.robotacid.ai.PlayerBrain;
 	import com.robotacid.engine.Character;
 	import com.robotacid.engine.Item;
+	import com.robotacid.geom.Pixel;
 	import com.robotacid.level.Map;
 	import com.robotacid.phys.Collider;
 	import com.robotacid.sound.SoundManager;
@@ -153,15 +154,7 @@
 		/* This pulls the minion to the vicinity of the player */
 		public function teleportToPlayer():void{
 			queueSummons = false;
-			renderer.createSparkRect(collider, 20);
-			collider.divorce();
-			collider.x = -collider.width * 0.5 + game.player.collider.x + game.player.collider.width * 0.5;
-			collider.y = -collider.height + game.player.collider.y + game.player.collider.height;
-			mapX = (collider.x + collider.width * 0.5) * INV_SCALE;
-			mapY = (collider.y + collider.height * 0.5) * INV_SCALE;
-			renderer.createSparkRect(collider, 20);
-			brain.clear();
-			game.soundQueue.addRandom("teleport", ["teleport1", "teleport2", "teleport3"]);
+			Effect.teleportCharacter(this, new Pixel(game.player.mapX, game.player.mapY));
 		}
 		
 		override public function death(cause:String = "crushing", decapitation:Boolean = false, aggressor:Character = null):void {

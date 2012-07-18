@@ -1196,7 +1196,7 @@
 		/* Called by Missile to effect a throwing being caught by a character */
 		public function catchThrowable(item:Item):void{
 			item.collect(this, true, true);
-			if(!throwable && !(weapon && weapon.range & Item.THROWN)) equip(item, true);
+			if(!throwable && !(weapon && weapon.range & Item.MISSILE)) equip(item, true);
 		}
 		
 		/* The most ironic method ever to appear in what is advertised as a platform game */
@@ -1333,12 +1333,12 @@
 					while(newName == target.name) newName = game.random.rangeInt(stats["names"].length);
 					target.changeName(newName);
 				}
-				renderer.createSparkRect(target.collider, 20);
+				renderer.createSparkRect(target.collider, 20, 0, -1);
 			
 			// polymorph into target
 			} else if(name == MIMIC){
 				changeName(target.name);
-				renderer.createSparkRect(collider, 20);
+				renderer.createSparkRect(collider, 20, 0, -1);
 				
 			// bleed attack
 			} else if(name == NAGA){

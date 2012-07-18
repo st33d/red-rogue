@@ -101,7 +101,7 @@ package com.robotacid.gfx {
 					var portal:Portal;
 					for(i = 0; i < game.portals.length; i++){
 						portal = game.portals[i];
-						renderer.createSparkRect(new Rectangle(portal.rect.x, portal.rect.y, portal.rect.width, portal.rect.height), 2);
+						renderer.createSparkRect(new Rectangle(portal.rect.x, portal.rect.y, portal.rect.width, portal.rect.height), 2, 0, -1);
 					}
 				}
 			}

@@ -191,7 +191,7 @@
 				
 			} else if(name == LOCK){
 				if(gateState == CLOSED){
-					renderer.createSparkRect(collider, 20);
+					renderer.createSparkRect(collider, 20, 0, -1);
 					if(aggressor == game.player){
 						if(game.player.keyItem){
 							open();
@@ -206,7 +206,7 @@
 				
 			} else if(name == PRESSURE){
 				if(gateState == CLOSED){
-					renderer.createSparkRect(collider, 20);
+					renderer.createSparkRect(collider, 20, 0, -1);
 					if(aggressor == game.player) game.console.print("find a pressure pad");
 				}
 				

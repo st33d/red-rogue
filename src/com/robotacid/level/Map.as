@@ -465,7 +465,7 @@
 		/* Resolves what happens to entities that fall in the water in the Underworld */
 		public static function underworldWaterCallback(colliderEntity:ColliderEntity):void{
 			if(colliderEntity is Item){
-				renderer.createSparkRect(colliderEntity.collider, 20);
+				renderer.createSparkRect(colliderEntity.collider, 20, 0, -1);
 				colliderEntity.active = false;
 			} else if(colliderEntity is Character){
 				Effect.teleportCharacter(colliderEntity as Character, new Pixel(UNDERWORLD_PORTAL_X + 1, MapBitmap.UNDERWORLD_HEIGHT - 3));

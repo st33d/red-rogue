@@ -130,7 +130,7 @@
 						rect.y + rect.height > game.player.collider.y
 					){
 						game.player.applyHealth(game.player.totalHealth * UNDEAD_HEAL_RATE);
-						renderer.createSparkRect(game.player.collider, 5);
+						renderer.createSparkRect(game.player.collider, 5, 0, -1);
 					}
 					var character:Character;
 					for(var i:int = 0; i < game.entities.length; i++){

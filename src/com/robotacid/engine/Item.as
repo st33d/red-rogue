@@ -328,8 +328,8 @@
 				}
 				game.gameMenu.inventoryList.addItem(this, autoEquip > 0);
 				if(type == WEAPON && (range & THROWN) && autoEquip){
-					if((autoEquip & Character.MINION) && game.minion && !game.minion.throwable) game.minion.equip(this, true);
-					else if((autoEquip & Character.PLAYER) && !game.player.throwable) game.player.equip(this, true);
+					if((autoEquip & Character.MINION) && game.minion && !game.minion.throwable && !(game.minion.weapon && (game.minion.weapon.range & MISSILE))) game.minion.equip(this, true);
+					else if((autoEquip & Character.PLAYER) && !game.player.throwable && !(game.player.weapon && (game.player.weapon.range & MISSILE))) game.player.equip(this, true);
 				}
 			} else {
 				if(print && caught) game.console.print(character.nameToString() + " caught " + nameToString());

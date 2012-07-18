@@ -781,6 +781,25 @@
 			return false;
 		}
 		
+		/* Is there an enemy missile headed towards the char? */
+		public function missileDanger():Boolean{
+			var rect:Rectangle = new Rectangle(char.collider.x - SCALE * 2, char.collider.y, char.collider.width + SCALE * 4, char.collider.height);
+			var colliders:Vector.<Collider> = game.world.getCollidersIn(rect, char.collider, Collider.PLAYER_MISSILE | Collider.MONSTER_MISSILE);
+			var collider:Collider;
+			for(var i:int = 0; i < colliders.length; i++){
+				collider = colliders[i];
+				if(
+					!(collider.properties & firingTeam) && (
+						(collider.vx > 0 && collider.x + collider.width < char.collider.x) ||
+						(collider.vx < 0 && collider.x > char.collider.x + char.collider.width)
+					)
+				){
+					return true;
+				}
+			}
+			return false;
+		}
+		
 		/* Returns true if the character is in danger of being stomped */
 		public function stompDanger():Boolean{
 			return (char.collider.y + char.collider.height > target.collider.y + target.collider.height * 0.5 &&

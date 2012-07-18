@@ -1,4 +1,4 @@
-Change log: fixed bug with missiles reflected with protection equipping character missile weapons, reflected missiles now change ownership, undead weapon enchant changed to heal over time, undead removed from holy weapon enchants
+Change log: fixed bug with catching missile weapons, teleport armour count down now variable, stun halts telport armour count down, sparkRect effect now directional, all teleport effects now flow toward the midpoint of the exchange, refactored minion teleport, explosion damage was calculated incorrectly - fixed, the balrog is now live in the dungeon, balrog basic ai apparently stable
 
 Bug hunt
 	collection lock out on chests after playing for a while - bugged chest or item?
@@ -10,6 +10,8 @@ Bug hunt
 	minion dither spotted - caught in a probable follow/avoid loop
 	shot troll with arrow - no aggro, why? - possible frozen monster occurence
 	chaos walls frozen without graphics rendered and no walls beneath them (activated, not on chaos wall render list?)
+	
+	catching a thrown weapon locks out bow
 
 the balrog
 	*entry point into game
@@ -21,6 +23,8 @@ the balrog
 			create editor render
 			create escape node MapGraph function
 
+statue
+	drop an item on it to receive a quest to upgrade said item
 
 Guide -
 	copy over races guide for elites (check racial bonuses are accurate), then fill out
@@ -30,6 +34,8 @@ rotate between a selection of menus
 		title menu
 
 split story into tips.json and story.json - add tips to writings on new games
+
+split dreams.json into nightmares.json and dreams.json - introduce nightmares entering caves
 
 secret items
 	chest col
