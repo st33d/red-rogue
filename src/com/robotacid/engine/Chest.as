@@ -99,7 +99,7 @@
 						if(playerIntersectsRect && !game.player.indifferent){
 							mimicState = TRANSFORM;
 							(gfx as MovieClip).gotoAndPlay("mimic");
-							game.soundQueue.add("chestOpen");
+							game.createDistSound(mapX, mapY, "MimicTransform", ["MimicTransform1", "MimicTransform2"]);
 							count = TRANSFORM_DELAY;
 						}
 					}

@@ -667,6 +667,7 @@
 				game.sleep.deactivate();
 				if(game.minion) game.minion.asleep = false;
 			}
+			game.changeMusic();
 		}
 		
 		/* Adds a trap that the rogue could possibly disarm and updates the menu */

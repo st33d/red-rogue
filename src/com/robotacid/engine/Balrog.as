@@ -162,6 +162,7 @@ package com.robotacid.engine {
 					// tell the player about the balrog's escape
 					game.console.print(nameToString() + " " + Portal.usageMsg(portalType, portalTargetLevel));
 					game.balrog.active = false;
+					minimapFX.active = false;
 					game.balrog = null;
 					return;
 					

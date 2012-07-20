@@ -76,7 +76,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 409;
+		public static const BUILD_NUM:int = 410;
 		
 		public static const TEST_BED_INIT:Boolean = false;
 		public static const ONLINE:Boolean = true;
@@ -997,23 +997,31 @@
 					SoundManager.fadeMusic(SoundManager.currentMusic, -SoundManager.DEFAULT_FADE_STEP);
 				}
 			} else {
-				if(map.type == Map.AREA){
-					if(map.level == Map.OVERWORLD) name = "overworldMusic";
-					else if(map.level == Map.UNDERWORLD) name = "underworldMusic1";
-					if(!SoundManager.currentMusic || SoundManager.currentMusic != name){
-						if(map.level == Map.OVERWORLD){
-							start = int(SoundManager.musicTimes[name]);
-						} else if(map.level == Map.UNDERWORLD){
-							start = (SoundManager.sounds["underworldMusic1"] as Sound).length * 0.5;
-							if(SoundManager.music && !SoundManager.soundLoops["underworldMusic2"]) SoundManager.fadeLoopSound("underworldMusic2");
-						}
-						SoundManager.fadeMusic(name, SoundManager.DEFAULT_FADE_STEP, start);
-					}
-				} else {
-					name = Map.ZONE_NAMES[map.zone] + "Music";
+				if(player && player.asleep){
+					name = "sleepMusic";
 					if(!SoundManager.currentMusic || SoundManager.currentMusic != name){
 						start = int(SoundManager.musicTimes[name]);
-						SoundManager.fadeMusic(name, SoundManager.DEFAULT_FADE_STEP, start);
+						SoundManager.fadeMusic(name, 1.0 / 60, start);
+					}
+				} else {
+					if(map.type == Map.AREA){
+						if(map.level == Map.OVERWORLD) name = "overworldMusic";
+						else if(map.level == Map.UNDERWORLD) name = "underworldMusic1";
+						if(!SoundManager.currentMusic || SoundManager.currentMusic != name){
+							if(map.level == Map.OVERWORLD){
+								start = int(SoundManager.musicTimes[name]);
+							} else if(map.level == Map.UNDERWORLD){
+								start = (SoundManager.sounds["underworldMusic1"] as Sound).length * 0.5;
+								if(SoundManager.music && !SoundManager.soundLoops["underworldMusic2"]) SoundManager.fadeLoopSound("underworldMusic2");
+							}
+							SoundManager.fadeMusic(name, SoundManager.DEFAULT_FADE_STEP, start);
+						}
+					} else {
+						name = Map.ZONE_NAMES[map.zone] + "Music";
+						if(!SoundManager.currentMusic || SoundManager.currentMusic != name){
+							start = int(SoundManager.musicTimes[name]);
+							SoundManager.fadeMusic(name, SoundManager.DEFAULT_FADE_STEP, start);
+						}
 					}
 				}
 			}

@@ -1,5 +1,6 @@
 package com.robotacid.engine {
 	import com.adobe.serialization.json.JSON;
+	import com.robotacid.ai.BalrogBrain;
 	import com.robotacid.ai.Brain;
 	import com.robotacid.gfx.Renderer;
 	import com.robotacid.level.Map;
@@ -132,6 +133,30 @@ package com.robotacid.engine {
 			}
 		}
 		
+		/* Prepare the message animation and list of text */
+		private function initDream():void{
+			var index:int = game.map.level - 1;
+			if(game.map.type != Map.MAIN_DUNGEON && game.map.type != Map.ITEM_DUNGEON){
+				index = 0;
+			} else if(index >= dreams.length){
+				index = dreams.length - 1;
+			}
+			dreamList = dreams[index];
+			var dreamStr:String = dreamList[game.random.rangeInt(dreamList.length)];
+			if(dreamStr.charAt(0) == NIGHTMARE_TAG){
+				dreamStr = dreamStr.substr(1);
+				nightmare = true;
+				game.soundQueue.addRandom("laughter", BalrogBrain.LAUGHTER);
+			} else {
+				nightmare = false;
+			}
+			dreamList = dreamStr.split("\n");
+			textBox.text = "zzz";
+			game.console.print("zzz");
+			initMsgAnim();
+			visible = true;
+		}
+		
 		/* Prepare the next animation */
 		private function initMsgAnim():void{
 			charRects = textBox.getCharRects();
@@ -213,29 +238,6 @@ package com.robotacid.engine {
 					textBox.applyTranformRects(charRects, charOffsets, charCols);
 				}
 			}
-		}
-		
-		/* Prepare the message animation and list of text */
-		private function initDream():void{
-			var index:int = game.map.level - 1;
-			if(game.map.type != Map.MAIN_DUNGEON && game.map.type != Map.ITEM_DUNGEON){
-				index = 0;
-			} else if(index >= dreams.length){
-				index = dreams.length - 1;
-			}
-			dreamList = dreams[index];
-			var dreamStr:String = dreamList[game.random.rangeInt(dreamList.length)];
-			if(dreamStr.charAt(0) == NIGHTMARE_TAG){
-				dreamStr = dreamStr.substr(1);
-				nightmare = true;
-			} else {
-				nightmare = false;
-			}
-			dreamList = dreamStr.split("\n");
-			textBox.text = "zzz";
-			game.console.print("zzz");
-			initMsgAnim();
-			visible = true;
 		}
 		
 		public static function initDreams():void{

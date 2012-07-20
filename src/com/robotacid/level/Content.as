@@ -1,4 +1,5 @@
 ﻿package com.robotacid.level {
+	import com.robotacid.ai.BalrogBrain;
 	import com.robotacid.engine.Balrog;
 	import com.robotacid.engine.Character;
 	import com.robotacid.engine.Chest;
@@ -802,7 +803,11 @@
 				
 			} else if(entity is Balrog){
 				// the balrog could only have been recycled from the player leaving the level before it did
-				(entity as Balrog).levelState = Balrog.WANDER_LEVEL;
+				if((entity as Balrog).brain.state == BalrogBrain.TAUNT){
+					(entity as Balrog).levelState = Balrog.STAIRS_DOWN_TAUNT;
+				} else {
+					(entity as Balrog).levelState = Balrog.WANDER_LEVEL;
+				}
 				Balrog.xml = entity.toXML();
 				
 			} else if(entity is Item){

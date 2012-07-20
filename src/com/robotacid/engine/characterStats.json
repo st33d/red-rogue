@@ -177,7 +177,7 @@
 	"voices":[
 		[""], ["Kobold1", "Kobold2", "Kobold3"], ["Goblin1", "Goblin2", "Goblin3"], ["Orc1", "Orc2", "Orc3"], ["Troll1", "Troll2", "Troll3"],
 		["Gnoll1", "Gnoll2", "Gnoll3"], ["Drow1", "Drow2", "Drow3", "Drow4"], ["Cactuar1", "Cactuar2", "Cactuar3"], ["Nymph1", "Nymph2", "Nymph3"], ["Vampire1", "Vampire2", "Vampire3"],
-		["Werewolf1", "Werewolf2", "Werewolf3"], [""], ["Naga1", "Naga2", "Naga3"], ["Gorgon1", "Gorgon2", "Gorgon3"], ["UmberHulk1", "UmberHulk2", "UmberHulk3"],
+		["Werewolf1", "Werewolf2", "Werewolf3"], ["Mimic1", "Mimic2", "Mimic3"], ["Naga1", "Naga2", "Naga3"], ["Gorgon1", "Gorgon2", "Gorgon3"], ["UmberHulk1", "UmberHulk2", "UmberHulk3"],
 		["Golem1", "Golem2", "Golem3"], ["Banshee1", "Banshee2", "Banshee3"], ["Wraith1", "Wraith2", "Wraith3"], ["Mindflayer1", "Mindflayer2", "Mindflayer3"], ["Rakshasa1", "Rakshasa2", "Rakshasa3"],
 		["Balrog1", "Balrog2", "Balrog3"], [""]
 	],

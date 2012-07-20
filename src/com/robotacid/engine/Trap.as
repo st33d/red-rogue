@@ -260,6 +260,7 @@
 				
 			} else if(type == FEAR_MUSHROOM || type == CONFUSION_MUSHROOM || type == STUN_MUSHROOM || type == HEAL_MUSHROOM){
 				if(gasCount == 0) gasCount = GAS_DELAY;
+				game.soundQueue.add("mushroom");
 				
 			} else if(type == BLEED_DART || type == TELEPORT_DART){
 				shootDart(new Effect(effectName, game.map.level < Game.MAX_LEVEL ? game.map.level : Game.MAX_LEVEL, Effect.THROWN));

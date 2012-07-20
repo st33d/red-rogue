@@ -1,4 +1,4 @@
-Change log: fixed bug with catching missile weapons, teleport armour count down now variable, stun halts telport armour count down, sparkRect effect now directional, all teleport effects now flow toward the midpoint of the exchange, refactored minion teleport, explosion damage was calculated incorrectly - fixed, the balrog is now live in the dungeon, balrog basic ai apparently stable
+Change log: new sounds in library - all code implemented for, 
 
 Bug hunt
 	collection lock out on chests after playing for a while - bugged chest or item?
@@ -10,21 +10,16 @@ Bug hunt
 	minion dither spotted - caught in a probable follow/avoid loop
 	shot troll with arrow - no aggro, why? - possible frozen monster occurence
 	chaos walls frozen without graphics rendered and no walls beneath them (activated, not on chaos wall render list?)
-	
-	catching a thrown weapon locks out bow
+
+altar
+	gfx of Rng, god of chaos
+	holds an item - press up on it to invoke the quest to recieve the item
+	base on Chest class - Quest chest?
+	some can crumble and open a monster portal?
+	some can crumble and open the pocket dungeon?
 
 the balrog
-	*entry point into game
-		*taunting at exit
-		*the chase
-			*set up pause for player entering level due to balrog entering first
-	create escape ai
-		create escape graph
-			create editor render
-			create escape node MapGraph function
-
-statue
-	drop an item on it to receive a quest to upgrade said item
+	jumping ai
 
 Guide -
 	copy over races guide for elites (check racial bonuses are accurate), then fill out

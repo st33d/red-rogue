@@ -54,6 +54,7 @@
 		
 		public static const HIT_SOUNDS:Array = ["stoneHit1", "stoneHit2", "stoneHit3", "stoneHit4"];
 		public static const DEATH_SOUNDS:Array = ["stoneDeath1", "stoneDeath2", "stoneDeath3", "stoneDeath4"];
+		public static const PRY_SOUNDS:Array = ["gatePry1", "gatePry2", "gatePry3", "gatePry4"];
 		
 		public static const SPEED:Number = 2;
 		public static const RAISE_HIT_TOTAL:int = 4;
@@ -186,7 +187,10 @@
 			var mc:MovieClip = gfx as MovieClip;
 			
 			if(name == RAISE){
-				if(raiseHits < RAISE_HIT_TOTAL) raiseHits++;
+				if(raiseHits < RAISE_HIT_TOTAL){
+					raiseHits++;
+					game.createDistSound(mapX, mapY, "gatePry", PRY_SOUNDS);
+				}
 				open();
 				
 			} else if(name == LOCK){
@@ -225,7 +229,7 @@
 				callMain = true;
 				if(gateState == CLOSED || gateState == CLOSING || gateState == OPEN){
 					collider.vy = 0;
-					game.createDistSound(mapX, mapY, "gateOpen");
+					if(name != RAISE) game.createDistSound(mapX, mapY, "gateOpen");
 				}
 			}
 			collider.awake = Collider.AWAKE_DELAY;
@@ -250,23 +254,6 @@
 			}
 			renderer.createDebrisRect(collider, 0, 50, debrisType);
 		}
-		
-		
-		
-		/* The break gate is the only gate that can be destroyed, so only its death is dealt with here
-		override public function death(cause:String = "unlocked", decapitation:Boolean = false, aggressor:Character = null):void {
-			if(!active) return;
-			active = false;
-			renderer.createDebrisRect(collider, 0, 50, debrisType);
-			renderer.shake(0, 3);
-			game.soundQueue.addRandom("stoneDeath", DEATH_SOUNDS);
-			game.mapTileManager.removeTile(this, mapX, mapY, mapZ);
-			if(minimapFeature) {
-				minimapFeature.active = false;
-				minimapFeature = null;
-			}
-			collider.world.removeCollider(collider);
-		} */
 		
 		/* Called to make this object visible */
 		override public function render():void{

@@ -25,6 +25,8 @@ package com.robotacid.ai {
 		public static const ESCAPE_PAUSE_EDGE_SQ:Number = ESCAPE_PAUSE_EDGE * ESCAPE_PAUSE_EDGE;
 		public static const ESCAPE_MOVE_EDGE_SQ:Number = ESCAPE_MOVE_EDGE * ESCAPE_MOVE_EDGE;
 		
+		public static const LAUGHTER:Array = ["BalrogLaugh1", "BalrogLaugh2", "BalrogLaugh3", "BalrogLaugh4", "BalrogLaugh5"]
+		
 		public function BalrogBrain(char:Character) {
 			super(char, MONSTER, null);
 			state = PAUSE;
@@ -84,6 +86,7 @@ package com.robotacid.ai {
 					// exit when any schedule target is too near or a missile weapon is directed at us
 					if(scheduleTarget && (distSq < ESCAPE_MOVE_EDGE_SQ || missileDanger())){
 						(char as Balrog).exitLevelCount = game.frameCount;
+						game.createDistSound(char.mapX, char.mapY, "laughter", LAUGHTER);
 					}
 					
 				} else {
@@ -125,7 +128,6 @@ package com.robotacid.ai {
 						state = ESCAPE;
 						count = delay;
 						game.createDistSound(char.mapX, char.mapY, "voice", char.voice);
-						
 					}
 				}
 				

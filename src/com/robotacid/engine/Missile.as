@@ -48,6 +48,8 @@
 		public static const DART:int = 3;
 		public static const CHAOS:int = 4;
 		
+		public static const LIGHTNING_SOUNDS:Array = ["lightning1", "lightning2", "lightning3", "lightning4"];
+		
 		public function Missile(
 			mc:DisplayObject, x:Number, y:Number, type:int, sender:Character, dx:Number, dy:Number, speed:Number,
 			ignore:int = 0, effect:Effect = null, item:Item = null, clipRect:Rectangle = null, reflections:int = 0,
@@ -510,6 +512,9 @@
 					node.applyDamage(game.random.value() * LIGHTNING_DAMAGE_RATIO * item.damage, "lightning");
 					renderer.createDebrisSpurt(tx, ty, 5, i == 0 ? -5 : 5, node.debrisType);
 				}
+			}
+			if(game.frameCount % 2 == 0){
+				game.createDistSound(mapX, mapY, "lightning", LIGHTNING_SOUNDS);
 			}
 		}
 		

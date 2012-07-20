@@ -11,6 +11,7 @@ package com.robotacid.sound {
 		SoundManager.addSound(new KillSound, "kill", 0.6);
 		SoundManager.addSound(new ThudSound, "thud", 0.5);
 		SoundManager.addSound(new TrapDisarmSound, "trapDisarm", 0.3);
+		SoundManager.addSound(new MushroomTrapSound, "mushroom", 1.5);
 		SoundManager.addSound(new SearchSound, "search", 0.2);
 		SoundManager.addSound(new PingSound, "ping", 0.1);
 		SoundManager.addSound(new BowShootSound, "bowShoot", 0.8);
@@ -24,6 +25,10 @@ package com.robotacid.sound {
 		SoundManager.addSound(new BombSound01, "bomb1", 0.1);
 		SoundManager.addSound(new BombSound02, "bomb2", 0.1);
 		SoundManager.addSound(new BombSound03, "bomb3", 0.1);
+		SoundManager.addSound(new LightningShortSound01, "lightning1", 0.5);
+		SoundManager.addSound(new LightningShortSound02, "lightning2", 0.5);
+		SoundManager.addSound(new LightningShortSound03, "lightning3", 0.5);
+		SoundManager.addSound(new LightningShortSound04, "lightning4", 0.5);
 		SoundManager.addSound(new ThrowSound, "throw", 0.8);
 		SoundManager.addSound(new ChestOpenSound, "chestOpen", 0.4);
 		SoundManager.addSound(new RuneHitSound, "runeHit", 0.8);
@@ -50,6 +55,10 @@ package com.robotacid.sound {
 		SoundManager.addSound(new GateOpenSound, "gateOpen", 0.2);
 		SoundManager.addSound(new GateShutSound, "gateShut", 0.2);
 		SoundManager.addSound(new GateUnlockSound, "gateUnlock", 0.2);
+		SoundManager.addSound(new GatePrySound1, "gatePry1", 0.2);
+		SoundManager.addSound(new GatePrySound2, "gatePry2", 0.2);
+		SoundManager.addSound(new GatePrySound3, "gatePry3", 0.2);
+		SoundManager.addSound(new GatePrySound4, "gatePry4", 0.2);
 		SoundManager.addSound(new CogDeathSound1, "cogDeath1", 0.6);
 		SoundManager.addSound(new CogDeathSound2, "cogDeath2", 0.6);
 		SoundManager.addSound(new CogDeathSound3, "cogDeath3", 0.6);
@@ -102,9 +111,14 @@ package com.robotacid.sound {
 		SoundManager.addSound(new HorrorSound6, "fury6", 0.4);
 		
 		// voices
-		SoundManager.addSound(new BansheeSound01, "Balrog1", 0.4);
-		SoundManager.addSound(new BansheeSound02, "Balrog2", 0.4);
-		SoundManager.addSound(new BansheeSound03, "Balrog3", 0.4);
+		SoundManager.addSound(new BalrogSound1, "Balrog1", 0.5);
+		SoundManager.addSound(new BalrogSound2, "Balrog2", 0.5);
+		SoundManager.addSound(new BalrogSound3, "Balrog3", 0.5);
+		SoundManager.addSound(new BalrogRunningSound01, "BalrogLaugh1", 0.5);
+		SoundManager.addSound(new BalrogRunningSound02, "BalrogLaugh2", 0.5);
+		SoundManager.addSound(new BalrogRunningSound03, "BalrogLaugh3", 0.5);
+		SoundManager.addSound(new BalrogRunningSound04, "BalrogLaugh4", 0.5);
+		SoundManager.addSound(new BalrogRunningSound05, "BalrogLaugh5", 0.5);
 		SoundManager.addSound(new BansheeSound01, "Banshee1", 0.4);
 		SoundManager.addSound(new BansheeSound02, "Banshee2", 0.4);
 		SoundManager.addSound(new BansheeSound03, "Banshee3", 0.4);
@@ -160,6 +174,11 @@ package com.robotacid.sound {
 		SoundManager.addSound(new WraithSound01, "Wraith1", 0.4);
 		SoundManager.addSound(new WraithSound02, "Wraith2", 0.4);
 		SoundManager.addSound(new WraithSound03, "Wraith3", 0.4);
+		SoundManager.addSound(new MimicVocalisationSound001, "Mimic1", 0.6);
+		SoundManager.addSound(new MimicVocalisationSound002, "Mimic2", 0.6);
+		SoundManager.addSound(new MimicVocalisationSound003, "Mimic3", 0.6);
+		SoundManager.addSound(new MimicTransformSound01, "MimicTransform1", 0.4);
+		SoundManager.addSound(new MimicTransformSound02, "MimicTransform2", 0.4);
 		
 		// music
 		SoundManager.addSound(new IntroMusicSound, "introMusic", 1.0);
@@ -170,6 +189,7 @@ package com.robotacid.sound {
 		SoundManager.addSound(new OverworldMusicSound, "overworldMusic", 0.4);
 		SoundManager.addSound(new UnderworldMusicSound1, "underworldMusic1", 1.0);
 		SoundManager.addSound(new UnderworldMusicSound2, "underworldMusic2", 1.0);
+		SoundManager.addSound(new SleepMusicSound, "sleepMusic", 0.7);
 	}
 
 }
