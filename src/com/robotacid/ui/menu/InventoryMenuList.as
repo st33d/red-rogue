@@ -15,6 +15,8 @@
 		public var game:Game;
 		public var menu:Menu;
 		
+		public var autoSort:Boolean;
+		
 		public var weaponsList:MenuList;
 		public var armourList:MenuList;
 		public var runesList:MenuList;
@@ -34,7 +36,7 @@
 		public var armourOption:MenuOption;
 		public var runesOption:MenuOption;
 		public var heartsOption:MenuOption;
-		public var sortOption:MenuOption;
+		public var autoSortOption:MenuOption;
 		
 		public var equipOption:ToggleMenuOption;
 		public var equipMinionOption:ToggleMenuOption;
@@ -63,6 +65,7 @@
 			super();
 			this.menu = menu;
 			this.game = game;
+			autoSort = true;
 			
 			// MENU LISTS
 			
@@ -91,9 +94,9 @@
 			runesOption.help = "The list of runes that can be used on yourself, the minion, monsters and your equipment.";
 			heartsOption = new MenuOption("hearts", heartsList, false);
 			heartsOption.help = "The list of hearts you and the minion can eat to regain health.";
-			sortOption = new MenuOption("sort equipment");
-			sortOption.selectionStep = 1;
-			sortOption.help = "sorts weapons and armour according to the highest stats. does not consider special abilities or enchantments.";
+			autoSortOption = new MenuOption("auto-sort", (menu as GameMenu).onOffList);
+			autoSortOption.selectionStep = 1;
+			autoSortOption.help = "auto-sort sorts weapons and armour according to the combat highest stats. does not consider special abilities or enchantments.";
 			
 			enchantOption = new MenuOption("enchant", enchantableList, false);
 			enchantableWeaponsOption = new MenuOption("weapons", enchantableWeaponsList, false);
@@ -132,7 +135,7 @@
 			options.push(armourOption);
 			options.push(runesOption);
 			options.push(heartsOption);
-			options.push(sortOption);
+			options.push(autoSortOption);
 			
 			weaponActionList.options.push(equipMainOption);
 			weaponActionList.options.push(equipThrowOption);
@@ -283,7 +286,8 @@
 				}
 			}
 			
-			menu.update();
+			if(autoSort) sortEquipment()
+			else menu.update();
 			return item;
 		}
 		
@@ -428,7 +432,6 @@
 				//trace(weaponsList.options[i].name, getWeaponValue(weaponsList.options[i].userData as Item));
 			//}
 			menu.update();
-			game.console.print("equipment is now in order of purpose");
 		}
 		
 		private function weaponSortCallback(a:MenuOption, b:MenuOption):Number{

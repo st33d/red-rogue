@@ -76,7 +76,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 410;
+		public static const BUILD_NUM:int = 411;
 		
 		public static const TEST_BED_INIT:Boolean = false;
 		public static const ONLINE:Boolean = true;
@@ -675,6 +675,7 @@
 				miniMap.y = miniMap.x = 5;
 			} else {
 				miniMap.newMap(world.map);
+				if(map.type != Map.AREA && map.completionCount == 0) miniMap.reveal();
 			}
 			
 			if(!player){
@@ -752,7 +753,6 @@
 				renderer.lightBitmap.visible = false;
 				
 			} else if(Player.previousMapType == Map.AREA){
-				if(!SoundManager.currentMusic) SoundManager.fadeMusic("music1");
 				renderer.lightBitmap.visible = true;
 				miniMap.visible = true;
 				
@@ -1054,6 +1054,9 @@
 			if(game.map.type == Map.MAIN_DUNGEON) nameStr = "level " + game.map.level;
 			else nameStr = Map.getName(game.map.type, game.map.level);
 			console.print(nameStr + " cleared");
+			content.clearLevel(map.level, map.type);
+			game.soundQueue.add("ping");
+			miniMap.reveal();
 		}
 		
 		/* Creates the instructions splash screen and switches to INSTRUCTIONS state*/

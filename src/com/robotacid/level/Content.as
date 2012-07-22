@@ -68,8 +68,8 @@
 		public static const TOTAL_LEVELS:int = 20;
 		public static const TOTAL_AREAS:int = 2;
 		
-		public static const CURSED_CHANCE:Number = 0.05;
-		public static const BLESSED_CHANCE:Number = 0.95;
+		public static const CURSED_CHANCE:Number = 0.1;
+		public static const BLESSED_CHANCE:Number = 0.9;
 		public static const XP_TABLE_SEED:Number = 10;
 		public static const XP_RATE:Number = 2;
 		public static const MONSTER_XP_BY_LEVEL_RATE:Number = 1.2;
@@ -687,6 +687,17 @@
 				trapsByLevel[dungeonLevel]--;
 			} else if(dungeonType == Map.ITEM_DUNGEON){
 				itemDungeonContent.traps--;
+			}
+		}
+		
+		/* Removes traps and secrets to keep map identified */
+		public function clearLevel(dungeonLevel:int, dungeonType:int):void{
+			if(dungeonType == Map.MAIN_DUNGEON){
+				trapsByLevel[dungeonLevel] = 0;
+				secretsByLevel[dungeonLevel] = 0;
+			} else if(dungeonType == Map.ITEM_DUNGEON){
+				itemDungeonContent.traps = 0;
+				itemDungeonContent.secrets = 0;
 			}
 		}
 		

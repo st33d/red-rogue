@@ -364,7 +364,7 @@
 			if(obj is Entity){
 				if(obj.addToEntities) game.entities.push(obj);
 				obj.active = true;
-				if(obj is Chest){
+				if(obj is Chest || obj is Altar){
 					game.items.push(obj);
 				} else if(obj is Portal){
 					if(obj.seen) obj.callMain = false;

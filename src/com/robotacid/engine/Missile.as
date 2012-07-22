@@ -319,19 +319,18 @@
 				if(item.effects && character.active && !(character.type & Character.STONE)){
 					character.applyWeaponEffects(item);
 				}
-				var thrownWeapon:Boolean = Boolean(item.range & Item.THROWN);
 				// knockback
 				var enduranceDamping:Number = 1.0 - (character.endurance + (character.armour ? character.armour.endurance : 0));
 				if(enduranceDamping < 0) enduranceDamping = 0;
-				var hitKnockback:Number = (item.knockback + (thrownWeapon ? sender.knockback : 0)) * enduranceDamping;
+				var hitKnockback:Number = (item.knockback + sender.knockback) * enduranceDamping;
 				if(dx < 0) hitKnockback = -hitKnockback;
 				// stun
 				if(hitResult & Character.STUN){
-					var hitStun:Number = (item.stun + (thrownWeapon ? sender.stun : 0)) * enduranceDamping;
+					var hitStun:Number = (item.stun + sender.stun) * enduranceDamping;
 					if(hitStun) character.applyStun(hitStun);
 				}
 				// damage
-				var hitDamage:Number = item.damage + (thrownWeapon ? sender.damage : 0);
+				var hitDamage:Number = item.damage + (Boolean(item.range & Item.THROWN) ? sender.damage : sender.damage * 0.25);
 				if(character.protectionModifier < 1){
 					hitDamage *= character.protectionModifier < Character.MIN_PROTECTION_MODIFIER ? Character.MIN_PROTECTION_MODIFIER : character.protectionModifier;
 				}

@@ -1,4 +1,4 @@
-Change log: new sounds in library - all code implemented for, 
+Change log: doubled chance of cursed and blessed items, added extra condition to chaos walls with balrog to prevent state conflict, clearing a level reveals the minimap, level clearing wipes remaining secrets and traps from the content, missile weapons now apply user's knockback and stun plus 1/4 of their damage stat, equipment now auto-sorts by default
 
 Bug hunt
 	collection lock out on chests after playing for a while - bugged chest or item?

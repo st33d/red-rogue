@@ -114,6 +114,9 @@
 			this.game = game;
 			super(width, height);
 			
+			// used by inventoryList
+			onOffList = new MenuList();
+			
 			var i:int;
 			
 			// MENU LISTS
@@ -132,7 +135,6 @@
 				new MenuOption("yes")
 			]));
 			sureList.options[YES].selectionStep = MenuOption.EXIT_MENU;
-			onOffList = new MenuList();
 			upDownList = new MenuList();
 			seedInputList = new MenuInputList("" + Map.random.seed,/[0-9]/, String(uint.MAX_VALUE).length, seedInputCallback);
 			seedInputList.promptName = "enter number";
@@ -474,6 +476,10 @@
 				
 				renderMenu();
 				
+			} else if(option == inventoryList.autoSortOption){
+				onOffOption.state = inventoryList.autoSort ? 0 : 1;
+				renderMenu();
+				
 			} else if(option.name == "sfx"){
 				onOffOption.state = SoundManager.sfx ? 0 : 1;
 				renderMenu();
@@ -651,6 +657,10 @@
 						if(game.minion) game.minion.setMultiplayer();
 					}
 				
+				// toggle sorting equipment
+				} else if(previousMenuList.options[previousMenuList.selection] == inventoryList.autoSortOption){
+					inventoryList.autoSort = onOffOption.state == 1;
+					
 				// toggle multiplayer mode
 				} else if(previousMenuList.options[previousMenuList.selection].name == "multiplayer"){
 					game.multiplayer = onOffOption.state == 1;
@@ -875,10 +885,6 @@
 						}
 					}
 				}
-				
-			// sorting equipment
-			} else if(option == inventoryList.sortOption){
-				inventoryList.sortEquipment();
 				
 			// teleporting
 			} else if(currentMenuList == portalTeleportList){
