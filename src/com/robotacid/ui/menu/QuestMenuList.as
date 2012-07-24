@@ -19,12 +19,12 @@ package com.robotacid.ui.menu {
 		
 		public function QuestMenuList(menu:Menu) {
 			super(Vector.<MenuOption>([
-				new QuestMenuOption(QuestMenuOption.MACGUFFIN)
+				new QuestMenuOption(QuestMenuOption.MACGUFFIN, "@")
 			]));
 			this.menu = menu;
 		}
 		
-		public function createQuest():void{
+		public function createQuest(commissioner:String = "@"):void{
 			var i:int, subject:Character, targets:Vector.<Character>, option:QuestMenuOption;
 			var type:int = game.random.coinFlip() ? QuestMenuOption.COLLECT : QuestMenuOption.KILL;
 			if(type == QuestMenuOption.KILL){
@@ -81,13 +81,13 @@ package com.robotacid.ui.menu {
 					type = QuestMenuOption.COLLECT;
 				} else {
 					subject = targets[game.random.rangeInt(targets.length)];
-					option = new QuestMenuOption(type, subject);
+					option = new QuestMenuOption(type, commissioner, subject);
 					options.push(option);
 				}
 			}
 			// quests need to fallback to COLLECT quests - do not refactor to else-if
 			if(type == QuestMenuOption.COLLECT){
-				option = new QuestMenuOption(type);
+				option = new QuestMenuOption(type, commissioner);
 				options.push(option);
 				game.content.dropQuestGems(option.num, game.mapTileManager.mapLayers, game.map.bitmap, true);
 				game.map.completionCount += option.num;
@@ -96,7 +96,7 @@ package com.robotacid.ui.menu {
 			if(!Game.dialog){
 				Game.dialog = new Dialog(
 					"new quest",
-					"@ has issued you a new quest.\n" + option.name
+					commissioner + " has issued you a new quest.\n" + option.name
 				);
 			}
 		}
@@ -143,9 +143,13 @@ package com.robotacid.ui.menu {
 			game.console.print(str);
 			game.player.addXP(option.xpReward);
 			if(!Game.dialog){
+				var completionMsg:String = "\n@'s love for you is justified";
+				if(option.commissioner == "rng"){
+					completionMsg = "\nrng is pleased with this pointless errand";
+				}
 				Game.dialog = new Dialog(
 					"quest complete",
-					str + "\n@'s love for you is justified"
+					str + completionMsg
 				);
 			}
 		}

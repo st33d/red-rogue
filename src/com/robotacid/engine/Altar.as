@@ -31,8 +31,7 @@
 		public static const EMPTY:int = 2;
 		
 		public static const TWINKLE_DELAY:int = 20;
-		public static const ACTIVE_DELAY:int = 30;
-		//public static const MIMIC_TEMPLATE_XML:XML = <character characterNum={-1} name={Character.MIMIC} type={Character.MONSTER} />;
+		public static const ACTIVE_DELAY:int = 60;
 		
 		// later zones include the selection of miracles from the one before
 		public static const MIRACLE_ZONES:Array = [
@@ -46,10 +45,11 @@
 			super(gfx, false, false);
 			gfx.x = mapX * SCALE;
 			gfx.y = mapY * SCALE;
-			mapX = mapX;
-			mapY = mapY;
+			this.mapX = mapX;
+			this.mapY = mapY;
 			mapZ = MapTileManager.ENTITY_LAYER;
-			
+			rect = new Rectangle(mapX * SCALE, mapY * SCALE, SCALE, SCALE);
+			callMain = true;
 		}
 		
 		override public function main():void {
@@ -61,7 +61,7 @@
 				if(game.lightMap.darkImage.getPixel32(mapX, mapY) != 0xFF000000){
 					// create a twinkle twinkle effect so the player considers this collectable
 					if(twinkleCount-- <= 0){
-						renderer.addFX(mapX * SCALE + 8, mapY * SCALE + 6, renderer.twinkleBlit);
+						renderer.addFX(rect.x + 7, rect.y + 6, renderer.twinkleBlit);
 						twinkleCount = TWINKLE_DELAY + game.random.range(TWINKLE_DELAY);
 					}
 				}
@@ -97,21 +97,22 @@
 			target = character;
 			state = ACTIVE;
 			count = ACTIVE_DELAY;
-			renderer.createDebrisExplosion(new Rectangle(mapX * SCALE + 4, mapY * SCALE-2, 12, 12), 10, 20, Renderer.STONE);
+			renderer.createDebrisExplosion(new Rectangle(rect.x + 4, rect.y-2, 12, 12), 10, 20, Renderer.STONE);
 			game.createDistSound(mapX, mapY, "altar", Critter.COG_DEATH_SOUNDS);
+			
+			// no sound?
 		}
 		
 		/* Here is where great Rng chooses the fate of those who call to it */
 		public function miracle():void{
 			
+			var effect:Effect;
 			var list:Array = [], i:int, choice:String;
 			for(i = 0; i < MIRACLE_ZONES.length; i++){
 				if(i <= game.map.zone) list = list.concat(MIRACLE_ZONES[i]);
 			}
 			
 			choice = list[game.random.rangeInt(list.length)];
-			
-			choice = "item";
 			
 			if(choice == "item"){
 				// create a random item
@@ -122,54 +123,72 @@
 				
 			} else if(choice == "explosion"){
 				// create a target-friendly explosion using thier hit damage
+				var explosion:Explosion = new Explosion(0, mapX, mapY, 3 + game.random.rangeInt(3), target.damage, target, null, target.missileIgnore);
 				game.console.print("rng explodes for " + target.nameToString());
 			} else if(choice == "cog"){
 				// create a cog critter
+				game.mapTileManager.converter.convertIndicesToObjects(mapX, mapY, MapTileConverter.COG_BAT);
 				game.console.print("this altar is broken");
 			} else if(choice == "quest"){
 				// give the player a quest
+				game.gameMenu.loreList.questsList.createQuest("rng");
 				game.console.print("rng demands a quest of " + target.nameToString());
 			} else if(choice == "heal"){
-				// heal the target and their allies
+				// heal the target
+				target.applyHealth(target.totalHealth);
 				game.console.print("rng grants health");
 			} else if(choice == "overworldPortal"){
 				// open the overworld portal
 				game.console.print("rng opens the overworld portal");
+				Portal.createPortal(Portal.OVERWORLD, mapX, mapY, Map.OVERWORLD);
 			} else if(choice == "underworldPortal"){
 				// open the underworld portal
 				game.console.print("rng opens the underworld portal");
+				Portal.createPortal(Portal.UNDERWORLD, mapX, mapY, Map.UNDERWORLD);
 			} else if(choice == "horror"){
 				// summon a horror to chase the target
+				effect = new Effect(Effect.FEAR, game.map.level <= Game.MAX_LEVEL ? game.map.level : Game.MAX_LEVEL, Effect.EATEN, target);
 			} else if(choice == "polymorph"){
 				// polymorph the target
 				game.console.print("rng dislikes " + target.nameStr + "s");
+				effect = new Effect(Effect.POLYMORPH, target.level, Effect.EATEN, target);
 			} else if(choice == "identify"){
 				// cast EAT IDENTIFY on the target
 				game.console.print("rng grants wisdom to " + target.nameToString());
+				effect = new Effect(Effect.IDENTIFY, target.level, Effect.EATEN, target);
 			} else if(choice == "monsterPortal"){
 				// open a monster portal
 				game.console.print("rng likes conflict");
+				var portal:Portal = Portal.createPortal(Portal.MONSTER, mapX, mapY);
+				portal.setMonsterTemplate(Content.createCharacterXML(game.map.level, Character.MONSTER));
 			} else if(choice == "xp"){
 				// quicken the target
+				if(target.level < Game.MAX_LEVEL) effect = new Effect(Effect.XP, target.level, Effect.EATEN, target);
+				else target.quicken();
 				game.console.print("rng quickens " + target.nameToString());
 			} else if(choice == "chaos"){
 				// ?
 				game.console.print("rng grants chaos");
+				effect = new Effect(Effect.CHAOS, target.level, Effect.EATEN, target);
 			}
+			renderer.createSparkRect(new Rectangle(rect.x + 4, rect.y-2, 12, 12), 10, 1, 1);
+			renderer.createSparkRect(new Rectangle(rect.x + 4, rect.y-2, 12, 12), 10, -1, -1);
+			renderer.createSparkRect(new Rectangle(rect.x + 4, rect.y-2, 12, 12), 10, 1, -1);
+			renderer.createSparkRect(new Rectangle(rect.x + 4, rect.y-2, 12, 12), 10, -1, 1);
+			game.createDistSound(mapX, mapY, "miracle", ["miracle"]);
 			kill();
 		}
 		
 		/* Destroy the altar, but print the cog holder to the background */
 		public function kill():void{
-			renderer.createDebrisExplosion(new Rectangle(mapX * SCALE + 4, mapY * SCALE-2, 12, 12), 10, 20, Renderer.STONE);
+			renderer.createDebrisExplosion(new Rectangle(rect.x + 4, rect.y-2, 12, 12), 10, 20, Renderer.STONE);
 			game.createDistSound(mapX, mapY, "altar", Critter.COG_DEATH_SOUNDS);
 			(gfx as MovieClip).gotoAndStop("empty");
-			matrix = gfx.transform.matrix;
-			matrix.tx -= renderer.bitmap.x;
-			matrix.ty -= renderer.bitmap.y;
-			renderer.blockBitmapData.draw(gfx, matrix, gfx.transform.colorTransform);
+			renderer.backBitmapData.draw(gfx, gfx.transform.matrix, gfx.transform.colorTransform);
+			renderer.blockBitmapData.draw(gfx, gfx.transform.matrix, gfx.transform.colorTransform);
 			active = false;
 			game.mapTileManager.removeTile(this, mapX, mapY, mapZ);
+			game.content.removeAltar(game.map.level, game.map.type);
 		}
 		
 		override public function nameToString():String {

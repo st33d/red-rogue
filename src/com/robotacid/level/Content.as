@@ -42,7 +42,8 @@
 		public var portalsByLevel:Vector.<Vector.<XML>>;
 		public var trapsByLevel:Vector.<int>;
 		public var secretsByLevel:Vector.<int>;
-		public var questGemsByLevel:Vector.<int>
+		public var questGemsByLevel:Vector.<int>;
+		public var altarsByLevel:Vector.<int>;
 		public var seedsByLevel:Vector.<uint>;
 		public var monsterXpByLevel:Vector.<Number>;
 		
@@ -202,6 +203,7 @@
 			portalsByLevel = new Vector.<Vector.<XML>>(TOTAL_LEVELS + 1);
 			trapsByLevel = new Vector.<int>();
 			secretsByLevel = new Vector.<int>();
+			altarsByLevel = new Vector.<int>();
 			questGemsByLevel = new Vector.<int>();
 			seedsByLevel = new Vector.<uint>();
 			for(level = 0; level <= TOTAL_LEVELS; level++){
@@ -211,6 +213,7 @@
 				portalsByLevel[level] = new Vector.<XML>();
 				trapsByLevel[level] = trapQuantityPerLevel(level);
 				secretsByLevel[level] = 2;
+				altarsByLevel[level] = level > 2 ? Map.random.rangeInt(3) : 0;
 				questGemsByLevel[level] = 0;
 				Map.random.value();
 				seedsByLevel[level] = Map.random.r;
@@ -385,6 +388,7 @@
 			itemDungeonContent.traps = trapQuantityPerLevel(level);
 			itemDungeonContent.seed = Math.random() * uint.MAX_VALUE;
 			itemDungeonContent.questGems = 0;
+			itemDungeonContent.altars = game.random.rangeInt(3);
 			itemDungeonContent.monsterXp = getLevelXp(level);
 		}
 		
@@ -650,7 +654,7 @@
 			}
 		}
 		
-		/* Returns the amount of secrets in this part of the level */
+		/* Returns the amount of secrets in this level */
 		public function getSecrets(dungeonLevel:int, dungeonType:int):int{
 			if(dungeonType == Map.MAIN_DUNGEON){
 				while(dungeonLevel >= secretsByLevel.length) secretsByLevel.push(2);
@@ -661,13 +665,24 @@
 			return 0;
 		}
 		
-		/* Returns the amount of traps in this part of the level */
+		/* Returns the amount of traps in this level */
 		public function getTraps(dungeonLevel:int, dungeonType:int):int{
 			if(dungeonType == Map.MAIN_DUNGEON){
 				while(dungeonLevel >= trapsByLevel.length) trapsByLevel.push(trapQuantityPerLevel(dungeonLevel));
 				return trapsByLevel[dungeonLevel];
 			} else if(dungeonType == Map.ITEM_DUNGEON){
 				return itemDungeonContent.traps;
+			}
+			return 0;
+		}
+		
+		/* Returns the amount of altars in this level */
+		public function getAltars(dungeonLevel:int, dungeonType:int):int{
+			if(dungeonType == Map.MAIN_DUNGEON){
+				while(dungeonLevel >= altarsByLevel.length) altarsByLevel.push(game.random.rangeInt(3));
+				return altarsByLevel[dungeonLevel];
+			} else if(dungeonType == Map.ITEM_DUNGEON){
+				return itemDungeonContent.altars;
 			}
 			return 0;
 		}
@@ -687,6 +702,15 @@
 				trapsByLevel[dungeonLevel]--;
 			} else if(dungeonType == Map.ITEM_DUNGEON){
 				itemDungeonContent.traps--;
+			}
+		}
+		
+		/* Removes an altar for good */
+		public function removeAltar(dungeonLevel:int, dungeonType:int):void{
+			if(dungeonType == Map.MAIN_DUNGEON){
+				altarsByLevel[dungeonLevel]--;
+			} else if(dungeonType == Map.ITEM_DUNGEON){
+				itemDungeonContent.altars--;
 			}
 		}
 		

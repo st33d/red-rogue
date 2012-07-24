@@ -32,7 +32,7 @@ package com.robotacid.sound {
 		SoundManager.addSound(new ThrowSound, "throw", 0.8);
 		SoundManager.addSound(new ChestOpenSound, "chestOpen", 0.4);
 		SoundManager.addSound(new RuneHitSound, "runeHit", 0.8);
-		SoundManager.addSound(new TeleportSound, "teleport", 0.8);
+		SoundManager.addSound(new TeleportSound, "miracle", 0.8);
 		SoundManager.addSound(new TeleportSound01, "teleport1", 0.2);
 		SoundManager.addSound(new TeleportSound02, "teleport2", 0.2);
 		SoundManager.addSound(new TeleportSound03, "teleport3", 0.2);

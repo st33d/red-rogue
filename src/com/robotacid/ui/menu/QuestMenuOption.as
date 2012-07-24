@@ -16,16 +16,18 @@ package com.robotacid.ui.menu {
 		
 		public var type:int;
 		public var num:int;
+		public var commissioner:String;
 		public var xpReward:Number;
 		
-		public static const XP_REWARD:Number = 1 / 30;
+		public static const XP_REWARD:Number = 1 / 20;
 		
 		public static const COLLECT:int = 0;
 		public static const KILL:int = 1;
 		public static const MACGUFFIN:int = 2;
 		
-		public function QuestMenuOption(type:int, subject:Character = null) {
+		public function QuestMenuOption(type:int, commissioner:String, subject:Character = null) {
 			this.type = type;
+			this.commissioner = commissioner;
 			if(type == COLLECT){
 				num = 3 + game.random.rangeInt(3);
 				name = "collect " + num + " gems";

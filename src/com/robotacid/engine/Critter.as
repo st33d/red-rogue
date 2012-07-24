@@ -62,7 +62,7 @@ package com.robotacid.engine {
 				delay = 12;
 				speed = 3;
 				dir = game.random.coinFlip() ? LEFT : RIGHT;
-				if(name & COG) createCogCollider(x, y);
+				if(name & COG) createCogCollider(x, y - 2);
 				else{
 					createCollider(x, y, Collider.HEAD | Collider.SOLID, Collider.HEAD | Collider.CORPSE | Collider.ITEM, Collider.FALL);
 					debrisType = Renderer.BLOOD;
@@ -89,7 +89,7 @@ package com.robotacid.engine {
 				speed = 1;
 				patrolAreaSet = true;
 				dir = game.random.coinFlip() ? LEFT : RIGHT;
-				if(name & COG) createCogCollider(x, y);
+				if(name & COG) createCogCollider(x, y + 2);
 				else{
 					createCollider(x, y, Collider.HEAD | Collider.SOLID, Collider.HEAD | Collider.CORPSE, Collider.FALL, false);
 					(gfx as MovieClip).gotoAndPlay("fly");

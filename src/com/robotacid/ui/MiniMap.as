@@ -1,4 +1,6 @@
 ﻿package com.robotacid.ui {
+	import com.robotacid.engine.MapTileManager;
+	import com.robotacid.engine.Portal;
 	import com.robotacid.gfx.BlitClip;
 	import com.robotacid.gfx.FX;
 	import com.robotacid.gfx.LightMap;
@@ -100,7 +102,7 @@
 		
 		/* Completes the whole map, albeit in a different tone to the rest of the map to show unvisited areas */
 		public function reveal():void{
-			var r:int, c:int;
+			var r:int, c:int, i:int;
 			var blockMap:Vector.<Vector.<int>> = game.lightMap.blockMap;
 			var col:uint;
 			for(r = 1; r < bitmapData.height - 1; r++){
@@ -119,6 +121,21 @@
 						if(blockMap[r + 1][c + 1] & LightMap.WALL) bitmapData.setPixel32(c + 1, r + 1, LightMap.MINIMAP_WALL_COL);
 					}
 				}
+			}
+			// reveal exits
+			var portal:Portal;
+			if(game.map.stairsUp){
+				portal = game.mapTileManager.getTile(game.map.stairsUp.x, game.map.stairsUp.y, MapTileManager.ENTITY_LAYER) as Portal;
+				if(portal && !portal.seen) portal.reveal();
+			}
+			if(game.map.stairsDown){
+				portal = game.mapTileManager.mapLayers[MapTileManager.ENTITY_LAYER][game.map.stairsDown.y][game.map.stairsDown.x] as Portal;
+				portal = game.mapTileManager.getTile(game.map.stairsDown.x, game.map.stairsDown.y, MapTileManager.ENTITY_LAYER) as Portal;
+				if(portal && !portal.seen) portal.reveal();
+			}
+			for(i = 0; i < game.map.portals.length; i++){
+				portal = game.mapTileManager.getTile(game.map.portals[i].x, game.map.portals[i].y, MapTileManager.ENTITY_LAYER) as Portal;
+				if(portal && !portal.seen) portal.reveal();
 			}
 			triggerFlashPrompt();
 			render();

@@ -230,7 +230,6 @@ package com.robotacid.engine {
 				// remove from map renderer
 				game.world.removeMapPosition(mapX, mapY);
 				game.mapTileManager.removeTile(this, mapX, mapY, mapZ);
-				//renderer.blockBitmapData.fillRect(new Rectangle(mapX * SCALE, mapY * SCALE, SCALE, SCALE), 0x0);
 				renderer.blockBitmapData.copyPixels(renderer.backBitmapData, new Rectangle(mapX * SCALE, mapY * SCALE, SCALE, SCALE), new Point(mapX * SCALE, mapY * SCALE));
 				// show empty on minimap
 				game.miniMap.bitmapData.setPixel32(mapX, mapY, LightMap.MINIMAP_EMPTY_COL);

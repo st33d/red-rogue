@@ -104,20 +104,7 @@
 			} else if(state == OPEN){
 				// if the portal is visible on the map - then make the portal icon on the map visible
 				if(!seen && game.lightMap.darkImage.getPixel32(mapX, mapY) != 0xFF000000){
-					seen = true;
-					var blit:BlitClip;
-					if(type == STAIRS){
-						if(targetLevel < game.map.level) {
-							blit = renderer.stairsUpFeatureBlit;
-						} else if(targetLevel > game.map.level){
-							blit = renderer.stairsDownFeatureBlit;
-						} else {
-							blit = renderer.portalFeatureBlit;
-						}
-					} else {
-						blit = renderer.portalFeatureBlit;
-					}
-					minimapFX = game.miniMap.addFeature(mapX, mapY, blit, this != game.entrance);
+					reveal();
 				}
 				if(type == UNDERWORLD){
 					// heal the undead
@@ -202,6 +189,24 @@
 			state = CLOSING;
 			count = OPEN_CLOSE_DELAY;
 			game.soundQueue.add("portalClose");
+		}
+		
+		/* Creates the appropriate minimap feature for the portal */
+		public function reveal():void{
+			seen = true;
+			var blit:BlitClip;
+			if(type == STAIRS){
+				if(targetLevel < game.map.level) {
+					blit = renderer.stairsUpFeatureBlit;
+				} else if(targetLevel > game.map.level){
+					blit = renderer.stairsDownFeatureBlit;
+				} else {
+					blit = renderer.portalFeatureBlit;
+				}
+			} else {
+				blit = renderer.portalFeatureBlit;
+			}
+			minimapFX = game.miniMap.addFeature(mapX, mapY, blit, this != game.entrance);
 		}
 		
 		/* Covers the bottom edge of a portal to make it neater in outside areas */

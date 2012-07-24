@@ -1,4 +1,5 @@
 ﻿package com.robotacid.level {
+	import com.robotacid.engine.Altar;
 	import com.robotacid.engine.ChaosWall;
 	import com.robotacid.engine.Character;
 	import com.robotacid.engine.ColliderEntity;
@@ -373,6 +374,7 @@
 			createOtherTraps(pixels);
 			// beyond the starting position of the underworld portal, the minion cannot have written anything
 			if(level <= Writing.story.length && type == MAIN_DUNGEON) createWritings(pixels);
+			createAltars(pixels);
 			createDecor(pixels);
 			createChaosWalls(pixels);
 			createCritters();
@@ -918,6 +920,60 @@
 						pixels[i] = MapBitmap.GATE;
 						pixels[i + 1] = MapBitmap.GATE;
 						pixels[i - 1] = MapBitmap.GATE;
+					}
+				}
+			}
+		}
+		
+		/* Generate slot machines */
+		public function createAltars(pixels:Vector.<uint>):void{
+			
+			var totalAltars:int = game.content.getAltars(level, type);
+			if(totalAltars <= 0) return;
+			
+			var i:int, n:int;
+			var surface:Surface, altar:Altar;
+			
+			var range:int = (height - 1) * width - 1;
+			var candidates:Vector.<Surface> = new Vector.<Surface>();
+			
+			for(i = 0; i < Surface.surfaces.length; i++){
+				surface = Surface.surfaces[i];
+				if(surface.properties == (Collider.SOLID | Collider.WALL)){
+					n = surface.x + surface.y * width;
+					if(
+						n > width + 1 && n < range &&
+						(pixels[n + (width + 1)] == MapBitmap.WALL || pixels[n + (width + 1)] == MapBitmap.LEDGE) &&
+						(pixels[n + width] == MapBitmap.WALL || pixels[n + width] == MapBitmap.LEDGE) &&
+						(pixels[n + (width - 1)] == MapBitmap.WALL || pixels[n + (width - 1)] == MapBitmap.LEDGE) &&
+						pixels[n] == MapBitmap.EMPTY &&
+						pixels[n - 1] == MapBitmap.EMPTY &&
+						pixels[n + 1] == MapBitmap.EMPTY &&
+						Surface.map[surface.y][surface.x - 1] &&
+						Surface.map[surface.y][surface.x + 1]
+					){
+						candidates.push(surface);
+					}	
+				}
+			}
+			trace("candidates", candidates.length);
+			if(candidates.length){
+				
+				while((totalAltars--) &&  candidates.length){
+					n = random.rangeInt(candidates.length);
+					surface = candidates[n];
+					candidates.splice(n, 1);
+					i = surface.x + surface.y * width;
+					if(
+						pixels[i] == MapBitmap.EMPTY &&
+						pixels[i + 1] == MapBitmap.EMPTY &&
+						pixels[i - 1] == MapBitmap.EMPTY &&
+						!layers[ENTITIES][surface.y][surface.x + 1] &&
+						!layers[ENTITIES][surface.y][surface.x - 1]
+					){
+						altar = new Altar(new AltarMC, surface.x, surface.y);
+						layers[ENTITIES][surface.y][surface.x] = altar;
+						Surface.removeSurface(surface.x, surface.y);
 					}
 				}
 			}
