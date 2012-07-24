@@ -419,7 +419,7 @@
 			setStairsDown(12, height - 2);
 			
 			// the player may have left content on the overworld as a sort of bank
-			game.content.populateLevel(type, 0, bitmap, layers, random);
+			game.content.populateLevel(type, OVERWORLD, bitmap, layers, random);
 		}
 		
 		/* Create the underworld
@@ -452,7 +452,7 @@
 			}
 			
 			// the player may have left content on the underworld as a sort of bank
-			game.content.populateLevel(type, 0, bitmap, layers, random);
+			game.content.populateLevel(type, UNDERWORLD, bitmap, layers, random);
 			
 			// create sensors to resolve any contact with the waters
 			var waterSensor:ColliderEntitySensor = new ColliderEntitySensor(

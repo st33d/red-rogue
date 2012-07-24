@@ -1,4 +1,4 @@
-Change log: reveal map now reveals exits, added altars of rng (slot machines)
+Change log: changed item dropping in areas to remember drop location, this build a restore point before saved games implemented
 
 Bug hunt
 	collection lock out on chests after playing for a while - bugged chest or item?
@@ -11,12 +11,13 @@ Bug hunt
 	shot troll with arrow - no aggro, why? - possible frozen monster occurence
 	chaos walls frozen without graphics rendered and no walls beneath them (activated, not on chaos wall render list?)
 
-altar
-	gfx of Rng, god of chaos
-	holds an item - press up on it to invoke the quest to recieve the item
-	base on Chest class - Quest chest?
-	some can crumble and open a monster portal?
-	some can crumble and open the pocket dungeon?
+
+save and quit
+	refactor Save object
+		build game from save object
+		
+		save area items - warehouses
+		save portals
 
 the balrog
 	jumping ai
@@ -42,16 +43,6 @@ secret items
 	bug
 
 endings
-
-save and quit
-	refactor Save object
-		save overworld items
-			save location
-				add location to item xml
-		save portals
-		figure out what to do with underworld items
-			secondary warehouse?
-
 
 sounds
 	mimic voice

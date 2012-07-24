@@ -609,7 +609,7 @@
 		}
 		
 		override public function toXML():XML{
-			var xml:XML = <item name={name} type={type} level={level} location={location} holyState={holyState} user={user ? user.nameToString() : ""} uniqueNameStr={uniqueNameStr} />;
+			var xml:XML = <item name={name} type={type} level={level} location={location} holyState={holyState} user={user ? user.nameToString() : ""} uniqueNameStr={uniqueNameStr} mapX={mapX} mapY={mapY} />;
 			if(effects && effects.length){
 				for(var i:int = 0; i < effects.length; i++){
 					xml.appendChild(effects[i].toXML());

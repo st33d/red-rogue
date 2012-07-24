@@ -567,21 +567,25 @@
 				if(questGems) dropQuestGems(questGems, layers, bitmap);
 				
 			} else {
-				// on areas we just scatter objects left up there
+				// on areas we use the mapX and mapY properties to place items, falling back to scattering
 				if(mapLevel == Map.OVERWORLD){
 					minX = 2;
 					maxX = bitmap.width - 2;
 					r = bitmap.height - 2;
 				} else if(mapLevel == Map.UNDERWORLD){
-					minX = Map.UNDERWORLD_BOAT_MIN;
+					minX = Map.UNDERWORLD_PORTAL_X - 2;
 					maxX = Map.UNDERWORLD_BOAT_MAX;
 					r = bitmap.height - 3;
 				}
 				while(areaContent[mapLevel].chests.length){
-					chest = XMLToEntity(0, 0, areaContent[mapLevel].chests.shift());
-					while(chest.contents.length){
-						item = chest.contents.shift();
-						c = minX + random.range(maxX - minX);
+					var children:XMLList = areaContent[mapLevel].chests.shift().children();
+					for each(var xml:XML in children){
+						if(xml.hasOwnProperty("@mapX")){
+							c = xml.@mapX;
+						} else {
+							c = minX + random.range(maxX - minX);
+						}
+						item = XMLToEntity(c, r, xml);
 						item.dropToMap(c, r, false);
 						if(layers[Map.ENTITIES][r][c]){
 							if(layers[Map.ENTITIES][r][c] is Array){
@@ -858,6 +862,7 @@
 					} else if(mapType == Map.MAIN_DUNGEON){
 						questGemsByLevel[level]++;
 					}
+					return;
 				}
 				if(item.type == Item.KEY){
 					return;
