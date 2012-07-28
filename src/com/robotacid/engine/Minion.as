@@ -37,6 +37,7 @@
 		
 		public static const ENTER_DELAY:int = 30;
 		public static const DEFAULT_UNIQUE_NAME_STR:String = "the minion";
+		public static const REVEALED_UNIQUE_NAME_STR:String = "@";
 		
 		public function Minion(gfx:DisplayObject, x:Number, y:Number, name:int) {
 			
@@ -45,7 +46,7 @@
 			inventory = game.gameMenu.inventoryList;
 			
 			missileIgnore |= Collider.PLAYER | Collider.MINION | Collider.PLAYER_MISSILE;
-			uniqueNameStr = DEFAULT_UNIQUE_NAME_STR;
+			uniqueNameStr = Boolean(UserData.settings.loreUnlocked.races[SKELETON]) ? REVEALED_UNIQUE_NAME_STR : DEFAULT_UNIQUE_NAME_STR;
 			
 			//brain = game.multiplayer ? new PlayerBrain(this, game.player) : new Brain(this, Brain.PLAYER, game.player);
 			setMultiplayer();

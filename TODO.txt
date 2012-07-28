@@ -1,4 +1,4 @@
-Change log: changed item dropping in areas to remember drop location, this build a restore point before saved games implemented
+Change log: fixed toggle options not showing keys they're assigned to when not in first state, created UserData object for saving game settings and data - deprecates QuickSave class (behaviour from said class to be rolled into UserData in near future), game now saves settings and initialises using UserData class
 
 Bug hunt
 	collection lock out on chests after playing for a while - bugged chest or item?
@@ -12,10 +12,12 @@ Bug hunt
 	chaos walls frozen without graphics rendered and no walls beneath them (activated, not on chaos wall render list?)
 
 
+pocket portals broken
+
 save and quit
-	refactor Save object
-		build game from save object
-		
+	build game from save object
+		save Content to UserData
+		load Content from UserData
 		save area items - warehouses
 		save portals
 

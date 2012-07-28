@@ -2,7 +2,6 @@ package com.robotacid.sound {
 	
 	/* Initialises the SoundManager and all of the sounds that are used in the game */
 	public function gameSoundsInit():void {
-		SoundManager.init();
 		SoundManager.addSound(new JumpSound, "jump", 0.6);
 		SoundManager.addSound(new StepsSound, "step", 0.6);
 		SoundManager.addSound(new ClickSound, "click", 0.7);

@@ -124,7 +124,6 @@
 		public static const SELECTION_WINDOW_COL:uint = 0xFFEEEEEE;
 		public static const KEYS_HELD_DELAY:int = 5;
 		public static const MOVEMENT_GUIDE_DELAY:int = 30;
-		public static const DEFAULT_MOVE_DELAY:int = 4;
 		public static const DISABLED_COL:ColorTransform = new ColorTransform(1, 1, 1, 1, -100, -100, -100);
 		public static const BACKGROUND_COL:uint = 0x66111111;
 		public static const BORDER_COL:uint = 0xFF999999;
@@ -164,7 +163,6 @@
 			dir = 0;
 			vx = vy = 0;
 			moveCount = 0;
-			moveDelay = DEFAULT_MOVE_DELAY;
 			moveReset = moveDelay;
 			keysHeldCount = KEYS_HELD_DELAY;
 			movementGuideCount = MOVEMENT_GUIDE_DELAY;

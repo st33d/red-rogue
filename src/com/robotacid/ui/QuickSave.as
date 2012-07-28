@@ -22,6 +22,7 @@ package com.robotacid.ui {
 	 *
 	 * The data we capture is as follows:
 	 *
+	 * 	menu state
 	 * 	key definitions
 	 * 	player and minion status
 	 * 	inventory

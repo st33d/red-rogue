@@ -56,23 +56,26 @@ package com.robotacid.ui.menu {
 			weaponInfo = new MenuInfo(renderWeapon);
 			armourInfo = new MenuInfo(renderArmour);
 			
-			var option:MenuOption, i:int;
+			var option:MenuOption, i:int, unlocked:Boolean;
 			for(i = 0; i < Character.stats["names"].length; i++){
-				option = new MenuOption(Character.stats["names"][i], raceInfo, i == 0);
+				unlocked = Boolean(UserData.settings.loreUnlocked.races[i]) || i == 0;
+				option = new MenuOption(Character.stats["names"][i], raceInfo, unlocked);
 				option.recordable = false;
-				option.hidden = (i != 0);
+				option.hidden = !unlocked;
 				racesList.options.push(option);
 			}
 			for(i = 0; i < Item.stats["weapon names"].length; i++){
-				option = new MenuOption(Item.stats["weapon names"][i], weaponInfo, false);
+				unlocked = Boolean(UserData.settings.loreUnlocked.weapons[i]);
+				option = new MenuOption(Item.stats["weapon names"][i], weaponInfo, unlocked);
 				option.recordable = false;
-				option.hidden = true;
+				option.hidden = !unlocked;
 				weaponsList.options.push(option);
 			}
 			for(i = 0; i < Item.stats["armour names"].length; i++){
-				option = new MenuOption(Item.stats["armour names"][i], armourInfo, false);
+				unlocked = Boolean(UserData.settings.loreUnlocked.armour[i]);
+				option = new MenuOption(Item.stats["armour names"][i], armourInfo, unlocked);
 				option.recordable = false;
-				option.hidden = true;
+				option.hidden = !unlocked;
 				armourList.options.push(option);
 			}
 			

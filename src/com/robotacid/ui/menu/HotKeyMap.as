@@ -145,7 +145,7 @@
 			for(var i:int = 0; i < length; i++){
 				var branchNode:XML = <branch />;
 				branchNode.@selection = selectionBranch[i];
-				branchNode.@name = optionBranch[i].name;
+				branchNode.@name = (optionBranch[i] is ToggleMenuOption) ? (optionBranch[i] as ToggleMenuOption).names[0] : optionBranch[i].name;
 				branchNode.@context = optionBranch[i].context;
 				xml.appendChild(branchNode);
 			}
@@ -169,8 +169,12 @@
 						if(
 							option == hotKeySelectionOption ||
 							(
-								hotKeyMap.selectionBranch[hotKeyMap.selectionBranch.length - 1] == i &&
-								option.name == hotKeySelectionOption.name
+								hotKeyMap.selectionBranch[hotKeyMap.selectionBranch.length - 1] == i && (
+									option.name == hotKeySelectionOption.name || (
+										option is ToggleMenuOption &&
+										(option as ToggleMenuOption).names[0] == hotKeySelectionOption.name
+									)
+								)
 							)
 						){
 							str = "(" + Key.keyString(Key.custom[Menu.HOT_KEY_OFFSET + j]) + ")";

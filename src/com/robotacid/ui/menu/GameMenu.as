@@ -76,6 +76,8 @@
 		public var saveGifOption:MenuOption;
 		
 		public var instructionsOption:MenuOption;
+		public var saveSettingsOption:MenuOption;
+		public var saveAndQuitOption:MenuOption;
 		public var screenshotOption:MenuOption;
 		public var saveLogOption:MenuOption;
 		public var editorOption:MenuOption;
@@ -86,6 +88,7 @@
 		public var giveDebugEquipmentOption:MenuOption;
 		
 		public var newGameOption:MenuOption;
+		public var resetOption:MenuOption;
 		public var seedOption:MenuOption;
 		public var dogmaticOption:MenuOption;
 		public var consoleDirOption:MenuOption;
@@ -153,7 +156,7 @@
 				new MenuOption("4", null, false),
 				new MenuOption("5", null, false)
 			]));
-			menuMoveList.selection = DEFAULT_MOVE_DELAY - 1;
+			menuMoveList.selection = Menu.moveDelay - 1;
 			
 			// MENU OPTIONS
 			
@@ -219,6 +222,11 @@
 			hotKeyOption.help = "set up a key to perform a menu action. the hot key will work even if the menu is hidden, the hot key will also adapt to menu changes";
 			
 			instructionsOption = new MenuOption("instructions");
+			instructionsOption.help = "view the basic instructions screen";
+			saveSettingsOption = new MenuOption("save settings");
+			saveSettingsOption.help = "save game settings and unlocked lore. this does not save the state of the dungeon, inventory or the player status";
+			saveAndQuitOption = new MenuOption("save and quit", null, false);
+			saveAndQuitOption.help = "this is currently in development. the game will have permadeath, but some elements may carry from game to game";
 			soundOption = new MenuOption("sound", soundList);
 			soundOption.help = "toggle sound";
 			var sfxOption:MenuOption = new MenuOption("sfx", onOffList);
@@ -242,7 +250,11 @@
 			var multiplayerOption:MenuOption = new MenuOption("multiplayer", multiplayerList);
 			multiplayerOption.help = "allow the minion to be controlled with the arrow keys. the rogue is controlled by the alternative direction keys."
 			newGameOption = new MenuOption("new game", sureList);
+			newGameOption.recordable = false;
 			newGameOption.help = "start a new game";
+			resetOption = new MenuOption("reset saved data", sureList);
+			resetOption.recordable = false;
+			resetOption.help = "erases all saved data. this cannot be undone.";
 			
 			steedOption = new MenuOption("aaron steed - code/art/design");
 			steedOption.help = "opens a window to aaron steed's site - robotacid.com";
@@ -272,6 +284,8 @@
 			
 			optionsList.options.push(instructionsOption);
 			optionsList.options.push(fullScreenOption);
+			optionsList.options.push(saveSettingsOption);
+			optionsList.options.push(saveAndQuitOption);
 			optionsList.options.push(soundOption);
 			optionsList.options.push(screenshotOption);
 			optionsList.options.push(recordGifOption);
@@ -284,6 +298,7 @@
 			optionsList.options.push(dogmaticOption);
 			optionsList.options.push(multiplayerOption);
 			optionsList.options.push(newGameOption);
+			optionsList.options.push(resetOption);
 			
 			debugList.options.push(editorOption);
 			debugList.options.push(giveItemOption);
@@ -322,39 +337,15 @@
 			var option:MenuOption = currentMenuList.options[selection];
 			help.text = option.help;
 			
-			// construct the default hot-key maps
-			var defaultHotKeyXML:Array = [
-				<hotKey>
-				  <branch selection="0" name="actions" context="null"/>
-				  <branch selection="3" name="shoot" context="missile"/>
-				</hotKey>,
-				<hotKey>
-				  <branch selection="0" name="actions" context="null"/>
-				  <branch selection="0" name="search" context="null"/>
-				</hotKey>,
-				<hotKey>
-				  <branch selection="0" name="actions" context="null"/>
-				  <branch selection="2" name="disarm trap" context="null"/>
-				</hotKey>,
-				<hotKey>
-				  <branch selection="0" name="actions" context="null"/>
-				  <branch selection="1" name="summon" context="null"/>
-				</hotKey>,
-				<hotKey>
-				  <branch selection="0" name="actions" context="null"/>
-				  <branch selection="4" name="jump" context="null"/>
-				</hotKey>,
-				<hotKey>
-				  <branch selection="3" name="options" context="null"/>
-				  <branch selection="12" name="multiplayer" context="null"/>
-				  <branch selection="1" name="minion shoot" context="minion missile"/>
-				</hotKey>
-			];
+			// load the hot-key maps
+			var hotKeyXMLs:Array = UserData.settings.hotKeyMaps;
 			var hotKeyMap:HotKeyMap;
-			for(i = 0; i < defaultHotKeyXML.length; i++){
-				hotKeyMap = new HotKeyMap(i, this);
-				hotKeyMap.init(defaultHotKeyXML[i]);
-				hotKeyMaps[i] = hotKeyMap;
+			for(i = 0; i < hotKeyXMLs.length; i++){
+				if(hotKeyXMLs[i]){
+					hotKeyMap = new HotKeyMap(i, this);
+					hotKeyMap.init(hotKeyXMLs[i]);
+					hotKeyMaps[i] = hotKeyMap;
+				}
 			}
 			
 			// this boolean allows the fullscreen option to "bounce"
@@ -613,7 +604,7 @@
 			} else if(option == inventoryList.eatOption){
 				item = previousMenuList.options[previousMenuList.selection].userData;
 				if(item.type == Item.RUNE) Item.revealName(item.name, inventoryList.runesList);
-				game.console.print("rogue eats " + item.nameToString());
+				game.console.print(game.player.nameToString() + " eats " + item.nameToString());
 				
 				if(item.type == Item.HEART){
 					health = Character.stats["healths"][item.name] + Character.stats["health levels"][item.name] * game.player.level;
@@ -630,7 +621,7 @@
 			} else if(option == inventoryList.feedMinionOption){
 				item = previousMenuList.options[previousMenuList.selection].userData;
 				if(item.type == Item.RUNE) Item.revealName(item.name, inventoryList.runesList);
-				game.console.print("minion eats " + item.nameToString());
+				game.console.print(game.minion.nameToString() + " eats " + item.nameToString());
 				
 				if(item.type == Item.HEART){
 					health = Character.stats["healths"][item.name] + Character.stats["health levels"][item.name] * game.minion.level;
@@ -718,6 +709,27 @@
 			// showing the instructions
 			} else if(option == instructionsOption){
 				game.transition.init(game.initInstructions, null, "", true);
+			
+			// saving settings
+			} else if(option == saveSettingsOption){
+				UserData.saveSettings();
+				UserData.push(true);
+			
+			// saving and quitting
+			} else if(option == saveAndQuitOption){
+				//UserData.saveSettings();
+				//UserData.push();
+			
+			// erasing the shared object
+			} else if(option == resetOption){
+				if(!Game.dialog){
+					Game.dialog = new Dialog(
+						"reset",
+						"please restart the game after accepting this option to ensure all data is erased",
+						UserData.reset,
+						function():void{}
+					);
+				}
 			
 			// taking a screenshot
 			} else if(option == screenshotOption){

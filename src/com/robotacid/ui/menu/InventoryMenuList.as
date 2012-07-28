@@ -65,7 +65,7 @@
 			super();
 			this.menu = menu;
 			this.game = game;
-			autoSort = true;
+			autoSort = UserData.settings.autoSortInventory;
 			
 			// MENU LISTS
 			
@@ -96,6 +96,7 @@
 			heartsOption.help = "The list of hearts you and the minion can eat to regain health.";
 			autoSortOption = new MenuOption("auto-sort", (menu as GameMenu).onOffList);
 			autoSortOption.selectionStep = 1;
+			autoSortOption.recordable = false;
 			autoSortOption.help = "auto-sort sorts weapons and armour according to the combat highest stats. does not consider special abilities or enchantments.";
 			
 			enchantOption = new MenuOption("enchant", enchantableList, false);

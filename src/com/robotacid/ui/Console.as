@@ -60,10 +60,16 @@
 			logLines = 0;
 			
 			// by default, console text scrolls in upwards
-			scrollDir = -1;
-			insertionPointPos = new Point(0, SCROLL_UP_STOP_Y + 3);
-			targetScrollDir = -1;
-			scrollPoint = new Point(0, SCROLL_UP_STOP_Y);
+			scrollDir = targetScrollDir = UserData.settings.consoleScrollDir;
+			insertionPointPos = new Point();
+			scrollPoint = new Point();
+			if(scrollDir == 1){
+				scrollPoint.y = 0;
+				insertionPointPos.y = 3;
+			} else if(scrollDir == -1){
+				scrollPoint.y = SCROLL_UP_STOP_Y;
+				insertionPointPos.y = SCROLL_UP_STOP_Y + 3;
+			}
 			
 			addEventListener(Event.ENTER_FRAME, main, false, 0, true);
 		}

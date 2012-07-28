@@ -46,6 +46,9 @@
 		
 		/* Reads values for music and sfx toggles from the SharedObject */
 		public static function init():void{
+			sfx = UserData.settings.sfx;
+			music = UserData.settings.music;
+			gameSoundsInit();
 		}
 		
 		/* Adds a sound to the sounds hash. Use this method to add all sounds to a project */

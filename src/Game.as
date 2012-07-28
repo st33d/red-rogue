@@ -13,7 +13,6 @@
 	import com.robotacid.gfx.*;
 	import com.robotacid.phys.Collider;
 	import com.robotacid.phys.CollisionWorld;
-	import com.robotacid.sound.gameSoundsInit;
 	import com.robotacid.sound.SoundManager;
 	import com.robotacid.sound.SoundQueue;
 	import com.robotacid.ui.Console;
@@ -76,10 +75,10 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 413;
+		public static const BUILD_NUM:int = 414;
 		
 		public static const TEST_BED_INIT:Boolean = false;
-		public static const ONLINE:Boolean = false;
+		public static const ONLINE:Boolean = true;
 		
 		public static var game:Game;
 		public static var renderer:Renderer;
@@ -211,12 +210,25 @@
 				}
 			}
 			
+			// init UserData
+			UserData.initSettings();
+			UserData.pull();
+			
+			// misc static settings
+			Map.seed = UserData.settings.randomSeed;
+			Menu.moveDelay = UserData.settings.menuMoveSpeed;
+			dogmaticMode = UserData.settings.dogmaticMode;
+			multiplayer = UserData.settings.multiplayer;
+			
+			firstInstructions = ONLINE;
+			
 			library = new Library;
 			
 			renderer = new Renderer(this);
 			renderer.init();
 			
 			game = this;
+			UserData.game = this;
 			Entity.game = this;
 			LightMap.game = this;
 			Effect.game = this;
@@ -271,17 +283,8 @@
 			FPS.start();
 			
 			// SOUND INIT
-			gameSoundsInit();
+			SoundManager.init();
 			soundQueue = new SoundQueue();
-			
-			// LOAD SETTINGS
-			// to do
-			
-			dogmaticMode = false;
-			
-			multiplayer = false;
-			
-			firstInstructions = ONLINE;
 			
 			lives = new HiddenInt();
 			livesAvailable = new HiddenInt(3);
@@ -298,7 +301,7 @@
 			// KEYS INIT
 			if(!Key.initialized){
 				Key.init(stage);
-				Key.custom = [Key.W, Key.S, Key.A, Key.D, Keyboard.SPACE, Key.F, Key.Z, Key.X, Key.C, Key.V, Key.M, Key.NUMBER_2, Key.NUMBER_3, Key.NUMBER_4];
+				Key.custom = UserData.settings.customKeys.slice();
 				Key.hotKeyTotal = 10;
 			}
 			
@@ -566,7 +569,7 @@
 		 *
 		 * This method tries to wipe all layers whilst leaving the gaming architecture in place
 		 */
-		public function setLevel(n:int, portalType:int, loaded:Boolean = false):void{
+		public function setLevel(n:int, portalType:int):void{
 			
 			editor.deactivate();
 			
@@ -576,15 +579,18 @@
 				Player.previousLevel = -1;
 				Player.previousPortalType = Portal.ITEM;
 				Player.previousMapType = Map.MAIN_DUNGEON;
-				loaded = true;
 			}
 			
-			if(!loaded && map){
+			if(map){
 				// left over content needs to be pulled back into the content manager to be found
 				// if the level is visited again
 				content.recycleLevel(map.type);
-				//QuickSave.save(this, true);
+				
+				// save data here
+				UserData.saveSettings();
+				UserData.push();
 			}
+			
 			
 			// elements to update:
 			
