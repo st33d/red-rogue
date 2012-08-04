@@ -454,7 +454,7 @@
 						if(game.minion) inventoryList.feedMinionOption.active = game.minion.level < Game.MAX_LEVEL;
 						inventoryList.eatOption.active = game.player.level < Game.MAX_LEVEL;
 					} else if(item.name == Effect.PORTAL){
-						inventoryList.eatOption.active = game.map.type == Map.MAIN_DUNGEON;
+						inventoryList.eatOption.active = game.map.type != Map.AREA;
 						if(game.minion) inventoryList.feedMinionOption.active = inventoryList.eatOption.active;
 					} else if(item.name == Effect.POLYMORPH){
 						inventoryList.eatOption.active = !(game.map.type == Map.AREA && game.map.level == Map.OVERWORLD);
@@ -900,10 +900,10 @@
 				
 			// teleporting
 			} else if(currentMenuList == portalTeleportList){
-				if(option == stairsDownPortalOption) teleportToPortal(Portal.STAIRS, game.map.level + 1);
-				else if(option == stairsUpPortalOption) teleportToPortal(Portal.STAIRS, game.map.level - 1);
-				else if(option == overworldPortalOption) teleportToPortal(Portal.OVERWORLD);
-				else if(option == underworldPortalOption) teleportToPortal(Portal.UNDERWORLD);
+				if(option == stairsDownPortalOption) teleportToPortal(Portal.STAIRS, game.map.level + 1, Map.MAIN_DUNGEON);
+				else if(option == stairsUpPortalOption) teleportToPortal(Portal.STAIRS, game.map.level - 1, Map.MAIN_DUNGEON);
+				else if(option == overworldPortalOption) teleportToPortal(Portal.PORTAL, Map.OVERWORLD, Map.AREA);
+				else if(option == underworldPortalOption) teleportToPortal(Portal.PORTAL, Map.UNDERWORLD, Map.AREA);
 				
 			// launching the test bed
 			} else if(option == editorList.launchTestBedOption){
@@ -997,13 +997,12 @@
 		}
 		
 		/* Teleport the player to a given portal */
-		private function teleportToPortal(type:int, targetLevel:int = 0):void{
+		private function teleportToPortal(type:int, targetLevel:int, targetType:int):void{
 			var i:int, portal:Portal;
 			for(i = 0; i < game.portals.length; i++){
 				portal = game.portals[i];
 				if(
-					portal.type == type &&
-					!(portal.type == Portal.STAIRS && portal.targetLevel != targetLevel)
+					portal.type == type && portal.targetLevel == portal.targetLevel && portal.targetType == targetType
 				){
 					Effect.teleportCharacter(game.player, new Pixel(portal.mapX, portal.mapY));
 					return;
@@ -1037,7 +1036,7 @@
 				// the desired portal should be in the portalHash if it exists
 				for(var key:String in game.portalHash){
 					portal = game.portalHash[key];
-					if(portal.type == type){
+					if(portal.type == type && portal.targetLevel == targetLevel && portal.targetType == targetType){
 						Effect.teleportCharacter(game.player, new Pixel(portal.mapX, portal.mapY));
 						return;
 					}

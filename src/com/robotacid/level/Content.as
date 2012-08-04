@@ -239,11 +239,9 @@
 			}
 			
 			// set up underworld portal on level 15
-			var portalXML:XML = <portal />;
-			portalXML.@type = Portal.UNDERWORLD;
-			portalXML.@targetLevel = Map.UNDERWORLD;
+			var portalXML:XML = <portal type={Portal.PORTAL} targetLevel={Map.UNDERWORLD} targetType={Map.AREA} />;
 			portalsByLevel[15].push(portalXML);
-			setUnderworldPortal(15);
+			setUnderworldPortal(15, Map.MAIN_DUNGEON);
 			createUniqueItems();
 		}
 		
@@ -307,18 +305,22 @@
 			var runes:Vector.<XML> = new Vector.<XML>();
 			
 			// if an item is fed into this level, add it to the equipment list
-			if(item) equipment.push(item);
+			if(item){
+				equipment.push(item);
+				// side dungeons require smaller quantities
+				var sideDungeonLevel:int = 1 + (Number(level) / 10);
+			}
 			
 			var quantity:int;
-			quantity = equipmentQuantityPerLevel(level);
+			quantity = equipmentQuantityPerLevel(item ? sideDungeonLevel : level);
 			while(quantity--){
 				equipment.push(createItemXML(level, Map.random.value() <= 0.5 ? Item.WEAPON : Item.ARMOUR));
 			}
-			quantity = runeQuantityPerLevel(level);
+			quantity = runeQuantityPerLevel(item ? sideDungeonLevel : level);
 			while(quantity--){
 				runes.push(createItemXML(level, Item.RUNE));
 			}
-			quantity = monsterQuantityPerLevel(level)
+			quantity = monsterQuantityPerLevel(item ? sideDungeonLevel : level)
 			while(quantity--){
 				monsters.push(createCharacterXML(level, Character.MONSTER));
 			}
@@ -381,9 +383,26 @@
 		}
 		
 		/* Creates content for the enchanted item side-level */
-		public function setItemDungeonContent(item:Item, level:int):void{
+		public function setItemDungeonContent(item:Item, level:int, type:int):void{
+			// existing portals in a previous pocket dungeon need to be removed or reset
+			if(itemDungeonContent){
+				var targetType:int, targetLevel:int;
+				for(var i:int = 0; i < itemDungeonContent.portals.length; i++){
+					targetType = itemDungeonContent.portals[i].@targetType;
+					if(targetType == Map.OVERWORLD){
+						areaContent[Map.OVERWORLD].portals = new Vector.<XML>;
+					} else if(targetType == Map.UNDERWORLD){
+						// move back to level 15, or 16 if we're on 15
+						targetLevel = 15;
+						if(level == 15) targetLevel++;
+						var portalXML:XML = <portal type={Portal.PORTAL} targetLevel={Map.UNDERWORLD} targetType={Map.AREA} />;
+						portalsByLevel[targetLevel].push(portalXML);
+						setUnderworldPortal(targetLevel, Map.MAIN_DUNGEON);
+					}
+				}
+			}
 			itemDungeonContent = getLevelContent(level, item.toXML());
-			itemDungeonContent.portals = Vector.<XML>([<portal type={Portal.ITEM_RETURN} targetLevel={level} />]);
+			itemDungeonContent.portals = Vector.<XML>([<portal type={Portal.PORTAL} targetLevel={level} targetType={type} />]);
 			itemDungeonContent.secrets = 2;
 			itemDungeonContent.traps = trapQuantityPerLevel(level);
 			itemDungeonContent.seed = Math.random() * uint.MAX_VALUE;
@@ -393,19 +412,14 @@
 		}
 		
 		/* Retargets the underworld portal */
-		public function setUnderworldPortal(level:int):void{
-			areaContent[Map.UNDERWORLD].portals = Vector.<XML>([<portal type={Portal.UNDERWORLD_RETURN} targetLevel={level} />]);
+		public function setUnderworldPortal(level:int, type:int):void{
+			areaContent[Map.UNDERWORLD].portals = Vector.<XML>([<portal type={Portal.PORTAL} targetLevel={level} targetType={type} />]);
 		}
 		
 		/* Creates or retargets the overworld portal */
-		public function setOverworldPortal(level:int):void{
-			var portalXML:XML
-			if(areaContent[Map.OVERWORLD].portals.length == 0){
-				portalXML = <portal type={Portal.OVERWORLD_RETURN} />;
-				areaContent[Map.OVERWORLD].portals = Vector.<XML>([portalXML]);
-			} else {
-				portalXML = areaContent[Map.OVERWORLD].portals[0];
-			}
+		public function setOverworldPortal(level:int, type:int):void{
+			var portalXML:XML = portalXML = <portal type={Portal.PORTAL} targetLevel={level} targetType={type} />;
+			areaContent[Map.OVERWORLD].portals = Vector.<XML>([portalXML]);
 			portalXML.@targetLevel = level;
 		}
 		
@@ -645,13 +659,23 @@
 		}
 		
 		/* Search the levels for a given portal type and remove it - this prevents multiples of the same portal */
-		public function removePortalType(type:int):void{
+		public function removePortal(targetLevel:int, targetType:int):void{
 			var i:int, j:int, xml:XML;
 			for(i = 0; i < portalsByLevel.length; i++){
 				for(j = 0; j < portalsByLevel[i].length; j++){
 					xml = portalsByLevel[i][j];
-					if(int(xml.@type) == type){
+					if(int(xml.@targetLevel) == targetLevel && int(xml.@targetType) == targetType){
 						portalsByLevel[i].splice(j, 1);
+						return;
+					}
+				}
+			}
+			// check the pocket
+			if(itemDungeonContent){
+				for(i = 0; i < itemDungeonContent.portals.length; i++){
+					xml = itemDungeonContent.portals[i];
+					if(int(xml.@targetLevel) == targetLevel && int(xml.@targetType) == targetType){
+						itemDungeonContent.portals.splice(i, 1);
 						return;
 					}
 				}
@@ -1061,7 +1085,7 @@
 		 * All Entities have a toXML() method that allows a snapshot of the object to be taken for storage in the
 		 * game save, or as a template for copies of that object. This method converts the xml into objects for
 		 * use in the engine. */
-		public static function XMLToEntity(x:int, y:int, xml:XML):*{
+		public static function XMLToEntity(x:int, y:int, xml:XML, mapLevel:int = 0, mapType:int = 0):*{
 			var objectType:String = xml.name();
 			var i:int, children:XMLList, item:XML, mc:DisplayObject, obj:*;
 			var name:int, level:int, type:int, rank:int;
@@ -1135,15 +1159,13 @@
 				}
 				
 			} else if(objectType == "portal"){
-				type = xml.@type;
-				level = xml.@targetLevel;
-				mc = new Portal.GFX_CLASSES[type];
+				mc = Portal.getPortalGfx(int(xml.@type), x, y, int(xml.@targetLevel), int(xml.@targetType), mapLevel, mapType)
 				mc.x = x * Game.SCALE;
 				mc.y = y * Game.SCALE;
-				obj = new Portal(mc, new Rectangle(x * Game.SCALE, y * Game.SCALE, Game.SCALE, Game.SCALE), type, xml.@targetLevel, Portal.OPEN, false);
+				obj = new Portal(mc, new Rectangle(x * Game.SCALE, y * Game.SCALE, Game.SCALE, Game.SCALE), xml.@type, xml.@targetLevel, xml.@targetType, Portal.OPEN, false);
 				obj.mapX = x;
 				obj.mapY = y;
-				if(Map.isPortalToPreviousLevel(x, y, type, level)) game.entrance = obj;
+				if(Map.isPortalToPreviousLevel(x, y, xml.@type, xml.@targetLevel, xml.@targetType)) game.entrance = obj;
 				
 			}
 			

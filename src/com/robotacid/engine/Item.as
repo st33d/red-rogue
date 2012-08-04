@@ -385,7 +385,7 @@
 					)
 				)
 			)) return false;
-			else if(runeName == PORTAL && (game.map.level == 0 || game.map.type == Map.ITEM_DUNGEON)) return false;
+			else if(runeName == PORTAL && game.map.type != Map.MAIN_DUNGEON) return false;
 			if(!effects) return true;
 			for(var i:int = 0; i < effects.length; i++){
 				if(effects[i].name == runeName && effects[i].level >= Game.MAX_LEVEL) return false;

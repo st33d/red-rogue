@@ -378,8 +378,8 @@
 					item = inventoryList.removeItem(item);
 					item = randomEnchant(item, game.map.level);
 					item.location = Item.UNASSIGNED;
-					var portal:Portal = Portal.createPortal(Portal.ITEM, user.mapX, user.mapY, game.map.level);
-					game.content.setItemDungeonContent(item, game.map.level);
+					var portal:Portal = Portal.createPortal(Portal.PORTAL, user.mapX, user.mapY, game.map.level, Map.ITEM_DUNGEON);
+					game.content.setItemDungeonContent(item, game.map.level, game.map.type);
 					game.console.print("the " + item.nameToString() + " is sent into another dimension");
 				}
 				return item;
@@ -702,9 +702,9 @@
 				var portal:Portal;
 				if(source == EATEN){
 					if(target is Player){
-						Portal.createPortal(Portal.OVERWORLD, target.mapX, target.mapY, Map.OVERWORLD);
+						Portal.createPortal(Portal.PORTAL, target.mapX, target.mapY, Map.OVERWORLD, Map.AREA, game.map.level, game.map.type);
 					} else if(target is Minion){
-						portal = Portal.createPortal(Portal.UNDERWORLD, target.mapX, target.mapY, Map.UNDERWORLD);
+						portal = Portal.createPortal(Portal.PORTAL, target.mapX, target.mapY, Map.UNDERWORLD, Map.AREA, game.map.level, game.map.type);
 					}
 				} else if(source == THROWN){
 					if(target is Monster){
@@ -882,7 +882,7 @@
 							
 							// or open the underworld portal here if the minion had been destroyed
 							} else {
-								var portal:Portal = Portal.createPortal(Portal.UNDERWORLD, target.mapX, target.mapY, Map.UNDERWORLD);
+								var portal:Portal = Portal.createPortal(Portal.PORTAL, target.mapX, target.mapY, Map.UNDERWORLD, Map.AREA, game.map.level, game.map.type);
 								game.console.print("the underworld portal is opened by this sacrifice");
 							}
 						}

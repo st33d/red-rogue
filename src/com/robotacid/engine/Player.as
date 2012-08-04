@@ -70,8 +70,8 @@
 		// states
 		public var portalContact:Portal;
 		
-		public static var previousLevel:int = Map.OVERWORLD;
 		public static var previousPortalType:int = Portal.STAIRS;
+		public static var previousLevel:int = Map.OVERWORLD;
 		public static var previousMapType:int = Map.AREA;
 		
 		public static const UP:int = 1;
@@ -199,6 +199,7 @@
 				var exitDir:int = portal.targetLevel > game.map.level ? 1 : -1;
 				var portalType:int = portal.type;
 				var portalTargetLevel:int = portal.targetLevel;
+				var portalTargetType:int = portal.targetType;
 				moving = true;
 				if(portal.type == Portal.STAIRS){
 					if(portal.targetLevel > game.map.level){
@@ -232,16 +233,14 @@
 				if(!portal){
 					
 					// tell the player about the new level / area
-					game.console.print(Portal.usageMsg(portalType, portalTargetLevel));
-					var targetArea:int = Map.MAIN_DUNGEON;
-					if((portalType == Portal.STAIRS && portalTargetLevel == 0) || portalType == Portal.OVERWORLD || portalType == Portal.UNDERWORLD) targetArea = Map.AREA;
-					else if(portalType == Portal.ITEM) targetArea = Map.ITEM_DUNGEON;
-					var levelName:String = Map.getName(targetArea, portalTargetLevel);
+					game.console.print(Portal.usageMsg(portalType, portalTargetLevel, portalTargetType));
+					
+					var levelName:String = Map.getName(portalTargetLevel, portalTargetType);
 					if(!game.visitedHash[levelName]) game.visitedHash[levelName] = true;
 					else levelName = "";
 					
 					game.transition.init(function():void{
-						game.setLevel(portalTargetLevel, portalType);
+						game.setLevel(portalTargetLevel, portalTargetType);
 						// warm up the renderer
 						renderer.main();
 						if(game.map.type != Map.AREA){

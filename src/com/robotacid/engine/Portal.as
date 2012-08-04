@@ -25,7 +25,9 @@
 		public var type:int;
 		public var seen:Boolean;
 		public var targetLevel:int;
+		public var targetType:int;
 		public var playerPortal:Boolean;
+		public var hashKey:String;
 		
 		public var rect:Rectangle;
 		
@@ -44,13 +46,14 @@
 		
 		// types
 		public static const STAIRS:int = 0;
-		public static const OVERWORLD:int = 1;
-		public static const OVERWORLD_RETURN:int = 2;
-		public static const ITEM:int = 3;
-		public static const ITEM_RETURN:int = 4;
-		public static const UNDERWORLD:int = 5;
-		public static const UNDERWORLD_RETURN:int = 6;
-		public static const MONSTER:int = 7;
+		public static const PORTAL:int = 1;
+		public static const MONSTER:int = 2;
+		//public static const OVERWORLD:int = 1;
+		//public static const OVERWORLD_RETURN:int = 2;
+		//public static const ITEM:int = 3;
+		//public static const ITEM_RETURN:int = 4;
+		//public static const UNDERWORLD:int = 5;
+		//public static const UNDERWORLD_RETURN:int = 6;
 		
 		public static const GFX_CLASSES:Array = [, OverworldPortalMC, DungeonPortalMC, DungeonPortalMC, DungeonPortalMC, UnderworldPortalMC, DungeonPortalMC, MonsterPortalMC];
 		
@@ -60,14 +63,16 @@
 		public static const MONSTERS_ENTRY_DELAY:int = 8;
 		public static const UNDEAD_HEAL_RATE:Number = 0.05;
 		
-		public function Portal(gfx:DisplayObject, rect:Rectangle, type:int, targetLevel:int, state:int = OPEN, active:Boolean = true) {
+		public function Portal(gfx:DisplayObject, rect:Rectangle, type:int, targetLevel:int, targetType:int, state:int = OPEN, active:Boolean = true){
 			super(gfx, false, false);
 			this.type = type;
 			this.rect = rect;
 			this.targetLevel = targetLevel;
+			this.targetType = targetType;
 			this.state = state;
 			this.active = active;
 			playerPortal = type != MONSTER;
+			hashKey = "type" + type + "targetLevel" + targetLevel + "targetType" + targetType;
 			callMain = true;
 			seen = false;
 			if(state == OPENING){
@@ -99,15 +104,33 @@
 					state = OPEN;
 					// erase the background
 					eraseRect = new Rectangle(mapX * SCALE, mapY * SCALE, SCALE, SCALE);
-					trace(eraseRect);
 				}
 			} else if(state == OPEN){
 				// if the portal is visible on the map - then make the portal icon on the map visible
 				if(!seen && game.lightMap.darkImage.getPixel32(mapX, mapY) != 0xFF000000){
 					reveal();
 				}
-				if(type == UNDERWORLD){
-					// heal the undead
+				// shit out monsters
+				if(type == MONSTER){
+					if(monsterEntryCount) monsterEntryCount--;
+					else{
+						if(monster){
+							if(monster.state != Character.ENTERING) monster = null;
+						} else {
+							if(monsterTotal){
+								monsterTotal--;
+								monster = Content.XMLToEntity(mapX, mapY, monsterTemplate);
+								game.entities.push(monster);
+								Brain.monsterCharacters.push(monster);
+								monster.enterLevel(this);
+								monsterEntryCount = MONSTERS_ENTRY_DELAY;
+							} else {
+								close();
+							}
+						}
+					}
+				// heal the undead
+				} else if(targetType == Map.UNDERWORLD){
 					if(
 						game.player.undead &&
 						game.player.health < game.player.totalHealth &&
@@ -146,25 +169,6 @@
 						game.console.print("undead minion returns from underworld");
 					}
 					
-				} else if(type == MONSTER){
-					// shit out monsters
-					if(monsterEntryCount) monsterEntryCount--;
-					else{
-						if(monster){
-							if(monster.state != Character.ENTERING) monster = null;
-						} else {
-							if(monsterTotal){
-								monsterTotal--;
-								monster = Content.XMLToEntity(mapX, mapY, monsterTemplate);
-								game.entities.push(monster);
-								Brain.monsterCharacters.push(monster);
-								monster.enterLevel(this);
-								monsterEntryCount = MONSTERS_ENTRY_DELAY;
-							} else {
-								close();
-							}
-						}
-					}
 				}
 			} else if(state == CLOSING){
 				if(count){
@@ -175,8 +179,8 @@
 					gfx.y += GFX_STEP;
 				} else {
 					active = false;
-					if(game.portalHash[type] == this){
-						delete game.portalHash[type];
+					if(game.portalHash[hashKey] == this){
+						delete game.portalHash[hashKey];
 					}
 				}
 			}
@@ -184,7 +188,7 @@
 		
 		public function close():void{
 			game.mapTileManager.removeTile(this, mapX, mapY, mapZ);
-			minimapFX.active = false;
+			if(minimapFX) minimapFX.active = false;
 			free = false;
 			state = CLOSING;
 			count = OPEN_CLOSE_DELAY;
@@ -210,11 +214,11 @@
 		}
 		
 		/* Covers the bottom edge of a portal to make it neater in outside areas */
-		public function maskPortalBase():void{
+		public function maskPortalBase(level:int):void{
 			var blackOut:Shape = new Shape();
 			var bitmap:Bitmap;
-			if(type == OVERWORLD_RETURN) bitmap = new game.library.OverworldB();
-			else if(type == UNDERWORLD_RETURN) bitmap = new game.library.UnderworldB();
+			if(level == Map.OVERWORLD) bitmap = new game.library.OverworldB();
+			else if(level == Map.UNDERWORLD) bitmap = new game.library.UnderworldB();
 			blackOut.graphics.beginBitmapFill(bitmap.bitmapData, new Matrix(1, 0, 0, 1, -mapX * Game.SCALE, -mapY * Game.SCALE), false);
 			blackOut.graphics.drawRect(-8, 16, 32, 8);
 			blackOut.graphics.endFill();
@@ -239,16 +243,16 @@
 		}
 		
 		override public function toXML():XML {
-			return <portal type={type} targetLevel={targetLevel} />;
+			return <portal type={type} targetLevel={targetLevel} targetType={targetType} />;
 		}
 		
 		/* Used by Map to create a way back to the main dungeon from an item portal */
 		public static function getItemReturnPortalXML():XML{
-			return <portal type={ITEM_RETURN} targetLevel={Player.previousLevel}/>;
+			return <portal type={PORTAL} targetLevel={Player.previousLevel} targetType={Player.previousMapType} />;
 		}
 		
-		/* Generates a portal within a level - only one portal of each type is allowed in the game */
-		public static function createPortal(type:int, mapX:int, mapY:int, targetLevel:int = 0):Portal{
+		/* Generates a portal within a level - only one portal between each area is allowed in the game */
+		public static function createPortal(type:int, mapX:int, mapY:int, targetLevel:int = 0, targetType:int = 0, fromLevel:int = 0, fromType:int = 0):Portal{
 			var i:int, portal:Portal;
 			// check that the portal is on a surface - if not cast downwards and put it on one
 			while(!(game.world.map[mapY + 1][mapX] & Collider.UP)) mapY++;
@@ -270,10 +274,8 @@
 					break;
 				}
 			}
-			var mc:MovieClip = new GFX_CLASSES[type]();
-			mc.x = mapX * SCALE;
-			mc.y = mapY * SCALE;
-			portal = new Portal(mc, new Rectangle(mapX * SCALE, mapY * SCALE, SCALE, SCALE), type, targetLevel, OPENING);
+			var mc:MovieClip = getPortalGfx(type, mapX, mapY, targetLevel, targetType, fromLevel, fromType);
+			portal = new Portal(mc, new Rectangle(mapX * SCALE, mapY * SCALE, SCALE, SCALE), type, targetLevel, targetType, OPENING);
 			portal.mapX = mapX;
 			portal.mapY = mapY;
 			portal.mapZ = Map.ENTITIES;
@@ -285,42 +287,79 @@
 			
 			// only one player portal of a kind per level, existing portals are closed
 			if(type != MONSTER){
-				if(game.portalHash[type]){
-					game.portalHash[type].close();
+				if(game.portalHash[portal.hashKey]){
+					game.portalHash[portal.hashKey].close();
 				} else {
 					// the portal may be on another level, clear this portal type from the content manager
-					game.content.removePortalType(type);
+					game.content.removePortal(targetLevel, targetType);
 				}
-				game.portalHash[type] = portal;
+				game.portalHash[portal.hashKey] = portal;
 			}
 			
 			// retarget overworld or underworld portals
-			if(type == OVERWORLD){
-				game.content.setOverworldPortal(game.map.level);
-			} else if(type == UNDERWORLD){
-				game.content.setUnderworldPortal(game.map.level);
+			if(targetType == Map.AREA){
+				if(targetLevel == Map.OVERWORLD){
+					game.content.setOverworldPortal(game.map.level, game.map.type);
+				} else if(targetLevel == Map.UNDERWORLD){
+					game.content.setUnderworldPortal(game.map.level, game.map.type);
+				}
 			}
 			
 			return portal;
 		}
 		
+		public static function getPortalGfx(type:int, mapX:int, mapY:int, targetLevel:int, targetType:int, fromLevel:int, fromType:int):MovieClip{
+			var mc:MovieClip = new PortalMC;
+			mc.x = mapX * SCALE;
+			mc.y = mapY * SCALE;
+			if(type == MONSTER){
+				mc.dest.gotoAndStop("monster");
+				mc.dir.visible = false;
+			} else {
+				if(targetType == Map.AREA){
+					if(targetLevel == Map.OVERWORLD){
+						mc.dest.gotoAndStop("overworld");
+						mc.dir.gotoAndStop("up");
+					} else if(targetLevel == Map.UNDERWORLD){
+						mc.dest.gotoAndStop("underworld");
+						mc.dir.gotoAndStop("down");
+					}
+				} else if(targetType == Map.ITEM_DUNGEON){
+					mc.dest.gotoAndStop("dungeon");
+					mc.dir.gotoAndStop("down");
+					
+				} else if(targetType == Map.MAIN_DUNGEON){
+					mc.dest.gotoAndStop("dungeon");
+					if(fromType == Map.AREA){
+						if(fromLevel == Map.OVERWORLD) mc.dir.gotoAndStop("down");
+						else if(fromLevel == Map.UNDERWORLD) mc.dir.gotoAndStop("up");
+						
+					} else if(fromType == Map.ITEM_DUNGEON){
+						mc.dir.gotoAndStop("up");
+					}
+				}
+			}
+			return mc;
+		}
+		
 		/* Returns the report for the console when the player uses a given portal */
-		public static function usageMsg(type:int, targetLevel:int):String{
+		public static function usageMsg(type:int, targetLevel:int, targetType:int):String{
 			if(type == Portal.STAIRS){
 				if(targetLevel == Map.OVERWORLD){
 					return "ascended to overworld";
 				} else {
 					return (targetLevel > game.map.level ? "descended" : "ascended") + " to level " + targetLevel;
 				}
-			} else if(type == Portal.OVERWORLD){
-				return "travelled to overworld";
-			} else if(
-				type == Portal.OVERWORLD_RETURN ||
-				type == Portal.ITEM_RETURN ||
-				type == Portal.UNDERWORLD_RETURN
-			) return "returned to level " + targetLevel;
-			else if(type == Portal.ITEM) return "travelled to retrieve item";
-			else if(type == Portal.UNDERWORLD) return "travelled to underworld";
+			} else {
+				if(targetType == Map.AREA){
+					if(targetLevel == Map.OVERWORLD) return "travelled to overworld";
+					else if(targetLevel == Map.UNDERWORLD)  return "travelled to underworld";
+				} else if(targetType == Map.ITEM_DUNGEON){
+					return "travelled to pocket dungeon";
+				} else if(targetType == Map.MAIN_DUNGEON){
+					return "returned to level " + targetLevel;
+				}
+			}
 			return "went to fuck knows where";
 		}
 	}

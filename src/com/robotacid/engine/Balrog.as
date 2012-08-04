@@ -127,6 +127,7 @@ package com.robotacid.engine {
 				var exitDir:int = portal.targetLevel > game.map.level ? 1 : -1;
 				var portalType:int = portal.type;
 				var portalTargetLevel:int = portal.targetLevel;
+				var portalTargetType:int = portal.targetType;
 				moving = true;
 				if(portal.type == Portal.STAIRS){
 					if(portal.targetLevel > game.map.level){
@@ -160,7 +161,7 @@ package com.robotacid.engine {
 				if(!portal){
 					
 					// tell the player about the balrog's escape
-					game.console.print(nameToString() + " " + Portal.usageMsg(portalType, portalTargetLevel));
+					game.console.print(nameToString() + " " + Portal.usageMsg(portalType, portalTargetLevel, portalTargetType));
 					game.balrog.active = false;
 					minimapFX.active = false;
 					game.balrog = null;

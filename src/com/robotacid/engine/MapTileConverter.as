@@ -409,13 +409,13 @@
 			
 			if(id == STAIRS_UP){
 				// stairs up
-				item = new Portal(mc, new Rectangle(x * Game.SCALE, y * Game.SCALE, Game.SCALE, Game.SCALE), Portal.STAIRS, game.map.level - 1);
-				if(Map.isPortalToPreviousLevel(x, y, Portal.STAIRS, game.map.level - 1)) game.entrance = item;
+				item = new Portal(mc, new Rectangle(x * Game.SCALE, y * Game.SCALE, Game.SCALE, Game.SCALE), Portal.STAIRS, game.map.level - 1, game.map.level == 1 ? Map.AREA : Map.MAIN_DUNGEON);
+				if(Map.isPortalToPreviousLevel(x, y, Portal.STAIRS, item.targetLevel, item.targetType)) game.entrance = item;
 			} else if(id == STAIRS_DOWN){
 				// stairs down
 				if(game.map.level == Map.OVERWORLD && game.map.type == Map.AREA) mc = new Sprite();
-				item = new Portal(mc, new Rectangle(x * Game.SCALE, y * Game.SCALE, Game.SCALE, Game.SCALE), Portal.STAIRS, game.map.level + 1);
-				if(Map.isPortalToPreviousLevel(x, y, Portal.STAIRS, game.map.level + 1)) game.entrance = item;
+				item = new Portal(mc, new Rectangle(x * Game.SCALE, y * Game.SCALE, Game.SCALE, Game.SCALE), Portal.STAIRS, game.map.level + 1, Map.MAIN_DUNGEON);
+				if(Map.isPortalToPreviousLevel(x, y, Portal.STAIRS, item.targetLevel, item.targetType)) game.entrance = item;
 			} else if(id == HEAL_STONE){
 				item = new Stone(x * Game.SCALE, y * Game.SCALE, Stone.HEAL);
 			} else if(id == GRIND_STONE){

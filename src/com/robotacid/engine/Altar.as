@@ -140,11 +140,11 @@
 			} else if(choice == "overworldPortal"){
 				// open the overworld portal
 				game.console.print("rng opens the overworld portal");
-				Portal.createPortal(Portal.OVERWORLD, mapX, mapY, Map.OVERWORLD);
+				Portal.createPortal(Portal.PORTAL, mapX, mapY, Map.OVERWORLD, Map.AREA, game.map.level, game.map.type);
 			} else if(choice == "underworldPortal"){
 				// open the underworld portal
 				game.console.print("rng opens the underworld portal");
-				Portal.createPortal(Portal.UNDERWORLD, mapX, mapY, Map.UNDERWORLD);
+				Portal.createPortal(Portal.PORTAL, mapX, mapY, Map.UNDERWORLD, Map.AREA, game.map.level, game.map.type);
 			} else if(choice == "horror"){
 				// summon a horror to chase the target
 				effect = new Effect(Effect.FEAR, game.map.level <= Game.MAX_LEVEL ? game.map.level : Game.MAX_LEVEL, Effect.EATEN, target);

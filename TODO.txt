@@ -1,4 +1,4 @@
-Change log: fixed toggle options not showing keys they're assigned to when not in first state, created UserData object for saving game settings and data - deprecates QuickSave class (behaviour from said class to be rolled into UserData in near future), game now saves settings and initialises using UserData class
+Change log: refactored portals and set-level to work generic with target-level and target-type, pocket dungeons now support portals to the overworld and underworld
 
 Bug hunt
 	collection lock out on chests after playing for a while - bugged chest or item?
@@ -12,7 +12,27 @@ Bug hunt
 	chaos walls frozen without graphics rendered and no walls beneath them (activated, not on chaos wall render list?)
 
 
+exit reveal not going to work on big maps - solve
+	create feature hash in minimap
+	reveal by type
+
 pocket portals broken
+
+	pocket dungeon not supporting more than one portal - why?
+
+
+	issues:
+		altars make it possible to open a portal in pocket
+		the underworld portal can be opened in pocket
+		monster quanitity at higher levels not yet tested
+	solution:
+		refactor the Portal class to handle target-map-type and target-level
+			split type into
+				stairs, portal, monster portal
+			change direction arrow to be a separate attachable clip?
+			change background to be a separate attachable clip?
+				- or have both as clips that can be set to a given frame?
+			check it works with debug
 
 save and quit
 	build game from save object
@@ -31,9 +51,9 @@ rotate between a selection of menus
 	title screen
 		title menu
 
-do the Writing gate tiles fuck up the AI?
 
 split story into tips.json and story.json - add tips to writings on new games
+	degrade writings further into dungeon
 
 split dreams.json into nightmares.json and dreams.json - introduce nightmares entering caves
 

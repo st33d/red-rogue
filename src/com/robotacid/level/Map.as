@@ -168,7 +168,7 @@
 			fill(0, 1, 1, width-2, height-2, layers[BLOCKS]);
 			
 			// access point
-			setPortal((width * 0.5) >> 0, height - 2, <portal type={Portal.ITEM_RETURN} targetLevel={-1} />);
+			setPortal((width * 0.5) >> 0, height - 2, <portal type={Portal.PORTAL} targetLevel={-1} targetType={Map.ITEM_DUNGEON} />);
 			start = portals[0];
 			
 			// set zone for background debugging
@@ -355,8 +355,10 @@
 			
 				
 			} else if(type == ITEM_DUNGEON){
-				portalType = portalXMLs[0].@type;
-				createAccessPoint(portalType, sortRoomsTopWards, portalXMLs[0]);
+				for(i = 0; i < portalXMLs.length; i++){
+					portalType = portalXMLs[i].@type;
+					createAccessPoint(portalType, i == 0 ? sortRoomsTopWards : null, portalXMLs[i]);
+				}
 			}
 			
 			// reload pixels - access point creation altered the bitmap
@@ -536,7 +538,7 @@
 			// prevent background decorator from creating graphics covering portals
 			if(bitmap.bitmapData.getPixel32(x, y) == MapBitmap.EMPTY) bitmap.bitmapData.setPixel32(x, y, MapBitmap.GATE);
 			stairsUp = new Pixel(x, y);
-			if(isPortalToPreviousLevel(x, y, Portal.STAIRS, level - 1)){
+			if(isPortalToPreviousLevel(x, y, Portal.STAIRS, level - 1, level > 1 ? MAIN_DUNGEON : AREA)){
 				start = stairsUp;
 				if(Surface.map[y][x] && Surface.map[y][x].room) Surface.map[y][x].room.start = true;
 			}
@@ -548,7 +550,7 @@
 			// prevent background decorator from creating graphics covering portals
 			if(bitmap.bitmapData.getPixel32(x, y) == MapBitmap.EMPTY) bitmap.bitmapData.setPixel32(x, y, MapBitmap.GATE);
 			stairsDown = new Pixel(x, y);
-			if(isPortalToPreviousLevel(x, y, Portal.STAIRS, level + 1)){
+			if(isPortalToPreviousLevel(x, y, Portal.STAIRS, level + 1, MAIN_DUNGEON)){
 				start = stairsDown;
 				if(Surface.map[y][x] && Surface.map[y][x].room) Surface.map[y][x].room.start = true;
 			}
@@ -557,17 +559,15 @@
 		/* Creates a portal */
 		public function setPortal(x:int, y:int, xml:XML):void{
 			var p:Pixel = new Pixel(x, y);
-			var portal:Portal = Content.XMLToEntity(x, y, xml);
-			game.portalHash[portal.type] = portal;
+			var portal:Portal = Content.XMLToEntity(x, y, xml, level, type);
+			game.portalHash[portal.hashKey] = portal;
 			if(type == AREA){
-				if(portal.type == Portal.OVERWORLD_RETURN || portal.type == Portal.UNDERWORLD_RETURN){
-					portal.maskPortalBase();
-				}
+				portal.maskPortalBase(level);
 			}
 			layers[ENTITIES][y][x] = portal;
 			// prevent background decorator from creating graphics covering portals
 			if(bitmap.bitmapData.getPixel32(x, y) == MapBitmap.EMPTY) bitmap.bitmapData.setPixel32(x, y, MapBitmap.GATE);
-			if(isPortalToPreviousLevel(x, y, int(xml.@type), int(xml.@targetLevel))){
+			if(isPortalToPreviousLevel(x, y, int(xml.@type), int(xml.@targetLevel), int(xml.@targetType))){
 				start = p;
 				if(Surface.map[y][x] && Surface.map[y][x].room) Surface.map[y][x].room.start = true;
 			}
@@ -579,27 +579,11 @@
 		 * Map.start and Game.entrance are used by the game engine to set the camera and entry point for the level
 		 * which is why this query belongs in a function to be called by various elements
 		 * 
-		 * The logic follows: does this portal lead to the last level you were on */
-		public static function isPortalToPreviousLevel(x:int, y:int, type:int, targetLevel:int):Boolean{
-			if(type == Portal.STAIRS){
-				if(Player.previousPortalType == Portal.STAIRS){
-					if(Player.previousMapType == AREA && targetLevel == OVERWORLD) return true;
-					else if(Player.previousMapType == MAIN_DUNGEON && Player.previousLevel == targetLevel) return true;
-				}
-			} else if(type == Portal.OVERWORLD ){
-				if(Player.previousPortalType == Portal.OVERWORLD_RETURN) return true;
-			} else if(type == Portal.OVERWORLD_RETURN){
-				if(Player.previousPortalType == Portal.OVERWORLD) return true;
-			} else if(type == Portal.ITEM){
-				if(Player.previousPortalType == Portal.ITEM_RETURN) return true;
-			} else if(type == Portal.ITEM_RETURN){
-				if(Player.previousPortalType == Portal.ITEM) return true;
-			} else if(type == Portal.UNDERWORLD){
-				if(Player.previousPortalType == Portal.UNDERWORLD_RETURN) return true;
-			} else if(type == Portal.UNDERWORLD_RETURN){
-				if(Player.previousPortalType == Portal.UNDERWORLD) return true;
-			}
-			return false;
+		 * The logic follows: does this portal lead to the last level you were on
+		 * 
+		 * This used to be a lot more complicated till I refactored portals */
+		public static function isPortalToPreviousLevel(x:int, y:int, type:int, targetLevel:int, targetType:int):Boolean{
+			return Player.previousPortalType == type && Player.previousLevel == targetLevel && Player.previousMapType == targetType;
 		}
 		
 		/* Getting a good position for the portals is complex.
@@ -956,7 +940,7 @@
 					}	
 				}
 			}
-			trace("candidates", candidates.length);
+			//trace("candidates", candidates.length);
 			if(candidates.length){
 				
 				while((totalAltars--) &&  candidates.length){
@@ -1487,7 +1471,7 @@
 		}
 		
 		/* All of the levels have names, either being a subset of a zone or a specific area */
-		public static function getName(type:int, level:int):String{
+		public static function getName(level:int, type:int):String{
 			if(type == MAIN_DUNGEON){
 				var zone:int = game.content.getLevelZone(level);
 				return ZONE_NAMES[zone];

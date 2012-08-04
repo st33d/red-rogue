@@ -141,7 +141,7 @@ package com.robotacid.ui.menu {
 		private function renderMap():void{
 			var textBuffer:BitmapData;
 			var col:uint = infoTextBox.backgroundCol;
-			var nameStr:String = Map.getName(game.map.type, game.map.level);
+			var nameStr:String = Map.getName(game.map.level, game.map.type);
 			if(game.map.type == Map.MAIN_DUNGEON) nameStr += " : " + game.map.level;
 			if(game.map.completionTotal){
 				if(game.map.completionCount == 0) nameStr += "\n100%";

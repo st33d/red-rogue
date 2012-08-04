@@ -75,7 +75,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 414;
+		public static const BUILD_NUM:int = 415;
 		
 		public static const TEST_BED_INIT:Boolean = false;
 		public static const ONLINE:Boolean = true;
@@ -495,13 +495,13 @@
 			Player.previousMapType = Map.AREA;
 			
 			// CREATE FIRST LEVEL =================================================================
-			setLevel(1, Portal.STAIRS);
+			setLevel(1, Map.MAIN_DUNGEON);
 			
 			// fire up listeners
 			addListeners();
 			
 			// init area visit notices
-			var levelName:String = Map.getName(map.type, map.level);
+			var levelName:String = Map.getName(map.level, map.type);
 			visitedHash = {};
 			visitedHash[levelName] = true;
 			
@@ -553,7 +553,7 @@
 		
 		/* Enters the testing area */
 		public function launchTestBed():void{
-			setLevel( -1, Portal.STAIRS);
+			setLevel( -1, Map.MAIN_DUNGEON);
 			gameMenu.editorList.setLight(gameMenu.editorList.lightList.selection);
 		}
 		
@@ -569,16 +569,16 @@
 		 *
 		 * This method tries to wipe all layers whilst leaving the gaming architecture in place
 		 */
-		public function setLevel(n:int, portalType:int):void{
+		public function setLevel(level:int, type:int):void{
 			
 			editor.deactivate();
 			
 			// maintain debug state if present
 			if(map && map.level == -1){
-				n = -1;
+				level = -1;
 				Player.previousLevel = -1;
-				Player.previousPortalType = Portal.ITEM;
 				Player.previousMapType = Map.MAIN_DUNGEON;
+				Player.previousPortalType = Portal.PORTAL;
 			}
 			
 			if(map){
@@ -600,7 +600,7 @@
 			// new map
 			// clear rendering layers
 			
-			if(n > deepestLevelReached && deepestLevelReached < MAX_LEVEL) deepestLevelReached = n;
+			if(level > deepestLevelReached && deepestLevelReached < MAX_LEVEL) deepestLevelReached = level;
 			
 			// dismiss entity effects - leave player and minion alone
 			var i:int;
@@ -622,19 +622,7 @@
 			Brain.monsterCharacters.length = 0;
 			Brain.voiceCount = Brain.VOICE_DELAY + random.range(Brain.VOICE_DELAY);
 			
-			// figure out where in hell's name we're going
-			var mapType:int = Map.MAIN_DUNGEON;
-			if(portalType == Portal.STAIRS){
-				if(n == 0) mapType = Map.AREA;
-			} else if(portalType == Portal.ITEM){
-				mapType = Map.ITEM_DUNGEON;
-			} else if(portalType == Portal.UNDERWORLD){
-				mapType = Map.AREA;
-			} else if(portalType == Portal.OVERWORLD){
-				mapType = Map.AREA;
-			}
-			
-			map = new Map(n, mapType);
+			map = new Map(level, type);
 			
 			Brain.initMapGraph(map.bitmap, map.stairsDown);
 			
@@ -649,7 +637,7 @@
 				Writing.renderWritings();
 			}
 			renderer.blockBitmapData = renderer.backBitmapData.clone();
-			if(map.type != Map.AREA){
+			if(type != Map.AREA){
 				renderer.blockBitmapData = mapTileManager.layerToBitmapData(MapTileManager.BLOCK_LAYER, renderer.blockBitmapData);
 			}
 			
@@ -665,13 +653,13 @@
 			// collider debug
 			//world.debug = debug;
 			
-			renderer.sceneManager = SceneManager.getSceneManager(map.level, map.type);
+			renderer.sceneManager = SceneManager.getSceneManager(level, type);
 			
 			if(!lightMap) lightMap = new LightMap(world.map);
 			else {
 				lightMap.newMap(world.map);
 				lightMap.setLight(player, player.light);
-			}
+			}  
 			
 			mapTileManager.init(map.start.x, map.start.y);
 			
@@ -723,7 +711,7 @@
 			
 			// outside areas are set pieces, meant to give contrast to the dungeon and give the player
 			// and minion a back-story
-			if(mapType == Map.AREA){
+			if(type == Map.AREA){
 				
 				renderer.lightBitmap.visible = false;
 				miniMap.visible = false;
@@ -732,7 +720,7 @@
 				SoundManager.fadeMusic("music1", -SoundManager.DEFAULT_FADE_STEP);
 				
 				// the overworld changes the rogue to a colour version and reverts all polymorph effects
-				if(map.level == Map.OVERWORLD){
+				if(level == Map.OVERWORLD){
 					var skinMc:MovieClip;
 					
 					// unequip face armour if worn
@@ -750,12 +738,12 @@
 						console.print("minion reverts to undead form");
 					}
 					
-				} else if(map.level == Map.UNDERWORLD){
+				} else if(level == Map.UNDERWORLD){
 					if(player.undead) player.applyHealth(player.totalHealth);
 					if(minion && minion.undead) minion.applyHealth(minion.totalHealth);
 				}
 				
-			} else if(map.level == -1){
+			} else if(level == -1){
 				renderer.lightBitmap.visible = false;
 				
 			} else if(Player.previousMapType == Map.AREA){
@@ -773,18 +761,18 @@
 				balrog &&
 				balrog.levelState == Balrog.ENTER_STAIRS_UP &&
 				entrance.type == Portal.STAIRS &&
-				Player.previousLevel < map.level
+				Player.previousLevel < level
 			){
 				player.prepareToEnter(entrance);
 				if(minion) minion.enterCount *= 2;
 				balrog.enterLevel(entrance);
 			} else {
-				player.enterLevel(entrance, Player.previousLevel < map.level ? Collider.RIGHT : Collider.LEFT);
+				player.enterLevel(entrance, Player.previousLevel < level ? Collider.RIGHT : Collider.LEFT);
 			}
 			changeMusic();
 			
-			var mapNameStr:String = Map.getName(map.type, map.level);
-			if(map.type == Map.MAIN_DUNGEON) mapNameStr += ":" + map.level;
+			var mapNameStr:String = Map.getName(level, type);
+			if(type == Map.MAIN_DUNGEON) mapNameStr += ":" + level;
 			trackEvent("set level", mapNameStr);
 		}
 		
@@ -1058,7 +1046,7 @@
 		public function levelCompleteMsg():void{
 			var nameStr:String;
 			if(game.map.type == Map.MAIN_DUNGEON) nameStr = "level " + game.map.level;
-			else nameStr = Map.getName(game.map.type, game.map.level);
+			else nameStr = Map.getName(game.map.level, game.map.type);
 			console.print(nameStr + " cleared");
 			content.clearLevel(map.level, map.type);
 			game.soundQueue.add("ping");
@@ -1115,7 +1103,7 @@
 		private function clearInstructions():void{
 			var levelName:String = "";
 			if(firstInstructions){
-				levelName = Map.getName(map.type, map.level);
+				levelName = Map.getName(map.level, map.type);
 				firstInstructions = false;
 			}
 			transition.init(function():void{
