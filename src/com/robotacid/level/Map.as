@@ -343,7 +343,7 @@
 			}
 			
 			// create access points
-			var portalXMLs:Vector.<XML> = game.content.getPortals(level, type);
+			var portalXMLs:Array = game.content.getPortals(level, type);
 			var portalType:int;
 			if(type == MAIN_DUNGEON){
 				createAccessPoint(Portal.STAIRS, sortRoomsTopWards);
@@ -411,7 +411,7 @@
 			layers[BLOCKS][height - 2][width - 2] = MapTileConverter.WALL;
 			layers[ENTITIES][height - 2][width - 2] = MapTileConverter.GRIND_STONE;
 			
-			var portalXMLs:Vector.<XML> = game.content.getPortals(level, type);
+			var portalXMLs:Array = game.content.getPortals(level, type);
 			if(portalXMLs.length){
 				// given that there can only be one type of portal on the overworld - the rogue's portal
 				// we create the rogue's portal here
@@ -448,7 +448,7 @@
 			setValue(UNDERWORLD_BOAT_MIN, height - 3, BLOCKS, MapTileConverter.WALL);
 			setValue(UNDERWORLD_BOAT_MAX - 1, height - 3, BLOCKS, MapTileConverter.WALL);
 			
-			var portalXMLs:Vector.<XML> = game.content.getPortals(level, type);
+			var portalXMLs:Array = game.content.getPortals(level, type);
 			if(portalXMLs.length){
 				setPortal(UNDERWORLD_PORTAL_X, height - 3, portalXMLs[0]);
 			}

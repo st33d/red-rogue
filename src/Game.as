@@ -75,10 +75,10 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 415;
+		public static const BUILD_NUM:int = 416;
 		
 		public static const TEST_BED_INIT:Boolean = false;
-		public static const ONLINE:Boolean = true;
+		public static const ONLINE:Boolean = false;
 		
 		public static var game:Game;
 		public static var renderer:Renderer;
@@ -154,7 +154,6 @@
 		public var dogmaticMode:Boolean;
 		public var lives:HiddenInt;
 		public var livesAvailable:HiddenInt;
-		public var visitedHash:Object;
 		public var multiplayer:Boolean;
 		public var firstInstructions:Boolean;
 		
@@ -210,8 +209,17 @@
 				}
 			}
 			
+			var byteArray:ByteArray;
+			
+			byteArray = new Character.statsData();
+			Character.stats = JSON.decode(byteArray.readUTFBytes(byteArray.length));
+			
+			byteArray = new Item.statsData();
+			Item.stats = JSON.decode(byteArray.readUTFBytes(byteArray.length));
+			
 			// init UserData
 			UserData.initSettings();
+			UserData.initGameState();
 			UserData.pull();
 			
 			// misc static settings
@@ -271,14 +279,6 @@
 			lightning = new Lightning();
 			
 			editor = new Editor(this, renderer);
-			
-			var byteArray:ByteArray;
-			
-			byteArray = new Character.statsData();
-			Character.stats = JSON.decode(byteArray.readUTFBytes(byteArray.length));
-			
-			byteArray = new Item.statsData();
-			Item.stats = JSON.decode(byteArray.readUTFBytes(byteArray.length));
 			
 			FPS.start();
 			
@@ -472,12 +472,7 @@
 			explosions = new Vector.<Explosion>();
 			portalHash = {};
 			
-			Item.runeNames = [];
-			for(i = 0; i < MAX_LEVEL; i++){
-				Item.runeNames.push("?");
-			}
-			// the identify rune's name is already known (obviously)
-			Item.runeNames[Item.IDENTIFY] = Item.stats["rune names"][Item.IDENTIFY];
+			Item.runeNames = UserData.gameState.runeNames;
 			
 			Brain.initCharacterLists();
 			Brain.voiceCount = Brain.VOICE_DELAY + random.range(Brain.VOICE_DELAY);
@@ -490,20 +485,22 @@
 			// LEVEL SPECIFIC INIT
 			// This stuff that follows requires the bones of a level to initialise
 			
-			Player.previousLevel = Map.OVERWORLD;
-			Player.previousPortalType = Portal.STAIRS;
-			Player.previousMapType = Map.AREA;
+			Player.previousLevel = UserData.gameState.player.previousLevel;
+			Player.previousPortalType = UserData.gameState.player.previousPortalType;
+			Player.previousMapType = UserData.gameState.player.previousMapType;
 			
 			// CREATE FIRST LEVEL =================================================================
-			setLevel(1, Map.MAIN_DUNGEON);
+			setLevel(UserData.gameState.player.currentLevel, UserData.gameState.player.currentMapType);
 			
 			// fire up listeners
 			addListeners();
 			
 			// init area visit notices
 			var levelName:String = Map.getName(map.level, map.type);
-			visitedHash = {};
-			visitedHash[levelName] = true;
+			if(!UserData.gameState.visitedHash){
+				UserData.gameState.visitedHash = {};
+				UserData.gameState.visitedHash[levelName] = true;
+			}
 			
 			if(TEST_BED_INIT) initTestBed();
 			else if(ONLINE){
@@ -541,9 +538,7 @@
 			world = null;
 			lightMap = null;
 			mapTileManager = null;
-			Player.previousLevel = Map.OVERWORLD;
-			Player.previousPortalType = Portal.STAIRS;
-			Player.previousMapType = Map.AREA;
+			UserData.initGameState();
 			SoundManager.musicTimes = {};
 			console.log = "";
 			console.logLines = 0;
@@ -774,6 +769,10 @@
 			var mapNameStr:String = Map.getName(level, type);
 			if(type == Map.MAIN_DUNGEON) mapNameStr += ":" + level;
 			trackEvent("set level", mapNameStr);
+			
+			// capture gameState
+			UserData.gameState.currentLevel = level;
+			UserData.gameState.currentMapType = type;
 		}
 		
 		private function addListeners():void{

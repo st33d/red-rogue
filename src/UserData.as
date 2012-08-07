@@ -1,5 +1,9 @@
 package {
+	import com.robotacid.engine.Item;
+	import com.robotacid.engine.Player;
+	import com.robotacid.engine.Portal;
 	import com.robotacid.gfx.Renderer;
+	import com.robotacid.level.Content;
 	import com.robotacid.level.Map;
 	import com.robotacid.sound.SoundManager;
 	import com.robotacid.ui.Key;
@@ -43,22 +47,60 @@ package {
 		public static function push(settingsOnly:Boolean = false):void{
 			var sharedObject:SharedObject = SharedObject.getLocal("red_rogue");
 			sharedObject.data.settings = settings;
+			if(!settingsOnly) sharedObject.data.gameState = gameState;
 			sharedObject.flush();
 			sharedObject.close();
 		}
 		
 		public static function pull():void{
 			var sharedObject:SharedObject = SharedObject.getLocal("red_rogue");
-			if(sharedObject.data.settings) settings = sharedObject.data.settings;
-			if(sharedObject.data.gameState) gameState = sharedObject.data.gameState;
+			if(sharedObject.data.settings) overwrite(settings, sharedObject.data.settings);
+			//if(sharedObject.data.gameState) overwrite(gameState, sharedObject.data.gameState);
 			sharedObject.flush();
 			sharedObject.close();
 		}
 		
 		public static function reset():void{
-			settings = {};
-			gameState = {};
+			initSettings();
+			initGameState();
 			push();
+		}
+		
+		/* Overwrites matching variable names with source to target */
+		public static function overwrite(target:Object, source:Object):void{
+			for(var key:String in source){
+				if(target[key]) target[key] = source[key];
+			}
+		}
+		
+		/* This is populated on the fly by com.robotacid.level.Content */
+		public static function initGameState():void{
+			var i:int, j:int, xml:XML;
+			
+			gameState = {
+				player:{
+					previousLevel:Map.OVERWORLD,
+					previousPortalType:Portal.STAIRS,
+					previousMapType:Map.AREA,
+					currentLevel:1,
+					currentMapType:Map.MAIN_DUNGEON
+				},
+				runeNames:[],
+				storyCharCodes:[]
+			};
+			for(i = 0; i < Game.MAX_LEVEL; i++){
+				gameState.runeNames.push("?");
+			}
+			// the identify rune's name is already known (obviously)
+			gameState.runeNames[Item.IDENTIFY] = Item.stats["rune names"][Item.IDENTIFY];
+		}
+		
+		public static function saveGameState():void{
+			gameState.player.previousLevel = Player.previousLevel;
+			gameState.player.previousPortalType = Player.previousPortalType;
+			gameState.player.previousMapType = Player.previousMapType;
+			gameState.player.currentLevel = game.map.level;
+			gameState.player.currentMapType = game.map.type;
 		}
 		
 		/* Create the default settings object to initialise the game from */
@@ -104,8 +146,21 @@ package {
 					races:[],
 					weapons:[],
 					armour:[]
-				}
+				},
+				areaContent:[]
 			};
+			
+			settings.areaContent = [];
+			for(var level:int = 0; level < Content.TOTAL_AREAS; level++){
+				settings.areaContent.push({
+					chests:[],
+					monsters:[],
+					portals:[]
+				});
+			}
+			if(settings.areaContent[Map.UNDERWORLD].portals.length == 0){
+				Content.setUnderworldPortal(15, Map.MAIN_DUNGEON);
+			}
 		}
 		
 		/* Push settings data to the shared object */

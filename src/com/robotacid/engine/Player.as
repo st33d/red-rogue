@@ -236,7 +236,7 @@
 					game.console.print(Portal.usageMsg(portalType, portalTargetLevel, portalTargetType));
 					
 					var levelName:String = Map.getName(portalTargetLevel, portalTargetType);
-					if(!game.visitedHash[levelName]) game.visitedHash[levelName] = true;
+					if(!UserData.gameState.visitedHash[levelName]) UserData.gameState.visitedHash[levelName] = true;
 					else levelName = "";
 					
 					game.transition.init(function():void{

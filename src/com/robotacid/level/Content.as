@@ -37,24 +37,25 @@
 		public static var game:Game;
 		public static var renderer:Renderer;
 		
-		public var chestsByLevel:Vector.<Vector.<XML>>;
-		public var monstersByLevel:Vector.<Vector.<XML>>;
-		public var portalsByLevel:Vector.<Vector.<XML>>;
-		public var trapsByLevel:Vector.<int>;
-		public var secretsByLevel:Vector.<int>;
-		public var questGemsByLevel:Vector.<int>;
-		public var altarsByLevel:Vector.<int>;
-		public var seedsByLevel:Vector.<uint>;
-		public var monsterXpByLevel:Vector.<Number>;
+		public var gameState:Object;
 		
-		private var levelZones:Vector.<int>;
-		private var zoneSizes:Vector.<int>;
-		private var eliteNames:Object;
+		//public var chestsByLevel:Array/*Array*/;
+		//public var monstersByLevel:Array/*Array*/;
+		//public var portalsByLevel:Array/*Array*/;
+		//public var trapsByLevel:Array/*int*/;
+		//public var secretsByLevel:Array/*int*/;
+		//public var questGemsByLevel:Array/*int*/;
+		//public var altarsByLevel:Array/*int*/;
+		//public var seedsByLevel:Array/*uint*/;
+		//public var monsterXpByLevel:Array/*Number*/;
 		
-		public static var xpTable:Vector.<Number>;
+		//private var levelZones:Array/*int*/;
+		//private var zoneSizes:Array/*int*/;
+		//private var eliteNames:Object;
 		
-		public var itemDungeonContent:Object;
-		public var areaContent:Array;
+		//public var itemDungeonContent:Object;
+		
+		public static var xpTable:Array/*Number*/;
 		
 		public static var monsterNameDeck:Array;
 		public static var weaponNameDeck:Array;
@@ -105,46 +106,57 @@
 			var level:int;
 			var i:int, j:int;
 			
-			// initialise the xp table
-			xpTable = Vector.<Number>([0]);
-			monsterXpByLevel = Vector.<Number>([0]);
-			var xp:Number = XP_TABLE_SEED;
-			var total:int = 0;
-			for(level = 1; level <= Game.MAX_LEVEL; level++, xp *= XP_RATE){
-				xpTable.push(xp);
-				monsterXpByLevel.push(getLevelXp(level) * MONSTER_XP_BY_LEVEL_RATE);
-				total += xp;
+			gameState = UserData.gameState;
+			
+			// initialise the static xp table
+			if(!xpTable){
+				xpTable = [0];
+				var xp:Number = XP_TABLE_SEED;
+				for(level = 1; level <= Game.MAX_LEVEL; level++, xp *= XP_RATE){
+					xpTable.push(xp);
+				}
+			}
+			
+			if(!gameState.monsterXpByLevel){
+				gameState.monsterXpByLevel = [0];
+				for(level = 1; level <= Game.MAX_LEVEL; level++){
+					gameState.monsterXpByLevel.push(getLevelXp(level) * MONSTER_XP_BY_LEVEL_RATE);
+				}
 			}
 			
 			// create the number of levels per zone
-			levelZones = new Vector.<int>();
-			zoneSizes = new Vector.<int>(4);
-			var zoneLevels:Array = [];
-			var levelsInZone:Array;
-			var pruneChoice:Array = [];
-			for(i = 0; i < 4; i++){
-				levelsInZone = [];
-				for(j = 0; j < Map.LEVELS_PER_ZONE; j++){
-					levelsInZone.push(i);
+			if(!gameState.levelZones){
+				gameState.levelZones = [];
+				gameState.zoneSizes = [0,0,0,0];
+				var zoneLevels:Array = [];
+				var levelsInZone:Array;
+				var pruneChoice:Array = [];
+				for(i = 0; i < 4; i++){
+					levelsInZone = [];
+					for(j = 0; j < Map.LEVELS_PER_ZONE; j++){
+						levelsInZone.push(i);
+					}
+					zoneLevels.push(levelsInZone);
+					pruneChoice.push(i);
 				}
-				zoneLevels.push(levelsInZone);
-				pruneChoice.push(i);
-			}
-			// prune a couple of levels (levels pruned in chaos won't be noticed, making the game length vary)
-			randomiseArray(pruneChoice, Map.random);
-			zoneLevels[pruneChoice[0]].pop();
-			zoneLevels[pruneChoice[1]].pop();
-			for(i = 0; i < zoneLevels.length - 1; i++){
-				levelsInZone = zoneLevels[i];
-				for(j = 0; j < levelsInZone.length; j++){
-					levelZones.push(levelsInZone[j]);
-					zoneSizes[levelsInZone[j]]++;
+				// prune a couple of levels (levels pruned in chaos won't be noticed, making the game length vary)
+				randomiseArray(pruneChoice, Map.random);
+				zoneLevels[pruneChoice[0]].pop();
+				zoneLevels[pruneChoice[1]].pop();
+				for(i = 0; i < zoneLevels.length - 1; i++){
+					levelsInZone = zoneLevels[i];
+					for(j = 0; j < levelsInZone.length; j++){
+						gameState.levelZones.push(levelsInZone[j]);
+						gameState.zoneSizes[levelsInZone[j]]++;
+					}
 				}
+				// introduce holy items at the beginning of the sewers
+				gameState.holyStateIntroLevel = gameState.zoneSizes[0] + 1;
 			}
-			// introduce holy items at the beginning of the sewers
-			holyStateIntroLevel = zoneSizes[0] + 1;
+			holyStateIntroLevel = gameState.holyStateIntroLevel;
+			
 			// introduce the balrog at the end of the caves
-			Balrog.mapLevel = zoneSizes[0] + zoneSizes[1] + zoneSizes[2];
+			Balrog.mapLevel = gameState.zoneSizes[0] + gameState.zoneSizes[1] + gameState.zoneSizes[2];
 			//Balrog.mapLevel = 1;
 			Balrog.xml = createBalrogXML();
 			
@@ -155,93 +167,105 @@
 			//trace("monster xp by level", monsterXpByLevel.length, monsterXpByLevel);
 			
 			// construct names by level decks in order of zone
-			monsterNameDeck = [];
-			weaponNameDeck = [];
-			armourNameDeck = [];
-			runeNameDeck = [];
-			var monsterZoneDecks:Array = [MONSTER_ZONE_DECKS[Map.DUNGEONS].slice(), MONSTER_ZONE_DECKS[Map.SEWERS].slice(), MONSTER_ZONE_DECKS[Map.CAVES].slice(), MONSTER_ZONE_DECKS[Map.CHAOS].slice()];
-			var weaponZoneDecks:Array = [WEAPON_ZONE_DECKS[Map.DUNGEONS].slice(), WEAPON_ZONE_DECKS[Map.SEWERS].slice(), WEAPON_ZONE_DECKS[Map.CAVES].slice(), WEAPON_ZONE_DECKS[Map.CHAOS].slice()];
-			var armourZoneDecks:Array = [ARMOUR_ZONE_DECKS[Map.DUNGEONS].slice(), ARMOUR_ZONE_DECKS[Map.SEWERS].slice(), ARMOUR_ZONE_DECKS[Map.CAVES].slice(), ARMOUR_ZONE_DECKS[Map.CHAOS].slice()];
-			var runeZoneDecks:Array = [RUNE_ZONE_DECKS[Map.DUNGEONS].slice(), RUNE_ZONE_DECKS[Map.SEWERS].slice(), RUNE_ZONE_DECKS[Map.CAVES].slice(), RUNE_ZONE_DECKS[Map.CHAOS].slice()];
-			
-			var templates:Array = [monsterZoneDecks, weaponZoneDecks, armourZoneDecks, runeZoneDecks];
-			var targets:Array = [monsterNameDeck, weaponNameDeck, armourNameDeck, runeNameDeck];
-			var template:Array;
-			var target:Array;
-			var zone:Array;
-			var zoneLevelsMax:int;
-			
-			// each zone's list is randomised and then added to the target levels
-			for(i = 0; i < templates.length; i++){
-				template = templates[i];
-				target = targets[i];
-				// level 1 always starts with the the first content to keep the entry point easy
-				target.push(template[0].shift());
-				zoneLevelsMax = 0;
-				for(j = 0; j < template.length; j++){
-					zone = template[j];
-					randomiseArray(zone, Map.random);
-					zoneLevelsMax += zoneSizes[j];
-					while(target.length < zoneLevelsMax) target.push(zone.pop());
-					
-					// the remainder is added to the pool for the next zone
-					if(j < template.length - 1){
-						while(zone.length) template[j + 1].push(zone.pop());
+			if(!gameState.monsterNameDeck){
+				gameState.monsterNameDeck = [];
+				gameState.weaponNameDeck = [];
+				gameState.armourNameDeck = [];
+				gameState.runeNameDeck = [];
+				var monsterZoneDecks:Array = [MONSTER_ZONE_DECKS[Map.DUNGEONS].slice(), MONSTER_ZONE_DECKS[Map.SEWERS].slice(), MONSTER_ZONE_DECKS[Map.CAVES].slice(), MONSTER_ZONE_DECKS[Map.CHAOS].slice()];
+				var weaponZoneDecks:Array = [WEAPON_ZONE_DECKS[Map.DUNGEONS].slice(), WEAPON_ZONE_DECKS[Map.SEWERS].slice(), WEAPON_ZONE_DECKS[Map.CAVES].slice(), WEAPON_ZONE_DECKS[Map.CHAOS].slice()];
+				var armourZoneDecks:Array = [ARMOUR_ZONE_DECKS[Map.DUNGEONS].slice(), ARMOUR_ZONE_DECKS[Map.SEWERS].slice(), ARMOUR_ZONE_DECKS[Map.CAVES].slice(), ARMOUR_ZONE_DECKS[Map.CHAOS].slice()];
+				var runeZoneDecks:Array = [RUNE_ZONE_DECKS[Map.DUNGEONS].slice(), RUNE_ZONE_DECKS[Map.SEWERS].slice(), RUNE_ZONE_DECKS[Map.CAVES].slice(), RUNE_ZONE_DECKS[Map.CHAOS].slice()];
+				
+				var templates:Array = [monsterZoneDecks, weaponZoneDecks, armourZoneDecks, runeZoneDecks];
+				var targets:Array = [gameState.monsterNameDeck, gameState.weaponNameDeck, gameState.armourNameDeck, gameState.runeNameDeck];
+				var template:Array;
+				var target:Array;
+				var zone:Array;
+				var zoneLevelsMax:int;
+				
+				// each zone's list is randomised and then added to the target levels
+				for(i = 0; i < templates.length; i++){
+					template = templates[i];
+					target = targets[i];
+					// level 1 always starts with the the first content to keep the entry point easy
+					target.push(template[0].shift());
+					zoneLevelsMax = 0;
+					for(j = 0; j < template.length; j++){
+						zone = template[j];
+						randomiseArray(zone, Map.random);
+						zoneLevelsMax += gameState.zoneSizes[j];
+						while(target.length < zoneLevelsMax) target.push(zone.pop());
 						
-					// the last zone is itself plus all the remainder
-					} else {
-						while(zone.length) target.push(zone.pop());
+						// the remainder is added to the pool for the next zone
+						if(j < template.length - 1){
+							while(zone.length) template[j + 1].push(zone.pop());
+							
+						// the last zone is itself plus all the remainder
+						} else {
+							while(zone.length) target.push(zone.pop());
+						}
 					}
 				}
-				//trace(target);
 			}
+			monsterNameDeck = gameState.monsterNameDeck;
+			weaponNameDeck = gameState.weaponNameDeck;
+			armourNameDeck = gameState.armourNameDeck;
+			runeNameDeck = gameState.runeNameDeck;
 			
 			// initialise content lists
 			Character.characterNumCount = 1;
-			chestsByLevel = new Vector.<Vector.<XML>>(TOTAL_LEVELS + 1);
-			monstersByLevel = new Vector.<Vector.<XML>>(TOTAL_LEVELS + 1);
-			portalsByLevel = new Vector.<Vector.<XML>>(TOTAL_LEVELS + 1);
-			trapsByLevel = new Vector.<int>();
-			secretsByLevel = new Vector.<int>();
-			altarsByLevel = new Vector.<int>();
-			questGemsByLevel = new Vector.<int>();
-			seedsByLevel = new Vector.<uint>();
-			for(level = 0; level <= TOTAL_LEVELS; level++){
-				obj = getLevelContent(level);
-				monstersByLevel[level] = obj.monsters;
-				chestsByLevel[level] = obj.chests;
-				portalsByLevel[level] = new Vector.<XML>();
-				trapsByLevel[level] = trapQuantityPerLevel(level);
-				secretsByLevel[level] = 2;
-				altarsByLevel[level] = level > 2 ? Map.random.rangeInt(3) : 0;
-				questGemsByLevel[level] = 0;
-				Map.random.value();
-				seedsByLevel[level] = Map.random.r;
-			}
-			areaContent = [];
-			for(level = 0; level < TOTAL_AREAS; level++){
-				areaContent.push({
-					chests:new Vector.<XML>,
-					monsters:new Vector.<XML>,
-					portals:new Vector.<XML>
-				});
+			
+			if(!gameState.chestsByLevel){
+				gameState.chestsByLevel = new Array(TOTAL_LEVELS + 1);
+				gameState.monstersByLevel = new Array(TOTAL_LEVELS + 1);
+				gameState.portalsByLevel = new Array(TOTAL_LEVELS + 1);
+				gameState.trapsByLevel = [];
+				gameState.secretsByLevel = [];
+				gameState.altarsByLevel = [];
+				gameState.questGemsByLevel = [];
+				gameState.seedsByLevel = [];
+				for(level = 0; level <= TOTAL_LEVELS; level++){
+					obj = getLevelContent(level);
+					gameState.monstersByLevel[level] = obj.monsters;
+					gameState.chestsByLevel[level] = obj.chests;
+					gameState.portalsByLevel[level] = [];
+					gameState.trapsByLevel[level] = trapQuantityPerLevel(level);
+					gameState.secretsByLevel[level] = 2;
+					gameState.altarsByLevel[level] = level > 2 ? Map.random.rangeInt(3) : 0;
+					gameState.questGemsByLevel[level] = 0;
+					Map.random.value();
+					gameState.seedsByLevel[level] = Map.random.r;
+				}
+				// getting here infers that the item dungeon no longer exists
+				removeItemDungeonPortals();
+				
+				// insert the existing portal ends from the areaContent
+				var areaPortalXML:XML;
+				var areaContent:Array = UserData.settings.areaContent;
+				var portalList:Array
+				for(i = 0; i < areaContent.length; i++){
+					portalList = UserData.settings.areaContent[i].portals;
+					for(j = 0; j < portalList.length; j++){
+						areaPortalXML = portalList[j];
+						gameState.portalsByLevel[int(areaPortalXML.@targetLevel)].push(<portal type={Portal.PORTAL} targetLevel={i} targetType={Map.AREA} />);
+					}
+				}
 			}
 			
 			// create the elite monsters
 			var zoneNum:int = 0;
-			eliteNames = {};
-			for(level = 1; level < TOTAL_LEVELS; level++){
-				if(level >= levelZones.length || zoneNum < levelZones[level - 1]){
-					zoneNum++;
-					monstersByLevel[level - 1].push(createEliteXML(level - 1, eliteNames));
-					if(zoneNum == Map.CHAOS) break;
+			if(!gameState.eliteNames){
+				gameState.eliteNames = {};
+				for(level = 1; level < TOTAL_LEVELS; level++){
+					if(level >= gameState.levelZones.length || zoneNum < gameState.levelZones[level - 1]){
+						zoneNum++;
+						gameState.monstersByLevel[level - 1].push(createEliteXML(level - 1, gameState.eliteNames));
+						if(zoneNum == Map.CHAOS) break;
+					}
 				}
 			}
 			
-			// set up underworld portal on level 15
-			var portalXML:XML = <portal type={Portal.PORTAL} targetLevel={Map.UNDERWORLD} targetType={Map.AREA} />;
-			portalsByLevel[15].push(portalXML);
-			setUnderworldPortal(15, Map.MAIN_DUNGEON);
 			createUniqueItems();
 		}
 		
@@ -287,7 +311,7 @@
 		public function getLevelZone(level:int):int{
 			level--;
 			if(level <= 0) return 0;
-			if(level < levelZones.length) return levelZones[level];
+			if(level < gameState.levelZones.length) return gameState.levelZones[level];
 			return Map.CHAOS;
 		}
 		
@@ -296,13 +320,13 @@
 		 * Returns a list of monster XMLs and chest XMLs with loot therein */
 		public function getLevelContent(level:int, item:XML = null):Object{
 			if(level > TOTAL_LEVELS) level = TOTAL_LEVELS;
-			var monsters:Vector.<XML> = new Vector.<XML>();
-			var chests:Vector.<XML> = new Vector.<XML>();
+			var monsters:Array = [];
+			var chests:Array = [];
 			var obj:Object = {monsters:monsters, chests:chests};
 			if(level <= 0) return obj;
 			
-			var equipment:Vector.<XML> = new Vector.<XML>();
-			var runes:Vector.<XML> = new Vector.<XML>();
+			var equipment:Array = [];
+			var runes:Array = [];
 			
 			// if an item is fed into this level, add it to the equipment list
 			if(item){
@@ -374,10 +398,10 @@
 		/* Return the pre-generated seed value for creating a given level */
 		public function getSeed(level:int, type:int):uint{
 			if(type == Map.MAIN_DUNGEON){
-				while(level >= seedsByLevel.length) seedsByLevel.push(Math.random() * uint.MAX_VALUE);
-				return seedsByLevel[level];
+				while(level >= gameState.seedsByLevel.length) gameState.seedsByLevel.push(XorRandom.seedFromDate());
+				return gameState.seedsByLevel[level];
 			} else if(type == Map.ITEM_DUNGEON){
-				return itemDungeonContent.seed;
+				return gameState.itemDungeonContent.seed;
 			}
 			return Math.random() * uint.MAX_VALUE;
 		}
@@ -385,42 +409,53 @@
 		/* Creates content for the enchanted item side-level */
 		public function setItemDungeonContent(item:Item, level:int, type:int):void{
 			// existing portals in a previous pocket dungeon need to be removed or reset
-			if(itemDungeonContent){
-				var targetType:int, targetLevel:int;
-				for(var i:int = 0; i < itemDungeonContent.portals.length; i++){
-					targetType = itemDungeonContent.portals[i].@targetType;
-					if(targetType == Map.OVERWORLD){
-						areaContent[Map.OVERWORLD].portals = new Vector.<XML>;
-					} else if(targetType == Map.UNDERWORLD){
-						// move back to level 15, or 16 if we're on 15
-						targetLevel = 15;
-						if(level == 15) targetLevel++;
-						var portalXML:XML = <portal type={Portal.PORTAL} targetLevel={Map.UNDERWORLD} targetType={Map.AREA} />;
-						portalsByLevel[targetLevel].push(portalXML);
-						setUnderworldPortal(targetLevel, Map.MAIN_DUNGEON);
-					}
-				}
+			if(gameState.itemDungeonContent){
+				removeItemDungeonPortals();
 			}
-			itemDungeonContent = getLevelContent(level, item.toXML());
-			itemDungeonContent.portals = Vector.<XML>([<portal type={Portal.PORTAL} targetLevel={level} targetType={type} />]);
-			itemDungeonContent.secrets = 2;
-			itemDungeonContent.traps = trapQuantityPerLevel(level);
-			itemDungeonContent.seed = Math.random() * uint.MAX_VALUE;
-			itemDungeonContent.questGems = 0;
-			itemDungeonContent.altars = game.random.rangeInt(3);
-			itemDungeonContent.monsterXp = getLevelXp(level);
+			gameState.itemDungeonContent = getLevelContent(level, item.toXML());
+			gameState.itemDungeonContent.portals = [<portal type={Portal.PORTAL} targetLevel={level} targetType={type} />];
+			gameState.itemDungeonContent.secrets = 2;
+			gameState.itemDungeonContent.traps = trapQuantityPerLevel(level);
+			gameState.itemDungeonContent.seed = XorRandom.seedFromDate();
+			gameState.itemDungeonContent.questGems = 0;
+			gameState.itemDungeonContent.altars = game.random.rangeInt(3);
+			gameState.itemDungeonContent.monsterXp = getLevelXp(level);
 		}
 		
 		/* Retargets the underworld portal */
-		public function setUnderworldPortal(level:int, type:int):void{
-			areaContent[Map.UNDERWORLD].portals = Vector.<XML>([<portal type={Portal.PORTAL} targetLevel={level} targetType={type} />]);
+		public static function setUnderworldPortal(level:int, type:int):void{
+			UserData.settings.areaContent[Map.UNDERWORLD].portals = [<portal type={Portal.PORTAL} targetLevel={level} targetType={type} />];
 		}
 		
 		/* Creates or retargets the overworld portal */
-		public function setOverworldPortal(level:int, type:int):void{
+		public static function setOverworldPortal(level:int, type:int):void{
 			var portalXML:XML = portalXML = <portal type={Portal.PORTAL} targetLevel={level} targetType={type} />;
-			areaContent[Map.OVERWORLD].portals = Vector.<XML>([portalXML]);
+			UserData.settings.areaContent[Map.OVERWORLD].portals = [portalXML];
 			portalXML.@targetLevel = level;
+		}
+		
+		/* Remove any connections to an existing item dungeon */
+		public static function removeItemDungeonPortals():void{
+			var i:int, j:int, xml:XML;
+			var areaContent:Array = UserData.settings.areaContent;
+			for(i = 0; i < areaContent.length; i++){
+				for(j = 0; j < areaContent[i].portals.length; j++){
+					xml = areaContent[i].portals[j];
+					if(int(xml.@targetType) == Map.ITEM_DUNGEON){
+						areaContent[i].portals.splice(j);
+						j--;
+					}
+				}
+			}
+			// repair the underworld portal if missing
+			if(areaContent[Map.UNDERWORLD].portals.length == 0){
+				// move back to level 15, or 16 if we're on 15
+				var targetLevel:int = 15;
+				if(game && game.map && game.map.level == 15) targetLevel++;
+				var portalXML:XML = <portal type={Portal.PORTAL} targetLevel={Map.UNDERWORLD} targetType={Map.AREA} />;
+				UserData.gameState.portalsByLevel[targetLevel].push(portalXML);
+				setUnderworldPortal(targetLevel, Map.MAIN_DUNGEON);
+			}
 		}
 		
 		/* Distributes content across a level
@@ -434,8 +469,8 @@
 			var item:Item;
 			var list:Array;
 			var minX:int, maxX:int;
-			var monsters:Vector.<XML>;
-			var chests:Vector.<XML>;
+			var monsters:Array/*XML*/;
+			var chests:Array/*XML*/;
 			var questGems:int = 0;
 			var completionCount:int = 0;
 			var room:Room;
@@ -445,29 +480,29 @@
 			var monsterXpSplit:Number;
 			
 			if(mapType == Map.MAIN_DUNGEON){
-				if(mapLevel < monstersByLevel.length){
-					monsters = monstersByLevel[mapLevel];
-					chests = chestsByLevel[mapLevel];
-					questGems = questGemsByLevel[mapLevel];
-					monsterXp = monsterXpByLevel[mapLevel];
-					questGemsByLevel[mapLevel] = 0;
-					monsterXpByLevel[mapLevel] = 0;
+				if(mapLevel < gameState.monstersByLevel.length){
+					monsters = gameState.monstersByLevel[mapLevel];
+					chests = gameState.chestsByLevel[mapLevel];
+					questGems = gameState.questGemsByLevel[mapLevel];
+					monsterXp = gameState.monsterXpByLevel[mapLevel];
+					gameState.questGemsByLevel[mapLevel] = 0;
+					gameState.monsterXpByLevel[mapLevel] = 0;
 				} else {
 					var obj:Object = getLevelContent(mapLevel);
-					monsters = monstersByLevel[mapLevel] = obj.monsters;
-					chests = chestsByLevel[mapLevel] = obj.chests;
-					questGemsByLevel[mapLevel] = 0;
-					monsterXpByLevel[mapLevel] = 0;
+					monsters = gameState.monstersByLevel[mapLevel] = obj.monsters;
+					chests = gameState.chestsByLevel[mapLevel] = obj.chests;
+					gameState.questGemsByLevel[mapLevel] = 0;
+					gameState.monsterXpByLevel[mapLevel] = 0;
 					monsterXp = 0;
 					questGems = 0;
 				}
 			} else if(mapType == Map.ITEM_DUNGEON){
-				monsters = itemDungeonContent.monsters;
-				chests = itemDungeonContent.chests;
-				questGems = itemDungeonContent.questGems;
-				monsterXp = itemDungeonContent.monsterXp;
-				itemDungeonContent.questGems = 0;
-				itemDungeonContent.monsterXp = 0;
+				monsters = gameState.itemDungeonContent.monsters;
+				chests = gameState.itemDungeonContent.chests;
+				questGems = gameState.itemDungeonContent.questGems;
+				monsterXp = gameState.itemDungeonContent.monsterXp;
+				gameState.itemDungeonContent.questGems = 0;
+				gameState.itemDungeonContent.monsterXp = 0;
 			}
 			
 			// distribute
@@ -591,6 +626,7 @@
 					maxX = Map.UNDERWORLD_BOAT_MAX;
 					r = bitmap.height - 3;
 				}
+				var areaContent:Array = UserData.settings.areaContent;
 				while(areaContent[mapLevel].chests.length){
 					var children:XMLList = areaContent[mapLevel].chests.shift().children();
 					for each(var xml:XML in children){
@@ -639,20 +675,23 @@
 		}
 		
 		/* Fetch all portals on a level - used by Map to create portal access points */
-		public function getPortals(level:int, mapType:int):Vector.<XML>{
-			var list:Vector.<XML> = new Vector.<XML>();
+		public function getPortals(level:int, mapType:int):Array{
+			var list:Array = [];
 			if(mapType == Map.MAIN_DUNGEON){
-				if(level < portalsByLevel.length){
-					while(portalsByLevel[level].length) list.push(portalsByLevel[level].pop());
+				if(level < gameState.portalsByLevel.length){
+					list = gameState.portalsByLevel[level].slice();;
+					gameState.portalsByLevel[level].length = 0;
 				} else {
-					portalsByLevel[level] = new Vector.<XML>()
+					gameState.portalsByLevel[level] = [];
 				}
 				
 			} else if(mapType == Map.ITEM_DUNGEON){
-				while(itemDungeonContent.portals.length) list.push(itemDungeonContent.portals.pop());
+				list = gameState.itemDungeonContent.portals.slice();
+				gameState.itemDungeonContent.portals.length = 0;
 				
 			} else if(mapType == Map.AREA){
-				while(areaContent[level].portals.length) list.push(areaContent[level].portals.pop());
+				list = UserData.settings.areaContent[level].portals.slice();
+				UserData.settings.areaContent[level].portals.length = 0;
 				
 			}
 			return list;
@@ -661,21 +700,21 @@
 		/* Search the levels for a given portal type and remove it - this prevents multiples of the same portal */
 		public function removePortal(targetLevel:int, targetType:int):void{
 			var i:int, j:int, xml:XML;
-			for(i = 0; i < portalsByLevel.length; i++){
-				for(j = 0; j < portalsByLevel[i].length; j++){
-					xml = portalsByLevel[i][j];
+			for(i = 0; i < gameState.portalsByLevel.length; i++){
+				for(j = 0; j < gameState.portalsByLevel[i].length; j++){
+					xml = gameState.portalsByLevel[i][j];
 					if(int(xml.@targetLevel) == targetLevel && int(xml.@targetType) == targetType){
-						portalsByLevel[i].splice(j, 1);
+						gameState.portalsByLevel[i].splice(j, 1);
 						return;
 					}
 				}
 			}
 			// check the pocket
-			if(itemDungeonContent){
-				for(i = 0; i < itemDungeonContent.portals.length; i++){
-					xml = itemDungeonContent.portals[i];
+			if(gameState.itemDungeonContent){
+				for(i = 0; i < gameState.itemDungeonContent.portals.length; i++){
+					xml = gameState.itemDungeonContent.portals[i];
 					if(int(xml.@targetLevel) == targetLevel && int(xml.@targetType) == targetType){
-						itemDungeonContent.portals.splice(i, 1);
+						gameState.itemDungeonContent.portals.splice(i, 1);
 						return;
 					}
 				}
@@ -685,10 +724,10 @@
 		/* Returns the amount of secrets in this level */
 		public function getSecrets(dungeonLevel:int, dungeonType:int):int{
 			if(dungeonType == Map.MAIN_DUNGEON){
-				while(dungeonLevel >= secretsByLevel.length) secretsByLevel.push(2);
-				return secretsByLevel[dungeonLevel];
+				while(dungeonLevel >= gameState.secretsByLevel.length) gameState.secretsByLevel.push(2);
+				return gameState.secretsByLevel[dungeonLevel];
 			} else if(dungeonType == Map.ITEM_DUNGEON){
-				return itemDungeonContent.secrets;
+				return gameState.itemDungeonContent.secrets;
 			}
 			return 0;
 		}
@@ -696,10 +735,10 @@
 		/* Returns the amount of traps in this level */
 		public function getTraps(dungeonLevel:int, dungeonType:int):int{
 			if(dungeonType == Map.MAIN_DUNGEON){
-				while(dungeonLevel >= trapsByLevel.length) trapsByLevel.push(trapQuantityPerLevel(dungeonLevel));
-				return trapsByLevel[dungeonLevel];
+				while(dungeonLevel >= gameState.trapsByLevel.length) gameState.trapsByLevel.push(gameState.trapQuantityPerLevel(dungeonLevel));
+				return gameState.trapsByLevel[dungeonLevel];
 			} else if(dungeonType == Map.ITEM_DUNGEON){
-				return itemDungeonContent.traps;
+				return gameState.itemDungeonContent.traps;
 			}
 			return 0;
 		}
@@ -707,10 +746,10 @@
 		/* Returns the amount of altars in this level */
 		public function getAltars(dungeonLevel:int, dungeonType:int):int{
 			if(dungeonType == Map.MAIN_DUNGEON){
-				while(dungeonLevel >= altarsByLevel.length) altarsByLevel.push(game.random.rangeInt(3));
-				return altarsByLevel[dungeonLevel];
+				while(dungeonLevel >= gameState.altarsByLevel.length) gameState.altarsByLevel.push(game.random.rangeInt(3));
+				return gameState.altarsByLevel[dungeonLevel];
 			} else if(dungeonType == Map.ITEM_DUNGEON){
-				return itemDungeonContent.altars;
+				return gameState.itemDungeonContent.altars;
 			}
 			return 0;
 		}
@@ -718,38 +757,38 @@
 		/* Removes a secret for good */
 		public function removeSecret(dungeonLevel:int, dungeonType:int):void{
 			if(dungeonType == Map.MAIN_DUNGEON){
-				secretsByLevel[dungeonLevel]--;
+				gameState.secretsByLevel[dungeonLevel]--;
 			} else if(dungeonType == Map.ITEM_DUNGEON){
-				itemDungeonContent.secrets--;
+				gameState.itemDungeonContent.secrets--;
 			}
 		}
 		
 		/* Removes a trap for good */
 		public function removeTrap(dungeonLevel:int, dungeonType:int):void{
 			if(dungeonType == Map.MAIN_DUNGEON){
-				trapsByLevel[dungeonLevel]--;
+				gameState.trapsByLevel[dungeonLevel]--;
 			} else if(dungeonType == Map.ITEM_DUNGEON){
-				itemDungeonContent.traps--;
+				gameState.itemDungeonContent.traps--;
 			}
 		}
 		
 		/* Removes an altar for good */
 		public function removeAltar(dungeonLevel:int, dungeonType:int):void{
 			if(dungeonType == Map.MAIN_DUNGEON){
-				altarsByLevel[dungeonLevel]--;
+				gameState.altarsByLevel[dungeonLevel]--;
 			} else if(dungeonType == Map.ITEM_DUNGEON){
-				itemDungeonContent.altars--;
+				gameState.itemDungeonContent.altars--;
 			}
 		}
 		
 		/* Removes traps and secrets to keep map identified */
 		public function clearLevel(dungeonLevel:int, dungeonType:int):void{
 			if(dungeonType == Map.MAIN_DUNGEON){
-				trapsByLevel[dungeonLevel] = 0;
-				secretsByLevel[dungeonLevel] = 0;
+				gameState.trapsByLevel[dungeonLevel] = 0;
+				gameState.secretsByLevel[dungeonLevel] = 0;
 			} else if(dungeonType == Map.ITEM_DUNGEON){
-				itemDungeonContent.traps = 0;
-				itemDungeonContent.secrets = 0;
+				gameState.itemDungeonContent.traps = 0;
+				gameState.itemDungeonContent.secrets = 0;
 			}
 		}
 		
@@ -762,10 +801,10 @@
 			if(level < 0) return;
 			if(mapType == Map.MAIN_DUNGEON){
 				// if we've gone past the total level limit we need to create new content reserves on the fly
-				if(level == monstersByLevel.length){
-					monstersByLevel.push(new Vector.<XML>());
-					chestsByLevel.push(new Vector.<XML>());
-					portalsByLevel.push(new Vector.<XML>());
+				if(level == gameState.monstersByLevel.length){
+					gameState.monstersByLevel.push([]);
+					gameState.chestsByLevel.push([]);
+					gameState.portalsByLevel.push([]);
 				}
 			}
 			// first we check the active list of entities
@@ -817,24 +856,24 @@
 		public function recycleEntity(entity:Entity, level:int, mapType:int):void{
 			var i:int, item:Item, character:Character;
 			var chest:XML;
-			var monsters:Vector.<XML>;
-			var chests:Vector.<XML>;
-			var portals:Vector.<XML>;
+			var monsters:Array;
+			var chests:Array;
+			var portals:Array;
 			
 			if(mapType == Map.MAIN_DUNGEON){
-				monsters = monstersByLevel[level];
-				chests = chestsByLevel[level];
-				portals = portalsByLevel[level];
+				monsters = gameState.monstersByLevel[level];
+				chests = gameState.chestsByLevel[level];
+				portals = gameState.portalsByLevel[level];
 				
 			} else if(mapType == Map.ITEM_DUNGEON){
-				monsters = itemDungeonContent.monsters;
-				chests = itemDungeonContent.chests;
-				portals = itemDungeonContent.portals;
+				monsters = gameState.itemDungeonContent.monsters;
+				chests = gameState.itemDungeonContent.chests;
+				portals = gameState.itemDungeonContent.portals;
 				
 			} else if(mapType == Map.AREA){
-				monsters = areaContent[level].monsters;
-				chests = areaContent[level].chests;
-				portals = areaContent[level].portals;
+				monsters = UserData.settings.areaContent[level].monsters;
+				chests = UserData.settings.areaContent[level].chests;
+				portals = UserData.settings.areaContent[level].portals;
 			}
 			
 			if(entity is Stone && entity.name == Stone.DEATH){
@@ -859,8 +898,8 @@
 					}
 				}
 				// recycle xp
-				if(mapType == Map.MAIN_DUNGEON) monsterXpByLevel[level] += (entity as Monster).xpReward;
-				else if(mapType == Map.ITEM_DUNGEON) itemDungeonContent.monsterXp += (entity as Monster).xpReward;
+				if(mapType == Map.MAIN_DUNGEON) gameState.monsterXpByLevel[level] += (entity as Monster).xpReward;
+				else if(mapType == Map.ITEM_DUNGEON) gameState.itemDungeonContent.monsterXp += (entity as Monster).xpReward;
 				// do not recycle generated monsters
 				if((entity as Monster).characterNum > -1) monsters.push(entity.toXML());
 				
@@ -882,9 +921,9 @@
 				}
 				if(item.type == Item.QUEST_GEM){
 					if(mapType == Map.ITEM_DUNGEON){
-						itemDungeonContent.questGems++;
+						gameState.itemDungeonContent.questGems++;
 					} else if(mapType == Map.MAIN_DUNGEON){
-						questGemsByLevel[level]++;
+						gameState.questGemsByLevel[level]++;
 					}
 					return;
 				}

@@ -299,9 +299,9 @@
 			// retarget overworld or underworld portals
 			if(targetType == Map.AREA){
 				if(targetLevel == Map.OVERWORLD){
-					game.content.setOverworldPortal(game.map.level, game.map.type);
+					Content.setOverworldPortal(game.map.level, game.map.type);
 				} else if(targetLevel == Map.UNDERWORLD){
-					game.content.setUnderworldPortal(game.map.level, game.map.type);
+					Content.setUnderworldPortal(game.map.level, game.map.type);
 				}
 			}
 			

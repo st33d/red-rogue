@@ -22,12 +22,19 @@ package com.robotacid.util {
 			if(seed){
 				r = seed;
 			} else {
-				r = (new Date().time % uint.MAX_VALUE) as uint;
-				// once in a blue moon we can roll a zero from sourcing the seed from the Date
-				if(r == 0) r = Math.random() * MAX_RATIO;
+				r = seedFromDate();
 			}
 			this.seed = r;
 		}
+		
+		/* Get a seed using a Date object */
+		public static function seedFromDate():uint{
+			var r:uint = (new Date().time % uint.MAX_VALUE) as uint;
+			// once in a blue moon we can roll a zero from sourcing the seed from the Date
+			if(r == 0) r = Math.random() * MAX_RATIO;
+			return r;
+		}
+		
 		/* Returns a number from 0 - 1 */
 		public function value():Number{
 			r ^= r << 21;

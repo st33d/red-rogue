@@ -1,4 +1,4 @@
-Change log: refactored portals and set-level to work generic with target-level and target-type, pocket dungeons now support portals to the overworld and underworld
+Change log: major overhaul to allow game to initiate from a new object that can be fed to the SharedObject, currently appears stable, many frivolous settings for a save and continue yet to set up
 
 Bug hunt
 	collection lock out on chests after playing for a while - bugged chest or item?
@@ -12,37 +12,31 @@ Bug hunt
 	chaos walls frozen without graphics rendered and no walls beneath them (activated, not on chaos wall render list?)
 
 
-exit reveal not going to work on big maps - solve
-	create feature hash in minimap
-	reveal by type
-
-pocket portals broken
-
-	pocket dungeon not supporting more than one portal - why?
-
-
-	issues:
-		altars make it possible to open a portal in pocket
-		the underworld portal can be opened in pocket
-		monster quanitity at higher levels not yet tested
-	solution:
-		refactor the Portal class to handle target-map-type and target-level
-			split type into
-				stairs, portal, monster portal
-			change direction arrow to be a separate attachable clip?
-			change background to be a separate attachable clip?
-				- or have both as clips that can be set to a given frame?
-			check it works with debug
-
 save and quit
 	build game from save object
 		save Content to UserData
 		load Content from UserData
 		save area items - warehouses
 		save portals
+		
+		broken
+			content in wrong order
+
+exit reveal not going to work on big maps - solve
+	create feature hash in minimap
+	reveal by type
+
+pocket portals not broken
+	check it works with debug
+	teleport to stairs in debug broken?
 
 the balrog
 	jumping ai
+	balrog corpse
+		always alive
+			dies when balrog head is worn
+		spurts blood erratically
+		patrols
 
 Guide -
 	copy over races guide for elites (check racial bonuses are accurate), then fill out
