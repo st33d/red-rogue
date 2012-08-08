@@ -19,10 +19,10 @@
 			// set options active/false
 			if(pointers){
 				for(i = 0; i < pointers.length; i++){
-					pointers[i].active = Boolean(item.effects || item.holyState == Item.CURSE_REVEALED);
+					pointers[i].active = Boolean(item.effects || item.holyState == Item.CURSE_REVEALED || item.holyState == Item.BLESSED);
 				}
 			}
-			if(!item.effects && item.holyState != Item.CURSE_REVEALED) return;
+			if(!item.effects && !(item.holyState == Item.CURSE_REVEALED || item.holyState == Item.BLESSED)) return;
 			
 			options = new Vector.<MenuOption>();
 			

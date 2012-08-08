@@ -1,5 +1,7 @@
 ﻿package com.robotacid.ui.menu {
 	import com.robotacid.engine.Character;
+	import com.robotacid.engine.Minion;
+	import com.robotacid.engine.Player;
 	import com.robotacid.level.Content;
 	import flash.utils.Dictionary;
 	import com.robotacid.engine.Item;
@@ -473,7 +475,7 @@
 			} else {
 				str += " none";
 			}
-			str += "\narmour:"
+			str += "\narmour:";
 			if(armourList.options.length){
 				for(i = 0; i < armourList.options.length; i++){
 					item = armourList.options[i].userData as Item;
@@ -483,7 +485,7 @@
 			} else {
 				str += " none";
 			}
-			str += "\nrunes:"
+			str += "\nrunes:";
 			if(runesList.options.length){
 				for(i = 0; i < runesList.options.length; i++){
 					item = runesList.options[i].userData as Item;
@@ -493,7 +495,7 @@
 			} else {
 				str += " none";
 			}
-			str += "\n\hearts:"
+			str += "\n\hearts:";
 			if(heartsList.options.length){
 				for(i = 0; i < heartsList.options.length; i++){
 					item = heartsList.options[i].userData as Item;
@@ -504,6 +506,69 @@
 				str += " none";
 			}
 			return str;
+		}
+		
+		/* Create an object for the SharedObject to save inventory data */
+		public function saveToObject():Object{
+			var obj:Object = {
+				weapons:[],
+				armour:[],
+				runes:[],
+				hearts:[]
+			}
+			var i:int, item:Item;
+			if(weaponsList.options.length){
+				for(i = 0; i < weaponsList.options.length; i++){
+					item = weaponsList.options[i].userData as Item;
+					if(item) obj.weapons.push(item.toXML());
+				}
+			}
+			if(armourList.options.length){
+				for(i = 0; i < armourList.options.length; i++){
+					item = armourList.options[i].userData as Item;
+					if(item) obj.armour.push(item.toXML());
+				}
+			}
+			if(runesList.options.length){
+				for(i = 0; i < runesList.options.length; i++){
+					item = runesList.options[i].userData as Item;
+					if(item) obj.runes.push(item.toXML());
+				}
+			}
+			if(heartsList.options.length){
+				for(i = 0; i < heartsList.options.length; i++){
+					item = heartsList.options[i].userData as Item;
+					if(item) obj.hearts.push(item.toXML());
+				}
+			}
+			return obj;
+		}
+		
+		/* Load the items from the save object */
+		public function loadFromObject(obj:Object):void{
+			var items:Array = [obj.weapons, obj.armour, obj.runes, obj.hearts];
+			var i:int, j:int, itemList:Array, item:Item, xml:XML;
+			
+			var playerName:String = game.player.nameToString();
+			var minionName:String = game.minion ? game.minion.nameToString() : null;
+			var userName:String, equippedToThrowable:Boolean;
+			
+			for(i = 0; i < items.length; i++){
+				itemList = items[i];
+				for(j = 0; j < itemList.length; j++){
+					xml = itemList[j];
+					item = addItemFromXML(xml);
+					userName = xml.@user;
+					if(item.location == Item.EQUIPPED){
+						equippedToThrowable = xml.@equippedToThrowable == true;
+						if(userName == playerName){
+							game.player.equip(item, equippedToThrowable);
+						} else if(game.minion && userName == minionName){
+							game.minion.equip(item, equippedToThrowable);
+						}
+					}
+				}
+			}
 		}
 	}
 

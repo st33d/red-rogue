@@ -158,6 +158,8 @@
 		public static const GROWTH10:int = 102;
 		public static const GROWTH11:int = 103;
 		public static const GROWTH12:int = 104;
+		public static const STAIRS_UP_GFX:int = 105;
+		public static const STAIRS_DOWN_GFX:int = 106;
 		
 		// These references are technically illegal. Game.game doesn't even exist yet, but some how the
 		// compiler is letting the issue slide so long as I don't static reference Game
@@ -269,6 +271,8 @@
 			,
 			,
 			,
+			new BlitSprite(new StairsUpMC),
+			new BlitSprite(new StairsDownMC)
 		];
 		
 		public function MapTileConverter(r:MapTileManager, game:Game, renderer:Renderer) {

@@ -176,6 +176,7 @@
 				minimapFX.active = false;
 				var mapNameStr:String = Map.getName(game.map.type, game.map.level);
 				if(game.map.type == Map.MAIN_DUNGEON) mapNameStr += ":" + game.map.level;
+				delete UserData.gameState.minion;
 				game.trackEvent("minion death", mapNameStr);
 			} else {
 				if(temp_weapon) equip(temp_weapon);

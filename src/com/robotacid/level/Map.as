@@ -1079,6 +1079,9 @@
 					}
 				}
 			}
+			// put stairs in background to over print decor
+			if(stairsUp) layers[BACKGROUND][stairsUp.y][stairsUp.x] = MapTileConverter.STAIRS_UP_GFX;
+			if(stairsDown) layers[BACKGROUND][stairsDown.y][stairsDown.x] = MapTileConverter.STAIRS_DOWN_GFX;
 		}
 		
 		/* Sprinkle on some chaos walls to make exploring weirder */

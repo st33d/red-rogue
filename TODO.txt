@@ -1,4 +1,4 @@
-Change log: major overhaul to allow game to initiate from a new object that can be fed to the SharedObject, currently appears stable, many frivolous settings for a save and continue yet to set up
+Change log: stairs are now painted over background decor at the end of the background decor generation, enchantment list now shows blessed status, areaContent now loads from settings - reflecting permanent areas, loading game from gameState seems stable - going live with this build
 
 Bug hunt
 	collection lock out on chests after playing for a while - bugged chest or item?
@@ -11,16 +11,20 @@ Bug hunt
 	shot troll with arrow - no aggro, why? - possible frozen monster occurence
 	chaos walls frozen without graphics rendered and no walls beneath them (activated, not on chaos wall render list?)
 
+print stairs onto background to solve background overprinting on stairs
+
+blessed not showing up as an enchantment like cursed
 
 save and quit
+	the balrog
+	lives
+	the fucking quest menu list
+	
+	test player,minion save data
+		get inventory to work
 	build game from save object
 		save Content to UserData
 		load Content from UserData
-		save area items - warehouses
-		save portals
-		
-		broken
-			content in wrong order
 
 exit reveal not going to work on big maps - solve
 	create feature hash in minimap

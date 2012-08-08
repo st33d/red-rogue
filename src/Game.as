@@ -75,10 +75,10 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 416;
+		public static const BUILD_NUM:int = 417;
 		
 		public static const TEST_BED_INIT:Boolean = false;
-		public static const ONLINE:Boolean = false;
+		public static const ONLINE:Boolean = true;
 		
 		public static var game:Game;
 		public static var renderer:Renderer;
@@ -221,6 +221,8 @@
 			UserData.initSettings();
 			UserData.initGameState();
 			UserData.pull();
+			// check the game is alive
+			if(UserData.gameState.dead) UserData.initGameState();
 			
 			// misc static settings
 			Map.seed = UserData.settings.randomSeed;
@@ -565,6 +567,7 @@
 		 * This method tries to wipe all layers whilst leaving the gaming architecture in place
 		 */
 		public function setLevel(level:int, type:int):void{
+			var enchantment:XML, effect:Effect;
 			
 			editor.deactivate();
 			
@@ -580,9 +583,14 @@
 				// left over content needs to be pulled back into the content manager to be found
 				// if the level is visited again
 				content.recycleLevel(map.type);
+			
+				// capture gameState
+				UserData.gameState.currentLevel = level;
+				UserData.gameState.currentMapType = type;
 				
 				// save data here
 				UserData.saveSettings();
+				UserData.saveGameState();
 				UserData.push();
 			}
 			
@@ -674,6 +682,25 @@
 				var startY:Number = (map.start.y + 1) * SCALE;
 				player = new Player(playerMc, startX, startY);
 				minion = new Minion(minionMc, startX, startY, Character.SKELETON);
+				
+				// load the state of the player, if there is one
+				if(UserData.gameState.player.xml){
+					var playerXML:XML = UserData.gameState.player.xml
+					player.level = int(playerXML.@level);
+					player.xp = Number(playerXML.@xp);
+					// the character may have been reskinned, so we just force a reskin anyway to set stats
+					player.changeName(int(playerXML.@name));
+					if(UserData.gameState.player.health) player.health = UserData.gameState.player.health;
+					player.applyHealth(0);
+					player.addXP(0);
+					for each(enchantment in playerXML.effect){
+						effect = new Effect(int(enchantment.@name), int(enchantment.@level), int(enchantment.@source), player, int(enchantment.@count));
+					}
+					gameMenu.inventoryList.loadFromObject(UserData.gameState.inventory);
+					if(!UserData.gameState.minion) minion = null;
+				}
+				
+				
 				player.snapCamera();
 			} else {
 				player.collider.x = -player.collider.width * 0.5 + (map.start.x + 0.5) * SCALE;
@@ -694,6 +721,23 @@
 				minion.prepareToEnter(entrance);
 				minion.brain.clear();
 				minion.addMinimapFeature();
+				
+				// load the state of the minion, if there is one
+				if(UserData.gameState.minion.xml){
+					var minionXML:XML = UserData.gameState.minion.xml
+					minion.level = int(minionXML.@level);
+					// the character may have been reskinned, so we just force a reskin anyway to set stats
+					minion.changeName(int(minionXML.@name));
+					if(UserData.gameState.minion.health) minion.health = UserData.gameState.minion.health;
+					minion.applyHealth(0);
+					for each(enchantment in minionXML.effect){
+						effect = new Effect(int(enchantment.@name), int(enchantment.@level), int(enchantment.@source), minion, int(enchantment.@count));
+					}
+				}
+			} else {
+				minionHealthBar.visible = false;
+				gameMenu.summonOption.active = false;
+				gameMenu.update();
 			}
 			
 			if(balrog){
@@ -769,10 +813,6 @@
 			var mapNameStr:String = Map.getName(level, type);
 			if(type == Map.MAIN_DUNGEON) mapNameStr += ":" + level;
 			trackEvent("set level", mapNameStr);
-			
-			// capture gameState
-			UserData.gameState.currentLevel = level;
-			UserData.gameState.currentMapType = type;
 		}
 		
 		private function addListeners():void{

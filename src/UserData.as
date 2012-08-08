@@ -11,6 +11,7 @@ package {
 	import com.robotacid.ui.menu.MenuOption;
 	import flash.ui.Keyboard;
 	import flash.net.SharedObject;
+	import flash.utils.ByteArray;
 	/**
 	/**
 	 * Provides an interface for storing game data in a shared object and restoring the game from
@@ -83,11 +84,25 @@ package {
 					previousPortalType:Portal.STAIRS,
 					previousMapType:Map.AREA,
 					currentLevel:1,
-					currentMapType:Map.MAIN_DUNGEON
+					currentMapType:Map.MAIN_DUNGEON,
+					xml:null,
+					health:0,
+					xp:0
+				},
+				minion:{
+					xml:null,
+					health:0
+				},
+				inventory:{
+					weapons:[],
+					armour:[],
+					runes:[],
+					hearts:[]
 				},
 				runeNames:[],
 				storyCharCodes:[]
 			};
+			
 			for(i = 0; i < Game.MAX_LEVEL; i++){
 				gameState.runeNames.push("?");
 			}
@@ -101,6 +116,14 @@ package {
 			gameState.player.previousMapType = Player.previousMapType;
 			gameState.player.currentLevel = game.map.level;
 			gameState.player.currentMapType = game.map.type;
+			gameState.player.xml = game.player.toXML();
+			gameState.player.health = game.player.health;
+			gameState.player.xp = game.player.xp;
+			if(gameState.minion){
+				gameState.minion.xml = game.minion.toXML();
+				gameState.minion.health = game.minion.health;
+			}
+			gameState.inventory = game.gameMenu.inventoryList.saveToObject();
 		}
 		
 		/* Create the default settings object to initialise the game from */
@@ -165,23 +188,21 @@ package {
 		
 		/* Push settings data to the shared object */
 		public static function saveSettings():void{
-			settings = {
-				customKeys:Key.custom.slice(),
-				sfx:SoundManager.sfx,
-				music:SoundManager.music,
-				autoSortInventory:game.gameMenu.inventoryList.autoSort,
-				menuMoveSpeed:Menu.moveDelay,
-				consoleScrollDir:game.console.targetScrollDir,
-				randomSeed:Map.seed,
-				dogmaticMode:game.dogmaticMode,
-				multiplayer:game.multiplayer,
-				hotKeyMaps:[],
-				loreUnlocked:{
-					races:[],
-					weapons:[],
-					armour:[]
-				}
-			};
+			settings.customKeys = Key.custom.slice(),
+			settings.sfx = SoundManager.sfx,
+			settings.music = SoundManager.music,
+			settings.autoSortInventory = game.gameMenu.inventoryList.autoSort,
+			settings.menuMoveSpeed = Menu.moveDelay,
+			settings.consoleScrollDir = game.console.targetScrollDir,
+			settings.randomSeed = Map.seed,
+			settings.dogmaticMode = game.dogmaticMode,
+			settings.multiplayer = game.multiplayer,
+			settings.hotKeyMaps = [],
+			settings.loreUnlocked = {
+				races:[],
+				weapons:[],
+				armour:[]
+			}
 			
 			// save the hotkeymaps
 			for(i = 0; i < game.gameMenu.hotKeyMaps.length; i++){
