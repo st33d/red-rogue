@@ -37,7 +37,10 @@ package {
 		public static var renderer:Renderer;
 		
 		public static var settings:Object;
-		public static var gameState:Object
+		public static var gameState:Object;
+		
+		public static var settingsBytes:ByteArray;
+		public static var gameStateBytes:ByteArray;
 		
 		private static var i:int;
 		
@@ -47,15 +50,28 @@ package {
 		
 		public static function push(settingsOnly:Boolean = false):void{
 			var sharedObject:SharedObject = SharedObject.getLocal("red_rogue");
-			sharedObject.data.settings = settings;
-			if(!settingsOnly) sharedObject.data.gameState = gameState;
+			// SharedObject.data has a nasty habit of writing direct to the file
+			// even when you're not asking it to. So we offload into a ByteArray instead.
+			settingsBytes = new ByteArray();
+			settingsBytes.writeObject(settings);
+			sharedObject.data.settingsBytes = settingsBytes;
+			if(!settingsOnly){
+				gameStateBytes = new ByteArray();
+				gameStateBytes.writeObject(gameState);
+				sharedObject.data.gameStateBytes = gameStateBytes;
+			}
+			settingsBytes = null;
+			gameStateBytes = null;
 			sharedObject.flush();
 			sharedObject.close();
 		}
 		
 		public static function pull():void{
 			var sharedObject:SharedObject = SharedObject.getLocal("red_rogue");
-			if(sharedObject.data.settings) overwrite(settings, sharedObject.data.settings);
+			if(sharedObject.data.settingsBytes){
+				settingsBytes = sharedObject.data.settingsBytes;
+				overwrite(settings, settingsBytes.readObject());
+			}
 			//if(sharedObject.data.gameState) overwrite(gameState, sharedObject.data.gameState);
 			sharedObject.flush();
 			sharedObject.close();
@@ -70,7 +86,7 @@ package {
 		/* Overwrites matching variable names with source to target */
 		public static function overwrite(target:Object, source:Object):void{
 			for(var key:String in source){
-				if(target[key]) target[key] = source[key];
+				if(target.hasOwnProperty(key)) target[key] = source[key];
 			}
 		}
 		

@@ -712,6 +712,7 @@
 						portal.setMonsterTemplate(target.toXML());
 					}
 				}
+				return;
 				
 			} else if(name == NULL){
 				// strip all eaten and thrown effects

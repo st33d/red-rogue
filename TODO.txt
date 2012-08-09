@@ -1,4 +1,4 @@
-Change log: stairs are now painted over background decor at the end of the background decor generation, enchantment list now shows blessed status, areaContent now loads from settings - reflecting permanent areas, loading game from gameState seems stable - going live with this build
+Change log: UserData objects now off-load into byteArrays to prevent referencing inside the SharedObject, fixed PORTAL Effect dumping effect objects on to characters
 
 Bug hunt
 	collection lock out on chests after playing for a while - bugged chest or item?
@@ -10,6 +10,8 @@ Bug hunt
 	minion dither spotted - caught in a probable follow/avoid loop
 	shot troll with arrow - no aggro, why? - possible frozen monster occurence
 	chaos walls frozen without graphics rendered and no walls beneath them (activated, not on chaos wall render list?)
+	
+	going into areas deletes portals
 
 print stairs onto background to solve background overprinting on stairs
 

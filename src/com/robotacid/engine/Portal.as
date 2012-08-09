@@ -253,6 +253,7 @@
 		
 		/* Generates a portal within a level - only one portal between each area is allowed in the game */
 		public static function createPortal(type:int, mapX:int, mapY:int, targetLevel:int = 0, targetType:int = 0, fromLevel:int = 0, fromType:int = 0):Portal{
+			if(fromLevel == 2) throw new Error();
 			var i:int, portal:Portal;
 			// check that the portal is on a surface - if not cast downwards and put it on one
 			while(!(game.world.map[mapY + 1][mapX] & Collider.UP)) mapY++;

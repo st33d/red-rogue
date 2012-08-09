@@ -53,6 +53,7 @@
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	import flash.media.Sound;
+	import flash.net.SharedObject;
 	import flash.text.AntiAliasType;
 	import flash.text.GridFitType;
 	import flash.text.TextField;
@@ -75,7 +76,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 417;
+		public static const BUILD_NUM:int = 418;
 		
 		public static const TEST_BED_INIT:Boolean = false;
 		public static const ONLINE:Boolean = true;
@@ -697,7 +698,20 @@
 						effect = new Effect(int(enchantment.@name), int(enchantment.@level), int(enchantment.@source), player, int(enchantment.@count));
 					}
 					gameMenu.inventoryList.loadFromObject(UserData.gameState.inventory);
+					
 					if(!UserData.gameState.minion) minion = null;
+					// load the state of the minion, if there is one
+					else if(UserData.gameState.minion.xml){
+						var minionXML:XML = UserData.gameState.minion.xml
+						minion.level = int(minionXML.@level);
+						// the character may have been reskinned, so we just force a reskin anyway to set stats
+						minion.changeName(int(minionXML.@name));
+						if(UserData.gameState.minion.health) minion.health = UserData.gameState.minion.health;
+						minion.applyHealth(0);
+						for each(enchantment in minionXML.effect){
+							effect = new Effect(int(enchantment.@name), int(enchantment.@level), int(enchantment.@source), minion, int(enchantment.@count));
+						}
+					}
 				}
 				
 				
@@ -721,19 +735,6 @@
 				minion.prepareToEnter(entrance);
 				minion.brain.clear();
 				minion.addMinimapFeature();
-				
-				// load the state of the minion, if there is one
-				if(UserData.gameState.minion.xml){
-					var minionXML:XML = UserData.gameState.minion.xml
-					minion.level = int(minionXML.@level);
-					// the character may have been reskinned, so we just force a reskin anyway to set stats
-					minion.changeName(int(minionXML.@name));
-					if(UserData.gameState.minion.health) minion.health = UserData.gameState.minion.health;
-					minion.applyHealth(0);
-					for each(enchantment in minionXML.effect){
-						effect = new Effect(int(enchantment.@name), int(enchantment.@level), int(enchantment.@source), minion, int(enchantment.@count));
-					}
-				}
 			} else {
 				minionHealthBar.visible = false;
 				gameMenu.summonOption.active = false;

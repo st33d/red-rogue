@@ -429,9 +429,7 @@
 		
 		/* Creates or retargets the overworld portal */
 		public static function setOverworldPortal(level:int, type:int):void{
-			var portalXML:XML = portalXML = <portal type={Portal.PORTAL} targetLevel={level} targetType={type} />;
-			UserData.settings.areaContent[Map.OVERWORLD].portals = [portalXML];
-			portalXML.@targetLevel = level;
+			UserData.settings.areaContent[Map.OVERWORLD].portals = [<portal type={Portal.PORTAL} targetLevel={level} targetType={type} />];
 		}
 		
 		/* Remove any connections to an existing item dungeon */
