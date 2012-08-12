@@ -76,7 +76,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 418;
+		public static const BUILD_NUM:int = 419;
 		
 		public static const TEST_BED_INIT:Boolean = false;
 		public static const ONLINE:Boolean = true;
@@ -290,7 +290,7 @@
 			soundQueue = new SoundQueue();
 			
 			lives = new HiddenInt();
-			livesAvailable = new HiddenInt(3);
+			livesAvailable = new HiddenInt(UserData.settings.livesAvailable);
 			
 			trackEvent("load complete");
 			

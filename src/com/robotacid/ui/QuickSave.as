@@ -14,6 +14,14 @@ package com.robotacid.ui {
 	import flash.net.SharedObject;
 	import flash.utils.ByteArray;
 	/**
+	 * ****************************************************************************************
+	 * 					DEPRECATED
+	 * 
+	 * TOP LEVEL CLASS UserData NOW PERFORMS THIS TASK
+	 * THIS CODE IS HERE UNTIL ALL TOOLS WITHIN ARE
+	 * TRANSFERRED
+	 * ****************************************************************************************
+	 * 
 	 * Provides an interface for storing game data in a shared object and restoring the game from
 	 * the shared object
 	 *

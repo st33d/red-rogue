@@ -13,21 +13,11 @@ package {
 	import flash.net.SharedObject;
 	import flash.utils.ByteArray;
 	/**
-	/**
 	 * Provides an interface for storing game data in a shared object and restoring the game from
 	 * the shared object
 	 *
 	 * Games are saved when going down stairs and through the menu. The difference being that
 	 * a menu save will only capture the current state of the menu - not the player.
-	 *
-	 * The data we capture is as follows:
-	 *
-	 * 	game settings
-	 * 	key definitions
-	 * 	player and minion status
-	 * 	inventory
-	 * 	hot key bindings
-	 * 	content manager stocks
 	 * 
 	 * @author Aaron Steed, robotacid.com
 	 */
@@ -68,11 +58,18 @@ package {
 		
 		public static function pull():void{
 			var sharedObject:SharedObject = SharedObject.getLocal("red_rogue");
+			
+			// the overwrite method is used to ensure older save data does not delete new features
 			if(sharedObject.data.settingsBytes){
 				settingsBytes = sharedObject.data.settingsBytes;
 				overwrite(settings, settingsBytes.readObject());
 			}
-			//if(sharedObject.data.gameState) overwrite(gameState, sharedObject.data.gameState);
+			/*if(sharedObject.data.gameState){
+				gameStateBytes = sharedObject.data.gameStateBytes;
+				overwrite(gameState, gameStateBytes.readObject());
+			}*/
+			settingsBytes = null;
+			gameStateBytes = null;
 			sharedObject.flush();
 			sharedObject.close();
 		}
@@ -154,6 +151,7 @@ package {
 				randomSeed:0,
 				dogmaticMode:false,
 				multiplayer:false,
+				livesAvailable:3,
 				hotKeyMaps:[
 					<hotKey>
 					  <branch selection="0" name="actions" context="null"/>
@@ -204,21 +202,22 @@ package {
 		
 		/* Push settings data to the shared object */
 		public static function saveSettings():void{
-			settings.customKeys = Key.custom.slice(),
-			settings.sfx = SoundManager.sfx,
-			settings.music = SoundManager.music,
-			settings.autoSortInventory = game.gameMenu.inventoryList.autoSort,
-			settings.menuMoveSpeed = Menu.moveDelay,
-			settings.consoleScrollDir = game.console.targetScrollDir,
-			settings.randomSeed = Map.seed,
-			settings.dogmaticMode = game.dogmaticMode,
-			settings.multiplayer = game.multiplayer,
-			settings.hotKeyMaps = [],
+			settings.customKeys = Key.custom.slice();
+			settings.sfx = SoundManager.sfx;
+			settings.music = SoundManager.music;
+			settings.autoSortInventory = game.gameMenu.inventoryList.autoSort;
+			settings.menuMoveSpeed = Menu.moveDelay;
+			settings.consoleScrollDir = game.console.targetScrollDir;
+			settings.randomSeed = Map.seed;
+			settings.dogmaticMode = game.dogmaticMode;
+			settings.multiplayer = game.multiplayer;
+			settings.livesAvailable = game.livesAvailable.value + game.lives.value;
+			settings.hotKeyMaps = [];
 			settings.loreUnlocked = {
 				races:[],
 				weapons:[],
 				armour:[]
-			}
+			};
 			
 			// save the hotkeymaps
 			for(i = 0; i < game.gameMenu.hotKeyMaps.length; i++){

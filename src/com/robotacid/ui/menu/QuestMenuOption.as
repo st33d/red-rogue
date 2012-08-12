@@ -19,7 +19,7 @@ package com.robotacid.ui.menu {
 		public var commissioner:String;
 		public var xpReward:Number;
 		
-		public static const XP_REWARD:Number = 1 / 20;
+		public static const XP_REWARD:Number = 1 / 15;
 		
 		public static const COLLECT:int = 0;
 		public static const KILL:int = 1;

@@ -1,4 +1,4 @@
-Change log: UserData objects now off-load into byteArrays to prevent referencing inside the SharedObject, fixed PORTAL Effect dumping effect objects on to characters
+Change log: increased quest xp reward, corrected typo preventing minion resurrection, lives added to settings as a permanently limited resource
 
 Bug hunt
 	collection lock out on chests after playing for a while - bugged chest or item?
@@ -10,17 +10,14 @@ Bug hunt
 	minion dither spotted - caught in a probable follow/avoid loop
 	shot troll with arrow - no aggro, why? - possible frozen monster occurence
 	chaos walls frozen without graphics rendered and no walls beneath them (activated, not on chaos wall render list?)
-	
-	going into areas deletes portals
-
-print stairs onto background to solve background overprinting on stairs
-
-blessed not showing up as an enchantment like cursed
 
 save and quit
 	the balrog
 	lives
+		need to handle them in the gameState as well as settings
 	the fucking quest menu list
+		need to test returning to a level to kill a quest monster
+		will any quest monster do?
 	
 	test player,minion save data
 		get inventory to work
@@ -82,6 +79,8 @@ create Editor in debug menu
 
 AI problems:
 	
+	climbing into monster's feet is a serious issue that needs a solution
+		trigger drop attack?
 	escape graph imperfect
 	meta-heuristic block - path too long
 		genius chase solver backup graph
