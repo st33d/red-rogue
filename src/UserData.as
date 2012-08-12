@@ -201,7 +201,7 @@ package {
 		}
 		
 		/* Push settings data to the shared object */
-		public static function saveSettings():void{
+		public static function saveSettings(saveAreaContent:Boolean = false):void{
 			settings.customKeys = Key.custom.slice();
 			settings.sfx = SoundManager.sfx;
 			settings.music = SoundManager.music;

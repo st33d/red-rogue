@@ -76,10 +76,10 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 419;
+		public static const BUILD_NUM:int = 420;
 		
 		public static const TEST_BED_INIT:Boolean = false;
-		public static const ONLINE:Boolean = true;
+		public static const ONLINE:Boolean = false;
 		
 		public static var game:Game;
 		public static var renderer:Renderer;
@@ -571,6 +571,8 @@
 			var enchantment:XML, effect:Effect;
 			
 			editor.deactivate();
+			// saving settings in an area would delete the content there
+			gameMenu.saveSettingsOption.active = type != Map.AREA;
 			
 			// maintain debug state if present
 			if(map && map.level == -1){

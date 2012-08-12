@@ -1,4 +1,4 @@
-Change log: increased quest xp reward, corrected typo preventing minion resurrection, lives added to settings as a permanently limited resource
+Change log: disabled saving settings in areas (a technical limitation of the way I unload and recycle level content)
 
 Bug hunt
 	collection lock out on chests after playing for a while - bugged chest or item?
@@ -10,6 +10,8 @@ Bug hunt
 	minion dither spotted - caught in a probable follow/avoid loop
 	shot troll with arrow - no aggro, why? - possible frozen monster occurence
 	chaos walls frozen without graphics rendered and no walls beneath them (activated, not on chaos wall render list?)
+	
+	saving settings from the menu in an area may wipe the portals there and cause a crash
 
 save and quit
 	the balrog
