@@ -1,4 +1,4 @@
-Change log: disabled saving settings in areas (a technical limitation of the way I unload and recycle level content)
+Change log: elbereth writing now summons a horror on first reading, most work on save and quit completed - further systems await testing/debug before going live
 
 Bug hunt
 	collection lock out on chests after playing for a while - bugged chest or item?
@@ -10,26 +10,21 @@ Bug hunt
 	minion dither spotted - caught in a probable follow/avoid loop
 	shot troll with arrow - no aggro, why? - possible frozen monster occurence
 	chaos walls frozen without graphics rendered and no walls beneath them (activated, not on chaos wall render list?)
-	
-	saving settings from the menu in an area may wipe the portals there and cause a crash
 
 save and quit
 	the balrog
-	lives
-		need to handle them in the gameState as well as settings
-	the fucking quest menu list
-		need to test returning to a level to kill a quest monster
-		will any quest monster do?
-	
-	test player,minion save data
+	*the fucking quest menu list
+	*player,minion save data
 		get inventory to work
-	build game from save object
+	*build game from save object
 		save Content to UserData
 		load Content from UserData
 
 exit reveal not going to work on big maps - solve
 	create feature hash in minimap
 	reveal by type
+
+add a vector to deaths to push decaptiated heads
 
 pocket portals not broken
 	check it works with debug
@@ -80,7 +75,7 @@ create Editor in debug menu
 		items
 
 AI problems:
-	
+	frozen monster syndrome
 	climbing into monster's feet is a serious issue that needs a solution
 		trigger drop attack?
 	escape graph imperfect

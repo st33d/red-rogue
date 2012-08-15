@@ -171,6 +171,21 @@ package com.robotacid.ui.menu {
 			options = Vector.<MenuOption>([options[0]]);
 		}
 		
+		public function loadFromArray(list:Array):void{
+			reset();
+			for(var i:int = 0; i < list.length; i++){
+				options.push(QuestMenuOption.fromXML(list[i]));
+			}
+		}
+		
+		public function saveToArray():Array{
+			var list:Array = [];
+			for(var i:int = 1; i < options.length; i++){
+				list.push((options[i] as QuestMenuOption).toXML());
+			}
+			return list;
+		}
+		
 	}
 
 }

@@ -295,9 +295,9 @@
 		}
 		
 		/* Inserts an item into the inventory using an XML */
-		public function addItemFromXML(itemXML:XML):Item{
+		public function addItemFromXML(itemXML:XML, print:Boolean = false):Item{
 			var item:Item = Content.XMLToEntity(0, 0, itemXML);
-			item.collect(game.player);
+			item.collect(game.player, print);
 			return item;
 		}
 		

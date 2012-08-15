@@ -96,14 +96,17 @@ package com.robotacid.gfx {
 				}
 				
 			} else if(mapLevel == Map.OVERWORLD && mapType == Map.AREA){
+				
+				// not sure I want to keep the following effect because the underworld is also an item warehouse
+				
 				// the overworld requires an effect over portals to imply the time loop spell
-				if(game.portals.length){
+				/*if(game.portals.length){
 					var portal:Portal;
 					for(i = 0; i < game.portals.length; i++){
 						portal = game.portals[i];
 						renderer.createSparkRect(new Rectangle(portal.rect.x, portal.rect.y, portal.rect.width, portal.rect.height), 2, 0, -1);
 					}
-				}
+				}*/
 			}
 		}
 		

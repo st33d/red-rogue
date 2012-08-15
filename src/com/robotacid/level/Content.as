@@ -217,9 +217,9 @@
 			Character.characterNumCount = 1;
 			
 			if(!gameState.chestsByLevel){
-				gameState.chestsByLevel = new Array(TOTAL_LEVELS + 1);
-				gameState.monstersByLevel = new Array(TOTAL_LEVELS + 1);
-				gameState.portalsByLevel = new Array(TOTAL_LEVELS + 1);
+				gameState.chestsByLevel = [];
+				gameState.monstersByLevel = [];
+				gameState.portalsByLevel = [];
 				gameState.trapsByLevel = [];
 				gameState.secretsByLevel = [];
 				gameState.altarsByLevel = [];
@@ -792,14 +792,13 @@
 		
 		/* This method tracks down monsters and items and pulls them back into the content manager to be sent out
 		 * again if the level is re-visited */
-		public function recycleLevel(mapType:int):void{
+		public function recycleLevel(mapLevel:int, mapType:int):void{
 			var i:int;
-			var level:int = game.map.level;
 			// no recycling debug
-			if(level < 0) return;
+			if(mapLevel < 0) return;
 			if(mapType == Map.MAIN_DUNGEON){
 				// if we've gone past the total level limit we need to create new content reserves on the fly
-				if(level == gameState.monstersByLevel.length){
+				if(mapLevel == gameState.monstersByLevel.length){
 					gameState.monstersByLevel.push([]);
 					gameState.chestsByLevel.push([]);
 					gameState.portalsByLevel.push([]);
@@ -807,20 +806,20 @@
 			}
 			// first we check the active list of entities
 			for(i = 0; i < game.entities.length; i++){
-				recycleEntity(game.entities[i], level, mapType);
+				recycleEntity(game.entities[i], mapLevel, mapType);
 			}
 			for(i = 0; i < game.items.length; i++){
-				recycleEntity(game.items[i], level, mapType);
+				recycleEntity(game.items[i], mapLevel, mapType);
 			}
 			if(game.balrog){
-				recycleEntity(game.balrog, level, mapType);
+				recycleEntity(game.balrog, mapLevel, mapType);
 				game.balrog = null;
 			}
 			var portal:Portal;
 			for(i = 0; i < game.portals.length; i++){
 				portal = game.portals[i];
 				if(portal.type != Portal.STAIRS && (portal.state == Portal.OPEN || portal.state == Portal.OPENING)){
-					recycleEntity(portal, level, mapType);
+					recycleEntity(portal, mapLevel, mapType);
 				}
 			}
 			// now we scour the entities layer of the renderer for more entities to convert to XML
@@ -832,11 +831,11 @@
 						if(tile is Array){
 							for(i = 0; i < tile.length; i++){
 								if(tile[i] is Entity){
-									recycleEntity(tile[i], level, mapType);
+									recycleEntity(tile[i], mapLevel, mapType);
 								}
 							}
 						} else if(tile is Entity){
-							recycleEntity(tile, level, mapType);
+							recycleEntity(tile, mapLevel, mapType);
 						}
 					}
 				}
@@ -845,8 +844,8 @@
 			//for(i = 0; i < monstersByLevel[level].length; i++){
 				//trace(monstersByLevel[level][i].toXMLString());
 			//}
-			//for(i = 0; i < chestsByLevel[level].length; i++){
-				//trace(chestsByLevel[level][i].toXMLString());
+			//for(i = 0; i < gameState.chestsByLevel[mapLevel].length; i++){
+				//trace(gameState.chestsByLevel[mapLevel][i].toXMLString());
 			//}
 		}
 		

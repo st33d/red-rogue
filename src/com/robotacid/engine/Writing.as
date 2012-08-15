@@ -24,6 +24,7 @@ package com.robotacid.engine {
 		public var level:int;
 		public var index:int;
 		public var rect:Rectangle;
+		public var firstReading:Boolean;
 		
 		private var read:Boolean;
 		
@@ -51,10 +52,12 @@ package com.robotacid.engine {
 			gfx.visible = false;
 			callMain = true;
 			addToEntities = true;
+			firstReading = false;
 			writings.push(this);
 		}
 		
 		override public function main():void {
+			var i:int, character:Character;
 			if(game.player.actions & Collider.UP){
 				if(
 					!read &&
@@ -65,6 +68,16 @@ package com.robotacid.engine {
 				){
 					game.console.print("\"" + text + "\"");
 					read = true;
+					if(!firstReading){
+						firstReading = true;
+						if(name == ELBERETH){
+							// summon a horror to attack any monster in range
+							if(Brain.monsterCharacters.length){
+								character = Brain.monsterCharacters[game.random.rangeInt(Brain.monsterCharacters.length)];
+								var effect:Effect = new Effect(Effect.FEAR, game.player.level, Effect.EATEN, character);
+							}
+						}
+					}
 				}
 			} else if(read){
 				read = false;
@@ -77,7 +90,6 @@ package com.robotacid.engine {
 					game.player.collider.y + game.player.collider.height > rect.y &&
 					rect.y + rect.height > game.player.collider.y
 				){
-					var i:int, character:Character;
 					for(i = 0; i < Brain.monsterCharacters.length; i++){
 						character = Brain.monsterCharacters[i];
 						if(character.brain && character.brain.target && character.brain.state == Brain.ATTACK){

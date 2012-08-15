@@ -49,6 +49,7 @@ package com.robotacid.ui.menu {
 			weaponsList = new MenuList();
 			armourList = new MenuList();
 			questsList = new QuestMenuList(menu);
+			questsList.loadFromArray(UserData.gameState.quests);
 			
 			mapInfo = new MenuInfo(renderMap, true);
 			logInfo = new MenuInfo(renderLog);

@@ -9,6 +9,7 @@ package {
 	import com.robotacid.ui.Key;
 	import com.robotacid.ui.menu.Menu;
 	import com.robotacid.ui.menu.MenuOption;
+	import com.robotacid.util.XorRandom;
 	import flash.ui.Keyboard;
 	import flash.net.SharedObject;
 	import flash.utils.ByteArray;
@@ -32,6 +33,8 @@ package {
 		public static var settingsBytes:ByteArray;
 		public static var gameStateBytes:ByteArray;
 		
+		public static var disabled:Boolean = false;
+		
 		private static var i:int;
 		
 		public function UserData() {
@@ -39,6 +42,8 @@ package {
 		}
 		
 		public static function push(settingsOnly:Boolean = false):void{
+			if(disabled) return;
+			
 			var sharedObject:SharedObject = SharedObject.getLocal("red_rogue");
 			// SharedObject.data has a nasty habit of writing direct to the file
 			// even when you're not asking it to. So we offload into a ByteArray instead.
@@ -57,17 +62,21 @@ package {
 		}
 		
 		public static function pull():void{
+			if(disabled) return;
+			
 			var sharedObject:SharedObject = SharedObject.getLocal("red_rogue");
+			
+			// comment out the following blocks to flush save state bugs
 			
 			// the overwrite method is used to ensure older save data does not delete new features
 			if(sharedObject.data.settingsBytes){
 				settingsBytes = sharedObject.data.settingsBytes;
 				overwrite(settings, settingsBytes.readObject());
 			}
-			/*if(sharedObject.data.gameState){
+			if(sharedObject.data.gameStateBytes){
 				gameStateBytes = sharedObject.data.gameStateBytes;
 				overwrite(gameState, gameStateBytes.readObject());
-			}*/
+			}/**/
 			settingsBytes = null;
 			gameStateBytes = null;
 			sharedObject.flush();
@@ -83,7 +92,7 @@ package {
 		/* Overwrites matching variable names with source to target */
 		public static function overwrite(target:Object, source:Object):void{
 			for(var key:String in source){
-				if(target.hasOwnProperty(key)) target[key] = source[key];
+				target[key] = source[key];
 			}
 		}
 		
@@ -113,7 +122,9 @@ package {
 					hearts:[]
 				},
 				runeNames:[],
-				storyCharCodes:[]
+				storyCharCodes:[],
+				quests:[],
+				randomSeed:XorRandom.seedFromDate()
 			};
 			
 			for(i = 0; i < Game.MAX_LEVEL; i++){
@@ -123,12 +134,12 @@ package {
 			gameState.runeNames[Item.IDENTIFY] = Item.stats["rune names"][Item.IDENTIFY];
 		}
 		
-		public static function saveGameState():void{
+		public static function saveGameState(currentLevel:int, currentMapType:int):void{
 			gameState.player.previousLevel = Player.previousLevel;
 			gameState.player.previousPortalType = Player.previousPortalType;
 			gameState.player.previousMapType = Player.previousMapType;
-			gameState.player.currentLevel = game.map.level;
-			gameState.player.currentMapType = game.map.type;
+			gameState.player.currentLevel = currentLevel;
+			gameState.player.currentMapType = currentMapType;
 			gameState.player.xml = game.player.toXML();
 			gameState.player.health = game.player.health;
 			gameState.player.xp = game.player.xp;
@@ -137,6 +148,7 @@ package {
 				gameState.minion.health = game.minion.health;
 			}
 			gameState.inventory = game.gameMenu.inventoryList.saveToObject();
+			gameState.quests = game.gameMenu.loreList.questsList.saveToArray();
 		}
 		
 		/* Create the default settings object to initialise the game from */
@@ -201,7 +213,7 @@ package {
 		}
 		
 		/* Push settings data to the shared object */
-		public static function saveSettings(saveAreaContent:Boolean = false):void{
+		public static function saveSettings():void{
 			settings.customKeys = Key.custom.slice();
 			settings.sfx = SoundManager.sfx;
 			settings.music = SoundManager.music;

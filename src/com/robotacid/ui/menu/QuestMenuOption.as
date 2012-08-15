@@ -21,11 +21,12 @@ package com.robotacid.ui.menu {
 		
 		public static const XP_REWARD:Number = 1 / 15;
 		
-		public static const COLLECT:int = 0;
-		public static const KILL:int = 1;
-		public static const MACGUFFIN:int = 2;
+		// quest types - a type of 0 is given when constructing from xml
+		public static const COLLECT:int = 1;
+		public static const KILL:int = 2;
+		public static const MACGUFFIN:int = 3;
 		
-		public function QuestMenuOption(type:int, commissioner:String, subject:Character = null) {
+		public function QuestMenuOption(type:int = 0, commissioner:String = "", subject:Character = null) {
 			this.type = type;
 			this.commissioner = commissioner;
 			if(type == COLLECT){
@@ -49,6 +50,20 @@ package com.robotacid.ui.menu {
 		public function collect():void{
 			num--;
 			name = "collect " + num + " gems";
+		}
+		
+		public function toXML():XML{
+			return <quest name={name} type={type} num={num} commissioner={commissioner} xpReward={xpReward} />;
+		}
+		
+		public static function fromXML(xml:XML):QuestMenuOption{
+			var option:QuestMenuOption = new QuestMenuOption();
+			option.name = xml.@name;
+			option.type = xml.@type;
+			option.num = xml.@num;
+			option.commissioner = xml.@commissioner;
+			option.xpReward = Number(xml.@xpReward);
+			return option;
 		}
 		
 	}

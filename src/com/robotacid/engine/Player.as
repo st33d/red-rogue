@@ -123,8 +123,6 @@
 			xp = 0;
 			game.playerXpBar.setValue(0, 1);
 			
-			game.console.print("welcome rogue");
-			
 			inventory = game.gameMenu.inventoryList;
 			
 			brain = new PlayerBrain(this);

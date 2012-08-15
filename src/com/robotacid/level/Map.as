@@ -346,6 +346,7 @@
 			var portalXMLs:Array = game.content.getPortals(level, type);
 			var portalType:int;
 			if(type == MAIN_DUNGEON){
+				
 				createAccessPoint(Portal.STAIRS, sortRoomsTopWards);
 				for(i = 0; i < portalXMLs.length; i++){
 					portalType = portalXMLs[i].@type;

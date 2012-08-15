@@ -76,7 +76,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 420;
+		public static const BUILD_NUM:int = 421;
 		
 		public static const TEST_BED_INIT:Boolean = false;
 		public static const ONLINE:Boolean = false;
@@ -321,7 +321,10 @@
 		/* The initialisation is quite long, so I'm breaking it up with some comment lines */
 		private function init():void {
 			
-			Map.random = new XorRandom(Map.seed);
+			// settings seed has priority over gameState
+			var randomSeed:uint = Map.seed ? Map.seed : uint(UserData.gameState.randomSeed);
+			
+			Map.random = new XorRandom(randomSeed);
 			
 			renderer.createRenderLayers(this);
 			
@@ -551,6 +554,7 @@
 		
 		/* Enters the testing area */
 		public function launchTestBed():void{
+			UserData.disabled = true;
 			setLevel( -1, Map.MAIN_DUNGEON);
 			gameMenu.editorList.setLight(gameMenu.editorList.lightList.selection);
 		}
@@ -585,18 +589,18 @@
 			if(map){
 				// left over content needs to be pulled back into the content manager to be found
 				// if the level is visited again
-				content.recycleLevel(map.type);
+				content.recycleLevel(map.level, map.type);
 			
 				// capture gameState
-				UserData.gameState.currentLevel = level;
-				UserData.gameState.currentMapType = type;
 				
 				// save data here
 				UserData.saveSettings();
-				UserData.saveGameState();
+				UserData.saveGameState(level, type);
 				UserData.push();
 			}
 			
+			var mapNameStr:String = Map.getName(level, type);
+			if(type == Map.MAIN_DUNGEON) mapNameStr += ":" + level;
 			
 			// elements to update:
 			
@@ -645,6 +649,8 @@
 			renderer.blockBitmapData = renderer.backBitmapData.clone();
 			if(type != Map.AREA){
 				renderer.blockBitmapData = mapTileManager.layerToBitmapData(MapTileManager.BLOCK_LAYER, renderer.blockBitmapData);
+			} else {
+				mapTileManager.setLayerUpdate(MapTileManager.BLOCK_LAYER, false);
 			}
 			
 			// modify the mapRect to conceal secrets
@@ -675,8 +681,8 @@
 				miniMap.y = miniMap.x = 5;
 			} else {
 				miniMap.newMap(world.map);
-				if(map.type != Map.AREA && map.completionCount == 0) miniMap.reveal();
 			}
+			if(map.type != Map.AREA && map.completionCount == 0) miniMap.reveal();
 			
 			if(!player){
 				var playerMc:MovieClip = new RogueMC();
@@ -696,6 +702,7 @@
 					if(UserData.gameState.player.health) player.health = UserData.gameState.player.health;
 					player.applyHealth(0);
 					player.addXP(0);
+					levelNumGfx.gotoAndStop(player.level);
 					for each(enchantment in playerXML.effect){
 						effect = new Effect(int(enchantment.@name), int(enchantment.@level), int(enchantment.@source), player, int(enchantment.@count));
 					}
@@ -714,8 +721,10 @@
 							effect = new Effect(int(enchantment.@name), int(enchantment.@level), int(enchantment.@source), minion, int(enchantment.@count));
 						}
 					}
+					game.console.print("welcome back rogue (" + mapNameStr + ")");
+				} else {
+					game.console.print("welcome rogue");
 				}
-				
 				
 				player.snapCamera();
 			} else {
@@ -757,8 +766,6 @@
 				
 				renderer.lightBitmap.visible = false;
 				miniMap.visible = false;
-				keyItemStatus.visible = false;
-				mapTileManager.setLayerUpdate(MapTileManager.BLOCK_LAYER, false);
 				SoundManager.fadeMusic("music1", -SoundManager.DEFAULT_FADE_STEP);
 				
 				// the overworld changes the rogue to a colour version and reverts all polymorph effects
@@ -813,8 +820,6 @@
 			}
 			changeMusic();
 			
-			var mapNameStr:String = Map.getName(level, type);
-			if(type == Map.MAIN_DUNGEON) mapNameStr += ":" + level;
 			trackEvent("set level", mapNameStr);
 		}
 		

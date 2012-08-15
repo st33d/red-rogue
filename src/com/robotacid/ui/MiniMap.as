@@ -138,7 +138,7 @@
 				if(portal && !portal.seen) portal.reveal();
 			}
 			triggerFlashPrompt();
-			render();
+			if(game.player) render();
 		}
 		
 		public function render():void {
