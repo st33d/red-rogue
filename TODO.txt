@@ -1,4 +1,4 @@
-Change log: elbereth writing now summons a horror on first reading, most work on save and quit completed - further systems await testing/debug before going live
+Change log: fixed bug with portals not executing main() when reinstated by MapTileManager, save and quit functional - appears stable, round of bug fixing before upload
 
 Bug hunt
 	collection lock out on chests after playing for a while - bugged chest or item?
@@ -9,20 +9,20 @@ Bug hunt
 	patrol bug spotted - a monster will become frozen in its patrol cycle
 	minion dither spotted - caught in a probable follow/avoid loop
 	shot troll with arrow - no aggro, why? - possible frozen monster occurence
+	balrog frozen after smite attack, stuck to wall - no further info (perhaps secret wall?)
+	balrog death throws error when next changing level
+	permanent stun lock in werewolf race (stun effect + melee stun + stomp stun?)
+	level clearing not permanent - delete all content stocks for a level? or mark a level complete (item dropping)?
+	level up whilst sleeping crashes game?
+	
 	chaos walls frozen without graphics rendered and no walls beneath them (activated, not on chaos wall render list?)
 
 save and quit
 	the balrog
-	*the fucking quest menu list
-	*player,minion save data
-		get inventory to work
-	*build game from save object
-		save Content to UserData
-		load Content from UserData
 
 exit reveal not going to work on big maps - solve
 	create feature hash in minimap
-	reveal by type
+	reveal by type plus location from map object before entities
 
 add a vector to deaths to push decaptiated heads
 
@@ -75,9 +75,10 @@ create Editor in debug menu
 		items
 
 AI problems:
-	frozen monster syndrome
 	climbing into monster's feet is a serious issue that needs a solution
 		trigger drop attack?
+		explore ladder?
+	frozen monster syndrome
 	escape graph imperfect
 	meta-heuristic block - path too long
 		genius chase solver backup graph

@@ -160,6 +160,7 @@
 					}
 					// resurrect the minion if dead
 					if(!game.minion){
+						UserData.initMinion();
 						var mc:MovieClip = new SkeletonMC();
 						game.minion = new Minion(mc, rect.x + rect.width * 0.5, rect.y + rect.height, Character.SKELETON);
 						game.entities.push(game.minion);

@@ -76,7 +76,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 421;
+		public static const BUILD_NUM:int = 422;
 		
 		public static const TEST_BED_INIT:Boolean = false;
 		public static const ONLINE:Boolean = false;
@@ -703,6 +703,7 @@
 					player.applyHealth(0);
 					player.addXP(0);
 					levelNumGfx.gotoAndStop(player.level);
+					player.keyItem = UserData.gameState.player.keyItem;
 					for each(enchantment in playerXML.effect){
 						effect = new Effect(int(enchantment.@name), int(enchantment.@level), int(enchantment.@source), player, int(enchantment.@count));
 					}

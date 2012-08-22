@@ -109,11 +109,8 @@ package {
 					currentMapType:Map.MAIN_DUNGEON,
 					xml:null,
 					health:0,
-					xp:0
-				},
-				minion:{
-					xml:null,
-					health:0
+					xp:0,
+					keyItem:false
 				},
 				inventory:{
 					weapons:[],
@@ -127,11 +124,20 @@ package {
 				randomSeed:XorRandom.seedFromDate()
 			};
 			
+			initMinion();
+			
 			for(i = 0; i < Game.MAX_LEVEL; i++){
 				gameState.runeNames.push("?");
 			}
 			// the identify rune's name is already known (obviously)
 			gameState.runeNames[Item.IDENTIFY] = Item.stats["rune names"][Item.IDENTIFY];
+		}
+		
+		public static function initMinion():void{
+			gameState.minion = {
+				xml:null,
+				health:0
+			};
 		}
 		
 		public static function saveGameState(currentLevel:int, currentMapType:int):void{
@@ -143,6 +149,7 @@ package {
 			gameState.player.xml = game.player.toXML();
 			gameState.player.health = game.player.health;
 			gameState.player.xp = game.player.xp;
+			gameState.player.keyItem = game.player.keyItem;
 			if(gameState.minion){
 				gameState.minion.xml = game.minion.toXML();
 				gameState.minion.health = game.minion.health;

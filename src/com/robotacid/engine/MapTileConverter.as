@@ -371,7 +371,6 @@
 				if(obj is Chest || obj is Altar){
 					game.items.push(obj);
 				} else if(obj is Portal){
-					if(obj.seen) obj.callMain = false;
 					game.portals.push(obj);
 				} else if(obj is ColliderEntity){
 					game.world.restoreCollider(obj.collider);

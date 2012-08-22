@@ -516,7 +516,7 @@
 				runes:[],
 				hearts:[]
 			}
-			var i:int, item:Item;
+			var i:int, item:Item, optionStack:MenuOptionStack, stack:int;
 			if(weaponsList.options.length){
 				for(i = 0; i < weaponsList.options.length; i++){
 					item = weaponsList.options[i].userData as Item;
@@ -531,14 +531,18 @@
 			}
 			if(runesList.options.length){
 				for(i = 0; i < runesList.options.length; i++){
+					optionStack = runesList.options[i] as MenuOptionStack;
+					stack = optionStack.total;
 					item = runesList.options[i].userData as Item;
-					if(item) obj.runes.push(item.toXML());
+					if(item) while(stack--) obj.runes.push(item.toXML());
 				}
 			}
 			if(heartsList.options.length){
 				for(i = 0; i < heartsList.options.length; i++){
+					optionStack = heartsList.options[i] as MenuOptionStack;
+					stack = optionStack.total;
 					item = heartsList.options[i].userData as Item;
-					if(item) obj.hearts.push(item.toXML());
+					if(item) while(stack--) obj.hearts.push(item.toXML());
 				}
 			}
 			return obj;
@@ -559,8 +563,8 @@
 					xml = itemList[j];
 					item = addItemFromXML(xml);
 					userName = xml.@user;
-					if(item.location == Item.EQUIPPED){
-						equippedToThrowable = xml.@equippedToThrowable == true;
+					if(int(xml.@location) == Item.EQUIPPED){
+						equippedToThrowable = xml.@equippedToThrowable == "true";
 						if(userName == playerName){
 							game.player.equip(item, equippedToThrowable);
 						} else if(game.minion && userName == minionName){
