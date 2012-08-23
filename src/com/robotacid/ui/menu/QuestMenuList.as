@@ -109,7 +109,7 @@ package com.robotacid.ui.menu {
 					option = options[i] as QuestMenuOption;
 					if(option.type == QuestMenuOption.COLLECT){
 						option.collect();
-						if(--game.map.completionCount == 0) game.levelCompleteMsg();
+						if(--game.map.completionCount == 0) game.levelComplete();
 						if(option.num == 0){
 							options.splice(i, 1);
 							questComplete(option);

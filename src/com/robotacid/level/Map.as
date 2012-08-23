@@ -56,6 +56,7 @@
 		public var zone:int;
 		public var completionCount:int;
 		public var completionTotal:int;
+		public var cleared:Boolean;
 		
 		public var bitmap:MapBitmap;
 		
@@ -383,6 +384,8 @@
 			createCritters();
 			
 			completionTotal = completionCount;
+			cleared = game.content.getCleared(level, type);
+			if(cleared) completionTotal = completionCount = 0;
 		}
 		
 		/* Create the overworld
@@ -631,6 +634,7 @@
 				(posAbove != MapBitmap.WALL && posAbove != MapBitmap.GATE) &&
 				(posLeft != MapBitmap.WALL && posRight != MapBitmap.WALL) &&
 				(posLeft != MapBitmap.GATE && posRight != MapBitmap.GATE) &&
+				(posLeft != MapBitmap.SECRET && posRight != MapBitmap.SECRET) &&
 				(posBelow == MapBitmap.WALL || (posBelow == MapBitmap.LEDGE && ledgeAllowed)) &&
 				(pos == MapBitmap.EMPTY || pos == MapBitmap.LEDGE)
 			);

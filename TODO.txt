@@ -1,4 +1,4 @@
-Change log: fixed bug with portals not executing main() when reinstated by MapTileManager, save and quit functional - appears stable, round of bug fixing before upload
+Change log: quickening is delayed until a character is awake, player.quickenQueued wakes the player, stopped stairs spawning next to secret walls, cleared levels are now marked "cleared" - allowing items to be left there without the minimap going dark again, changed stun/confusion/chaos armour effects to have variable delays like teleport armour, minimap now reveals stairs that are far away, fixed death by bleed effect crashing game
 
 Bug hunt
 	collection lock out on chests after playing for a while - bugged chest or item?
@@ -11,24 +11,19 @@ Bug hunt
 	shot troll with arrow - no aggro, why? - possible frozen monster occurence
 	balrog frozen after smite attack, stuck to wall - no further info (perhaps secret wall?)
 	balrog death throws error when next changing level
-	permanent stun lock in werewolf race (stun effect + melee stun + stomp stun?)
-	level clearing not permanent - delete all content stocks for a level? or mark a level complete (item dropping)?
-	level up whilst sleeping crashes game?
 	
 	chaos walls frozen without graphics rendered and no walls beneath them (activated, not on chaos wall render list?)
+
+
+ladder camping ai
+	
+
+
 
 save and quit
 	the balrog
 
-exit reveal not going to work on big maps - solve
-	create feature hash in minimap
-	reveal by type plus location from map object before entities
-
 add a vector to deaths to push decaptiated heads
-
-pocket portals not broken
-	check it works with debug
-	teleport to stairs in debug broken?
 
 the balrog
 	jumping ai

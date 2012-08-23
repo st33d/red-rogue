@@ -128,7 +128,7 @@
 			game.soundQueue.add("chestOpen");
 			contents = null;
 			callMain = false;
-			if(--game.map.completionCount == 0) game.levelCompleteMsg();
+			if(--game.map.completionCount == 0) game.levelComplete();
 		}
 		
 		/* Replaces this Entity with a Monster */

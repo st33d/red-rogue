@@ -164,7 +164,7 @@
 			}
 			collider.world.removeCollider(collider);
 			game.content.removeSecret(game.map.level, game.map.type);
-			if(--game.map.completionCount == 0) game.levelCompleteMsg();
+			if(--game.map.completionCount == 0) game.levelComplete();
 		}
 		
 		/* A search action can reveal to the player where a secret wall is */

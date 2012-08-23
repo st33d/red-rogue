@@ -26,7 +26,6 @@
 	import com.robotacid.ui.menu.QuestMenuList;
 	import com.robotacid.ui.menu.QuestMenuOption;
 	import com.robotacid.ui.ProgressBar;
-	import com.robotacid.ui.QuickSave;
 	import com.robotacid.ui.TextBox;
 	import com.robotacid.ui.MiniMap;
 	import com.robotacid.ui.Key;
@@ -76,10 +75,10 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 422;
+		public static const BUILD_NUM:int = 423;
 		
 		public static const TEST_BED_INIT:Boolean = false;
-		public static const ONLINE:Boolean = false;
+		public static const ONLINE:Boolean = true;
 		
 		public static var game:Game;
 		public static var renderer:Renderer;
@@ -682,7 +681,7 @@
 			} else {
 				miniMap.newMap(world.map);
 			}
-			if(map.type != Map.AREA && map.completionCount == 0) miniMap.reveal();
+			if(map.type != Map.AREA && map.cleared) miniMap.reveal();
 			
 			if(!player){
 				var playerMc:MovieClip = new RogueMC();
@@ -888,7 +887,10 @@
 					
 					if(player.active){
 						player.main();
-						if(player.asleep) sleep.main();
+						if(player.asleep){
+							sleep.main();
+							if(player.quickenQueued) player.setAsleep(false);
+						}
 						if(transition.active) return;
 					}
 					
@@ -1091,11 +1093,12 @@
 		}
 		
 		/* Called when all salient features in the dungeon level are dealt with */
-		public function levelCompleteMsg():void{
+		public function levelComplete():void{
 			var nameStr:String;
 			if(game.map.type == Map.MAIN_DUNGEON) nameStr = "level " + game.map.level;
 			else nameStr = Map.getName(game.map.level, game.map.type);
 			console.print(nameStr + " cleared");
+			map.cleared = true;
 			content.clearLevel(map.level, map.type);
 			game.soundQueue.add("ping");
 			miniMap.reveal();
@@ -1194,6 +1197,9 @@
 			}
 			if(Key.isDown(Key.T)){
 				miniMap.reveal();
+			}
+			if(Key.isDown(Key.T)){
+				player.levelUp();
 			}
 			if(Key.isDown(Key.R)){
 				reset();

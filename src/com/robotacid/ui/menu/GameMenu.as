@@ -20,7 +20,6 @@
 	import com.robotacid.ui.Dialog;
 	import com.robotacid.ui.Editor;
 	import com.robotacid.ui.FileManager;
-	import com.robotacid.ui.QuickSave;
 	import flash.display.BitmapData;
 	import flash.display.StageScaleMode;
 	import flash.events.Event;
@@ -534,6 +533,7 @@
 		override public function executeSelection():void{
 			var option:MenuOption = currentMenuList.options[selection];
 			var item:Item, n:int, i:int, effect:Effect, prevItem:Item, character:Character, throwing:Boolean;
+			var targetLevel:int, targetType:int;
 			var health:Number;
 			
 			// equipping items on the player - toggle logic follows
@@ -901,8 +901,10 @@
 			// teleporting
 			} else if(currentMenuList == portalTeleportList){
 				if(option == stairsDownPortalOption) teleportToPortal(Portal.STAIRS, game.map.level + 1, Map.MAIN_DUNGEON);
-				else if(option == stairsUpPortalOption) teleportToPortal(Portal.STAIRS, game.map.level - 1, Map.MAIN_DUNGEON);
-				else if(option == overworldPortalOption) teleportToPortal(Portal.PORTAL, Map.OVERWORLD, Map.AREA);
+				else if(option == stairsUpPortalOption){
+					targetType = game.map.level == 1 ? Map.AREA : Map.MAIN_DUNGEON;
+					teleportToPortal(Portal.STAIRS, game.map.level - 1, targetType);
+				} else if(option == overworldPortalOption) teleportToPortal(Portal.PORTAL, Map.OVERWORLD, Map.AREA);
 				else if(option == underworldPortalOption) teleportToPortal(Portal.PORTAL, Map.UNDERWORLD, Map.AREA);
 				
 			// launching the test bed
@@ -1002,7 +1004,7 @@
 			for(i = 0; i < game.portals.length; i++){
 				portal = game.portals[i];
 				if(
-					portal.type == type && portal.targetLevel == portal.targetLevel && portal.targetType == targetType
+					portal.type == type && portal.targetLevel == targetLevel && portal.targetType == targetType
 				){
 					Effect.teleportCharacter(game.player, new Pixel(portal.mapX, portal.mapY));
 					return;

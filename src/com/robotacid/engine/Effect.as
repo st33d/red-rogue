@@ -168,6 +168,9 @@
 					count--;
 					if(!target.undead){
 						target.applyDamage(healthStep, nameToString(), 0, false, null, false);
+						// death of the target orphans this object
+						if(!active) return;
+						
 						// drip blood
 						var blit:BlitRect, print:BlitRect;
 						if(game.random.coinFlip()){
@@ -266,7 +269,6 @@
 				} else {
 					if(target.state == Character.WALKING){
 						teleportCharacter(target);
-						// a variable count is needed, constant teleport is too powerful
 						count = (20 - game.random.rangeInt(level)) * ARMOUR_COUNTDOWN_STEP;
 					}
 				}
@@ -276,7 +278,7 @@
 				else {
 					if(target.state == Character.WALKING){
 						target.applyStun(level * STUN_PER_LEVEL);
-						count = (21 - level) * ARMOUR_COUNTDOWN_STEP;
+						count = (20 - game.random.rangeInt(level)) * ARMOUR_COUNTDOWN_STEP;
 					}
 				}
 			} else if(name == FEAR){
@@ -294,7 +296,7 @@
 				else {
 					if(target.state == Character.WALKING){
 						target.brain.confuse(CONFUSION_PER_LEVEL);
-						count = (21 - level) * ARMOUR_COUNTDOWN_STEP;
+						count = (20 - game.random.rangeInt(level)) * ARMOUR_COUNTDOWN_STEP;
 					}
 				}
 			} else if(name == CHAOS){
@@ -303,7 +305,7 @@
 				else {
 					if(target.state == Character.WALKING){
 						var effect:Effect = new Effect(CHAOS, game.random.rangeInt(Game.MAX_LEVEL), EATEN, target);
-						count = (21 - level) * ARMOUR_COUNTDOWN_STEP;
+						count = (20 - game.random.rangeInt(level)) * ARMOUR_COUNTDOWN_STEP;
 					}
 				}
 			}

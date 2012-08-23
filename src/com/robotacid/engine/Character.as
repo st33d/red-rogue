@@ -471,7 +471,7 @@
 			if(moveSpeedTemp > MAX_SPEED_MODIFIER) moveSpeedTemp = MAX_SPEED_MODIFIER;
 			
 			// is the character queued to quicken?
-			if(quickenQueued && (state == WALKING || state == LUNGING || state == STUNNED)){
+			if(quickenQueued && !asleep && (state == WALKING || state == LUNGING || state == STUNNED)){
 				quicken();
 			}
 			
@@ -894,6 +894,7 @@
 		
 		/* Advances the character to the next level */
 		public function levelUp():void{
+			if(level >= Game.MAX_LEVEL) return;
 			level++;
 			setStats();
 			applyHealth(totalHealth);

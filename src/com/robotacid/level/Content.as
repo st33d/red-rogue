@@ -48,6 +48,7 @@
 		//public var altarsByLevel:Array/*int*/;
 		//public var seedsByLevel:Array/*uint*/;
 		//public var monsterXpByLevel:Array/*Number*/;
+		//public var clearedByLevel:Array/*Number*/;
 		
 		//private var levelZones:Array/*int*/;
 		//private var zoneSizes:Array/*int*/;
@@ -119,8 +120,10 @@
 			
 			if(!gameState.monsterXpByLevel){
 				gameState.monsterXpByLevel = [0];
+				gameState.clearedByLevel = [false];
 				for(level = 1; level <= Game.MAX_LEVEL; level++){
 					gameState.monsterXpByLevel.push(getLevelXp(level) * MONSTER_XP_BY_LEVEL_RATE);
+					gameState.clearedByLevel.push(false);
 				}
 			}
 			
@@ -471,6 +474,7 @@
 			var chests:Array/*XML*/;
 			var questGems:int = 0;
 			var completionCount:int = 0;
+			var cleared:Boolean;
 			var room:Room;
 			var surface:Surface;
 			var name:int;
@@ -483,6 +487,7 @@
 					chests = gameState.chestsByLevel[mapLevel];
 					questGems = gameState.questGemsByLevel[mapLevel];
 					monsterXp = gameState.monsterXpByLevel[mapLevel];
+					cleared = gameState.clearedByLevel[mapLevel];
 					gameState.questGemsByLevel[mapLevel] = 0;
 					gameState.monsterXpByLevel[mapLevel] = 0;
 				} else {
@@ -491,6 +496,7 @@
 					chests = gameState.chestsByLevel[mapLevel] = obj.chests;
 					gameState.questGemsByLevel[mapLevel] = 0;
 					gameState.monsterXpByLevel[mapLevel] = 0;
+					gameState.clearedByLevel[mapLevel] = false;
 					monsterXp = 0;
 					questGems = 0;
 				}
@@ -499,6 +505,7 @@
 				chests = gameState.itemDungeonContent.chests;
 				questGems = gameState.itemDungeonContent.questGems;
 				monsterXp = gameState.itemDungeonContent.monsterXp;
+				cleared = gameState.itemDungeonContent.cleared;
 				gameState.itemDungeonContent.questGems = 0;
 				gameState.itemDungeonContent.monsterXp = 0;
 			}
@@ -672,6 +679,17 @@
 			}
 		}
 		
+		/* Returns the level clearing marker */
+		public function getCleared(dungeonLevel:int, dungeonType:int):Boolean{
+			if(dungeonType == Map.MAIN_DUNGEON){
+				while(dungeonLevel >= gameState.clearedByLevel.length) gameState.clearedByLevel.push(false);
+				return gameState.clearedByLevel[dungeonLevel];
+			} else if(dungeonType == Map.ITEM_DUNGEON){
+				return gameState.itemDungeonContent.cleared;
+			}
+			return false;
+		}
+		
 		/* Fetch all portals on a level - used by Map to create portal access points */
 		public function getPortals(level:int, mapType:int):Array{
 			var list:Array = [];
@@ -784,9 +802,11 @@
 			if(dungeonType == Map.MAIN_DUNGEON){
 				gameState.trapsByLevel[dungeonLevel] = 0;
 				gameState.secretsByLevel[dungeonLevel] = 0;
+				gameState.clearedByLevel[dungeonLevel] = true;
 			} else if(dungeonType == Map.ITEM_DUNGEON){
 				gameState.itemDungeonContent.traps = 0;
 				gameState.itemDungeonContent.secrets = 0;
+				gameState.itemDungeonContent.cleared = true;
 			}
 		}
 		

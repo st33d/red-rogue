@@ -199,14 +199,23 @@
 		/* Creates the appropriate minimap feature for the portal */
 		public function reveal():void{
 			seen = true;
-			var blit:BlitClip;
+			var blit:BlitClip, item:MinimapFX;
 			if(type == STAIRS){
 				if(targetLevel < game.map.level) {
 					blit = renderer.stairsUpFeatureBlit;
 				} else if(targetLevel > game.map.level){
 					blit = renderer.stairsDownFeatureBlit;
 				} else {
+					// if we are here, something is wrong with the stairs
 					blit = renderer.portalFeatureBlit;
+				}
+				// fetch for an existing minimap feature that may have been created by a map reveal
+				for(var i:int = 0; i < game.miniMap.fx.length; i++){
+					item = game.miniMap.fx[i];
+					if(item.blit == blit){
+						minimapFX = item;
+						return;
+					}
 				}
 			} else {
 				blit = renderer.portalFeatureBlit;

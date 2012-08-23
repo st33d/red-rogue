@@ -133,7 +133,7 @@
 			}
 			
 			Brain.monsterCharacters.splice(Brain.monsterCharacters.indexOf(this), 1);
-			if(--game.map.completionCount == 0) game.levelCompleteMsg();
+			if(--game.map.completionCount == 0) game.levelComplete();
 		}
 		
 		override public function remove():void {

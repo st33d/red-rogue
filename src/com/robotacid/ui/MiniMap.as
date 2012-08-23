@@ -127,11 +127,18 @@
 			if(game.map.stairsUp){
 				portal = game.mapTileManager.getTile(game.map.stairsUp.x, game.map.stairsUp.y, MapTileManager.ENTITY_LAYER) as Portal;
 				if(portal && !portal.seen) portal.reveal();
+				else {
+					// create a marker for STAIRS to pick up when created
+					addFeature(game.map.stairsUp.x, game.map.stairsUp.y, renderer.stairsUpFeatureBlit, true);
+				}
 			}
 			if(game.map.stairsDown){
-				portal = game.mapTileManager.mapLayers[MapTileManager.ENTITY_LAYER][game.map.stairsDown.y][game.map.stairsDown.x] as Portal;
 				portal = game.mapTileManager.getTile(game.map.stairsDown.x, game.map.stairsDown.y, MapTileManager.ENTITY_LAYER) as Portal;
 				if(portal && !portal.seen) portal.reveal();
+				else {
+					// create a marker for STAIRS to pick up when created
+					addFeature(game.map.stairsDown.x, game.map.stairsDown.y, renderer.stairsDownFeatureBlit, true);
+				}
 			}
 			for(i = 0; i < game.map.portals.length; i++){
 				portal = game.mapTileManager.getTile(game.map.portals[i].x, game.map.portals[i].y, MapTileManager.ENTITY_LAYER) as Portal;
