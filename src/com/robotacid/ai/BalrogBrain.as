@@ -208,7 +208,7 @@ package com.robotacid.ai {
 		
 		override public function clear():void{
 			target = null;
-			patrolAreaSet = false;
+			patrolState = INIT;
 			state = ESCAPE;
 			altNode = null;
 			// drop from ladder

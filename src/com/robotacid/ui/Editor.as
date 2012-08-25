@@ -179,7 +179,7 @@ package com.robotacid.ui {
 							(character.brain.altNode.y + 0.5) * Game.SCALE,
 						Game.SCALE * 0.2);
 					} else {
-						if(character.brain.patrolAreaSet){
+						if(character.brain.patrolState){
 							gfx.lineStyle(2, 0x0000FF, 0.5);
 							gfx.drawCircle(character.brain.patrolMinX, (character.mapY + 0.5) * Game.SCALE, Game.SCALE * 0.2);
 							gfx.drawCircle(character.brain.patrolMaxX, (character.mapY + 0.5) * Game.SCALE, Game.SCALE * 0.2);

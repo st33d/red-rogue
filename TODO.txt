@@ -1,4 +1,4 @@
-Change log: quickening is delayed until a character is awake, player.quickenQueued wakes the player, stopped stairs spawning next to secret walls, cleared levels are now marked "cleared" - allowing items to be left there without the minimap going dark again, changed stun/confusion/chaos armour effects to have variable delays like teleport armour, minimap now reveals stairs that are far away, fixed death by bleed effect crashing game
+Change log: contact with a character's leader now draws aggro (minion will rush to rogue's aid), player allies no longer attack any gates other than RAISE gates, monsters now check for being in one tile wide enclosures to drop out of (prevents monsters ladder camping after fleeing), monsters now explore ladders randomly (solves monsters patrolling in pits and circulates population), patrolState replaces patrolAreaSet
 
 Bug hunt
 	collection lock out on chests after playing for a while - bugged chest or item?
@@ -6,18 +6,12 @@ Bug hunt
 	null Monster collider.world spotted - why?
 	full crash observed in chaos - game frozen, menu operational
 	
-	patrol bug spotted - a monster will become frozen in its patrol cycle
 	minion dither spotted - caught in a probable follow/avoid loop
 	shot troll with arrow - no aggro, why? - possible frozen monster occurence
 	balrog frozen after smite attack, stuck to wall - no further info (perhaps secret wall?)
 	balrog death throws error when next changing level
 	
 	chaos walls frozen without graphics rendered and no walls beneath them (activated, not on chaos wall render list?)
-
-
-ladder camping ai
-	
-
 
 
 save and quit
@@ -55,31 +49,15 @@ secret items
 
 endings
 
-sounds
-	mimic voice
-	lightning (short calls of quickening samples)
-
 yendor
 	jumping
 		jumping ai
-	
-create Editor in debug menu
-	create option
-		map features
-			traps
-		items
 
 AI problems:
-	climbing into monster's feet is a serious issue that needs a solution
-		trigger drop attack?
-		explore ladder?
-	frozen monster syndrome
 	escape graph imperfect
 	meta-heuristic block - path too long
 		genius chase solver backup graph
 			genius class
 			priority queue
 			slow path
-
-	explore - monsters should check out ladders when alone
 	rally - a monster could see the character and could call other monsters to aid, there should be a rallying pose and a shockwave type graphic, implying he's just told everyone on screen to mob the player

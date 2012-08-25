@@ -1,5 +1,6 @@
 ﻿package com.robotacid.engine {
 	import com.robotacid.ai.Brain;
+	import com.robotacid.ai.PlayerBrain;
 	import com.robotacid.level.Map;
 	import com.robotacid.gfx.ItemMovieClip;
 	import com.robotacid.gfx.Renderer;
@@ -802,8 +803,9 @@
 				state = LUNGING;
 				
 				// bravery check - quick monsters may favour running away
-				if(this != game.player){
+				if(brain && !(brain is PlayerBrain)){
 					if(
+						target.brain &&
 						bravery < 1 &&
 						speed * speedModifier >= target.speed * target.speedModifier &&
 						game.random.value() >= bravery
@@ -865,6 +867,14 @@
 				resurrect = false;
 			}
 			if(!active && collider.world) collider.world.removeCollider(collider);
+		}
+		
+		/* Drop down through a ledge - typically called by com.robotacid.ai.Brain */
+		public function ledgeDrop():void{
+			collider.ignoreProperties |= Collider.LEDGE;
+			collider.divorce();
+			collider.state = Collider.FALL;
+			dir &= ~(UP | DOWN);
 		}
 		
 		/* Enter the level via a portal */
@@ -973,8 +983,10 @@
 		 * this goes against all my normal programming style, but I can still inline this
 		 * shit if I'm in a pinch */
 		public function canClimb():Boolean{
-			return ((mapProperties & Collider.LADDER) ||
-			(game.world.map[((collider.y + collider.height + Collider.INTERVAL_TOLERANCE) * INV_SCALE) >> 0][mapX] & Collider.LADDER)) &&
+			return (
+				(mapProperties & Collider.LADDER) ||
+				(game.world.map[((collider.y + collider.height + Collider.INTERVAL_TOLERANCE) * INV_SCALE) >> 0][mapX] & Collider.LADDER)
+			) &&
 			collider.x + collider.width >= LADDER_LEFT + mapX * SCALE &&
 			collider.x <= LADDER_RIGHT + mapX * SCALE;
 		}

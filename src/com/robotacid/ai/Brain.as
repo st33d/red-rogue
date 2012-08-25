@@ -1,4 +1,5 @@
 ﻿package com.robotacid.ai {
+	import com.robotacid.engine.Gate;
 	import com.robotacid.level.MapBitmap;
 	import com.robotacid.engine.Character;
 	import com.robotacid.engine.Item;
@@ -39,16 +40,15 @@
 		public var leader:Character;
 		public var path:Vector.<Node>;
 		public var altNode:Node;
-		public var wallWalker:Boolean;
 		
+		// states
 		public var state:int;
 		public var count:int;
 		public var delay:int;
 		public var ignore:int;
 		public var patrolMinX:Number;
 		public var patrolMaxX:Number;
-		public var patrolAreaSet:Boolean;
-		public var dontRunIntoTheWallCount:int;
+		public var patrolState:int;
 		public var sheduleIndex:int;
 		public var allyIndex:int;
 		public var allegiance:int;
@@ -56,11 +56,13 @@
 		public var firingTeam:int;
 		public var prevCenter:Number;
 		public var confusedCount:int;
+		public var wallWalker:Boolean;
 		
 		public static var playerCharacters:Vector.<Character>;
 		public static var monsterCharacters:Vector.<Character>;
 		public static var mapGraph:MapGraph;
 		public static var walkWalkGraph:WallWalkGraph;
+		
 		public static var voiceCount:int;
 		
 		protected static var start:Node;
@@ -80,6 +82,12 @@
 		public static const PAUSE:int = 1;
 		public static const ATTACK:int = 2;
 		public static const FLEE:int = 3;
+		
+		// patrol states
+		public static const INIT:int = 0;
+		public static const WALK:int = 1;
+		public static const CLIMB_UP:int = 2;
+		public static const CLIMB_DOWN:int = 3;
 		
 		// directional states
 		public static const UP:int = Collider.UP;
@@ -125,12 +133,11 @@
 			if(allegiance == PLAYER) firingTeam = Collider.PLAYER_MISSILE;
 			else if(allegiance == MONSTER) firingTeam = Collider.MONSTER_MISSILE;
 			this.leader = leader;
-			patrolAreaSet = false;
+			patrolState = INIT;
 			state = PATROL;
 			delay = Character.stats["pauses"][char.name];
 			count = delay + game.random.range(delay);
 			char.looking = game.random.coinFlip() ? LEFT : RIGHT;
-			dontRunIntoTheWallCount = 0;
 			sheduleIndex = 0;
 			allyIndex = 0;
 			ignore = Collider.LEDGE | Collider.LADDER | Collider.HEAD | Collider.CORPSE | Collider.ITEM;
@@ -191,10 +198,12 @@
 			if(state == PATROL || state == PAUSE){
 				if(state == PATROL){
 					if(allegiance == MONSTER){
-						if(patrolAreaSet){
+						if(patrolState){
 							patrol();
 						} else {
-							setPatrolArea(game.world.map);
+							if(char.collider.state != Collider.FALL){
+								setPatrolArea(game.world.map);
+							}
 						}
 						
 						if(count-- <= 0){
@@ -215,8 +224,41 @@
 							game.createDistSound(char.mapX, char.mapY, "voice", char.voice);
 							voiceCount = VOICE_DELAY + game.random.range(VOICE_DELAY);
 						}
-						// check for changes in patrol area at random
-						if(patrolAreaSet && game.random.coinFlip()) patrolAreaSet = false;
+						// before resuming patrol randomly check for issues and exploration avenues
+						if(patrolState && game.random.coinFlip()){
+							// check for being trapped in an enclosure
+							if(
+								!wallWalker &&
+								char.collider.parent == char.collider.mapCollider &&
+								(char.collider.mapCollider.properties & Collider.LEDGE) &&
+								char.mapX > 0 &&
+								(game.world.map[char.mapY][char.mapX - 1] & Collider.WALL) &&
+								char.mapX < game.world.width - 1 &&
+								(game.world.map[char.mapY][char.mapX + 1] & Collider.WALL)
+							){
+								char.ledgeDrop();
+								char.actions = char.dir = DOWN;
+								patrolState = INIT;
+								
+							} else if(char.canClimb()){
+								// explore a ladder
+								var climbingOptions:Array = [];
+								if(char.mapProperties & Collider.LADDER) climbingOptions.push(CLIMB_UP);
+								if(game.world.map[((char.collider.y + char.collider.height + Collider.INTERVAL_TOLERANCE) * INV_SCALE) >> 0][char.mapX] & Collider.LADDER) climbingOptions.push(CLIMB_DOWN);
+								patrolState = climbingOptions[game.random.rangeInt(climbingOptions.length)];
+								
+								// climbing down physically has little benefit
+								if(patrolState == CLIMB_DOWN){
+									char.ledgeDrop();
+									char.actions = char.dir = DOWN;
+									patrolState = INIT;
+								}
+								
+							} else {
+								// reinitialise patrol state
+								patrolState = INIT;
+							}
+						}
 					}
 				}
 				
@@ -227,8 +269,18 @@
 				// any enemy touching us counts as a target, but we also look for targets
 				// rather than checking all enemy characters, we check one at a time each frame
 				if(scheduleTarget){
+					// protect the leader
+					var leaderContact:Character;
+					if(leader && leader.active){
+						if(leader.collider.leftContact) leaderContact = leader.collider.leftContact.userData as Character;
+						if(!charContact && leader.collider.rightContact) leaderContact = leader.collider.rightContact.userData as Character;
+					}
+					
 					if(charContact && char.enemy(charContact)){
 						attack(charContact);
+					
+					} else if(leaderContact && char.enemy(leaderContact)){
+						attack(leaderContact);
 					
 					// we test LOS when the player is within a square area near the monster - this is cheaper
 					// than doing a radial test and we don't want all monsters calling LOS all the time
@@ -254,7 +306,7 @@
 				}
 			} else if(state == ATTACK){
 				
-				if(!target || !target.active){
+				if(!target || !target.active || (target.type == Character.GATE && (target as Gate).name != Gate.RAISE)){
 					clear();
 					
 				} else if(
@@ -335,7 +387,7 @@
 		 * must be called on minion entering a new level as a target may still be pursued */
 		public function clear():void{
 			target = null;
-			patrolAreaSet = false;
+			patrolState = INIT;
 			state = PATROL;
 			altNode = null;
 			// drop from ladder
@@ -370,13 +422,28 @@
 			if(char.actions == 0) char.actions = char.looking & (LEFT | RIGHT);
 			
 			if(char.state == Character.WALKING){
-				if(char.actions & RIGHT) {
-					if(charPos.x >= patrolMaxX || (char.collider.pressure & RIGHT)) char.actions = LEFT;
-				} else if(char.actions & LEFT) {
-					if(charPos.x <= patrolMinX || (char.collider.pressure & LEFT)) char.actions = RIGHT;
+				if(patrolState == WALK){
+					if(char.actions & RIGHT) {
+						if(charPos.x >= patrolMaxX || (char.collider.pressure & RIGHT)) char.actions = LEFT;
+					} else if(char.actions & LEFT) {
+						if(charPos.x <= patrolMinX || (char.collider.pressure & LEFT)) char.actions = RIGHT;
+					}
+					char.looking = char.actions & (LEFT | RIGHT);
+					char.dir |= char.actions & (LEFT | RIGHT);
+					
+				} else if(patrolState == CLIMB_UP){
+					char.dir = char.actions = UP;
+					
+					// bumped our head, drop
+					if(char.collider.upContact){
+						char.ledgeDrop();
+						char.actions = char.dir = DOWN;
+						patrolState = INIT;
+						
+					} else if(!char.canClimb()){
+						patrolState = INIT;
+					}
 				}
-				char.looking = char.actions & (LEFT | RIGHT);
-				char.dir |= char.actions & (LEFT | RIGHT);
 			}
 		}
 		
@@ -515,7 +582,7 @@
 				
 			}
 			
-			if(char.actions) char.looking = char.actions & (LEFT | RIGHT);
+			if(char.actions & (LEFT | RIGHT)) char.looking = char.actions & (LEFT | RIGHT);
 			char.dir = char.actions & (LEFT | RIGHT | UP | DOWN);
 		}
 		
@@ -639,7 +706,7 @@
 				
 			}
 			
-			char.looking = char.actions & (LEFT | RIGHT);
+			if(char.actions & (LEFT | RIGHT)) char.looking = char.actions & (LEFT | RIGHT);
 			char.dir = char.actions & (LEFT | RIGHT | UP | DOWN);
 		}
 		
@@ -714,13 +781,9 @@
 		public function setPatrolArea(map:Vector.<Vector.<int>>):void{
 			// setting your patrol area in mid air is a tad silly
 			if(char.collider.parent != char.collider.mapCollider){
-				patrolAreaSet = false;
 				// perform a dead drop
 				if(char.collider.state == Collider.HOVER){
-					char.collider.state = Collider.FALL;
-					char.dir &= ~(UP | DOWN);
-					char.collider.vy = 0;
-					char.collider.awake = Collider.AWAKE_DELAY;
+					char.ledgeDrop();
 				}
 				return;
 			}
@@ -751,7 +814,8 @@
 			){
 				patrolMaxX += Game.SCALE;
 			}
-			patrolAreaSet = true;
+			patrolState = WALK;
+			char.actions = 0;
 		}
 		
 		/* This shoots at the target Character when it has a line of sight to it */
