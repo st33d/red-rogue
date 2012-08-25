@@ -279,7 +279,10 @@
 					if(charContact && char.enemy(charContact)){
 						attack(charContact);
 					
-					} else if(leaderContact && char.enemy(leaderContact)){
+					} else if(
+						leaderContact && char.enemy(leaderContact) &&
+						!(leaderContact.type == Character.GATE || leaderContact.type == Character.STONE)
+					){
 						attack(leaderContact);
 					
 					// we test LOS when the player is within a square area near the monster - this is cheaper
@@ -306,9 +309,18 @@
 				}
 			} else if(state == ATTACK){
 				
-				if(!target || !target.active || (target.type == Character.GATE && (target as Gate).name != Gate.RAISE)){
+				if(!target || !target.active){
 					clear();
+				
+				} else if(
+					target.type == Character.GATE ||
+					target.type == Character.STONE
+				){
+					chase(target);
+					// get bored of attacking gates and stones
+					if(game.random.coinFlip()) clear();
 					
+				// stomp check
 				} else if(
 					char.collider.y >= target.collider.y + target.collider.height &&
 					!(
@@ -318,9 +330,10 @@
 				){
 					if(target.type == Character.GATE) clear();
 					else flee(target);
-					
+				
+				// attack logic
 				} else {
-					if(char.throwable || (char.weapon && (char.weapon.range & Item.MISSILE))){
+					if(target.type != Character.GATE && (char.throwable || (char.weapon && (char.weapon.range & Item.MISSILE)))){
 						snipe(target);
 					} else {
 						chase(target);

@@ -133,12 +133,12 @@ package com.robotacid.ui {
 					if(!((e as KeyboardEvent).keyCode == Key.custom[Game.RIGHT_KEY] || (e as KeyboardEvent).keyCode == Keyboard.RIGHT)) return;
 				}
 			}
-			Game.dialog = null;
 			active = false;
 			Key.lockOut = false;
 			game.stage.removeEventListener(KeyboardEvent.KEY_DOWN, okay);
 			game.state = previousGameState;
 			if(Boolean(okayCallback)) okayCallback();
+			Game.dialog = null;
 		}
 		
 		private function cancel(e:Event):void{
@@ -147,13 +147,13 @@ package com.robotacid.ui {
 				// we've locked out keys so we have to go for the Key class' internals
 				if(!((e as KeyboardEvent).keyCode == Key.custom[Game.LEFT_KEY] || (e as KeyboardEvent).keyCode == Keyboard.LEFT)) return;
 			}
-			Game.dialog = null;
 			active = false;
 			Key.lockOut = false;
 			game.stage.removeEventListener(KeyboardEvent.KEY_DOWN, okay);
 			game.stage.removeEventListener(KeyboardEvent.KEY_DOWN, cancel);
 			game.state = previousGameState;
 			cancelCallback();
+			Game.dialog = null;
 		}
 		
 		private function okayOver(e:MouseEvent):void{

@@ -264,6 +264,7 @@ package com.robotacid.engine {
 			if(--game.map.completionCount == 0) game.levelComplete();
 			
 			game.balrog = null;
+			mapLevel = -1;
 		}
 		
 		override public function toXML():XML {
