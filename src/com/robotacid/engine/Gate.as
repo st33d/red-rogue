@@ -94,6 +94,8 @@
 			collider.pushDamping = 0;
 			collider.dampingX = collider.dampingY = 1;
 			collider.stackable = false;
+			mapX = x * INV_SCALE;
+			mapY = y * INV_SCALE;
 		}
 		
 		override public function main():void {

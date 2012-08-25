@@ -1,4 +1,4 @@
-Change log: contact with a character's leader now draws aggro (minion will rush to rogue's aid), player allies no longer attack any gates other than RAISE gates, monsters now check for being in one tile wide enclosures to drop out of (prevents monsters ladder camping after fleeing), monsters now explore ladders randomly (solves monsters patrolling in pits and circulates population), patrolState replaces patrolAreaSet
+Change log: solved more issues with AI vs gates due to gates moving off the AI graph, jumping AI for combat installed - jumping for path finding would require a new graph (perhaps can do without), increased decapitation velocity
 
 Bug hunt
 	collection lock out on chests after playing for a while - bugged chest or item?
@@ -8,19 +8,23 @@ Bug hunt
 	
 	minion dither spotted - caught in a probable follow/avoid loop
 	shot troll with arrow - no aggro, why? - possible frozen monster occurence
-	balrog frozen after smite attack, stuck to wall - no further info (perhaps secret wall?)
+	balrog frozen after smite attack, stuck to wall - no further info (perhaps secret wall? or chaos wall?)
 	balrog death throws error when next changing level
 	
 	chaos walls frozen without graphics rendered and no walls beneath them (activated, not on chaos wall render list?)
 
+secret items
+	chest col
+		put a chest on the overworld grindstone, put one secret item in it
+	leech gun
+	fez
+	bug
+	fishbane
 
 save and quit
 	the balrog
 
-add a vector to deaths to push decaptiated heads
-
 the balrog
-	jumping ai
 	balrog corpse
 		always alive
 			dies when balrog head is worn
@@ -40,18 +44,7 @@ split story into tips.json and story.json - add tips to writings on new games
 
 split dreams.json into nightmares.json and dreams.json - introduce nightmares entering caves
 
-secret items
-	chest col
-		put a chest on the overworld grindstone, put one secret item in it
-	leech gun
-	fez
-	bug
-
 endings
-
-yendor
-	jumping
-		jumping ai
 
 AI problems:
 	escape graph imperfect

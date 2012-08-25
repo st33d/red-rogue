@@ -75,7 +75,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 424;
+		public static const BUILD_NUM:int = 425;
 		
 		public static const TEST_BED_INIT:Boolean = false;
 		public static const ONLINE:Boolean = true;
@@ -876,7 +876,7 @@
 					// reset damping and update mapX/mapY before attacks
 					for(i = 0; i < world.colliders.length; i++){
 						collider = world.colliders[i];
-						if(collider.properties & Collider.CHARACTER){
+						if((collider.properties & Collider.CHARACTER) && !(collider.properties & Collider.GATE)){
 							collider.pushDamping = 0;
 							character = collider.userData as Character;
 							character.mapX = (collider.x + collider.width * 0.5) * INV_SCALE;

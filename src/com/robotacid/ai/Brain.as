@@ -575,11 +575,28 @@
 					// character might be standing on the edge of a ledge - outside of a node
 					char.actions |= DOWN;
 					// chase the target blindly
-					if(targetX < charPos.x) char.actions |= LEFT;
-					else if(targetX > charPos.x) char.actions |= RIGHT;
+					if(char.mapY == target.mapY){
+						if(targetX < charPos.x) char.actions |= LEFT;
+						else if(targetX > charPos.x) char.actions |= RIGHT;
+					}
 					
 				}
 				
+			}
+			
+			// jumping might help an attack via smite
+			if(char.canJump && !following && char.state == Character.WALKING && target.mapY == char.mapY){
+				var charSpeedTemp:Number = char.speedModifier;
+				var targetSpeedTemp:Number = target.speedModifier;
+				if(charSpeedTemp < Character.MIN_SPEED_MODIFIER) charSpeedTemp = Character.MIN_SPEED_MODIFIER;
+				if(charSpeedTemp > Character.MAX_SPEED_MODIFIER) charSpeedTemp = Character.MAX_SPEED_MODIFIER;
+				if(targetSpeedTemp < Character.MIN_SPEED_MODIFIER) targetSpeedTemp = Character.MIN_SPEED_MODIFIER;
+				if(targetSpeedTemp > Character.MAX_SPEED_MODIFIER) targetSpeedTemp = Character.MAX_SPEED_MODIFIER;
+				charSpeedTemp *= char.speed;
+				targetSpeedTemp *= char.speed;
+				if(Math.abs(targetX - charPos.x) <= charSpeedTemp + targetSpeedTemp * 2){
+					char.jump();
+				}
 			}
 			
 			if(char.actions & (LEFT | RIGHT)) char.looking = char.actions & (LEFT | RIGHT);
@@ -601,6 +618,9 @@
 				else if(targetX > charPos.x) char.actions |= LEFT;
 				if(target.collider.y >= char.collider.y + char.collider.height) char.actions |= UP;
 				if(altNode) altNode = null;
+				
+				// jumping might help escape
+				if(!following && char.canJump && char.state == Character.WALKING && target.collider.y + target.collider.height >= char.collider.y) char.jump();
 			
 			// perform an Brown* search to escape the target
 			} else {
@@ -700,8 +720,10 @@
 					// character might be standing on the edge of a ledge - outside of a node
 					char.actions |= DOWN;
 					// flee the target
-					if(targetX < charPos.x) char.actions |= RIGHT;
-					else if(targetX > charPos.x) char.actions |= LEFT;
+					if(char.mapY == target.mapY){
+						if(targetX < charPos.x) char.actions |= RIGHT;
+						else if(targetX > charPos.x) char.actions |= LEFT;
+					}
 				}
 				
 			}

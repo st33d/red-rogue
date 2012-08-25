@@ -24,7 +24,7 @@
 		public static const GRAVITY:Number = 0.8;
 		public static const DAMPING_Y:Number = 0.99;
 		public static const DAMPING_X:Number = 0.9;
-		public static const INIT_V:Number = 5;
+		public static const INIT_V:Number = 6;
 		
 		public static const UP:int = 1;
 		public static const RIGHT:int = 2;
