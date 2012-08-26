@@ -214,6 +214,9 @@ package {
 					portals:[]
 				});
 			}
+			var specialItemChest:XML = <chest />;
+			settings.specialItemChest = specialItemChest;
+			specialItemChest.appendChild(Content.SPECIAL_ITEMS[game.random.rangeInt(Content.SPECIAL_ITEMS.length)]);
 			if(settings.areaContent[Map.UNDERWORLD].portals.length == 0){
 				Content.setUnderworldPortal(15, Map.MAIN_DUNGEON);
 			}

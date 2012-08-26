@@ -39,6 +39,7 @@
 		
 		public var gameState:Object;
 		
+		// vars that were moved to gameState:
 		//public var chestsByLevel:Array/*Array*/;
 		//public var monstersByLevel:Array/*Array*/;
 		//public var portalsByLevel:Array/*Array*/;
@@ -100,6 +101,18 @@
 			[Item.TELEPORT, Item.THORNS, Item.NULL, Item.PORTAL, Item.SLOW],
 			[Item.HASTE, Item.HOLY, Item.PROTECTION, Item.STUN, Item.POLYMORPH],
 			[Item.CONFUSION, Item.FEAR, Item.LEECH_RUNE, Item.XP, Item.CHAOS]
+		];
+		
+		public static const SPECIAL_ITEMS:Array = [
+			<item name={Item.LEECH_GUN} type={Item.WEAPON} level={1} location={Item.UNASSIGNED} holyState={Item.NO_CURSE} />,
+			<item name={Item.COG} type={Item.WEAPON} level={1} location={Item.UNASSIGNED} holyState={Item.NO_CURSE}>
+				<effect name={Item.CHAOS} level={1} source={Effect.WEAPON} />
+			</item>,
+			<item name={Item.HARPOON} type={Item.WEAPON} level={1} location={Item.UNASSIGNED} holyState={Item.NO_CURSE} />,
+			<item name={Item.FEZ} type={Item.ARMOUR} level={1} location={Item.UNASSIGNED} holyState={Item.NO_CURSE}>
+				<effect name={Item.SLOW} level={2} source={Effect.WEAPON} />
+				<effect name={Item.CONFUSION} level={2} source={Effect.WEAPON} />
+			</item>
 		];
 		
 		public function Content() {
@@ -480,6 +493,7 @@
 			var name:int;
 			var monsterXp:Number;
 			var monsterXpSplit:Number;
+			var xml:XML;
 			
 			if(mapType == Map.MAIN_DUNGEON){
 				if(mapLevel < gameState.monstersByLevel.length){
@@ -634,7 +648,7 @@
 				var areaContent:Array = UserData.settings.areaContent;
 				while(areaContent[mapLevel].chests.length){
 					var children:XMLList = areaContent[mapLevel].chests.shift().children();
-					for each(var xml:XML in children){
+					for each(xml in children){
 						if(xml.hasOwnProperty("@mapX")){
 							c = xml.@mapX;
 						} else {
@@ -651,6 +665,13 @@
 						} else {
 							layers[Map.ENTITIES][r][c] = item;
 						}
+					}
+				}
+				if(mapLevel == Map.OVERWORLD){
+					if(UserData.settings.specialItemChest){
+						chest = XMLToEntity(bitmap.width - 2, bitmap.height - 3, UserData.settings.specialItemChest, mapLevel, mapType);
+						layers[Map.ENTITIES][bitmap.height - 3][bitmap.width - 2] = chest;
+						UserData.settings.specialItemChest = null;
 					}
 				}
 			}
@@ -965,7 +986,12 @@
 				
 			} else if(entity is Chest){
 				chest = entity.toXML();
-				if(chest) chests.push(entity.toXML());
+				// the only chest in the overworld is the special item chest
+				if(level == Map.OVERWORLD && mapType == Map.AREA){
+					UserData.settings.specialItemChest = chest ? chest :<chest />;
+				} else if(chest){
+					chests.push(chest);
+				}
 				
 			} else if(entity is Portal){
 				if((entity as Portal).type != Portal.STAIRS){
@@ -1153,7 +1179,8 @@
 				for each(item in children){
 					items.push(XMLToEntity(x, y, item));
 				}
-				mc = new ChestMC();
+				if(items.length == 0) items = null;
+				mc = (mapType == Map.AREA && mapLevel == Map.OVERWORLD) ? new ChestColMC() : new ChestMC();
 				obj = new Chest(mc, x * Game.SCALE + Game.SCALE * 0.5, (y + 1) * Game.SCALE, items);
 				
 			} else if(objectType == "item"){

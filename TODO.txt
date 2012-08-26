@@ -1,4 +1,4 @@
-Change log: race change now updates undead armour effect, updated overworld background, added debris to bleed rune missile and chaos missile, added maximum light to holy missiles, added secret items (awaiting content insertion)
+Change log: installed secret item chest in overworld, rolled back to old overworld background (feels like there is more sky)
 
 Bug hunt
 	collection lock out on chests after playing for a while - bugged chest or item?
@@ -11,17 +11,6 @@ Bug hunt
 	chaos walls frozen without graphics rendered and no walls beneath them (activated, not on chaos wall render list?)
 	minion weapon invisible after level change (arbalest and skull equipped)
 	
-
-secret items
-	chest col
-		put a chest on the overworld grindstone, put one secret item in it
-			chest needs a marker on it so that Content doesn't empty it?
-			special chest xml?
-	leech gun
-	fez
-	bug
-	fishbane
-
 save and quit
 	the balrog
 

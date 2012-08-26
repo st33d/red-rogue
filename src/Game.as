@@ -53,10 +53,7 @@
 	import flash.geom.Rectangle;
 	import flash.media.Sound;
 	import flash.net.SharedObject;
-	import flash.text.AntiAliasType;
-	import flash.text.GridFitType;
 	import flash.text.TextField;
-	import flash.text.TextFormat;
 	import flash.ui.Keyboard;
 	import flash.utils.ByteArray;
 	import flash.utils.getTimer;
@@ -75,10 +72,10 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 427;
+		public static const BUILD_NUM:int = 428;
 		
 		public static const TEST_BED_INIT:Boolean = false;
-		public static const ONLINE:Boolean = false;
+		public static const ONLINE:Boolean = true;
 		
 		public static var game:Game;
 		public static var renderer:Renderer;
@@ -199,6 +196,25 @@
 		
 		public function Game():void {
 			
+			game = this;
+			UserData.game = this;
+			Entity.game = this;
+			LightMap.game = this;
+			Effect.game = this;
+			FX.game = this;
+			Map.game = this;
+			Content.game = this;
+			Brain.game = this;
+			MapBitmap.game = this;
+			Lightning.game = this;
+			ItemMovieClip.game = this;
+			SceneManager.game = this;
+			QuestMenuList.game = this;
+			QuestMenuOption.game = this;
+			Dialog.game = this;
+			EditorMenuList.game = this;
+			Menu.game = this;
+			
 			// detect allowScriptAccess for tracking
 			allowScriptAccess = ExternalInterface.available;
 			if(allowScriptAccess){
@@ -208,6 +224,8 @@
 					allowScriptAccess = false;
 				}
 			}
+			
+			random = new XorRandom();
 			
 			var byteArray:ByteArray;
 			
@@ -237,24 +255,6 @@
 			renderer = new Renderer(this);
 			renderer.init();
 			
-			game = this;
-			UserData.game = this;
-			Entity.game = this;
-			LightMap.game = this;
-			Effect.game = this;
-			FX.game = this;
-			Map.game = this;
-			Content.game = this;
-			Brain.game = this;
-			MapBitmap.game = this;
-			Lightning.game = this;
-			ItemMovieClip.game = this;
-			SceneManager.game = this;
-			QuestMenuList.game = this;
-			QuestMenuOption.game = this;
-			Dialog.game = this;
-			EditorMenuList.game = this;
-			Menu.game = this;
 			DebrisFX.IGNORE_PROPERTIES = (
 				Collider.CHARACTER | Collider.LEDGE | Collider.LADDER | Collider.HEAD | Collider.CORPSE
 			);
@@ -271,8 +271,6 @@
 			TextBox.init();
 			MapTileConverter.init();
 			ProgressBar.initGlowTable();
-			
-			random = new XorRandom();
 			
 			sleep = new Sleep(this, renderer);
 			

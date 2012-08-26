@@ -140,6 +140,7 @@
 				// create a top surface for the harpoon	
 				} else if(item.name == Item.HARPOON){
 					collider.properties |= Collider.UP;
+					this.speed *= 0.5;
 					collider.properties &= ~(firingTeam);
 					this.reflections = 10;
 				}
@@ -173,7 +174,7 @@
 				if(contact){
 					target = contact.userData as Character;
 					if(target){
-						if(target != sender){
+						if(target != sender && sender.enemy(target)){
 							if(type == ITEM){
 								// is the target protected?
 								if(
