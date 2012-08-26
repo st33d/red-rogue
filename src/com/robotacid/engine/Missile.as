@@ -34,6 +34,8 @@
 		private var offsetX:Number;
 		private var offsetY:Number;
 		private var catchable:Boolean;
+		private var debris:Boolean;
+		private var debrisType:int;
 		
 		protected static var target:Character;
 		
@@ -67,10 +69,12 @@
 			this.reflections = reflections;
 			this.alchemical = alchemical;
 			callMain = true;
+			debris = false;
 			offsetX = 0;
 			offsetY = 0;
 			
 			createCollider(x, y, Collider.LEFT | Collider.RIGHT | Collider.MISSILE | firingTeam, ignore, Collider.HOVER, false);
+			
 			if(type == CHAOS){
 				collider.x = x - CHAOS_MISSILE_RADIUS;
 				collider.y = y - CHAOS_MISSILE_RADIUS;
@@ -106,18 +110,43 @@
 					effectName = itemEffect.name;
 					effectLevel = itemEffect.level;
 				}
-				// light runes generate max-light missiles
-				if(effectName == Effect.LIGHT){
-					lightRadius = 5 + Math.ceil(effectLevel * 0.5);
+				// holy and light runes generate max-light missiles
+				if(effectName == Effect.LIGHT || effectName == Item.HOLY){
+					lightRadius = effectName == Item.HOLY ? 15 : 5 + Math.ceil(effectLevel * 0.5);
 					lightValue = 255;
 				}
 				game.lightMap.setLight(this, lightRadius, lightValue);
 				
 				// xp, light, chaos and leech effects are coloured
-				if(effectName == Item.CHAOS) gfx.transform.colorTransform = new ColorTransform(0, 0, 0);
-				else if(effectName == Item.LIGHT || effectName == Item.XP) gfx.transform.colorTransform = new ColorTransform(0, 0, 0, 1, 255, 255, 255);
-				else if(effectName == Item.LEECH_RUNE) gfx.transform.colorTransform = new ColorTransform(1, 0, 0);
+				if(effectName == Item.CHAOS){
+					gfx.transform.colorTransform = new ColorTransform(0, 0, 0);
+					debris = true;
+					debrisType = Renderer.STONE;
+				} else if(effectName == Item.LIGHT || effectName == Item.XP || effectName == Item.HOLY) gfx.transform.colorTransform = new ColorTransform(0, 0, 0, 1, 255, 255, 255);
+				else if(effectName == Item.LEECH_RUNE) gfx.transform.colorTransform = new ColorTransform(0.7, 0, 0);
+				else if(effectName == Item.BLEED){
+					debris = true;
+					debrisType = Renderer.BLOOD;
+				}
 			}
+			
+			if(item){
+				// leech gun shots are always red and bleeding
+				if(item.name == Item.LEECH_GUN){
+					gfx.transform.colorTransform = new ColorTransform(0.7, 0, 0);
+					debris = true;
+					debrisType = Renderer.BLOOD;
+				
+				// create a top surface for the harpoon	
+				} else if(item.name == Item.HARPOON){
+					collider.properties |= Collider.UP;
+					collider.properties &= ~(firingTeam);
+					this.reflections = 10;
+				}
+			}
+			
+			
+			
 			// set graphic offset
 			var bounds:Rectangle = gfx.getBounds(gfx);
 			offsetX = -bounds.left;
@@ -200,6 +229,9 @@
 			} else {
 				// repair contact filter from failed hits
 				collider.ignoreProperties &= ~(Collider.SOLID);
+				
+				// debris?
+				if(debris) renderer.createDebrisRect(collider, -dx, 2, debrisType);
 				
 				if(sender && sender.active){
 					// lightning and xp runes cast quickening lightning

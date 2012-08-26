@@ -3,25 +3,27 @@
 		"knife", "gauntlet", "dagger", "mace", "short bow",
 		"whip", "sword", "arbalest", "spear", "chakram",
 		"staff", "bomb", "arquebus", "hammer", "long bow",
-		"gun blade", "scythe", "chaos wand", "lightning", "leech"
+		"gun blade", "scythe", "chaos wand", "lightning", "leech",
+		"leech gun", "cog", "harpoon"
 	],
 	"armour names":[
 		"flies", "tiara", "fedora", "top hat", "fire flies",
 		"halo", "bees", "viking helm", "skull", "crown",
 		"blood", "goggles", "wizard hat", "helmet", "_",
-		"knives", "indifference", "chaos helm", "face", "yendor"
+		"knives", "indifference", "chaos helm", "face", "yendor",
+		"fez"
 	],
 	"unique weapon names":[
 		["athame", "first"], ["godhand", "grip"], ["sting", "carnwennan", "werewindle"] , ["plus one"], ["cupid's bow", "pinaka"],
 		["vampire killer", "spelunker's friend"], ["excalibur", "kladenets", "grayswandir", "skofnung", "tyrfing"], ["penetrator", "piercer"] , ["gungnir", "gae bulg", "lugh", "rhongomiant"], ["xena's friend", "ouroboros"],
 		["jo", "ruyi jingu bang", "grid's rod"], ["boom", "surprise", "smithereens"], ["sarah-jane", "boom-stick"] , ["mjolnir"], ["bullseye", "brahmastra", "saranga", "gandiva"],
-		["dyrnwyn", "bayonetta"], ["reaver"], ["blackthorn", "stallion", "swirl"] , ["oh kath ra", "shocker", "thunder", "nova", "zeus", "vajra"], ["licker", "kiss", "sarlak", "fang"]
+		["dyrnwyn", "bayonetta"], ["reaver"], ["blackthorn", "stallion", "swirl"] , ["oh kath ra", "shocker", "thunder", "nova", "zeus", "vajra"], ["licker", "kiss", "sarlak", "fang"], ["gallardo", "nate"], ["mokesmoe", "error"], ["fishbane", "droqen"]
 	],
 	"unique armour names":[
 		["swarm", "buzz"], ["brisingamen"], ["indy", "spelunker's hat", "archaeologist's hat"] , ["gentleman's pride"], ["apollo", "shimmer"],
 		["draupnir", "seal of solomon"], ["vengeance", "anaphylactic", "histamine"], ["eric's helm", "beserker"] , ["baphomet's skull"], ["jewels"],
 		["ythr", "rthyr", "sanguine"], ["spectacles", "far-seer"] , ["harry's hat", "zed's hat"], ["aegis", "ancile"], ["yautja skin", "tarnhelm", "hades helm"],
-		["snicker snack", "slice n dice"], ["anonymous", "unknown"], ["madness", "foolscap"] , [], ["yendor"]
+		["snicker snack", "slice n dice"], ["anonymous", "unknown"], ["madness", "foolscap"] , [], ["yendor"], ["rumrusher", "puzzle platformer"]
 	],
 	"rune names":[
 		"light", "heal", "bleed", "identify", "undead",
@@ -39,96 +41,112 @@
 		5, 1, 5, 1, 2,
 		1, 1, 2, 5, 5,
 		1, 4, 2, 1, 2,
-		3, 1, 2, 5, 5
+		3, 1, 2, 5, 5,
+		3, 5, 5
 	],
 	"weapon damages":[
 		0.15, 0.2, 0.25, 0.4, 0.2,
 		0.5, 0.7, 0.7, 0.9, 0.7,
 		1, 2, 1, 1.3, 1.3,
-		1.3, 1.5, 0, 2, 2.5
+		1.3, 1.5, 0, 2, 2.5,
+		2.5, 0.15, 0.9
 	],
 	"weapon damage levels":[
 		0.05, 0.05, 0.05, 0.1, 0.1,
 		0.1, 0.1, 0.15, 0.15, 0.15,
 		0.15, 0.2, 0.16, 0.17, 0.17,
-		0.17, 0.2, 0.0, 0.3, 0.4
+		0.17, 0.2, 0.0, 0.3, 0.4,
+		0.4, 0.05, 0.15
 	],
 	"weapon attacks":[
 		0.01, 0.01, 0.02, 0.02, 0.03,
 		0.02, 0.03, 0.02, 0.03, 0.03,
 		0.04, 0.02, 0.04, 0.05, 0.05,
-		0.05, 0.06, 0.0, 0.08, 0.08
+		0.05, 0.06, 0.0, 0.08, 0.08,
+		0.08, 0.01, 0.03
 	],
 	"weapon attack levels":[
 		0.01, 0.01, 0.01, 0.01, 0.01,
 		0.02, 0.02, 0.02, 0.02, 0.02,
 		0.03, 0.02, 0.03, 0.03, 0.04,
-		0.04, 0.04, 0.0, 0.06, 0.06
+		0.04, 0.04, 0.0, 0.06, 0.06,
+		0.06, 0.01, 0.02
 	],
 	"weapon knockbacks":[
 		0, 0.1, 0, 0.15, 0,
 		0, 0.1, 0.15, 0.15, 0,
 		0.15, 0.5, 0.2, 0.2, 0.2,
-		0.2, 0.2, 0, 0.2, 0
+		0.2, 0.2, 0, 0.2, 0,
+		0, 0, 0.15
 	],
 	"weapon stuns":[
 		0, 0.1, 0, 0.15, 0,
 		0, 0, 0.1, 0, 0,
 		0.15, 0.6, 0.2, 0.2, 0.2,
-		0.2, 0.2, 0, 0.3, 0.3
+		0.2, 0.2, 0, 0.3, 0.3,
+		0.3, 0.2, 0
 	],
 	"weapon butchers":[
 		0.1, 0, 0.1, 0, 0,
 		0, 0.05, 0, 0.01, 0,
 		0, 0, 0, 0, 0,
-		0.05, 0.05, 0, 0, 0.15
+		0.05, 0.05, 0, 0, 0.15,
+		0.15, 0.15, 0.01
 	],
 	"armour positions":[
 		1, 0, 0, 0, 1,
 		0, 1, 0, 0, 0,
 		1, 0, 0, 0, 1,
-		1, 0, 0, 0, 0
+		1, 0, 0, 0, 0,
+		0
 	],
 	"armour defences":[
 		0.01, 0.012, 0.02, 0.02, 0.01,
 		0.03, 0.01, 0.04, 0.04, 0.05,
 		0.03, 0.01, 0.03, 0.1, 0.01,
-		0.05, 0.0, 0.05, 0.0, 0.1
+		0.05, 0.0, 0.05, 0.0, 0.1,
+		0.02
 	],
 	"armour defence levels":[
 		0.01, 0.01, 0.015, 0.015, 0.01,
 		0.015, 0.01, 0.02, 0.02, 0.025,
 		0.02, 0.01, 0.02, 0.05, 0.01,
-		0.03, 0.0, 0.03, 0.0, 0.05
+		0.03, 0.0, 0.03, 0.0, 0.05,
+		0.015
 	],
 	"armour endurances":[
 		0, 0, 0, 0, 0,
 		0, 0, 0.1, 0.1, 0.15,
 		0, 0, 0.05, 0.4, 0,
-		0.15, 0, 0.15, 0, 0.3
+		0.15, 0, 0.15, 0, 0.3,
+		0
 	],
 	"weapon specials":[
 		"none", "none", "none", "none", "none",
 		"none", "none", "none", "none", "bounces off walls",
 		"none", "explodes", "none", "none", "none",
-		"none", "none", "shoots chaos runes", "emits quickening", "life steal"
+		"none", "none", "shoots chaos runes", "emits quickening", "life steal",
+		"life steal, shoots blood", "?", "free rides"
 	],
 	"armour specials":[
 		"none", "none", "none", "none", "light enchanted",
 		"none", "reflects damage", "none", "undead enchanted", "none",
 		"life steal", "infravision", "x2 to new enchantments applied", "none", "invisible",
-		"reflects damage", "ignored by the game", "inflicts chaos spells on wearer", "polymorph into face type", "jump"
+		"reflects damage", "ignored by the game", "inflicts chaos spells on wearer", "polymorph into face type", "jump",
+		"slow and confusion enchanted"
 	],
 	"weapon descriptions":[
 		"short blade", "metal glove", "medium blade", "spiked stick", "fires arrows",
 		"tapered leather cord", "long blade", "large crossbow, fires bolts", "pointed stick", "sharp ring",
 		"long stick", "explosive grenade", "rifle, fires bullets", "punctuated stick", "fires large arrows",
-		"long blade, fires bullets", "gardening tool", "magic stick", "electric stick", "blood demon"
+		"long blade, fires bullets", "gardening tool", "magic stick", "electric stick", "blood demon",
+		"crafted blood demon", "?", "flat top spear"
 	],
 	"armour descriptions":[
 		"distracting insects", "pretty adornment", "sweet hat", "gentleman's hat", "glowing insects",
 		"floating ring", "defensive insects", "horned hat", "former balrog head", "regal hat",
 		"liquidised blood demon", "magic spectacles", "magic hat", "strong hat", "",
-		"flying magic blades", "out of phase with the universe", "mad king's hat", "magic skin mask", "levitation amulet"
+		"flying magic blades", "out of phase with the universe", "mad king's hat", "magic skin mask", "levitation amulet",
+		"turkish hat"
 	]
 }

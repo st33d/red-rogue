@@ -361,6 +361,15 @@
 					} else if(effect.name == Effect.PROTECTION){
 						endurance += Effect.PROTECTION * effect.level;
 						protectionModifier -= Effect.PROTECTION * effect.level;
+						
+					// UNDEAD runs as an active effect only when undead
+					} else if(effect.name == Effect.UNDEAD){
+						if(undead){
+							if(game.effects.indexOf(this) == -1) game.effects.push(effect);
+						} else {
+							var effectIndex:int = game.effects.indexOf(this);
+							if(effectIndex > -1) game.effects.splice(effectIndex, 1);
+						}
 					}
 				}
 			}

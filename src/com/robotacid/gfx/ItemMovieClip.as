@@ -79,6 +79,9 @@ package com.robotacid.gfx {
 				} else if(name == Item.YENDOR){
 					gfx = new YendorMC();
 					addChild(gfx);
+				} else if(name == Item.FEZ){
+					gfx = new FezMC();
+					addChild(gfx);
 				}
 			} else if(type == Item.WEAPON){
 				if(name == Item.GAUNTLET){

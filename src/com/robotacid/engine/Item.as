@@ -111,6 +111,9 @@
 		public static const CHAOS_WAND:int = 17;
 		public static const LIGHTNING:int = 18;
 		public static const LEECH_WEAPON:int = 19;
+		public static const LEECH_GUN:int = 20;
+		public static const COG:int = 21;
+		public static const HARPOON:int = 22;
 		
 		// armour
 		public static const FLIES:int = 0;
@@ -133,6 +136,7 @@
 		public static const CHAOS_HELM:int = 17;
 		public static const FACE:int = 18;
 		public static const YENDOR:int = 19;
+		public static const FEZ:int = 20;
 		
 		// runes
 		public static const LIGHT:int = 0;
@@ -208,9 +212,10 @@
 				else if(name == LONG_BOW) missileGfxClass = LongBowArrowMC;
 				else if(name == GUN_BLADE) missileGfxClass = GunBladeBulletMC;
 				else if(name == CHAOS_WAND) missileGfxClass = ThrownRuneMC;
+				else if(name == LEECH_GUN) missileGfxClass = ThrownRuneMC;
 				
 				// special effects
-				if(name == LEECH_WEAPON){
+				if(name == LEECH_WEAPON || name == LEECH_GUN){
 					leech = Effect.LEECH_PER_LEVEL * level;
 				} else {
 					leech = 0;
