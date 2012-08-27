@@ -50,8 +50,8 @@ package com.robotacid.engine {
 		public static const DREAM_DELAY:int = 120;
 		public static const MENU_SLEEP:int = 0;
 		public static const MENU_WAKE_UP:int = 1;
-		public static const NIGHTMARE_TAG:String = "*";
 		public static const NIGHTMARE_COL:ColorTransform = new ColorTransform(1, 0, 0);
+		public static const NIGHTMARE_RANGE:int = 3;
 		
 		// anim states
 		public static const ROLL_IN_TEXT:int = 0;
@@ -59,7 +59,9 @@ package com.robotacid.engine {
 		public static const ROLL_OUT_TEXT:int = 2;
 		
 		[Embed(source = "dreams.json", mimeType = "application/octet-stream")] public static var dreamsData:Class;
+		[Embed(source = "nightmares.json", mimeType = "application/octet-stream")] public static var nightmaresData:Class;
 		public static var dreams:Array;
+		public static var nightmares:Array;
 		
 		public function Sleep(game:Game, renderer:Renderer) {
 			this.game = game;
@@ -142,14 +144,17 @@ package com.robotacid.engine {
 				index = dreams.length - 1;
 			}
 			dreamList = dreams[index];
-			var dreamStr:String = dreamList[game.random.rangeInt(dreamList.length)];
-			if(dreamStr.charAt(0) == NIGHTMARE_TAG){
-				dreamStr = dreamStr.substr(1);
+			// is the balrog close enough to invade the rogue's dreams?
+			var balrogDist:int = int.MAX_VALUE;
+			if(UserData.gameState.balrog) balrogDist = Math.abs(UserData.gameState.balrog.mapLevel - game.map.level);
+			if(balrogDist <= 1 || (balrogDist <= NIGHTMARE_RANGE && game.random.coinFlip())){
 				nightmare = true;
+				dreamList = nightmares;
 				game.soundQueue.addRandom("laughter", BalrogBrain.LAUGHTER);
 			} else {
 				nightmare = false;
 			}
+			var dreamStr:String = dreamList[game.random.rangeInt(dreamList.length)];
 			dreamList = dreamStr.split("\n");
 			textBox.text = "zzz";
 			game.console.print("zzz");
@@ -241,8 +246,11 @@ package com.robotacid.engine {
 		}
 		
 		public static function initDreams():void{
-			var byteArray:ByteArray = new dreamsData();
+			var byteArray:ByteArray;
+			byteArray = new dreamsData();
 			dreams = JSON.decode(byteArray.readUTFBytes(byteArray.length));
+			byteArray = new nightmaresData();
+			nightmares = JSON.decode(byteArray.readUTFBytes(byteArray.length));
 		}
 		
 	}

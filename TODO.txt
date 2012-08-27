@@ -1,4 +1,4 @@
-Change log: fixed missile bug introduced by trying to make harpoon item work, fixed menu freeze caused by leaving menu sitting on quest menu list whilst completing a quest
+Change log: refactored nightmares to be based around level proximity to balrog, balrog added to gameState data, fixed slight vertical camera judder caused by floating point errors, enemy health bar now hidden on changing level, fixed missile weapons not generating aggro
 
 Bug hunt
 	collection lock out on chests after playing for a while - bugged chest or item?
@@ -10,11 +10,11 @@ Bug hunt
 	balrog frozen after smite attack, stuck to wall - no further info (perhaps secret wall? or chaos wall?)
 	chaos walls frozen without graphics rendered and no walls beneath them (activated, not on chaos wall render list?)
 	minion weapon invisible after level change (arbalest and skull equipped)
-	
-save and quit
-	the balrog
 
 the balrog
+	the balrog face
+		bricking the game
+		reset option in menu
 	balrog corpse
 		always alive
 			dies when balrog head is worn
@@ -27,12 +27,6 @@ Guide -
 rotate between a selection of menus
 	title screen
 		title menu
-
-
-split story into tips.json and story.json - add tips to writings on new games
-	degrade writings further into dungeon
-
-split dreams.json into nightmares.json and dreams.json - introduce nightmares entering caves
 
 endings
 

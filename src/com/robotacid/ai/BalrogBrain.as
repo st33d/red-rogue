@@ -146,6 +146,7 @@ package com.robotacid.ai {
 				if(count-- <= 0 || !target || !target.active){
 					clear();
 					
+				// stomp check
 				} else if(
 					char.collider.y >= target.collider.y + target.collider.height &&
 					!(

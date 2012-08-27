@@ -311,8 +311,8 @@
 					if(dir & LEFT) cameraDisplacement.x -= CAMERA_DISPLACE_SPEED;
 				}
 			} else {
-				if(cameraDisplacement.x > 0) cameraDisplacement.x -= CAMERA_DISPLACE_SPEED;
-				else if(cameraDisplacement.x < 0) cameraDisplacement.x += CAMERA_DISPLACE_SPEED;
+				if(cameraDisplacement.x > CAMERA_DISPLACE_SPEED) cameraDisplacement.x -= CAMERA_DISPLACE_SPEED;
+				else if(cameraDisplacement.x < -CAMERA_DISPLACE_SPEED) cameraDisplacement.x += CAMERA_DISPLACE_SPEED;
 			}
 			if(looking & DOWN){
 				if(cameraDisplacement.y < CAMERA_DISPLACEMENT){
@@ -325,8 +325,8 @@
 					if(dir & UP) cameraDisplacement.y -= CAMERA_DISPLACE_SPEED * 0.5;
 				}
 			} else {
-				if(cameraDisplacement.y > 0) cameraDisplacement.y -= CAMERA_DISPLACE_SPEED;
-				else if(cameraDisplacement.y < 0) cameraDisplacement.y += CAMERA_DISPLACE_SPEED;
+				if(cameraDisplacement.y > CAMERA_DISPLACE_SPEED) cameraDisplacement.y -= CAMERA_DISPLACE_SPEED;
+				else if(cameraDisplacement.y < -CAMERA_DISPLACE_SPEED) cameraDisplacement.y += CAMERA_DISPLACE_SPEED;
 			}
 			
 			// check for menu action locking

@@ -168,16 +168,15 @@
 				}
 				// introduce holy items at the beginning of the sewers
 				gameState.holyStateIntroLevel = gameState.zoneSizes[0] + 1;
+				// create the balrog
+				gameState.balrog.xml = createBalrogXML();
+				// introduce the balrog at the end of the caves
+				gameState.balrog.mapLevel = gameState.zoneSizes[0] + gameState.zoneSizes[1] + gameState.zoneSizes[2];
+				//gameState.balrog.mapLevel = 2;
 			}
 			holyStateIntroLevel = gameState.holyStateIntroLevel;
 			
-			// introduce the balrog at the end of the caves
-			Balrog.mapLevel = gameState.zoneSizes[0] + gameState.zoneSizes[1] + gameState.zoneSizes[2];
-			//Balrog.mapLevel = 1;
-			Balrog.xml = createBalrogXML();
-			
 			//trace(zoneSizes);
-			//trace(balrogIntroLevel);
 			
 			//trace("xp table", xpTable.length, xpTable);
 			//trace("monster xp by level", monsterXpByLevel.length, monsterXpByLevel);
@@ -529,7 +528,7 @@
 			if(mapType != Map.AREA){
 				
 				// is the balrog on this level?
-				if(mapType == Map.MAIN_DUNGEON && Balrog.mapLevel == mapLevel) monsters.push(Balrog.xml);
+				if(mapType == Map.MAIN_DUNGEON && gameState.balrog && gameState.balrog.mapLevel == mapLevel) monsters.push(gameState.balrog.xml);
 				
 				// get monster xp split
 				if(monsterXp || monsters.length) monsterXpSplit = monsterXp / monsters.length;
@@ -948,7 +947,8 @@
 				} else {
 					(entity as Balrog).levelState = Balrog.WANDER_LEVEL;
 				}
-				Balrog.xml = entity.toXML();
+				gameState.balrog.xml = entity.toXML();
+				gameState.balrog.health = (entity as Balrog).health;
 				
 			} else if(entity is Item){
 				item = entity as Item;

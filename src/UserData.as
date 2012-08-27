@@ -112,6 +112,11 @@ package {
 					xp:0,
 					keyItem:false
 				},
+				balrog:{
+					xml:null,
+					health:0,
+					mapLevel:int.MAX_VALUE
+				},
 				inventory:{
 					weapons:[],
 					armour:[],

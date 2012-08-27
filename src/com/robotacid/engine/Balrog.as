@@ -24,9 +24,6 @@ package com.robotacid.engine {
 		
 		private var minimapFX:MinimapFX;
 		
-		public static var mapLevel:int;
-		public static var xml:XML;
-		
 		public static const DEFAULT_LIGHT_RADIUS:int = 3;
 		public static const DEFAULT_UNIQUE_NAME_STR:String = "the balrog";
 		
@@ -50,6 +47,7 @@ package com.robotacid.engine {
 			uniqueNameStr = DEFAULT_UNIQUE_NAME_STR;
 			missileIgnore |= Collider.MONSTER | Collider.MONSTER_MISSILE;
 			addToEntities = true;
+			gfx.visible = false;
 			
 			brain = new BalrogBrain(this);
 			
@@ -61,6 +59,7 @@ package com.robotacid.engine {
 			mapInitialised = true;
 			level = game.player.level;
 			setStats();
+			if(UserData.gameState.balrog.health) health = UserData.gameState.balrog.health;
 			if(loot){
 				var item:Item;
 				for(var i:int = 0; i < loot.length; i++){
@@ -218,8 +217,9 @@ package com.robotacid.engine {
 			state = EXITING;
 			// prepare content state for next level
 			levelState = ENTER_STAIRS_UP;
-			mapLevel++;
-			xml = toXML();
+			UserData.gameState.balrog.mapLevel++;
+			UserData.gameState.balrog.xml = toXML();
+			UserData.gameState.balrog.health = health;
 			if(portal.targetLevel < game.map.level){
 				dir = looking = LEFT;
 			} else if(portal.targetLevel > game.map.level){
@@ -263,8 +263,9 @@ package com.robotacid.engine {
 			Brain.monsterCharacters.splice(Brain.monsterCharacters.indexOf(this), 1);
 			if(--game.map.completionCount == 0) game.levelComplete();
 			
+			minimapFX.active = false;
 			game.balrog = null;
-			mapLevel = -1;
+			UserData.gameState.balrog = false;
 		}
 		
 		override public function toXML():XML {

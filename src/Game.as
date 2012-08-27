@@ -72,7 +72,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 429;
+		public static const BUILD_NUM:int = 430;
 		
 		public static const TEST_BED_INIT:Boolean = false;
 		public static const ONLINE:Boolean = true;
@@ -802,6 +802,10 @@
 					player.changeName(Character.ROGUE, new RogueMC);
 				}
 			}
+			
+			// any targeted enemy is no longer on this level
+			if(enemyHealthBar.active) enemyHealthBar.deactivate();
+			
 			// when chasing the balrog the player will enter the level after the balrog
 			// emphasising the nature of the chase
 			if(
