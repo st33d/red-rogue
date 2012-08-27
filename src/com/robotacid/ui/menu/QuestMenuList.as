@@ -134,6 +134,11 @@ package com.robotacid.ui.menu {
 		
 		/* Reports the completion of a quest and gives the player the experience reward */
 		public function questComplete(option:QuestMenuOption):void{
+			// menu may be sitting on this option, resolve
+			if(menu.currentMenuList == this){
+				menu.stepLeft();
+				selection = 0;
+			}
 			var str:String;
 			if(option.type == QuestMenuOption.COLLECT){
 				str = "collect quest completed";

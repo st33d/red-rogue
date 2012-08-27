@@ -174,7 +174,7 @@
 				if(contact){
 					target = contact.userData as Character;
 					if(target){
-						if(target != sender && sender.enemy(target)){
+						if(target != sender && (!sender || sender.enemy(target))){
 							if(type == ITEM){
 								// is the target protected?
 								if(

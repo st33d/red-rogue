@@ -1,4 +1,4 @@
-Change log: installed secret item chest in overworld, rolled back to old overworld background (feels like there is more sky)
+Change log: fixed missile bug introduced by trying to make harpoon item work, fixed menu freeze caused by leaving menu sitting on quest menu list whilst completing a quest
 
 Bug hunt
 	collection lock out on chests after playing for a while - bugged chest or item?
