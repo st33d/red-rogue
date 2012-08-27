@@ -90,6 +90,7 @@
 		public static const CAMERA_DISPLACEMENT:Number = 70;
 		
 		public static const DEFAULT_UNIQUE_NAME_STR:String = "rogue";
+		public static const ASCENDED_UNIQUE_NAME_STR:String = "immortal";
 		
 		public static var point:Point = new Point();
 		
@@ -110,6 +111,7 @@
 			searchRadius = -1;
 			canMenuAction = true;
 			uniqueNameStr = DEFAULT_UNIQUE_NAME_STR;
+			if(UserData.settings.ascended) uniqueNameStr = ASCENDED_UNIQUE_NAME_STR;
 			
 			cameraDisplacement = new Point();
 			
@@ -703,7 +705,7 @@
 			if(value){
 				if(keyItem){
 					if(!keyWarning){
-						game.console.print("the handbag of holding cannot carry any more magic keys");
+						game.console.print("handbag of holding cannot carry any more magic keys");
 						keyWarning = true;
 					}
 				} else {

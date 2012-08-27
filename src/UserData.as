@@ -112,11 +112,6 @@ package {
 					xp:0,
 					keyItem:false
 				},
-				balrog:{
-					xml:null,
-					health:0,
-					mapLevel:int.MAX_VALUE
-				},
 				inventory:{
 					weapons:[],
 					armour:[],
@@ -130,6 +125,7 @@ package {
 			};
 			
 			initMinion();
+			initBalrog();
 			
 			for(i = 0; i < Game.MAX_LEVEL; i++){
 				gameState.runeNames.push("?");
@@ -142,6 +138,14 @@ package {
 			gameState.minion = {
 				xml:null,
 				health:0
+			};
+		}
+		
+		public static function initBalrog():void{
+			gameState.balrog = {
+				xml:null,
+				health:0,
+				mapLevel:int.MAX_VALUE
 			};
 		}
 		
@@ -208,6 +212,9 @@ package {
 					weapons:[],
 					armour:[]
 				},
+				playerConsumed:false,
+				minionConsumed:false,
+				ascended:false,
 				areaContent:[]
 			};
 			

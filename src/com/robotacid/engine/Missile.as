@@ -132,7 +132,7 @@
 			
 			if(item){
 				// leech gun shots are always red and bleeding
-				if(item.name == Item.LEECH_GUN){
+				if(item.name == Item.GUN_LEECH){
 					gfx.transform.colorTransform = new ColorTransform(0.7, 0, 0);
 					debris = true;
 					debrisType = Renderer.BLOOD;

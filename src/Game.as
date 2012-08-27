@@ -72,10 +72,10 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 430;
+		public static const BUILD_NUM:int = 431;
 		
 		public static const TEST_BED_INIT:Boolean = false;
-		public static const ONLINE:Boolean = true;
+		public static const ONLINE:Boolean = false;
 		
 		public static var game:Game;
 		public static var renderer:Renderer;
@@ -190,6 +190,7 @@
 		public static const SOUND_DIST_MAX:int = 12;
 		public static const INV_SOUND_DIST_MAX:Number = 1.0 / SOUND_DIST_MAX;
 		public static const SOUND_HORIZ_DIST_MULTIPLIER:Number = 1.5;
+		public static const RED_COL:ColorTransform = new ColorTransform(1, 0, 0, 1, -85);
 		
 		public static var fullscreenOn:Boolean;
 		public static var allowScriptAccess:Boolean;
@@ -419,27 +420,7 @@
 			menuCarousel.setCurrentMenu(gameMenu);
 			
 			if(!focusPrompt){
-				focusPrompt = new Sprite();
-				focusPrompt.graphics.beginFill(0x000000);
-				focusPrompt.graphics.drawRect(0, 0, WIDTH, HEIGHT);
-				var clickToPlayText:TextBox = new TextBox(100, 12, 0x0, 0x0);
-				clickToPlayText.align = "center";
-				clickToPlayText.text = "click to play";
-				clickToPlayText.bitmapData.colorTransform(clickToPlayText.bitmapData.rect, new ColorTransform(1, 0, 0, 1, -85));
-				focusPrompt.addChild(clickToPlayText);
-				clickToPlayText.x = (WIDTH * 0.5) - 50;
-				clickToPlayText.y = (HEIGHT * 0.5) + 10;
-				var buildText:TextBox = new TextBox(100, 12, 0x0, 0x0);
-				buildText.align = "center";
-				buildText.text = "build " + BUILD_NUM;
-				buildText.bitmapData.colorTransform(buildText.bitmapData.rect, new ColorTransform(1, 0, 0, 1, -85));
-				focusPrompt.addChild(buildText);
-				buildText.x = (WIDTH * 0.5) - 50;
-				buildText.y = HEIGHT - 14;
-				var title_b:Bitmap = new library.BannerB();
-				focusPrompt.addChild(title_b);
-				title_b.y = HEIGHT * 0.5 - title_b.height * 0.5;
-				title_b.scaleX = title_b.scaleY = 0.5;
+				createFocusPrompt();
 				stage.addEventListener(Event.DEACTIVATE, onFocusLost);
 				stage.addEventListener(Event.ACTIVATE, onFocus);
 			}
@@ -683,10 +664,10 @@
 			
 			if(!player){
 				var playerMc:MovieClip = new RogueMC();
-				var minionMc:MovieClip = new SkeletonMC();
 				var startX:Number = (map.start.x + 0.5) * SCALE;
 				var startY:Number = (map.start.y + 1) * SCALE;
 				player = new Player(playerMc, startX, startY);
+				var minionMc:MovieClip = new SkeletonMC();
 				minion = new Minion(minionMc, startX, startY, Character.SKELETON);
 				
 				// load the state of the player, if there is one
@@ -706,7 +687,7 @@
 					}
 					gameMenu.inventoryList.loadFromObject(UserData.gameState.inventory);
 					
-					if(!UserData.gameState.minion) minion = null;
+					if(!UserData.gameState.minion || UserData.settings.minionConsumed) minion = null;
 					// load the state of the minion, if there is one
 					else if(UserData.gameState.minion.xml){
 						var minionXML:XML = UserData.gameState.minion.xml
@@ -1151,6 +1132,42 @@
 			instructionsHolder.addChild(instructions);
 			
 			changeMusic();
+		}
+		
+		public function createFocusPrompt():void{
+			focusPrompt = new Sprite();
+			focusPrompt.graphics.beginFill(0x000000);
+			focusPrompt.graphics.drawRect(0, 0, WIDTH, HEIGHT);
+			var clickToPlayText:TextBox = new TextBox(100, 12, 0x0, 0x0);
+			clickToPlayText.align = "center";
+			clickToPlayText.text = "click to play";
+			clickToPlayText.bitmapData.colorTransform(clickToPlayText.bitmapData.rect, RED_COL);
+			focusPrompt.addChild(clickToPlayText);
+			clickToPlayText.x = (WIDTH * 0.5) - 50;
+			clickToPlayText.y = (HEIGHT * 0.5) + 10;
+			
+			var buildText:TextBox = new TextBox(100, 12, 0x0, 0x0);
+			buildText.align = "center";
+			buildText.text = "build " + BUILD_NUM;
+			buildText.bitmapData.colorTransform(buildText.bitmapData.rect, RED_COL);
+			focusPrompt.addChild(buildText);
+			buildText.x = (WIDTH * 0.5) - 50;
+			buildText.y = HEIGHT - 14;
+			
+			var titleB:Bitmap;
+			if(UserData.settings.playerConsumed){
+				titleB = new library.BannerFailB();
+				clickToPlayText.text = "click to reflect on your utter failure";
+				clickToPlayText.bitmapData.colorTransform(clickToPlayText.bitmapData.rect, RED_COL);
+			} else if(UserData.settings.ascended){
+				titleB = new library.BannerCompleteB();
+				clickToPlayText.text = "click to play again";
+			} else {
+				titleB = new library.BannerB();
+			}
+			focusPrompt.addChild(titleB);
+			titleB.y = HEIGHT * 0.5 - titleB.height * 0.5;
+			titleB.scaleX = titleB.scaleY = 0.5;
 		}
 		
 		private function clearInstructions():void{

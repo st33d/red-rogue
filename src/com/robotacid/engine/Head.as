@@ -103,10 +103,13 @@
 		}
 		
 		public function kill():void{
-			if(game.random.value() <= FACE_DROP_CHANCE){
+			if(name == Character.BALROG || game.random.value() <= FACE_DROP_CHANCE){
 				// create face armour and drop to the map
 				var face:Face = new Face(game.library.getCharacterHeadGfx(name), name);
-				face.uniqueNameStr = uniqueNameStr
+				face.uniqueNameStr = uniqueNameStr;
+				if(uniqueNameStr == Balrog.DEFAULT_UNIQUE_NAME_STR){
+					face.theBalrog = true;
+				}
 				face.dropToMap(mapX, mapY);
 				game.console.print("a " + Character.stats["names"][name] + " face is created");
 			}

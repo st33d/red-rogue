@@ -15,6 +15,8 @@
 	public class Library {
 		
 		[Embed(source = "assets/banner.png")] public var BannerB:Class;
+		[Embed(source = "assets/banner-fail.png")] public var BannerFailB:Class;
+		[Embed(source = "assets/banner-complete.png")] public var BannerCompleteB:Class;
 		
 		[Embed(source = "assets/background/dungeon1.png")] public var BackB1:Class;
 		[Embed(source = "assets/background/dungeon2.png")] public var BackB2:Class;

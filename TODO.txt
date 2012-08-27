@@ -1,4 +1,4 @@
-Change log: refactored nightmares to be based around level proximity to balrog, balrog added to gameState data, fixed slight vertical camera judder caused by floating point errors, enemy health bar now hidden on changing level, fixed missile weapons not generating aggro
+Change log: more work on story and dreams, already carrying a key prompt fixed to not overspill on console, added healstone hit sounds for leech gun, renamed leech gun to gun leech, added heal and undead to fez item, leech spell now upgrades gun leech, added groundwork for balrog death event
 
 Bug hunt
 	collection lock out on chests after playing for a while - bugged chest or item?
@@ -12,6 +12,16 @@ Bug hunt
 	minion weapon invisible after level change (arbalest and skull equipped)
 
 the balrog
+	
+	reset balrog init level and restore stats
+	
+	pause screens
+		create function for setting pause screen
+		fail
+		complete
+	
+	the chase
+		test balrog escaping, going up a level, then going back down after the balrog
 	the balrog face
 		bricking the game
 		reset option in menu
@@ -20,6 +30,7 @@ the balrog
 			dies when balrog head is worn
 		spurts blood erratically
 		patrols
+	verify nymph can steal yendor
 
 Guide -
 	copy over races guide for elites (check racial bonuses are accurate), then fill out

@@ -104,14 +104,16 @@
 		];
 		
 		public static const SPECIAL_ITEMS:Array = [
-			<item name={Item.LEECH_GUN} type={Item.WEAPON} level={1} location={Item.UNASSIGNED} holyState={Item.NO_CURSE} />,
+			<item name={Item.GUN_LEECH} type={Item.WEAPON} level={1} location={Item.UNASSIGNED} holyState={Item.NO_CURSE} />,
 			<item name={Item.COG} type={Item.WEAPON} level={1} location={Item.UNASSIGNED} holyState={Item.NO_CURSE}>
-				<effect name={Item.CHAOS} level={1} source={Effect.WEAPON} />
+				<effect name={Item.CHAOS} level={1} />
 			</item>,
 			<item name={Item.HARPOON} type={Item.WEAPON} level={1} location={Item.UNASSIGNED} holyState={Item.NO_CURSE} />,
 			<item name={Item.FEZ} type={Item.ARMOUR} level={1} location={Item.UNASSIGNED} holyState={Item.NO_CURSE}>
-				<effect name={Item.SLOW} level={2} source={Effect.WEAPON} />
-				<effect name={Item.CONFUSION} level={2} source={Effect.WEAPON} />
+				<effect name={Item.SLOW} level={2} />
+				<effect name={Item.CONFUSION} level={2} />
+				<effect name={Item.UNDEAD} level={2} />
+				<effect name={Item.HEAL} level={2} />
 			</item>
 		];
 		
@@ -172,7 +174,7 @@
 				gameState.balrog.xml = createBalrogXML();
 				// introduce the balrog at the end of the caves
 				gameState.balrog.mapLevel = gameState.zoneSizes[0] + gameState.zoneSizes[1] + gameState.zoneSizes[2];
-				//gameState.balrog.mapLevel = 2;
+				gameState.balrog.mapLevel = 1;
 			}
 			holyStateIntroLevel = gameState.holyStateIntroLevel;
 			

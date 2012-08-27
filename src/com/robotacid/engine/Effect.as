@@ -364,7 +364,7 @@
 			} else if(name == LEECH){
 				// leech levels up leeches and curses other items
 				if(
-					(item.type == Item.WEAPON && item.name == Item.LEECH_WEAPON) ||
+					(item.type == Item.WEAPON && (item.name == Item.LEECH_WEAPON || item.name == Item.GUN_LEECH)) ||
 					(item.type == Item.ARMOUR && item.name == Item.BLOOD)
 				){
 					while(level--) item.levelUp();

@@ -1,6 +1,7 @@
 ﻿package com.robotacid.ui.menu {
 	import com.robotacid.ai.Brain;
 	import com.robotacid.ai.PlayerBrain;
+	import com.robotacid.engine.Balrog;
 	import com.robotacid.level.Map;
 	import com.robotacid.engine.Character;
 	import com.robotacid.engine.Effect;
@@ -21,6 +22,9 @@
 	import com.robotacid.ui.Editor;
 	import com.robotacid.ui.FileManager;
 	import flash.display.BitmapData;
+	import flash.display.DisplayObjectContainer;
+	import flash.display.MovieClip;
+	import flash.display.Sprite;
 	import flash.display.StageScaleMode;
 	import flash.events.Event;
 	import flash.geom.Rectangle;
@@ -591,6 +595,10 @@
 					if(item.type == Item.ARMOUR && item.name == Item.INDIFFERENCE){
 						game.console.print("indifference is fragile");
 					}
+					// balrog face?
+					if(item == character.armour && item is Face && (item as Face).theBalrog){
+						balrogFaceCheck();
+					}
 				}
 			
 			// dropping items
@@ -1067,6 +1075,59 @@
 			];
 			for(var i:int = 0; i < xmls.length; i++){
 				inventoryList.addItemFromXML(xmls[i]);
+			}
+		}
+		
+		/* Open a dialog to see if the player want's to equip the balrog mask */
+		private function balrogFaceCheck():void{
+			if(!Game.dialog){
+				Game.dialog = new Dialog(
+					"stop!",
+					"you sense a great evil in this item\ndo you really want to equip it?",
+					consumeCharacter,
+					function():void{}
+				);
+			}
+		}
+		
+		/* Called when a character equips the balrog's face */
+		private function consumeCharacter():void{
+			// determine who equipped the item
+			var character:Character;
+			if(game.player.armour is Face && game.player.armour.uniqueNameStr == Balrog.DEFAULT_UNIQUE_NAME_STR){
+				character = game.player;
+			} else {
+				character = game.minion;
+			}
+			if(character){
+				var face:Face = character.unequip(character.armour) as Face;
+				inventoryList.removeItem(face);
+				// resurrect the balrog at the location of the face wearer
+				UserData.initBalrog();
+				var mc:MovieClip = new BalrogMC();
+				game.balrog = new Balrog(mc, null, Balrog.RESURRECT);
+				game.balrog.collider.x = (character.collider.x + character.collider.width * 0.5) - game.balrog.collider.width * 0.5;
+				game.balrog.collider.y = (character.collider.y + character.collider.height) - game.balrog.collider.height;
+				game.balrog.mapX = (game.balrog.collider.x + game.balrog.collider.width * 0.5) * Game.INV_SCALE;
+				game.balrog.mapY = (game.balrog.collider.y + game.balrog.collider.height * 0.5) * Game.INV_SCALE;
+				game.balrog.addMinimapFeature();
+				
+				// brick the appropriate character
+				if(character == game.player){
+					UserData.settings.playerConsumed = true;
+					if(game.lives.value) game.lives.value = 0;
+					var focusPromptParent:DisplayObjectContainer = game.focusPrompt.parent;
+					if(focusPromptParent) focusPromptParent.removeChild(game.focusPrompt);
+					game.createFocusPrompt();
+					if(focusPromptParent) focusPromptParent.addChild(game.focusPrompt);
+				} else if(character == game.minion){
+					UserData.settings.minionConsumed = true;
+				}
+				character.undead = true;
+				character.death("consumed", false, game.balrog);
+			} else {
+				// sanity check - will remove this line when confirmed stable
+				throw new Error("wearer of balrog face not determined");
 			}
 		}
 		

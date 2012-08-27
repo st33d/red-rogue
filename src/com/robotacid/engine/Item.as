@@ -111,7 +111,7 @@
 		public static const CHAOS_WAND:int = 17;
 		public static const LIGHTNING:int = 18;
 		public static const LEECH_WEAPON:int = 19;
-		public static const LEECH_GUN:int = 20;
+		public static const GUN_LEECH:int = 20;
 		public static const COG:int = 21;
 		public static const HARPOON:int = 22;
 		
@@ -212,10 +212,10 @@
 				else if(name == LONG_BOW) missileGfxClass = LongBowArrowMC;
 				else if(name == GUN_BLADE) missileGfxClass = GunBladeBulletMC;
 				else if(name == CHAOS_WAND) missileGfxClass = ThrownRuneMC;
-				else if(name == LEECH_GUN) missileGfxClass = ThrownRuneMC;
+				else if(name == GUN_LEECH) missileGfxClass = ThrownRuneMC;
 				
 				// special effects
-				if(name == LEECH_WEAPON || name == LEECH_GUN){
+				if(name == LEECH_WEAPON || name == GUN_LEECH){
 					leech = Effect.LEECH_PER_LEVEL * level;
 				} else {
 					leech = 0;

@@ -1204,6 +1204,8 @@
 					game.soundQueue.addRandom("arquebus", ["arquebus1", "arquebus2", "arquebus3"]);
 				} else if(item.name == Item.ARBALEST){
 					game.soundQueue.add("arbalest");
+				} else if(item.name == Item.GUN_LEECH){
+					game.soundQueue.addRandom("leech gun", Stone.HEAL_STONE_HIT_SOUNDS);
 				} else {
 					game.soundQueue.add("bowShoot");
 				}

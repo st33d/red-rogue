@@ -31,6 +31,7 @@ package com.robotacid.engine {
 		public static const STAIRS_DOWN_TAUNT:int = 0;
 		public static const ENTER_STAIRS_UP:int = 1;
 		public static const WANDER_LEVEL:int = 2;
+		public static const RESURRECT:int = 3;
 		
 		public function Balrog(gfx:DisplayObject, items:Vector.<Item>, levelState:int){
 			rank = ELITE;
@@ -75,7 +76,7 @@ package com.robotacid.engine {
 			// levelState determines where the balrog will start in the level
 			// Game.setLevel handles the ENTER_STAIRS_UP state, sending the balrog into the
 			// level before the player to emphasise the chase
-			if(levelState == WANDER_LEVEL || levelState == STAIRS_DOWN_TAUNT){
+			if(levelState != ENTER_STAIRS_UP){
 				if(levelState == STAIRS_DOWN_TAUNT){
 					Effect.teleportCharacter(this, game.map.stairsDown, true);
 				} else if(levelState == WANDER_LEVEL){

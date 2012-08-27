@@ -24,6 +24,7 @@ package com.robotacid.engine {
 		private var moveCount:int;
 		private var debrisType:int;
 		private var boomCount:int;
+		private var theBalrog:Boolean;
 		
 		public static const WALKING:int = Character.WALKING;
 		
@@ -48,6 +49,10 @@ package com.robotacid.engine {
 			speed = victim.speed;
 			moving = victim.moving;
 			dir = victim.looking;
+			theBalrog = victim is Balrog;
+			if(!(dir & (LEFT | RIGHT))){
+				dir = looking = game.random.coinFlip() ? LEFT : RIGHT;
+			}
 			debrisType = victim.debrisType;
 			var mcClass:Class = (Object(victim.gfx).constructor as Class);
 			gfx = new mcClass();
@@ -70,7 +75,17 @@ package com.robotacid.engine {
 				else if(dir & LEFT) collider.vx -= speed;
 			}
 			
-			if((collider.pressure & (LEFT | RIGHT)) || (boomCount--) <= 0) kill();
+			if(theBalrog){
+				if(collider.pressure & (LEFT | RIGHT)){
+					dir = looking = (collider.pressure & LEFT) ? RIGHT : LEFT;
+				}
+				// check to see if the we've be resurrected
+				if(game.balrog){
+					kill();
+				}
+			} else {
+				if((collider.pressure & (LEFT | RIGHT)) || (boomCount--) <= 0) kill();
+			}
 		}
 		
 		public function kill():void{
