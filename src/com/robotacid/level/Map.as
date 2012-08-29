@@ -169,11 +169,12 @@
 			fill(0, 1, 1, width-2, height-2, layers[BLOCKS]);
 			
 			// access point
-			setPortal((width * 0.5) >> 0, height - 2, <portal type={Portal.PORTAL} targetLevel={-1} targetType={Map.ITEM_DUNGEON} />);
+			setPortal((width * 0.5) >> 0, height - 2, <portal type={Portal.PORTAL} targetLevel={-1} targetType={Map.MAIN_DUNGEON} />);
 			start = portals[0];
 			
 			// set zone for background debugging
 			zone = (game.gameMenu.editorList.dungeonLevelList.selection) / LEVELS_PER_ZONE;
+			if(zone >= 4) zone = CHAOS;
 		}
 		
 		/* This is where we convert our map template into a level proper made of tileIds and other

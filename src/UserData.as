@@ -147,6 +147,7 @@ package {
 				health:0,
 				mapLevel:int.MAX_VALUE
 			};
+			if(settings.consumedPlayer) gameState.balrog.mapLevel = 1;
 		}
 		
 		public static function saveGameState(currentLevel:int, currentMapType:int):void{

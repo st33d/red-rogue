@@ -924,6 +924,7 @@
 				Player.previousLevel = editorList.dungeonLevelList.selection;
 				Player.previousPortalType = Portal.STAIRS;
 				Player.previousMapType = Map.MAIN_DUNGEON;
+				if(editorList.dungeonLevelList.selection == 0) Player.previousMapType = Map.AREA;
 				game.editor.deactivate();
 				game.setLevel(editorList.dungeonLevelList.selection + 1, Portal.STAIRS);;
 				
@@ -1085,7 +1086,15 @@
 					"stop!",
 					"you sense a great evil in this item\ndo you really want to equip it?",
 					consumeCharacter,
-					function():void{}
+					function():void{
+						var character:Character;
+						if(game.player.armour is Face && (game.player.armour as Face).theBalrog){
+							character = game.player;
+						} else {
+							character = game.minion;
+						}
+						character.unequip(character.armour);
+					}
 				);
 			}
 		}
@@ -1094,7 +1103,7 @@
 		private function consumeCharacter():void{
 			// determine who equipped the item
 			var character:Character;
-			if(game.player.armour is Face && game.player.armour.uniqueNameStr == Balrog.DEFAULT_UNIQUE_NAME_STR){
+			if(game.player.armour is Face && (game.player.armour as Face).theBalrog){
 				character = game.player;
 			} else {
 				character = game.minion;
@@ -1120,11 +1129,13 @@
 					if(focusPromptParent) focusPromptParent.removeChild(game.focusPrompt);
 					game.createFocusPrompt();
 					if(focusPromptParent) focusPromptParent.addChild(game.focusPrompt);
+					game.balrog.consumedPlayer = true;
 				} else if(character == game.minion){
 					UserData.settings.minionConsumed = true;
 				}
 				character.undead = true;
-				character.death("consumed", false, game.balrog);
+				character.death("possession", false, game.balrog);
+				game.console.print(character.nameToString() + "'s soul has been consumed");
 			} else {
 				// sanity check - will remove this line when confirmed stable
 				throw new Error("wearer of balrog face not determined");

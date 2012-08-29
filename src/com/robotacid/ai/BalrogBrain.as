@@ -33,6 +33,12 @@ package com.robotacid.ai {
 		}
 		
 		override public function main():void {
+			// if the player is dead, operate as a standard brain
+			if(!game.player.active){
+				super.main();
+				return;
+			}
+			
 			charPos.x = char.collider.x + char.collider.width * 0.5;
 			charPos.y = char.collider.y + char.collider.height * 0.5;
 			var charContact:Character;
@@ -204,13 +210,13 @@ package com.robotacid.ai {
 		override public function attack(target:Character):void{
 			super.attack(target);
 			// the balrog will engage for a short duration only
-			count = delay + game.random.range(delay);
+			if(game.player.active) count = delay + game.random.range(delay);
 		}
 		
 		override public function clear():void{
 			target = null;
 			patrolState = INIT;
-			state = ESCAPE;
+			state = game.player.active ? ESCAPE : PATROL;
 			altNode = null;
 			// drop from ladder
 			if(char.collider.state == Collider.HOVER){
@@ -221,8 +227,6 @@ package com.robotacid.ai {
 		
 		/* Navigate towards the level's stairs down */
 		public function gotoExit():void{
-			
-			
 			char.actions = 0;
 			
 			var graph:MapGraph = wallWalker ? walkWalkGraph : mapGraph;

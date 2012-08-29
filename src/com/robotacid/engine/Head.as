@@ -20,6 +20,7 @@
 		private var debrisType:int;
 		private var bloodCount:int;
 		private var uniqueNameStr:String;
+		private var theBalrog:Boolean;
 		
 		public static const GRAVITY:Number = 0.8;
 		public static const DAMPING_Y:Number = 0.99;
@@ -44,6 +45,7 @@
 					(victim.uniqueNameStr.charAt(victim.uniqueNameStr.length - 1) == "s") ? "' " : "'s "
 				) + " face";
 			}
+			theBalrog = victim is Balrog;
 			createCollider(victim.gfx.x, victim.collider.y + gfx.height, Collider.HEAD | Collider.SOLID, Collider.CORPSE | Collider.ITEM);
 			game.world.restoreCollider(collider);
 			collider.resolveMapInsertion();
@@ -106,10 +108,8 @@
 			if(name == Character.BALROG || game.random.value() <= FACE_DROP_CHANCE){
 				// create face armour and drop to the map
 				var face:Face = new Face(game.library.getCharacterHeadGfx(name), name);
-				face.uniqueNameStr = uniqueNameStr;
-				if(uniqueNameStr == Balrog.DEFAULT_UNIQUE_NAME_STR){
-					face.theBalrog = true;
-				}
+				face.uniqueNameStr = uniqueNameStr
+				face.theBalrog = theBalrog;
 				face.dropToMap(mapX, mapY);
 				game.console.print("a " + Character.stats["names"][name] + " face is created");
 			}

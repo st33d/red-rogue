@@ -21,6 +21,7 @@ package com.robotacid.engine {
 		public var levelState:int;
 		public var portalContact:Portal;
 		public var exitLevelCount:int;
+		public var consumedPlayer:Boolean;
 		
 		private var minimapFX:MinimapFX;
 		
@@ -58,21 +59,13 @@ package com.robotacid.engine {
 		/* Called on the balrog's first main() after all initialisation is done */
 		public function mapInit():void{
 			mapInitialised = true;
-			level = game.player.level;
+			if(game.player.active) level = game.player.level;
+			else{
+				levelState = RESURRECT;
+				brain.state = Brain.PATROL;
+			}
 			setStats();
 			if(UserData.gameState.balrog.health) health = UserData.gameState.balrog.health;
-			if(loot){
-				var item:Item;
-				for(var i:int = 0; i < loot.length; i++){
-					item = loot[i];
-					if((!weapon && item.type == Item.WEAPON) || (!armour && item.type == Item.ARMOUR && item.name != Item.INDIFFERENCE)){
-						equip(item);
-					} else if(!throwable && item.type == Item.WEAPON && (item.range & Item.THROWN)){
-						equip(item, true);
-					}
-					if(weapon && armour && throwable) break;
-				}
-			}
 			// levelState determines where the balrog will start in the level
 			// Game.setLevel handles the ENTER_STAIRS_UP state, sending the balrog into the
 			// level before the player to emphasise the chase
@@ -86,6 +79,18 @@ package com.robotacid.engine {
 				game.world.restoreCollider(collider);
 				collider.state = Collider.FALL;
 				state = WALKING;
+			}
+			if(loot){
+				var item:Item;
+				for(var i:int = 0; i < loot.length; i++){
+					item = loot[i];
+					if((!weapon && item.type == Item.WEAPON) || (!armour && item.type == Item.ARMOUR && item.name != Item.INDIFFERENCE)){
+						equip(item);
+					} else if(!throwable && item.type == Item.WEAPON && (item.range & Item.THROWN)){
+						equip(item, true);
+					}
+					if(weapon && armour && throwable) break;
+				}
 			}
 			game.lightMap.setLight(this, DEFAULT_LIGHT_RADIUS);
 			Brain.monsterCharacters.push(this);
@@ -267,6 +272,14 @@ package com.robotacid.engine {
 			minimapFX.active = false;
 			game.balrog = null;
 			UserData.gameState.balrog = false;
+		}
+		
+		public function snapCamera():void{
+			renderer.camera.setTarget(
+				collider.x + collider.width * 0.5,
+				collider.y
+			);
+			renderer.camera.skipPan();
 		}
 		
 		override public function toXML():XML {

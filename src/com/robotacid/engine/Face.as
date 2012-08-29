@@ -15,8 +15,8 @@ package com.robotacid.engine {
 	public class Face extends Item {
 		
 		public var previousName:int;
-		private var equipping:Boolean;
 		public var theBalrog:Boolean;
+		private var equipping:Boolean;
 		
 		public function Face(mc:DisplayObject, level:int) {
 			super(mc, FACE, ARMOUR, level);

@@ -1,4 +1,4 @@
-Change log: more work on story and dreams, already carrying a key prompt fixed to not overspill on console, added healstone hit sounds for leech gun, renamed leech gun to gun leech, added heal and undead to fez item, leech spell now upgrades gun leech, added groundwork for balrog death event
+Change log: fixed entering dungeon level one via editor menu, fixed entering level 20 in test bed
 
 Bug hunt
 	collection lock out on chests after playing for a while - bugged chest or item?
@@ -13,15 +13,13 @@ Bug hunt
 
 the balrog
 	
-	reset balrog init level and restore stats
+	reset balrog init level and restore stats and remove kill button
 	
 	pause screens
 		create function for setting pause screen
 		fail
 		complete
 	
-	the chase
-		test balrog escaping, going up a level, then going back down after the balrog
 	the balrog face
 		bricking the game
 		reset option in menu

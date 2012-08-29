@@ -72,7 +72,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 431;
+		public static const BUILD_NUM:int = 432;
 		
 		public static const TEST_BED_INIT:Boolean = false;
 		public static const ONLINE:Boolean = false;
@@ -670,42 +670,46 @@
 				var minionMc:MovieClip = new SkeletonMC();
 				minion = new Minion(minionMc, startX, startY, Character.SKELETON);
 				
-				// load the state of the player, if there is one
-				if(UserData.gameState.player.xml){
-					var playerXML:XML = UserData.gameState.player.xml
-					player.level = int(playerXML.@level);
-					player.xp = Number(playerXML.@xp);
-					// the character may have been reskinned, so we just force a reskin anyway to set stats
-					player.changeName(int(playerXML.@name));
-					if(UserData.gameState.player.health) player.health = UserData.gameState.player.health;
-					player.applyHealth(0);
-					player.addXP(0);
-					levelNumGfx.gotoAndStop(player.level);
-					player.keyItem = UserData.gameState.player.keyItem;
-					for each(enchantment in playerXML.effect){
-						effect = new Effect(int(enchantment.@name), int(enchantment.@level), int(enchantment.@source), player, int(enchantment.@count));
-					}
-					gameMenu.inventoryList.loadFromObject(UserData.gameState.inventory);
-					
-					if(!UserData.gameState.minion || UserData.settings.minionConsumed) minion = null;
-					// load the state of the minion, if there is one
-					else if(UserData.gameState.minion.xml){
-						var minionXML:XML = UserData.gameState.minion.xml
-						minion.level = int(minionXML.@level);
+				if(!UserData.settings.playerConsumed){
+					// load the state of the player, if there is one
+					if(UserData.gameState.player.xml){
+						var playerXML:XML = UserData.gameState.player.xml
+						player.level = int(playerXML.@level);
+						player.xp = Number(playerXML.@xp);
 						// the character may have been reskinned, so we just force a reskin anyway to set stats
-						minion.changeName(int(minionXML.@name));
-						if(UserData.gameState.minion.health) minion.health = UserData.gameState.minion.health;
-						minion.applyHealth(0);
-						for each(enchantment in minionXML.effect){
-							effect = new Effect(int(enchantment.@name), int(enchantment.@level), int(enchantment.@source), minion, int(enchantment.@count));
+						player.changeName(int(playerXML.@name));
+						if(UserData.gameState.player.health) player.health = UserData.gameState.player.health;
+						player.applyHealth(0);
+						player.addXP(0);
+						levelNumGfx.gotoAndStop(player.level);
+						player.keyItem = UserData.gameState.player.keyItem;
+						for each(enchantment in playerXML.effect){
+							effect = new Effect(int(enchantment.@name), int(enchantment.@level), int(enchantment.@source), player, int(enchantment.@count));
 						}
+						gameMenu.inventoryList.loadFromObject(UserData.gameState.inventory);
+						
+						if(!UserData.gameState.minion || UserData.settings.minionConsumed) minion = null;
+						// load the state of the minion, if there is one
+						else if(UserData.gameState.minion.xml){
+							var minionXML:XML = UserData.gameState.minion.xml
+							minion.level = int(minionXML.@level);
+							// the character may have been reskinned, so we just force a reskin anyway to set stats
+							minion.changeName(int(minionXML.@name));
+							if(UserData.gameState.minion.health) minion.health = UserData.gameState.minion.health;
+							minion.applyHealth(0);
+							for each(enchantment in minionXML.effect){
+								effect = new Effect(int(enchantment.@name), int(enchantment.@level), int(enchantment.@source), minion, int(enchantment.@count));
+							}
+						}
+						game.console.print("welcome back rogue (" + mapNameStr + ")");
+					} else {
+						game.console.print("welcome rogue");
 					}
-					game.console.print("welcome back rogue (" + mapNameStr + ")");
+					player.snapCamera();
 				} else {
-					game.console.print("welcome rogue");
+					player.active = false;
+					minion = null;
 				}
-				
-				player.snapCamera();
 			} else {
 				player.collider.x = -player.collider.width * 0.5 + (map.start.x + 0.5) * SCALE;
 				player.collider.y = -player.collider.height + (map.start.y + 1) * SCALE;
@@ -714,6 +718,7 @@
 				player.snapCamera();
 			}
 			keyItemStatus.visible = player.keyItem;
+			
 			
 			if(minion){
 				minion.collider.x = -minion.collider.width * 0.5 + (map.start.x + 0.5) * SCALE;
@@ -737,6 +742,10 @@
 				balrog.mapX = (balrog.collider.x + balrog.collider.width * 0.5) * INV_SCALE;
 				balrog.mapY = (balrog.collider.y + balrog.collider.height * 0.5) * INV_SCALE;
 				balrog.addMinimapFeature();
+				balrog.consumedPlayer = UserData.settings.playerConsumed;
+				if(balrog.consumedPlayer){
+					balrog.snapCamera();
+				}
 			}
 			
 			// outside areas are set pieces, meant to give contrast to the dungeon and give the player
@@ -801,6 +810,9 @@
 			} else {
 				player.enterLevel(entrance, Player.previousLevel < level ? Collider.RIGHT : Collider.LEFT);
 			}
+			
+			if(!player.active) consumedPlayerInit();
+			
 			changeMusic();
 			
 			trackEvent("set level", mapNameStr);
@@ -1138,12 +1150,11 @@
 			focusPrompt = new Sprite();
 			focusPrompt.graphics.beginFill(0x000000);
 			focusPrompt.graphics.drawRect(0, 0, WIDTH, HEIGHT);
-			var clickToPlayText:TextBox = new TextBox(100, 12, 0x0, 0x0);
+			var clickToPlayText:TextBox = new TextBox(320, 12, 0x0, 0x0);
 			clickToPlayText.align = "center";
 			clickToPlayText.text = "click to play";
 			clickToPlayText.bitmapData.colorTransform(clickToPlayText.bitmapData.rect, RED_COL);
 			focusPrompt.addChild(clickToPlayText);
-			clickToPlayText.x = (WIDTH * 0.5) - 50;
 			clickToPlayText.y = (HEIGHT * 0.5) + 10;
 			
 			var buildText:TextBox = new TextBox(100, 12, 0x0, 0x0);
@@ -1168,6 +1179,16 @@
 			focusPrompt.addChild(titleB);
 			titleB.y = HEIGHT * 0.5 - titleB.height * 0.5;
 			titleB.scaleX = titleB.scaleY = 0.5;
+		}
+		
+		private function consumedPlayerInit():void{
+			playerHealthBar.visible = false;
+			minionHealthBar.visible = false;
+			playerXpBar.visible = false;
+			enemyHealthBar.visible = false;
+			miniMap.visible = false;
+			keyItemStatus.visible = false;
+			playerActionBar.visible = false;
 		}
 		
 		private function clearInstructions():void{
@@ -1207,6 +1228,9 @@
 					pauseGame();
 				}
 			}
+			if(Key.isDown(Key.T)){
+				if(balrog) balrog.death();
+			}
 			/*if(Key.isDown(Key.K)){
 				//player.jump();
 				player.setAsleep(true);
@@ -1216,9 +1240,6 @@
 			}
 			if(Key.isDown(Key.T)){
 				miniMap.reveal();
-			}
-			if(Key.isDown(Key.T)){
-				player.levelUp();
 			}
 			if(Key.isDown(Key.R)){
 				reset();
