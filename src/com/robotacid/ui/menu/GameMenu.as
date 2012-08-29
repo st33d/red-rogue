@@ -229,7 +229,7 @@
 			saveSettingsOption = new MenuOption("save settings");
 			saveSettingsOption.help = "save only menu settings. you cannot save settings in the underworld or overworld. a technical limitation.";
 			saveAndQuitOption = new MenuOption("save and quit", null, false);
-			saveAndQuitOption.help = "this is currently in development. the game will have permadeath, but some elements may carry from game to game";
+			saveAndQuitOption.help = "the game saves state and settings automatically before you enter any area. quit currently disabled.";
 			soundOption = new MenuOption("sound", soundList);
 			soundOption.help = "toggle sound";
 			var sfxOption:MenuOption = new MenuOption("sfx", onOffList);

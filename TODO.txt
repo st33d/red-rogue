@@ -13,21 +13,9 @@ Bug hunt
 
 the balrog
 	
-	reset balrog init level and restore stats and remove kill button
-	
-	pause screens
-		create function for setting pause screen
-		fail
-		complete
-	
 	the balrog face
 		bricking the game
 		reset option in menu
-	balrog corpse
-		always alive
-			dies when balrog head is worn
-		spurts blood erratically
-		patrols
 	verify nymph can steal yendor
 
 Guide -

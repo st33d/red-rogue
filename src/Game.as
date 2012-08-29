@@ -72,10 +72,10 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 432;
+		public static const BUILD_NUM:int = 433;
 		
 		public static const TEST_BED_INIT:Boolean = false;
-		public static const ONLINE:Boolean = false;
+		public static const ONLINE:Boolean = true;
 		
 		public static var game:Game;
 		public static var renderer:Renderer;
@@ -1228,10 +1228,11 @@
 					pauseGame();
 				}
 			}
+			/*
 			if(Key.isDown(Key.T)){
 				if(balrog) balrog.death();
 			}
-			/*if(Key.isDown(Key.K)){
+			if(Key.isDown(Key.K)){
 				//player.jump();
 				player.setAsleep(true);
 			}
