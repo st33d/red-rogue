@@ -23,6 +23,7 @@
 	import com.robotacid.ui.menu.GameMenu;
 	import com.robotacid.ui.menu.Menu;
 	import com.robotacid.ui.menu.MenuCarousel;
+	import com.robotacid.ui.menu.PlayerConsumedMenu;
 	import com.robotacid.ui.menu.QuestMenuList;
 	import com.robotacid.ui.menu.QuestMenuOption;
 	import com.robotacid.ui.ProgressBar;
@@ -72,7 +73,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 433;
+		public static const BUILD_NUM:int = 434;
 		
 		public static const TEST_BED_INIT:Boolean = false;
 		public static const ONLINE:Boolean = true;
@@ -111,6 +112,7 @@
 		public var menuCarousel:MenuCarousel;
 		public var gameMenu:GameMenu;
 		public var deathMenu:DeathMenu;
+		public var playerConsumedMenu:PlayerConsumedMenu;
 		public var miniMap:MiniMap;
 		public var playerActionBar:ProgressBar;
 		public var playerHealthBar:ProgressBar;
@@ -408,8 +410,10 @@
 				menuCarousel = new MenuCarousel();
 				gameMenu = new GameMenu(WIDTH, console.y, this);
 				deathMenu = new DeathMenu(WIDTH, console.y, this);
+				playerConsumedMenu = new PlayerConsumedMenu(WIDTH, console.y, this);
 				menuCarousel.addMenu(gameMenu);
 				menuCarousel.addMenu(deathMenu);
+				menuCarousel.addMenu(playerConsumedMenu);
 			} else {
 				// update the rng seed
 				if(Map.seed == 0) gameMenu.seedInputList.option.name = "" + Map.random.seed;
@@ -709,6 +713,7 @@
 				} else {
 					player.active = false;
 					minion = null;
+					game.console.print("");
 				}
 			} else {
 				player.collider.x = -player.collider.width * 0.5 + (map.start.x + 0.5) * SCALE;
@@ -1168,7 +1173,7 @@
 			var titleB:Bitmap;
 			if(UserData.settings.playerConsumed){
 				titleB = new library.BannerFailB();
-				clickToPlayText.text = "click to reflect on your utter failure";
+				clickToPlayText.text = "click to not play";
 				clickToPlayText.bitmapData.colorTransform(clickToPlayText.bitmapData.rect, RED_COL);
 			} else if(UserData.settings.ascended){
 				titleB = new library.BannerCompleteB();
@@ -1181,7 +1186,7 @@
 			titleB.scaleX = titleB.scaleY = 0.5;
 		}
 		
-		private function consumedPlayerInit():void{
+		public function consumedPlayerInit():void{
 			playerHealthBar.visible = false;
 			minionHealthBar.visible = false;
 			playerXpBar.visible = false;
@@ -1189,6 +1194,8 @@
 			miniMap.visible = false;
 			keyItemStatus.visible = false;
 			playerActionBar.visible = false;
+			playerConsumedMenu.select(0);
+			menuCarousel.setCurrentMenu(playerConsumedMenu);
 		}
 		
 		private function clearInstructions():void{

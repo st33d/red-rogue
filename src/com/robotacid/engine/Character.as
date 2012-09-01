@@ -1312,6 +1312,7 @@
 				if(name == NYMPH){
 					roll *= 0.5;
 					if(rank == ELITE) roll = 0;
+					
 				} else if(name == MIND_FLAYER){
 					roll *= 1.5;
 				}

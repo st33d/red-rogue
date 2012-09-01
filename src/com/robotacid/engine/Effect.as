@@ -70,6 +70,8 @@
 		public static const THROWN:int = 3;
 		public static const EATEN:int = 4;
 		
+		public static const TELEPORT_SOUNDS:Array = ["teleport1", "teleport2", "teleport3"];
+		
 		public static const DECAY_DELAY_PER_LEVEL:int = 30 * 3;
 		/* There are 3 damage reflection opportunities: being a cactuar, the thorns spell, bees and knives armour - knives
 		 * reflect twice as much as bees - so we divide 1.0 by 20 * 4 */
@@ -936,6 +938,9 @@
 			if(!dest) dest = getTeleportTarget(target.mapX, target.mapY, game.world.map, game.mapTileManager.mapRect, (target == game.player && !game.player.keyItem && Surface.fragmentationMap));
 			
 			if(!silent){
+				renderer.createSparkRect(target.collider, 40, -vx, -vy);
+				game.createDistSound(target.mapX, target.mapY, "teleportFrom", TELEPORT_SOUNDS);
+				
 				var vx:Number, vy:Number, length:Number;
 				vx = dest.x - target.mapX;
 				vy = dest.y - target.mapY;
@@ -947,6 +952,7 @@
 					vx = vy = 0;
 				}
 				renderer.createSparkRect(target.collider, 40, vx, vy);
+				game.createDistSound(dest.x, dest.y, "teleportTo", TELEPORT_SOUNDS);
 			}
 			
 			target.collider.x = -target.collider.width * 0.5 + (dest.x + 0.5) * Game.SCALE;
@@ -955,11 +961,6 @@
 			if(target is Player){
 				game.lightMap.blackOut();
 				(target as Player).snapCamera();
-			}
-			
-			if(!silent){
-				renderer.createSparkRect(target.collider, 40, -vx, -vy);
-				game.soundQueue.addRandom("teleport", ["teleport1", "teleport2", "teleport3"]);
 			}
 		}
 		

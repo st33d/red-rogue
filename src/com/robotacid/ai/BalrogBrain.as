@@ -92,7 +92,6 @@ package com.robotacid.ai {
 					// exit when any schedule target is too near or a missile weapon is directed at us
 					if(scheduleTarget && (distSq < ESCAPE_MOVE_EDGE_SQ || missileDanger())){
 						(char as Balrog).exitLevelCount = game.frameCount;
-						game.createDistSound(char.mapX, char.mapY, "laughter", LAUGHTER);
 					}
 					
 				} else {
@@ -179,7 +178,9 @@ package com.robotacid.ai {
 					clear();
 					
 				} else {
-					avoid(target);
+					// quickening should be avoided by a swift escape
+					if(target == game.player || target == game.minion) gotoExit();
+					else avoid(target);
 					// commute allies away from the target
 					if(charContact && target.active && !char.enemy(charContact) && charContact.brain) charContact.brain.copyState(this);
 					if(count-- <= 0){
@@ -199,6 +200,10 @@ package com.robotacid.ai {
 					}
 					if(charContact && char.enemy(charContact)){
 						attack(target);
+						
+					// quickening may be our cause for escape, use the stairs immediately
+					} else if(char.mapX == game.map.stairsDown.x && char.mapY == game.map.stairsDown.y){
+						(char as Balrog).exitLevelCount = game.frameCount;
 					}
 				}
 			}

@@ -219,6 +219,7 @@ package com.robotacid.engine {
 		
 		public function exitLevel(portal:Portal):void{
 			this.portal = portal;
+			game.createDistSound(mapX, mapY, "laughter", BalrogBrain.LAUGHTER);
 			gfx.x = (portal.mapX + 0.5) * Game.SCALE;
 			state = EXITING;
 			// prepare content state for next level
@@ -234,7 +235,7 @@ package com.robotacid.engine {
 				dir = looking & (LEFT | RIGHT);
 			}
 			game.world.removeCollider(collider);
-			// stop the player ledge-dropping when entering the new area
+			// stop ledge-dropping when entering the new area
 			collider.ignoreProperties &= ~Collider.LEDGE;
 		}
 		

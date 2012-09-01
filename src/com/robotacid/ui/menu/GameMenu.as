@@ -642,9 +642,23 @@
 				}
 				inventoryList.removeItem(item);
 			
-			// new game
+			// sure list options
 			} else if(currentMenuList == sureList && currentMenuList.selection == YES){
-				reset();
+				
+				// erasing the shared object
+				if(previousMenuList.options[previousMenuList.selection] == resetOption){
+					if(!Game.dialog){
+						Game.dialog = new Dialog(
+							"reset",
+							"are you sure you want to reset all of your settings? this cannot be undone.",
+							function():void{reset(true)},
+							function():void{}
+						);
+					}
+				// new game
+				} else if(previousMenuList.options[previousMenuList.selection] == newGameOption){
+					reset();
+				}
 			
 			} else if(option == onOffOption){
 				
@@ -727,17 +741,6 @@
 			} else if(option == saveAndQuitOption){
 				//UserData.saveSettings();
 				//UserData.push();
-			
-			// erasing the shared object
-			} else if(option == resetOption){
-				if(!Game.dialog){
-					Game.dialog = new Dialog(
-						"reset",
-						"please restart the game after accepting this option to ensure all data is erased",
-						UserData.reset,
-						function():void{}
-					);
-				}
 			
 			// taking a screenshot
 			} else if(option == screenshotOption){
@@ -1136,6 +1139,9 @@
 				character.undead = true;
 				character.death("possession", false, game.balrog);
 				game.console.print(character.nameToString() + "'s soul has been consumed");
+				if(character == game.player){
+					game.consumedPlayerInit();
+				}
 			} else {
 				// sanity check - will remove this line when confirmed stable
 				throw new Error("wearer of balrog face not determined");
@@ -1143,7 +1149,8 @@
 		}
 		
 		/* Resets the game and the GameMenu for a new play session */
-		public function reset():void{
+		public function reset(hard:Boolean = false):void{
+			if(hard) UserData.reset();
 			game.trackEvent("reset game");
 			inventoryList.reset();
 			loreList.questsList.reset();

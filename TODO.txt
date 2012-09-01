@@ -1,22 +1,13 @@
-Change log: fixed entering dungeon level one via editor menu, fixed entering level 20 in test bed
+Change log: wearing balrog's face ending implemented, hard reset implemented, player no longer receives xp after death, balrog attempts to escape to the next level if fleeing - answers using quickening to attack him, teleport now creates distanced sounds at the departure and arrival points
 
 Bug hunt
-	collection lock out on chests after playing for a while - bugged chest or item?
 	chaos wall colliders can child a character and pull it into a wall - how?
 	null Monster collider.world spotted - why?
-	full crash observed in chaos - game frozen, menu operational
 	minion dither spotted - caught in a probable follow/avoid loop
-	shot troll with arrow - no aggro, why? - possible frozen monster occurence
 	balrog frozen after smite attack, stuck to wall - no further info (perhaps secret wall? or chaos wall?)
 	chaos walls frozen without graphics rendered and no walls beneath them (activated, not on chaos wall render list?)
 	minion weapon invisible after level change (arbalest and skull equipped)
 
-the balrog
-	
-	the balrog face
-		bricking the game
-		reset option in menu
-	verify nymph can steal yendor
 
 Guide -
 	copy over races guide for elites (check racial bonuses are accurate), then fill out

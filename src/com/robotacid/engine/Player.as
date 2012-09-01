@@ -580,7 +580,7 @@
 		}
 		
 		public function addXP(n:Number):void{
-			if(level >= Game.MAX_LEVEL) return;
+			if(!active || level >= Game.MAX_LEVEL) return;
 			
 			// level up check
 			while(level < Game.MAX_LEVEL && xp + n > Content.xpTable[level]){
