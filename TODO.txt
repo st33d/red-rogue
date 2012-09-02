@@ -1,4 +1,4 @@
-Change log: wearing balrog's face ending implemented, hard reset implemented, player no longer receives xp after death, balrog attempts to escape to the next level if fleeing - answers using quickening to attack him, teleport now creates distanced sounds at the departure and arrival points
+Change log: fixed teleport sparks not showing on destination, fixed level init trying to render writing past the underworld init level, fixed settings portals leading to levels past 20, fixed backtracking from settings portals past 20
 
 Bug hunt
 	chaos wall colliders can child a character and pull it into a wall - how?
@@ -7,6 +7,7 @@ Bug hunt
 	balrog frozen after smite attack, stuck to wall - no further info (perhaps secret wall? or chaos wall?)
 	chaos walls frozen without graphics rendered and no walls beneath them (activated, not on chaos wall render list?)
 	minion weapon invisible after level change (arbalest and skull equipped)
+	investigate portals around level 20 plus and killing the balrog in the same area
 
 
 Guide -
@@ -17,12 +18,9 @@ rotate between a selection of menus
 		title menu
 
 endings
-
-AI problems:
-	escape graph imperfect
-	meta-heuristic block - path too long
-		genius chase solver backup graph
-			genius class
-			priority queue
-			slow path
-	rally - a monster could see the character and could call other monsters to aid, there should be a rallying pose and a shockwave type graphic, implying he's just told everyone on screen to mob the player
+	yendor in the underworld
+		create male rogue race (simplest solution)
+	yendor in the overworld
+		new overworld backdrop? night?
+			entrance crumble anim
+				all rocks crumble, rise up?

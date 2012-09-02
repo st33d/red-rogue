@@ -261,11 +261,14 @@
 				var areaPortalXML:XML;
 				var areaContent:Array = UserData.settings.areaContent;
 				var portalList:Array
+				var targetLevel:int;
 				for(i = 0; i < areaContent.length; i++){
 					portalList = UserData.settings.areaContent[i].portals;
 					for(j = 0; j < portalList.length; j++){
 						areaPortalXML = portalList[j];
-						gameState.portalsByLevel[int(areaPortalXML.@targetLevel)].push(<portal type={Portal.PORTAL} targetLevel={i} targetType={Map.AREA} />);
+						targetLevel = areaPortalXML.@targetLevel;
+						while(targetLevel >= gameState.portalsByLevel.length) gameState.portalsByLevel.push([]);
+						gameState.portalsByLevel[targetLevel].push(<portal type={Portal.PORTAL} targetLevel={i} targetType={Map.AREA} />);
 					}
 				}
 			}
@@ -506,14 +509,18 @@
 					gameState.questGemsByLevel[mapLevel] = 0;
 					gameState.monsterXpByLevel[mapLevel] = 0;
 				} else {
-					var obj:Object = getLevelContent(mapLevel);
-					monsters = gameState.monstersByLevel[mapLevel] = obj.monsters;
-					chests = gameState.chestsByLevel[mapLevel] = obj.chests;
-					gameState.questGemsByLevel[mapLevel] = 0;
-					gameState.monsterXpByLevel[mapLevel] = 0;
-					gameState.clearedByLevel[mapLevel] = false;
-					monsterXp = 0;
-					questGems = 0;
+					var obj:Object, fillLevel:int = gameState.monstersByLevel.length;
+					while(mapLevel >= gameState.monstersByLevel.length){
+						obj = getLevelContent(fillLevel);
+						monsters = gameState.monstersByLevel[fillLevel] = obj.monsters;
+						chests = gameState.chestsByLevel[fillLevel] = obj.chests;
+						gameState.questGemsByLevel[fillLevel] = 0;
+						gameState.monsterXpByLevel[fillLevel] = 0;
+						gameState.clearedByLevel[fillLevel] = false;
+						monsterXp = 0;
+						questGems = 0;
+						fillLevel = gameState.monstersByLevel.length;
+					}
 				}
 			} else if(mapType == Map.ITEM_DUNGEON){
 				monsters = gameState.itemDungeonContent.monsters;
@@ -773,7 +780,7 @@
 		/* Returns the amount of traps in this level */
 		public function getTraps(dungeonLevel:int, dungeonType:int):int{
 			if(dungeonType == Map.MAIN_DUNGEON){
-				while(dungeonLevel >= gameState.trapsByLevel.length) gameState.trapsByLevel.push(gameState.trapQuantityPerLevel(dungeonLevel));
+				while(dungeonLevel >= gameState.trapsByLevel.length) gameState.trapsByLevel.push(trapQuantityPerLevel(dungeonLevel));
 				return gameState.trapsByLevel[dungeonLevel];
 			} else if(dungeonType == Map.ITEM_DUNGEON){
 				return gameState.itemDungeonContent.traps;

@@ -73,7 +73,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 434;
+		public static const BUILD_NUM:int = 435;
 		
 		public static const TEST_BED_INIT:Boolean = false;
 		public static const ONLINE:Boolean = true;
@@ -625,7 +625,7 @@
 				mapTileManager.newMap(map.width, map.height, map.layers);
 			}
 			renderer.backBitmapData = mapTileManager.layerToBitmapData(MapTileManager.BACKGROUND_LAYER);
-			if(map.type != Map.AREA){
+			if(type == Map.MAIN_DUNGEON && level <= Writing.story.length){
 				Writing.renderWritings();
 			}
 			renderer.blockBitmapData = renderer.backBitmapData.clone();

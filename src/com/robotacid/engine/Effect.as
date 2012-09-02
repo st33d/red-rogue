@@ -951,8 +951,6 @@
 				} else {
 					vx = vy = 0;
 				}
-				renderer.createSparkRect(target.collider, 40, vx, vy);
-				game.createDistSound(dest.x, dest.y, "teleportTo", TELEPORT_SOUNDS);
 			}
 			
 			target.collider.x = -target.collider.width * 0.5 + (dest.x + 0.5) * Game.SCALE;
@@ -961,6 +959,10 @@
 			if(target is Player){
 				game.lightMap.blackOut();
 				(target as Player).snapCamera();
+			}
+			if(!silent){
+				renderer.createSparkRect(target.collider, 40, vx, vy);
+				game.createDistSound(dest.x, dest.y, "teleportTo", TELEPORT_SOUNDS);
 			}
 		}
 		
