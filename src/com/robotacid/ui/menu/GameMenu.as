@@ -49,7 +49,6 @@
 		public var loreList:LoreMenuList;
 		public var optionsList:MenuList;
 		public var debugList:MenuList;
-		public var creditsList:MenuList;
 		
 		public var editorList:EditorMenuList;
 		public var giveItemList:GiveItemMenuList;
@@ -95,17 +94,14 @@
 		public var seedOption:MenuOption;
 		public var dogmaticOption:MenuOption;
 		public var consoleDirOption:MenuOption;
-		private var soundOption:MenuOption;
-		private var fullScreenOption:MenuOption;
-		private var menuMoveOption:MenuOption;
+		public var soundOption:MenuOption;
+		public var fullScreenOption:MenuOption;
+		public var menuMoveOption:MenuOption;
 		
 		public var stairsUpPortalOption:MenuOption;
 		public var stairsDownPortalOption:MenuOption;
 		public var overworldPortalOption:MenuOption;
 		public var underworldPortalOption:MenuOption;
-		
-		public var steedOption:MenuOption;
-		public var nateOption:MenuOption;
 		
 		public var onOffOption:ToggleMenuOption;
 		public var upDownOption:ToggleMenuOption;
@@ -134,7 +130,6 @@
 			loreList = new LoreMenuList(infoTextBox, this, game);
 			optionsList = new MenuList();
 			debugList = new MenuList();
-			creditsList = new MenuList();
 			
 			sureList = new MenuList(Vector.<MenuOption>([
 				new MenuOption("no", null, false),
@@ -173,8 +168,6 @@
 			loreOption.help = "information that has been gathered about the world.";
 			debugOption = new MenuOption("debug", debugList);
 			debugOption.help = "debug tools for allowing access to game elements that are hard to find in a procedurally generated world"
-			var creditsOption:MenuOption = new MenuOption("credits", creditsList);
-			creditsOption.help = "those involved with making the game.\nthis part of the menu will be moved to the title screen when i've made it."
 			
 			giveItemOption = new MenuOption("give item", giveItemList);
 			giveItemOption.help = "put a custom item in the player's inventory";
@@ -259,11 +252,6 @@
 			resetOption.recordable = false;
 			resetOption.help = "erases all saved data. this cannot be undone.";
 			
-			steedOption = new MenuOption("aaron steed - code/art/design");
-			steedOption.help = "opens a window to aaron steed's site - robotacid.com";
-			nateOption = new MenuOption("nathan gallardo - sound/music");
-			nateOption.help = "opens a window to nathan gallardo's site (where this game's OST is available)";
-			
 			onOffOption = new ToggleMenuOption(["turn off", "turn on"]);
 			onOffOption.selectionStep = 1;
 			upDownOption = new ToggleMenuOption(["up", "down"]);
@@ -276,7 +264,6 @@
 			trunk.options.push(loreOption);
 			trunk.options.push(optionsOption);
 			trunk.options.push(debugOption);
-			trunk.options.push(creditsOption);
 			
 			actionsList.options.push(searchOption);
 			actionsList.options.push(summonOption);
@@ -318,9 +305,6 @@
 			portalTeleportList.options.push(stairsUpPortalOption);
 			portalTeleportList.options.push(overworldPortalOption);
 			portalTeleportList.options.push(underworldPortalOption);
-			
-			creditsList.options.push(steedOption);
-			creditsList.options.push(nateOption);
 			
 			soundList.options.push(sfxOption);
 			soundList.options.push(musicOption);
@@ -878,13 +862,6 @@
 			} else if(option == giveDebugEquipmentOption){
 				giveDebugEquipment();
 			
-			// credits
-			} else if(option == steedOption){
-				navigateToURL(new URLRequest("http://robotacid.com"), "_blank");
-				
-			} else if(option == nateOption){
-				navigateToURL(new URLRequest("http://gallardosound.com"), "_blank");
-				
 			// changing race
 			} else if(currentMenuList == changeRaceList){
 				if(previousMenuList.options[previousMenuList.selection] == changeRogueRaceOption){
@@ -963,7 +940,7 @@
 		}
 		
 		/* Activates fullscreen mode */
-		private function fullscreen():void{
+		public function fullscreen():void{
 			try{
 				game.stage.fullScreenSourceRect = new Rectangle(0, 0, Game.WIDTH * 2, Game.HEIGHT * 2);
 				game.stage.scaleMode = StageScaleMode.SHOW_ALL;

@@ -26,6 +26,7 @@
 	import com.robotacid.ui.menu.PlayerConsumedMenu;
 	import com.robotacid.ui.menu.QuestMenuList;
 	import com.robotacid.ui.menu.QuestMenuOption;
+	import com.robotacid.ui.menu.TitleMenu;
 	import com.robotacid.ui.ProgressBar;
 	import com.robotacid.ui.TextBox;
 	import com.robotacid.ui.MiniMap;
@@ -73,10 +74,10 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 435;
+		public static const BUILD_NUM:int = 436;
 		
 		public static const TEST_BED_INIT:Boolean = false;
-		public static const ONLINE:Boolean = true;
+		public static const ONLINE:Boolean = false;
 		
 		public static var game:Game;
 		public static var renderer:Renderer;
@@ -105,14 +106,16 @@
 		public var lightning:Lightning;
 		
 		// ui
+		public var gameMenu:GameMenu;
+		public var deathMenu:DeathMenu;
+		public var playerConsumedMenu:PlayerConsumedMenu;
+		public var titleMenu:TitleMenu;
+		
 		public var focusPrompt:Sprite;
 		public var miniMapHolder:Sprite;
 		public var console:Console;
 		public var confusionOverlayHolder:Sprite;
 		public var menuCarousel:MenuCarousel;
-		public var gameMenu:GameMenu;
-		public var deathMenu:DeathMenu;
-		public var playerConsumedMenu:PlayerConsumedMenu;
 		public var miniMap:MiniMap;
 		public var playerActionBar:ProgressBar;
 		public var playerHealthBar:ProgressBar;
@@ -411,9 +414,11 @@
 				gameMenu = new GameMenu(WIDTH, console.y, this);
 				deathMenu = new DeathMenu(WIDTH, console.y, this);
 				playerConsumedMenu = new PlayerConsumedMenu(WIDTH, console.y, this);
+				titleMenu = new TitleMenu(gameMenu);
 				menuCarousel.addMenu(gameMenu);
 				menuCarousel.addMenu(deathMenu);
 				menuCarousel.addMenu(playerConsumedMenu);
+				menuCarousel.addMenu(titleMenu);
 			} else {
 				// update the rng seed
 				if(Map.seed == 0) gameMenu.seedInputList.option.name = "" + Map.random.seed;
@@ -422,6 +427,7 @@
 			
 			// REFACTOR WHEN TITLE MENU IS MADE:
 			menuCarousel.setCurrentMenu(gameMenu);
+			//menuCarousel.setCurrentMenu(titleMenu);
 			
 			if(!focusPrompt){
 				createFocusPrompt();
@@ -688,7 +694,7 @@
 						levelNumGfx.gotoAndStop(player.level);
 						player.keyItem = UserData.gameState.player.keyItem;
 						for each(enchantment in playerXML.effect){
-							effect = new Effect(int(enchantment.@name), int(enchantment.@level), int(enchantment.@source), player, int(enchantment.@count));
+							effect = new Effect(int(enchantment.@name), int(enchantment.@level), int(enchantment.@source), player, int(enchantment.@count), false, false);
 						}
 						gameMenu.inventoryList.loadFromObject(UserData.gameState.inventory);
 						
@@ -702,7 +708,7 @@
 							if(UserData.gameState.minion.health) minion.health = UserData.gameState.minion.health;
 							minion.applyHealth(0);
 							for each(enchantment in minionXML.effect){
-								effect = new Effect(int(enchantment.@name), int(enchantment.@level), int(enchantment.@source), minion, int(enchantment.@count));
+								effect = new Effect(int(enchantment.@name), int(enchantment.@level), int(enchantment.@source), minion, int(enchantment.@count), false, false);
 							}
 						}
 						game.console.print("welcome back rogue (" + mapNameStr + ")");

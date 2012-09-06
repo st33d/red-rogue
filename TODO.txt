@@ -1,4 +1,4 @@
-Change log: fixed teleport sparks not showing on destination, fixed level init trying to render writing past the underworld init level, fixed settings portals leading to levels past 20, fixed backtracking from settings portals past 20
+Change log: title menu built - awaiting testing and title screen
 
 Bug hunt
 	chaos wall colliders can child a character and pull it into a wall - how?
@@ -19,7 +19,12 @@ rotate between a selection of menus
 
 endings
 	yendor in the underworld
-		create male rogue race (simplest solution)
+		create male rogue
+			set up graphics
+			create markers for graphics setting
+		transformation event
+			minion must be non-consumed
+			run whole scene as animation?
 	yendor in the overworld
 		new overworld backdrop? night?
 			entrance crumble anim

@@ -288,7 +288,11 @@
 		
 		/* Overridden to change states of options as selections change */
 		public function changeSelection():void{
-			
+			if(currentMenuList.options.length == 0) return;
+			var option:MenuOption = currentMenuList.options[selection];
+			if(parent && option.help){
+				help.text = option.help;
+			}
 		}
 		
 		/* The trunk is MenuList 0. All options and lists branch outwards like a tree

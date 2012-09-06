@@ -24,7 +24,7 @@ package com.robotacid.ui.menu {
 			var trunk:MenuList = new MenuList();
 			
 			var youDiedOption:MenuOption = new MenuOption("you died", null, false);
-			newGameOption = new MenuOption("new game");
+			newGameOption = new MenuOption("reincarnate");
 			newGameOption.help = "start a new game";
 			newGameOption.selectionStep = MenuOption.EXIT_MENU;
 			saveEpitaphOption = new MenuOption("save epitaph");
