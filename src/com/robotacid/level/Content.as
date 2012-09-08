@@ -174,6 +174,7 @@
 				gameState.balrog.xml = createBalrogXML();
 				// introduce the balrog at the end of the caves
 				gameState.balrog.mapLevel = gameState.zoneSizes[0] + gameState.zoneSizes[1] + gameState.zoneSizes[2];
+				if(UserData.settings.playerConsumed) gameState.balrog.mapLevel = 1;
 				//gameState.balrog.mapLevel = 1;
 			}
 			holyStateIntroLevel = gameState.holyStateIntroLevel;

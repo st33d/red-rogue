@@ -63,6 +63,7 @@
 		public var onOffList:MenuList;
 		public var multiplayerList:MenuList;
 		public var recordGifList:MenuList;
+		public var creditsList:MenuList;
 		
 		public var inventoryOption:MenuOption;
 		public var actionsOption:MenuOption;
@@ -76,10 +77,13 @@
 		public var sleepOption:ToggleMenuOption;
 		public var minionMissileOption:ToggleMenuOption;
 		public var saveGifOption:MenuOption;
+		public var creditsOption:MenuOption
+		public var steedOption:MenuOption;
+		public var nateOption:MenuOption;
 		
 		public var instructionsOption:MenuOption;
 		public var saveSettingsOption:MenuOption;
-		public var saveAndQuitOption:MenuOption;
+		public var quitOption:MenuOption;
 		public var screenshotOption:MenuOption;
 		public var saveLogOption:MenuOption;
 		public var editorOption:MenuOption;
@@ -141,6 +145,7 @@
 			seedInputList.promptName = "enter number";
 			multiplayerList = new MenuList();
 			recordGifList = new MenuList();
+			creditsList = new MenuList();
 			
 			editorList = new EditorMenuList(this, game.editor);
 			giveItemList = new GiveItemMenuList(this, game);
@@ -211,6 +216,12 @@
 			minionMissileOption.context = "minion missile";
 			saveGifOption = new MenuOption("save gif", null, false);
 			saveGifOption.help = "save out the last 4 seconds of action around the player. may crash the game.";
+			creditsOption = new MenuOption("credits", creditsList);
+			creditsOption.help = "those involved with making the game.";
+			steedOption = new MenuOption("aaron steed - code/art/design");
+			steedOption.help = "opens a window to aaron steed's site - robotacid.com";
+			nateOption = new MenuOption("nathan gallardo - sound/music");
+			nateOption.help = "opens a window to nathan gallardo's site (where this game's OST is available)";
 			
 			initChangeKeysMenuOption();
 			changeKeysOption.help = "change the movement keys, menu key and hot keys"
@@ -221,8 +232,8 @@
 			instructionsOption.help = "view the basic instructions screen";
 			saveSettingsOption = new MenuOption("save settings");
 			saveSettingsOption.help = "save only menu settings. you cannot save settings in the underworld or overworld. a technical limitation.";
-			saveAndQuitOption = new MenuOption("save and quit", null, false);
-			saveAndQuitOption.help = "the game saves state and settings automatically before you enter any area. quit currently disabled.";
+			quitOption = new MenuOption("quit", sureList);
+			quitOption.help = "the game saves state and settings automatically before you enter any area. current level progress will be lost.";
 			soundOption = new MenuOption("sound", soundList);
 			soundOption.help = "toggle sound";
 			var sfxOption:MenuOption = new MenuOption("sfx", onOffList);
@@ -275,7 +286,6 @@
 			optionsList.options.push(instructionsOption);
 			optionsList.options.push(fullScreenOption);
 			optionsList.options.push(saveSettingsOption);
-			optionsList.options.push(saveAndQuitOption);
 			optionsList.options.push(soundOption);
 			optionsList.options.push(screenshotOption);
 			optionsList.options.push(recordGifOption);
@@ -289,6 +299,8 @@
 			optionsList.options.push(multiplayerOption);
 			optionsList.options.push(newGameOption);
 			optionsList.options.push(resetOption);
+			optionsList.options.push(quitOption);
+			optionsList.options.push(creditsOption);
 			
 			debugList.options.push(editorOption);
 			debugList.options.push(giveItemOption);
@@ -314,6 +326,9 @@
 			
 			recordGifList.options.push(onOffOption);
 			recordGifList.options.push(saveGifOption);
+			
+			creditsList.options.push(steedOption);
+			creditsList.options.push(nateOption);
 			
 			onOffList.options.push(onOffOption);
 			
@@ -466,7 +481,7 @@
 				onOffOption.state = SoundManager.music ? 0 : 1;
 				renderMenu();
 				
-			} else if(option == newGameOption){
+			} else if(nextMenuList && nextMenuList == sureList){
 				// make sure that visiting the sure list always defaults to NO
 				sureList.selection = NO;
 				renderMenu();
@@ -639,6 +654,19 @@
 							function():void{}
 						);
 					}
+				// erasing the shared object
+				} else if(previousMenuList.options[previousMenuList.selection] == quitOption){
+					if(!Game.dialog){
+						Game.dialog = new Dialog(
+							"quit",
+							"you will lose all progress since you entered the level. are you sure.",
+							function():void{
+								game.state = Game.TITLE;
+								game.reset(false);
+							},
+							function():void{}
+						);
+					}
 				// new game
 				} else if(previousMenuList.options[previousMenuList.selection] == newGameOption){
 					reset();
@@ -720,11 +748,6 @@
 			} else if(option == saveSettingsOption){
 				UserData.saveSettings();
 				UserData.push(true);
-			
-			// saving and quitting
-			} else if(option == saveAndQuitOption){
-				//UserData.saveSettings();
-				//UserData.push();
 			
 			// taking a screenshot
 			} else if(option == screenshotOption){
@@ -919,6 +942,13 @@
 					character = Brain.playerCharacters[i];
 					character.brain.clear();
 				}
+				
+			} else if(option == steedOption){
+				navigateToURL(new URLRequest("http://robotacid.com"), "_blank");
+				
+			} else if(option == nateOption){
+				navigateToURL(new URLRequest("http://gallardosound.com"), "_blank");
+				
 			}
 			
 			// if the menu is open, force a renderer update so the player can see the changes,

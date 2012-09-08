@@ -17,7 +17,6 @@ package com.robotacid.ui.menu {
 		
 		public var newGameList:MenuList;
 		public var optionsList:MenuList;
-		public var creditsList:MenuList;
 		
 		public var newGameOption:MenuOption;
 		public var continueOption:MenuOption;
@@ -25,8 +24,6 @@ package com.robotacid.ui.menu {
 		
 		public var actionRPGOption:MenuOption;
 		public var dogmaticOption:MenuOption;
-		public var steedOption:MenuOption;
-		public var nateOption:MenuOption;
 		
 		public function TitleMenu(gameMenu:GameMenu) {
 			super(Game.WIDTH, Game.HEIGHT);
@@ -36,33 +33,23 @@ package com.robotacid.ui.menu {
 			var trunk:MenuList = new MenuList();
 			optionsList = new MenuList();
 			newGameList = new MenuList();
-			creditsList = new MenuList();
 			
 			newGameOption = new MenuOption("new game", newGameList);
 			newGameOption.help = "play a new game from the entrance to the dungeons of chaos.";
 			continueOption = new MenuOption("continue game", null, continuing);
 			continueOption.help = "resume a game you have left. the game will auto-save entering a new area. play resumes only from the entrance to a level.";
-			continueOption.selectionStep = MenuOption.EXIT_MENU;
 			optionsOption = new MenuOption("options", optionsList);
 			optionsOption.help = "configure settings.";
-			var creditsOption:MenuOption = new MenuOption("credits", creditsList);
-			creditsOption.help = "those involved with making the game.";
 			
 			actionRPGOption = new MenuOption("action rpg");
 			actionRPGOption.help = "standard play mode. preferable to those who like action role playing games.";
-			actionRPGOption.selectionStep = MenuOption.EXIT_MENU;
 			dogmaticOption = new MenuOption("dogmatic");
 			dogmaticOption.help = "time will only move forward when you perform an action or hold down a key. preferable to those who like roguelikes.";
-			dogmaticOption.selectionStep = MenuOption.EXIT_MENU;
-			steedOption = new MenuOption("aaron steed - code/art/design");
-			steedOption.help = "opens a window to aaron steed's site - robotacid.com";
-			nateOption = new MenuOption("nathan gallardo - sound/music");
-			nateOption.help = "opens a window to nathan gallardo's site (where this game's OST is available)";
 			
 			trunk.options.push(newGameOption);
 			trunk.options.push(continueOption);
 			trunk.options.push(optionsOption);
-			trunk.options.push(creditsOption);
+			trunk.options.push(gameMenu.creditsOption);
 			
 			// link direct to game menu objects - easier to keep consistent
 			optionsList.options.push(gameMenu.soundOption);
@@ -72,9 +59,7 @@ package com.robotacid.ui.menu {
 			
 			newGameList.options.push(actionRPGOption);
 			newGameList.options.push(dogmaticOption);
-			
-			creditsList.options.push(steedOption);
-			creditsList.options.push(nateOption);
+			newGameList.selection = UserData.settings.dogmaticMode ? 1 : 0;
 			
 			setTrunk(trunk);
 			
@@ -108,6 +93,11 @@ package com.robotacid.ui.menu {
 				gameMenu.onOffOption.state = Game.fullscreenOn ? 0 : 1;
 				renderMenu();
 				
+			} else if(nextMenuList && nextMenuList == gameMenu.sureList){
+				// make sure that visiting the sure list always defaults to NO
+				gameMenu.sureList.selection = GameMenu.NO;
+				renderMenu();
+				
 			}
 		}
 		
@@ -137,7 +127,7 @@ package com.robotacid.ui.menu {
 						if(SoundManager.soundLoops["underworldMusic2"]) SoundManager.stopSound("underworldMusic2");
 					} else {
 						SoundManager.turnOnMusic();
-						if(game.map.type == Map.AREA && game.map.level == Map.UNDERWORLD){
+						if(game.map && game.map.type == Map.AREA && game.map.level == Map.UNDERWORLD){
 							SoundManager.fadeLoopSound("underworldMusic2");
 						}
 					}
@@ -163,15 +153,46 @@ package com.robotacid.ui.menu {
 					
 					}
 				}
-			} else if(option == steedOption){
+			} else if(option == gameMenu.steedOption){
 				navigateToURL(new URLRequest("http://robotacid.com"), "_blank");
 				
-			} else if(option == nateOption){
+			} else if(option == gameMenu.nateOption){
 				navigateToURL(new URLRequest("http://gallardosound.com"), "_blank");
-				
+			
 			} else if(option == continueOption){
-				trace("continue");
+				launchGame(false, game.dogmaticMode);
+				
+			} else if(option == actionRPGOption){
+				if(UserData.gameState.player.xml){
+					if(!Game.dialog){
+						Game.dialog = new Dialog(
+							"new game",
+							"you have a game in progress\nare you sure you want to start from level 1?",
+							function():void{launchGame(true, false);},
+							function():void{}
+						);
+					}
+				} else launchGame(true, false);
+				
+			} else if(option == dogmaticOption){
+				if(UserData.gameState.player.xml){
+					if(!Game.dialog){
+						Game.dialog = new Dialog(
+							"new game",
+							"you have a game in progress\nare you sure you want to start from level 1?",
+							function():void{launchGame(true, true);},
+							function():void{}
+						);
+					}
+				} else launchGame(true, true);
 			}
+		}
+		
+		private function launchGame(newGame:Boolean, dogmaticMode:Boolean):void{
+			game.state = Game.GAME;
+			UserData.settings.dogmaticMode = game.dogmaticMode = dogmaticMode;
+			game.reset(newGame);
+			game.menuCarousel.deactivate();
 		}
 	}
 

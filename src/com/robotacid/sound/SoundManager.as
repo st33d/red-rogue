@@ -191,7 +191,7 @@
 		
 		/* Plays a sound loop and assigns it as currentMusic. Any new calls to playMusic
 		 * will stop playing the currentMusic and assign the new sound as currentMusic */
-		public static function playMusic(name:String, start:int = 0):void{
+		public static function playMusic(name:String, start:int = 0, playOnce:Boolean = false):void{
 			if(!sounds[name] || soundChannels[name]) return;
 			
 			var soundTransform:SoundTransform = new SoundTransform(volumes[name]);
@@ -207,13 +207,13 @@
 				
 				if(start >= sound.length) start %= sound.length;
 				
-				soundChannels[name] = sound.play(start, start == 0 ? int.MAX_VALUE : 1, soundTransform);
+				soundChannels[name] = sound.play(start, (start || playOnce) ? 1 : int.MAX_VALUE, soundTransform);
 				
 				// if too many SoundChannels are in use, sound.play() will silently fail
 				// to resolve this we force a low priority SoundChannel to sacrifice itself
 				if(!soundChannels[name]){
 					reserveChannel();
-					soundChannels[name] = sound.play(start, start == 0 ? int.MAX_VALUE : 1, soundTransform);
+					soundChannels[name] = sound.play(start, (start || playOnce) ? 1 : int.MAX_VALUE, soundTransform);
 				}
 				setTime(start);
 				// music that is started ahead of its start point needs an SOUND_COMPLETE to hack it into looping
@@ -306,7 +306,7 @@
 		
 		/* Fades music in by default, set step to a negative figure to fade.
 		 * Fades out currentMusic at the same rate */
-		public static function fadeMusic(name:String, step:Number = DEFAULT_FADE_STEP, start:int = 0):void{
+		public static function fadeMusic(name:String, step:Number = DEFAULT_FADE_STEP, start:int = 0, playOnce:Boolean = false):void{
 			
 			if(
 				!sounds[name] ||
@@ -337,17 +337,17 @@
 						var sound:Sound = sounds[name];
 						if(start >= sound.length) start %= sound.length;
 						
-						soundChannels[name] = sound.play(start, start == 0 ? int.MAX_VALUE : 1, soundTransform);
+						soundChannels[name] = sound.play(start, (start || playOnce) ? 1 : int.MAX_VALUE, soundTransform);
 						
 						// if too many SoundChannels are in use, sound.play() will silently fail
 						// to resolve this we force a low priority SoundChannel to sacrifice itself
 						if(!soundChannels[name]){
 							reserveChannel();
-							soundChannels[name] = sound.play(start, start == 0 ? int.MAX_VALUE : 1, soundTransform);
+							soundChannels[name] = sound.play(start, (start || playOnce) ? 1 : int.MAX_VALUE, soundTransform);
 						}
 						setTime(start);
 						// music that is started ahead of its start point needs an SOUND_COMPLETE to hack it into looping
-						if(start != 0) soundChannels[name].addEventListener(Event.SOUND_COMPLETE, loopMusic, false, 0, true);
+						if(start) soundChannels[name].addEventListener(Event.SOUND_COMPLETE, loopMusic, false, 0, true);
 						
 						soundLoops[name] = new SoundLoop(name, sound, soundTransform, soundChannels[name]);
 					}

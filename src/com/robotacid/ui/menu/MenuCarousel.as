@@ -11,8 +11,11 @@ package com.robotacid.ui.menu {
 		public var menus:Vector.<Menu>;
 		public var currentMenu:Menu;
 		
+		public var active:Boolean;
+		
 		public function MenuCarousel() {
 			menus = new Vector.<Menu>();
+			active = false;
 		}
 		
 		public function addMenu(menu:Menu):void{
@@ -30,10 +33,12 @@ package com.robotacid.ui.menu {
 		}
 		
 		public function activate():void{
+			active = true;
 			currentMenu.activate();
 		}
 		
 		public function deactivate():void{
+			active = false;
 			currentMenu.deactivate();
 		}
 	}

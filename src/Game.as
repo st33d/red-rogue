@@ -74,10 +74,10 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 436;
+		public static const BUILD_NUM:int = 437;
 		
 		public static const TEST_BED_INIT:Boolean = false;
-		public static const ONLINE:Boolean = false;
+		public static const ONLINE:Boolean = true;
 		
 		public static var game:Game;
 		public static var renderer:Renderer;
@@ -112,6 +112,7 @@
 		public var titleMenu:TitleMenu;
 		
 		public var focusPrompt:Sprite;
+		public var titleGfx:Sprite;
 		public var miniMapHolder:Sprite;
 		public var console:Console;
 		public var confusionOverlayHolder:Sprite;
@@ -126,6 +127,7 @@
 		public var livesPanel:LivesPanel;
 		public var keyItemStatus:Sprite;
 		public var fpsText:TextBox;
+		public var titlePressMenuText:TextBox
 		public var instructions:MovieClip;
 		public var instructionsHolder:Sprite;
 		
@@ -168,6 +170,7 @@
 		public static const SCALE:Number = 16;
 		public static const INV_SCALE:Number = 1.0 / 16;
 		
+		// states
 		public static const GAME:int = 0;
 		public static const MENU:int = 1;
 		public static const DIALOG:int = 2;
@@ -187,15 +190,16 @@
 		
 		public static const MAX_LEVEL:int = 20;
 		
+		public static const CONSOLE_Y:Number = HEIGHT - Console.HEIGHT;
 		public static const HEALTH_GLOW_RATIO:Number = 0.3;
 		public static const DEFAULT_BAR_COL:uint = 0xFFCCCCCC;
 		public static const DISABLED_BAR_COL:uint = 0xFFAA0000;
 		public static const GLOW_BAR_COL:uint = 0xAA0000;
+		public static const RED_COL:ColorTransform = new ColorTransform(1, 0, 0, 1, -85);
 		
 		public static const SOUND_DIST_MAX:int = 12;
 		public static const INV_SOUND_DIST_MAX:Number = 1.0 / SOUND_DIST_MAX;
 		public static const SOUND_HORIZ_DIST_MULTIPLIER:Number = 1.5;
-		public static const RED_COL:ColorTransform = new ColorTransform(1, 0, 0, 1, -85);
 		
 		public static var fullscreenOn:Boolean;
 		public static var allowScriptAccess:Boolean;
@@ -255,6 +259,7 @@
 			multiplayer = UserData.settings.multiplayer;
 			
 			firstInstructions = ONLINE;
+			state = (!ONLINE || UserData.settings.playerConsumed || TEST_BED_INIT) ? GAME : TITLE;
 			
 			library = new Library;
 			
@@ -329,81 +334,92 @@
 			
 			Map.random = new XorRandom(randomSeed);
 			
-			renderer.createRenderLayers(this);
-			
-			addChild(editor.bitmap);
-			
-			addChild(sleep);
-			
-			// UI INIT
-			
-			if(!console){
-				console = new Console();
-				console.y = HEIGHT - Console.HEIGHT;
+			// GAME GFX AND UI INIT
+			if(state == GAME || state == MENU){
+				renderer.createRenderLayers(this);
+				
+				addChild(editor.bitmap);
+				
+				addChild(sleep);
+				
+				if(!console){
+					console = new Console();
+					console.y = CONSOLE_Y;
+				}
+				addChild(console);
+				
+				miniMapHolder = new Sprite();
+				addChild(miniMapHolder);
+				if(miniMap) miniMapHolder.addChild(miniMap);
+				
+				keyItemStatus = new KeyUI();
+				keyItemStatus.x = 5 + MiniMap.WIDTH + 2;
+				keyItemStatus.y = 5 + (MiniMap.HEIGHT * 0.5 - keyItemStatus.height * 0.5) >> 0;
+				addChild(keyItemStatus);
+				keyItemStatus.visible = false;
+				
+				playerHealthBar = new ProgressBar(5, CONSOLE_Y - 22, 27, 17, HEALTH_GLOW_RATIO, 0xAA0000);
+				playerHealthBar.barCol = 0xFFCCCCCC;
+				addChild(playerHealthBar);
+				var hpBitmap:Bitmap = new library.HPB;
+				hpBitmap.x = 3;
+				hpBitmap.y = 5;
+				playerHealthBar.addChild(hpBitmap);
+				playerHealthBar.update();
+				
+				livesPanel = new LivesPanel();
+				livesPanel.y = -(livesPanel.height + 2);
+				livesPanel.visible = false;
+				playerHealthBar.addChild(livesPanel);
+				
+				minionHealthBar = new ProgressBar(playerHealthBar.x + playerHealthBar.bitmap.width + 1, playerHealthBar.y, 27, 5, HEALTH_GLOW_RATIO, 0xAA0000);
+				minionHealthBar.barCol = 0xFFCCCCCC;
+				addChild(minionHealthBar);
+				var mhpBitmap:Bitmap = new library.MHPB;
+				mhpBitmap.x = minionHealthBar.width + 1;
+				minionHealthBar.addChild(mhpBitmap);
+				minionHealthBar.visible = false;
+				minionHealthBar.update();
+				
+				playerXpBar = new ProgressBar(playerHealthBar.x + playerHealthBar.bitmap.width + 1, minionHealthBar.y + minionHealthBar.height, 27, 5);
+				playerXpBar.barCol = 0xFFCCCCCC;
+				addChild(playerXpBar);
+				levelNumGfx = new LevelNumMC();
+				levelNumGfx.stop();
+				levelNumGfx.x = playerXpBar.width + 1;
+				playerXpBar.addChild(levelNumGfx);
+				playerXpBar.update();
+				
+				playerActionBar = new ProgressBar(playerHealthBar.x + playerHealthBar.bitmap.width + 1, playerXpBar.y + playerXpBar.height, 27, 5);
+				playerActionBar.barCol = 0xFFCCCCCC;
+				var actBitmap:Bitmap = new library.ACT;
+				actBitmap.x = playerActionBar.width + 1;
+				playerActionBar.addChild(actBitmap);
+				addChild(playerActionBar);
+				playerActionBar.update();
+				
+				enemyHealthBar = new ProgressBar(WIDTH - 32, playerHealthBar.y, 27, 17, HEALTH_GLOW_RATIO, 0xAA0000);
+				enemyHealthBar.barCol = 0xFFCCCCCC;
+				addChild(enemyHealthBar);
+				enemyHealthBar.active = false;
+				enemyHealthBar.alpha = 0;
+				
+				confusionOverlayHolder = new Sprite();
+				addChild(confusionOverlayHolder);
+				
+				instructionsHolder = new Sprite();
+				addChild(instructionsHolder);
+				
+			} else if(state == TITLE){
+				addChild(getTitleGfx());
+				titlePressMenuText = new TextBox(Menu.LIST_WIDTH * 2, 12, Dialog.ROLL_OUT_COL);
+				titlePressMenuText.align = "center";
+				titlePressMenuText.text = "press menu key (" + Key.keyString(Key.custom[MENU_KEY]) + ") to begin";
+				titlePressMenuText.bitmapData.colorTransform(titlePressMenuText.bitmapData.rect, RED_COL);
+				titlePressMenuText.x = (WIDTH * 0.5 - titlePressMenuText.width * 0.5) >> 0;
+				titlePressMenuText.y = (HEIGHT * 0.5) + 10;
+				addChild(titlePressMenuText);
 			}
-			addChild(console);
-			
-			miniMapHolder = new Sprite();
-			addChild(miniMapHolder);
-			if(miniMap) miniMapHolder.addChild(miniMap);
-			
-			keyItemStatus = new KeyUI();
-			keyItemStatus.x = 5 + MiniMap.WIDTH + 2;
-			keyItemStatus.y = 5 + (MiniMap.HEIGHT * 0.5 - keyItemStatus.height * 0.5) >> 0;
-			addChild(keyItemStatus);
-			keyItemStatus.visible = false;
-			
-			playerHealthBar = new ProgressBar(5, console.y - 22, 27, 17, HEALTH_GLOW_RATIO, 0xAA0000);
-			playerHealthBar.barCol = 0xFFCCCCCC;
-			addChild(playerHealthBar);
-			var hpBitmap:Bitmap = new library.HPB;
-			hpBitmap.x = 3;
-			hpBitmap.y = 5;
-			playerHealthBar.addChild(hpBitmap);
-			playerHealthBar.update();
-			
-			livesPanel = new LivesPanel();
-			livesPanel.y = -(livesPanel.height + 2);
-			livesPanel.visible = false;
-			playerHealthBar.addChild(livesPanel);
-			
-			minionHealthBar = new ProgressBar(playerHealthBar.x + playerHealthBar.bitmap.width + 1, playerHealthBar.y, 27, 5, HEALTH_GLOW_RATIO, 0xAA0000);
-			minionHealthBar.barCol = 0xFFCCCCCC;
-			addChild(minionHealthBar);
-			var mhpBitmap:Bitmap = new library.MHPB;
-			mhpBitmap.x = minionHealthBar.width + 1;
-			minionHealthBar.addChild(mhpBitmap);
-			minionHealthBar.visible = false;
-			minionHealthBar.update();
-			
-			playerXpBar = new ProgressBar(playerHealthBar.x + playerHealthBar.bitmap.width + 1, minionHealthBar.y + minionHealthBar.height, 27, 5);
-			playerXpBar.barCol = 0xFFCCCCCC;
-			addChild(playerXpBar);
-			levelNumGfx = new LevelNumMC();
-			levelNumGfx.stop();
-			levelNumGfx.x = playerXpBar.width + 1;
-			playerXpBar.addChild(levelNumGfx);
-			playerXpBar.update();
-			
-			playerActionBar = new ProgressBar(playerHealthBar.x + playerHealthBar.bitmap.width + 1, playerXpBar.y + playerXpBar.height, 27, 5);
-			playerActionBar.barCol = 0xFFCCCCCC;
-			var actBitmap:Bitmap = new library.ACT;
-			actBitmap.x = playerActionBar.width + 1;
-			playerActionBar.addChild(actBitmap);
-			addChild(playerActionBar);
-			playerActionBar.update();
-			
-			enemyHealthBar = new ProgressBar(WIDTH - 32, playerHealthBar.y, 27, 17, HEALTH_GLOW_RATIO, 0xAA0000);
-			enemyHealthBar.barCol = 0xFFCCCCCC;
-			addChild(enemyHealthBar);
-			enemyHealthBar.active = false;
-			enemyHealthBar.alpha = 0;
-			
-			confusionOverlayHolder = new Sprite();
-			addChild(confusionOverlayHolder);
-			
-			instructionsHolder = new Sprite();
-			addChild(instructionsHolder);
 			
 			addChild(transition);
 			
@@ -411,9 +427,9 @@
 			
 			if(!menuCarousel){
 				menuCarousel = new MenuCarousel();
-				gameMenu = new GameMenu(WIDTH, console.y, this);
-				deathMenu = new DeathMenu(WIDTH, console.y, this);
-				playerConsumedMenu = new PlayerConsumedMenu(WIDTH, console.y, this);
+				gameMenu = new GameMenu(WIDTH, CONSOLE_Y, this);
+				deathMenu = new DeathMenu(WIDTH, CONSOLE_Y, this);
+				playerConsumedMenu = new PlayerConsumedMenu(WIDTH, CONSOLE_Y, this);
 				titleMenu = new TitleMenu(gameMenu);
 				menuCarousel.addMenu(gameMenu);
 				menuCarousel.addMenu(deathMenu);
@@ -422,12 +438,11 @@
 			} else {
 				// update the rng seed
 				if(Map.seed == 0) gameMenu.seedInputList.option.name = "" + Map.random.seed;
+				titleMenu.continueOption.active = Boolean(UserData.gameState.player.xml);
+				titleMenu.update();
 			}
 			addChild(menuCarousel);
 			
-			// REFACTOR WHEN TITLE MENU IS MADE:
-			menuCarousel.setCurrentMenu(gameMenu);
-			//menuCarousel.setCurrentMenu(titleMenu);
 			
 			if(!focusPrompt){
 				createFocusPrompt();
@@ -435,73 +450,81 @@
 				stage.addEventListener(Event.ACTIVATE, onFocus);
 			}
 			
-			/**/
-			// debugging textfield
-			info = new TextField();
-			addChild(info);
-			info.textColor = 0xFFFFFF;
-			info.selectable = false;
-			info.text = "";
-			info.visible = true;
-			
-			// fps text box
-			fpsText = new TextBox(35, 12);
-			fpsText.x = WIDTH - (fpsText.width + 2);
-			fpsText.y = HEIGHT - (fpsText.height + 2);
-			addChild(fpsText);
-			
-			// STATES
-			
-			frameCount = 1;
-			deepestLevelReached = 1;
-			lives.value = 0;
-			
-			// LISTS
-			
-			entities = new Vector.<Entity>();
-			items = [];
-			effects = new Vector.<Effect>();
-			portals = new Vector.<Portal>();
-			chaosWalls = new Vector.<ChaosWall>();
-			explosions = new Vector.<Explosion>();
-			portalHash = {};
-			
-			Item.runeNames = UserData.gameState.runeNames;
-			
-			Brain.initCharacterLists();
-			Brain.voiceCount = Brain.VOICE_DELAY + random.range(Brain.VOICE_DELAY);
-			
-			// ALL CONTENT FOR THE RANDOM SEED GENERATED FROM THIS POINT FORWARD
-			content = new Content();
-			Writing.createStoryCharCodes(Map.random);
-			Sleep.initDreams();
-			
-			// LEVEL SPECIFIC INIT
-			// This stuff that follows requires the bones of a level to initialise
-			
-			Player.previousLevel = UserData.gameState.player.previousLevel;
-			Player.previousPortalType = UserData.gameState.player.previousPortalType;
-			Player.previousMapType = UserData.gameState.player.previousMapType;
-			
 			// CREATE FIRST LEVEL =================================================================
-			setLevel(UserData.gameState.player.currentLevel, UserData.gameState.player.currentMapType);
+			if(state == GAME || state == MENU){
+				
+				menuCarousel.setCurrentMenu(gameMenu);
+				
+				/**/	
+				// debugging textfield
+				info = new TextField();
+				addChild(info);
+				info.textColor = 0xFFFFFF;
+				info.selectable = false;
+				info.text = "";
+				info.visible = true;
+				
+				// fps text box
+				fpsText = new TextBox(35, 12);
+				fpsText.x = WIDTH - (fpsText.width + 2);
+				fpsText.y = HEIGHT - (fpsText.height + 2);
+				addChild(fpsText);
+				
+				// STATES
+				
+				frameCount = 1;
+				deepestLevelReached = 1;
+				lives.value = 0;
+			
+				// LISTS
+				
+				entities = new Vector.<Entity>();
+				items = [];
+				effects = new Vector.<Effect>();
+				portals = new Vector.<Portal>();
+				chaosWalls = new Vector.<ChaosWall>();
+				explosions = new Vector.<Explosion>();
+				portalHash = {};
+				
+				Item.runeNames = UserData.gameState.runeNames;
+				
+				Brain.initCharacterLists();
+				Brain.voiceCount = Brain.VOICE_DELAY + random.range(Brain.VOICE_DELAY);
+				
+				// ALL CONTENT FOR THE RANDOM SEED GENERATED FROM THIS POINT FORWARD
+				content = new Content();
+				Writing.createStoryCharCodes(Map.random);
+				Sleep.initDreams();
+				
+				// LEVEL SPECIFIC INIT
+				// This stuff that follows requires the bones of a level to initialise
+				
+				Player.previousLevel = UserData.gameState.player.previousLevel;
+				Player.previousPortalType = UserData.gameState.player.previousPortalType;
+				Player.previousMapType = UserData.gameState.player.previousMapType;
+				setLevel(UserData.gameState.player.currentLevel, UserData.gameState.player.currentMapType);
+				// init area visit notices
+				var levelName:String = Map.getName(map.level, map.type);
+				if(!UserData.gameState.visitedHash){
+					UserData.gameState.visitedHash = {};
+					UserData.gameState.visitedHash[levelName] = true;
+				}
+			} else if(state == TITLE){
+				menuCarousel.setCurrentMenu(titleMenu);
+				titlePressMenuText.visible = !menuCarousel.active;
+			}
 			
 			// fire up listeners
 			addListeners();
 			
-			// init area visit notices
-			var levelName:String = Map.getName(map.level, map.type);
-			if(!UserData.gameState.visitedHash){
-				UserData.gameState.visitedHash = {};
-				UserData.gameState.visitedHash[levelName] = true;
-			}
-			
 			if(TEST_BED_INIT) initTestBed();
-			else if(ONLINE){
-				if(firstInstructions){
-					transition.init(initInstructions, null, "", true);
-				} else {
-					transition.init(function():void{}, null, levelName, true);
+			else if(ONLINE && !UserData.settings.playerConsumed){
+				if(state == GAME || state == MENU){
+					if(firstInstructions){
+						transition.init(initInstructions, null, "", true);
+					} else {
+						transition.init(function():void{}, null, levelName, true);
+					}
 				}
 			}
 			
@@ -515,7 +538,7 @@
 		}
 		
 		/* Pedantically clear all memory and re-init the project */
-		public function reset():void{
+		public function reset(newGame:Boolean = true):void{
 			removeEventListener(MouseEvent.MOUSE_DOWN, mouseDown);
 			removeEventListener(MouseEvent.MOUSE_UP, mouseUp);
 			removeEventListener(Event.ENTER_FRAME, main);
@@ -527,16 +550,22 @@
 			}
 			player = null;
 			minion = null;
+			balrog = null;
 			mapTileManager = null;
 			map = null;
 			world = null;
 			lightMap = null;
 			mapTileManager = null;
-			UserData.initGameState();
+			if(newGame){
+				UserData.initGameState();
+				UserData.push();
+			}
 			SoundManager.musicTimes = {};
-			console.log = "";
-			console.logLines = 0;
-			editor.deactivate();
+			if(console){
+				console.log = "";
+				console.logLines = 0;
+			}
+			if(editor) editor.deactivate();
 			init();
 		}
 		
@@ -844,7 +873,7 @@
 		
 		private function main(e:Event):void {
 			
-			fpsText.text = "fps:" + FPS.value;
+			if(fpsText) fpsText.text = "fps:" + FPS.value;
 			
 			// copy out these debug tools when needed
 			//var t:int = getTimer();
@@ -979,7 +1008,6 @@
 						Key.keyLogString = "";
 					}
 					
-				
 				}
 			
 				if(player.brain.confusedCount) (player.brain as PlayerBrain).renderConfusion();
@@ -989,6 +1017,9 @@
 				
 			} else if(state == MENU){
 				if(transition.active && transition.forceComplete) transition.main();
+				
+			} else if(state == TITLE){
+				if(transition.active) transition.main();
 				
 			}
 			
@@ -1038,14 +1069,16 @@
 		
 		/* Switches to the appropriate music */
 		public function changeMusic():void{
-			
 			var start:int;
 			var name:String;
-			if(SoundManager.soundLoops["underworldMusic2"]) SoundManager.fadeLoopSound("underworldMusic2", -SoundManager.DEFAULT_FADE_STEP)
+			if(SoundManager.soundLoops["underworldMusic2"]) SoundManager.fadeLoopSound("underworldMusic2", -SoundManager.DEFAULT_FADE_STEP);
 			if(state == UNFOCUSED || state == INSTRUCTIONS){
 				if(SoundManager.currentMusic){
 					SoundManager.fadeMusic(SoundManager.currentMusic, -SoundManager.DEFAULT_FADE_STEP);
 				}
+			} else if(state == TITLE){
+				if(SoundManager.music && SoundManager.currentMusic != "introMusic") SoundManager.fadeMusic("introMusic", SoundManager.DEFAULT_FADE_STEP, 0, true);
+				
 			} else {
 				if(player && player.asleep){
 					name = "sleepMusic";
@@ -1159,8 +1192,8 @@
 		
 		public function createFocusPrompt():void{
 			focusPrompt = new Sprite();
-			focusPrompt.graphics.beginFill(0x000000);
-			focusPrompt.graphics.drawRect(0, 0, WIDTH, HEIGHT);
+			focusPrompt.addChild(getTitleGfx());
+			
 			var clickToPlayText:TextBox = new TextBox(320, 12, 0x0, 0x0);
 			clickToPlayText.align = "center";
 			clickToPlayText.text = "click to play";
@@ -1176,20 +1209,30 @@
 			buildText.x = (WIDTH * 0.5) - 50;
 			buildText.y = HEIGHT - 14;
 			
-			var titleB:Bitmap;
 			if(UserData.settings.playerConsumed){
-				titleB = new library.BannerFailB();
 				clickToPlayText.text = "click to not play";
 				clickToPlayText.bitmapData.colorTransform(clickToPlayText.bitmapData.rect, RED_COL);
 			} else if(UserData.settings.ascended){
-				titleB = new library.BannerCompleteB();
 				clickToPlayText.text = "click to play again";
+			}
+		}
+		
+		public function getTitleGfx():Sprite{
+			var sprite:Sprite = new Sprite();
+			sprite.graphics.beginFill(0x0);
+			sprite.graphics.drawRect(0, 0, WIDTH, HEIGHT);
+			var titleB:Bitmap;
+			if(UserData.settings.playerConsumed){
+				titleB = new library.BannerFailB();
+			} else if(UserData.settings.ascended){
+				titleB = new library.BannerCompleteB();
 			} else {
 				titleB = new library.BannerB();
 			}
-			focusPrompt.addChild(titleB);
+			sprite.addChild(titleB);
 			titleB.y = HEIGHT * 0.5 - titleB.height * 0.5;
 			titleB.scaleX = titleB.scaleY = 0.5;
+			return sprite;
 		}
 		
 		public function consumedPlayerInit():void{
@@ -1236,7 +1279,10 @@
 				if(state == INSTRUCTIONS){
 					clearInstructions();
 				} else if(state == TITLE){
-					
+					if(!menuCarousel.active){
+						menuCarousel.activate();
+						titlePressMenuText.visible = false;
+					}
 				} else {
 					pauseGame();
 				}

@@ -40,6 +40,7 @@ package com.robotacid.ui.menu {
 		override public function executeSelection():void {
 			var option:MenuOption = currentMenuList.options[selection];
 			if(option == resetOption){
+				game.state = Game.TITLE;
 				game.gameMenu.reset(true);
 			}
 		}

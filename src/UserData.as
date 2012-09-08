@@ -147,7 +147,6 @@ package {
 				health:0,
 				mapLevel:int.MAX_VALUE
 			};
-			if(settings.consumedPlayer) gameState.balrog.mapLevel = 1;
 		}
 		
 		public static function saveGameState(currentLevel:int, currentMapType:int):void{
@@ -204,7 +203,7 @@ package {
 					</hotKey>,
 					<hotKey>
 					  <branch selection="3" name="options" context="null"/>
-					  <branch selection="14" name="multiplayer" context="null"/>
+					  <branch selection="13" name="multiplayer" context="null"/>
 					  <branch selection="1" name="minion shoot" context="minion missile"/>
 					</hotKey>
 				],

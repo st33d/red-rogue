@@ -1,4 +1,4 @@
-Change log: title menu built - awaiting testing and title screen
+Change log: title screen built - tested with player consumed game state, tested saving and loading, appears stable enough for upload
 
 Bug hunt
 	chaos wall colliders can child a character and pull it into a wall - how?
@@ -9,6 +9,10 @@ Bug hunt
 	minion weapon invisible after level change (arbalest and skull equipped)
 	investigate portals around level 20 plus and killing the balrog in the same area
 
+debug seed input option
+debug-menu password
+	hiding debug menu
+	unhiding debug menu
 
 Guide -
 	copy over races guide for elites (check racial bonuses are accurate), then fill out
