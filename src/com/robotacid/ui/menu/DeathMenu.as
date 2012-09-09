@@ -36,7 +36,7 @@ package com.robotacid.ui.menu {
 			trunk.options.push(newGameOption);
 			trunk.options.push(saveEpitaphOption);
 			trunk.options.push(quitToTitleOption);
-			trunk.options.push(game.gameMenu.debugOption);
+			//trunk.options.push(game.gameMenu.debugOption);
 			
 			setTrunk(trunk);
 			

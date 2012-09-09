@@ -43,7 +43,7 @@ package com.robotacid.engine {
 		private var nightmare:Boolean;
 		
 		public static const HEIGHT:Number = Game.HEIGHT - Console.HEIGHT;
-		public static const HEAL_RATE:Number = 1.0 / 180;
+		public static const HEAL_RATE:Number = 1.0 / 240;
 		public static const AGGRO_DELAY:int = 60;
 		public static const ANIM_DELAY:int = 30;
 		public static const CHAR_COL_STEP:Number = 1.0 / ANIM_DELAY;
@@ -137,12 +137,7 @@ package com.robotacid.engine {
 		
 		/* Prepare the message animation and list of text */
 		private function initDream():void{
-			var index:int = game.map.level - 1;
-			if(game.map.type != Map.MAIN_DUNGEON && game.map.type != Map.ITEM_DUNGEON){
-				index = 0;
-			} else if(index >= dreams.length){
-				index = dreams.length - 1;
-			}
+			var index:int = game.map.zone;
 			dreamList = dreams[index];
 			// is the balrog close enough to invade the rogue's dreams?
 			var balrogDist:int = int.MAX_VALUE;

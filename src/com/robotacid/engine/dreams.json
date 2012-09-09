@@ -1,16 +1,6 @@
 [
-	["did i leave the oven on?\nprobably doesn't matter", "i have been here many times\ni will be here many more..."],
-	["he found the bug here\nwe squished it", "are you snoring again @?", "this might be easier than i thought"],
-	["i will murder this balrog", "trapped in this loop\nover and over\nagain and again"],
-	["how many times do I escape?\nhow many times I rot here?", "this price of immortality"],
-	["when not even death can separate us\nwho will?"],
-	["cheese", "spam, spam, spam, spam\nspam, spam, spam, spam\nspam, spam, spam, spam\nlovely spaaam, lovely lovely spam\nspam, spam, spam, spam", "would it be too much to ask\nfor some pancakes and syrup"],
-	["an eternity of entering this dungeon", "all these hearts are giving me indigestion"],
-	["married to a bloody skeleton", "this time rune you fed me\nbefore i entered this place\nwhat consequences will come of it?"],
-	["i was a princess\nbut i gave it all up", "you were but a scoundrel\nbut you were wise beyond your years\nnot wise enough though", "we were happy\nwhy did you need more treasure?"],
-	["this is no normal dungeon\nit is a trap", "foul chaos magic\ni can hear the grinding of its madness"],
-	["am I to escape with treasure?", "as a target for assassination\ni trained in many fighting arts\ni am no mere rogue\nbut i took your name regardless"],
-	["hearts for every meal\nbleaugh", "does rng want me to win?\nor are we all his toys in this place"],
-	["we'll restore you @\nwe'll spend the rest of eternity\nleaving here\ntogether", "leeches\ncursed leeches\nyet, they can be tamed"],
-	["chaos\nthis is what the rakshasa built for rng\nthey must all have gone mad", "what are these cogs?\nwhat fool summoned them?", "i don't give up easily"]
+	["did i leave the oven on?\nprobably doesn't matter", "i have been here many times\ni will be here many more...", "he found the bug here\nwe squished it", "are you snoring again @?", "this might be easier than i thought", "i will murder this balrog", "trapped in this loop\nover and over\nagain and again", "how many times do I escape?\nhow many times I rot here?", "groundhog day"],
+	["when not even death can separate us\nwho will?", "an eternity of entering this dungeon", "all these hearts are giving me indigestion", "married to a bloody skeleton", "this time rune you fed me\nbefore i entered this place\nwhat consequences will come of it?", "i used to be a princess\na constant target for assassination\nthis is par the course for me", "we were happy\nwhy did you need more treasure?"],
+	["am I to escape with treasure?", "i trained in many fighting arts\ni am no mere rogue\nbut i took your name regardless", "hearts for every meal\nbleaugh", "does rng want me to win?\nor are we all his toys in this place", "we'll restore you @\nwe'll spend the rest of eternity\nleaving here\ntogether", "leeches\ncursed leeches\nyet, they can be tamed"],
+	["chaos\nthis is what the rakshasa built for rng\nthey must all have gone mad", "what are these cogs?\nwhat fool summoned them?", "i don't give up easily", "this is no normal dungeon\nit is a trap", "foul chaos magic\ni can hear the grinding of its madness", "cheese", "spam, spam, spam, spam\nspam, spam, spam, spam\nspam, spam, spam, spam\nlovely spaaam, lovely lovely spam\nspam, spam, spam, spam", "would it be too much to ask\nfor some pancakes and syrup"]
 ]

@@ -63,7 +63,7 @@
 		public static var weaponNameDeck:Array;
 		public static var armourNameDeck:Array;
 		public static var runeNameDeck:Array;
-		public static var holyStateIntroLevel:int;
+		public static var sewersFirstLevel:int;
 		
 		// special items
 		public var deathsScythe:Item;
@@ -168,8 +168,8 @@
 						gameState.zoneSizes[levelsInZone[j]]++;
 					}
 				}
-				// introduce holy items at the beginning of the sewers
-				gameState.holyStateIntroLevel = gameState.zoneSizes[0] + 1;
+				// introduce more mechanics at the beginning of the sewers
+				gameState.sewersFirstLevel = gameState.zoneSizes[0] + 1;
 				// create the balrog
 				gameState.balrog.xml = createBalrogXML();
 				// introduce the balrog at the end of the caves
@@ -177,7 +177,7 @@
 				if(UserData.settings.playerConsumed) gameState.balrog.mapLevel = 1;
 				//gameState.balrog.mapLevel = 1;
 			}
-			holyStateIntroLevel = gameState.holyStateIntroLevel;
+			sewersFirstLevel = gameState.sewersFirstLevel;
 			
 			//trace(zoneSizes);
 			
@@ -250,7 +250,7 @@
 					gameState.portalsByLevel[level] = [];
 					gameState.trapsByLevel[level] = trapQuantityPerLevel(level);
 					gameState.secretsByLevel[level] = 2;
-					gameState.altarsByLevel[level] = level > 2 ? Map.random.rangeInt(3) : 0;
+					gameState.altarsByLevel[level] = level >= sewersFirstLevel ? Map.random.rangeInt(3) : 0;
 					gameState.questGemsByLevel[level] = 0;
 					Map.random.value();
 					gameState.seedsByLevel[level] = Map.random.r;
@@ -1106,14 +1106,14 @@
 			var itemXML:XML =<item name={name} type={type} level={level} />;
 			
 			// naturally occurring cursed and blessed items appear sewers zone+, at the point you can do something about them
-			if((type == Item.ARMOUR || type == Item.WEAPON) && mapLevel >= holyStateIntroLevel){
+			if((type == Item.ARMOUR || type == Item.WEAPON) && mapLevel >= sewersFirstLevel){
 				var holyState:int = 0;
 				var roll:Number = Map.random.value();
 				if(roll < CURSED_CHANCE) holyState = Item.CURSE_HIDDEN;
 				else if(roll > BLESSED_CHANCE) holyState = Item.BLESSED;
 				itemXML.@holyState = holyState;
 			}
-
+			
 			if(enchantments > 0){
 				var runeList:Vector.<int> = new Vector.<int>();
 				var enchantmentName:int, enchantmentNameRange:int;

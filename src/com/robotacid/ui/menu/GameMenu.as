@@ -171,7 +171,7 @@
 			actionsOption.help = "perform actions like searching for traps and summoning the minion";
 			var loreOption:MenuOption = new MenuOption("lore", loreList);
 			loreOption.help = "information that has been gathered about the world.";
-			debugOption = new MenuOption("debug", debugList);
+			debugOption = new MenuOption("debug", debugList, false);
 			debugOption.help = "debug tools for allowing access to game elements that are hard to find in a procedurally generated world"
 			
 			giveItemOption = new MenuOption("give item", giveItemList);
@@ -274,7 +274,7 @@
 			trunk.options.push(inventoryOption);
 			trunk.options.push(loreOption);
 			trunk.options.push(optionsOption);
-			trunk.options.push(debugOption);
+			//trunk.options.push(debugOption);
 			
 			actionsList.options.push(searchOption);
 			actionsList.options.push(summonOption);
@@ -1152,6 +1152,22 @@
 			} else {
 				// sanity check - will remove this line when confirmed stable
 				throw new Error("wearer of balrog face not determined");
+			}
+		}
+		
+		/* Add the debugging menu */
+		public function addDebugOption():void{
+			if(!debugOption.active){
+				branch[0].options.push(debugOption);
+				game.deathMenu.branch[0].options.push(debugOption);
+				game.playerConsumedMenu.branch[0].options.push(debugOption);
+				debugOption.active = true;
+				update();
+				game.deathMenu.update();
+				game.playerConsumedMenu.update();
+				if(game.console){
+					game.console.print("debug menu active");
+				}
 			}
 		}
 		

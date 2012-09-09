@@ -106,6 +106,8 @@
 			portals = new Vector.<Pixel>();
 			if(type == MAIN_DUNGEON || type == ITEM_DUNGEON){
 				zone = game.content.getLevelZone(level);
+			} else {
+				zone = 0;
 			}
 			
 			if(type == MAIN_DUNGEON){

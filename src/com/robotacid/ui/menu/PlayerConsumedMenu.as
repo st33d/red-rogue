@@ -29,7 +29,7 @@ package com.robotacid.ui.menu {
 			
 			trunk.options.push(youLostOption);
 			trunk.options.push(resetOption);
-			trunk.options.push(game.gameMenu.debugOption);
+			//trunk.options.push(game.gameMenu.debugOption);
 			
 			setTrunk(trunk);
 			

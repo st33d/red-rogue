@@ -1,4 +1,4 @@
-Change log: title screen built - tested with player consumed game state, tested saving and loading, appears stable enough for upload
+Change log: heal rate for sleep lowered, dreams now dispensed per zone instead of per level, altars now appear in sewers onwards, debug menu hidden (reactivate by pressing control + shift + enter), fps hidden (visible by activating debug menu)
 
 Bug hunt
 	chaos wall colliders can child a character and pull it into a wall - how?
@@ -14,12 +14,7 @@ debug-menu password
 	hiding debug menu
 	unhiding debug menu
 
-Guide -
-	copy over races guide for elites (check racial bonuses are accurate), then fill out
-
-rotate between a selection of menus
-	title screen
-		title menu
+Guide
 
 endings
 	yendor in the underworld

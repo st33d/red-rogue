@@ -74,7 +74,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 437;
+		public static const BUILD_NUM:int = 438;
 		
 		public static const TEST_BED_INIT:Boolean = false;
 		public static const ONLINE:Boolean = true;
@@ -468,6 +468,7 @@
 				fpsText = new TextBox(35, 12);
 				fpsText.x = WIDTH - (fpsText.width + 2);
 				fpsText.y = HEIGHT - (fpsText.height + 2);
+				fpsText.visible = gameMenu.debugOption.active;
 				addChild(fpsText);
 				
 				// STATES
@@ -1286,6 +1287,10 @@
 				} else {
 					pauseGame();
 				}
+			}
+			if(Key.isDown(Keyboard.CONTROL) && Key.isDown(Keyboard.SHIFT) && Key.isDown(Keyboard.ENTER)){
+				gameMenu.addDebugOption();
+				if(fpsText) fpsText.visible = true;
 			}
 			/*
 			if(Key.isDown(Key.T)){
