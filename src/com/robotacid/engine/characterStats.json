@@ -1,191 +1,191 @@
 {
 	"names":[
-		"human thief", "kobold", "goblin", "orc", "troll",
+		"rogue", "kobold", "goblin", "orc", "troll",
 		"gnoll", "drow", "cactuar", "nymph", "vampire",
 		"werewolf", "mimic", "naga", "gorgon", "umber hulk",
 		"golem", "banshee", "wraith", "mind flayer", "rakshasa",
-		"balrog", "skeleton"
+		"balrog", "skeleton", "husband"
 	],
 	"unique names":[
 		["rogue"], ["skree", "krilitz", "krellax", "pun pun son"], ["yubnub", "noobub", "gilbub"] , ["grom", "hrash", "thogar"], ["goom", "hoor", "boor"],
 		["rofl", "lol", "flol"], ["drizzt", "traxex", "crowleyson"], ["spike", "ge-ka", "saboten"] , ["calypso", "creusa", "echo", "harmonia", "arethusa"], ["bram", "dracula", "vlad", "alucard", "demitri"],
 		["talbot", "talbain", "plague"], ["bridget", "xana"], ["hissa", "sri", "astika", "vasuki"], ["stheno", "euryale"], ["xit't't'k", "k'tch'k", "xt'chk't"],
 		["emet", "met"], ["eevul", "maeveen"], ["gul", "khamul", "ulaire"], ["rlyeh", "ph'nglui", "wgah'nagl", "fhtagri"], ["alamvusha", "bakasura", "kirmira", "virakshi"],
-		["diablo", "azazel", "beelzebub", "mestopheles"], ["@"]
+		["diablo", "azazel", "beelzebub", "mestopheles"], ["@"], ["@"]
 	],
 	"elite names":[
 		"rogue", "pun pun", "golfimbul", "lurtz", "forchan",
 		"anubis", "crowley", "sabotenquid", "the bitch", "edward",
 		"roulette", "tengu", "aapep", "medusa", "khepri",
 		"frankenstein", "sadako", "stygian", "cthulu", "baihu",
-		"the balrog", "the minion"
+		"the balrog", "the minion", "@"
 	],
 	"attacks":[
 		0.3, 0.1, 0.15, 0.35, 0.2,
 		0.2, 0.25, 0.2, 0.3, 0.25,
 		0.25, 0.2, 0.2, 0.2, 0.2,
 		0.2, 0.2, 0.2, 0.2, 0.25,
-		0.4, 0.2
+		0.4, 0.2, 0.3
 	],
 	"attack levels":[
 		0.05, 0.04, 0.04, 0.06, 0.03,
 		0.03, 0.04, 0.04, 0.05, 0.05,
 		0.05, 0.04, 0.05, 0.05, 0.05,
 		0.05, 0.05, 0.05, 0.05, 0.05,
-		0.06, 0.05
+		0.06, 0.05, 0.05
 	],
 	"defences":[
 		0.21, 0.1, 0.15, 0.16, 0.1,
 		0.1, 0.25, 0.1, 0.2, 0.2,
 		0.2, 0.2, 0.15, 0.15, 0.2,
 		0.3, 0.15, 0.15, 0.15, 0.18,
-		0.3, 0.16
+		0.3, 0.16, 0.21
 	],
 	"defence levels":[
 		0.05, 0.05, 0.04, 0.04, 0.04,
 		0.04, 0.04, 0.03, 0.05, 0.05,
 		0.04, 0.05, 0.04, 0.04, 0.06,
 		0.06, 0.04, 0.04, 0.04, 0.05,
-		0.06, 0.045
+		0.06, 0.045, 0.05
 	],
 	"healths":[
 		3, 1, 1.5, 3.5, 4,
 		3, 2.8, 3.5, 2.5, 3,
 		3.5, 3, 2.8, 2.8, 4,
 		5, 2.5, 2.5, 2.8, 3,
-		5, 2.5
+		5, 2.5, 3
 	],
 	"health levels":[
 		1, 0.9, 0.75, 1.1, 1.5,
 		1, 0.9, 1.1, 0.8, 1,
 		1.1, 0.5, 0.9, 0.9, 1.1,
 		1.5, 0.9, 0.9, 0.8, 1,
-		1.5, 0.8
+		1.5, 0.8, 1
 	],
 	"damages":[
 		1, 0.5, 0.5, 1.1, 1,
 		1, 0.8, 0.8, 0.3, 1,
 		1.1, 0.8, 1, 1, 1,
 		1.1, 1, 1, 0.8, 1,
-		1, 0.7
+		1, 0.7, 1
 	],
 	"damage levels":[
 		0.2, 0.13, 0.15, 0.21, 0.2,
 		0.2, 0.08, 0.08, 0.03, 0.2,
 		0.21, 0.2, 0.2, 0.2, 0.2,
 		0.21, 0.2, 0.2, 0.2, 0.2,
-		0.2, 0.18
+		0.2, 0.18, 0.2
 	],
 	"attack speeds":[
 		0.05, 0.028, 0.06, 0.03, 0.03,
 		0.04, 0.055, 0.04, 0.06, 0.05,
 		0.05, 0.04, 0.04, 0.04, 0.04,
 		0.02, 0.04, 0.04, 0.04, 0.04,
-		0.03, 0.055
+		0.03, 0.055, 0.05
 	],
 	"attack speed levels":[
 		0.002, 0.002, 0.003, 0.0015, 0.0015,
 		0.0015, 0.002, 0.002, 0.003, 0.002,
 		0.002, 0.002, 0.002, 0.002, 0.002,
 		0.001, 0.002, 0.002, 0.002, 0.002,
-		0.002, 0.002
+		0.002, 0.002, 0.002
 	],
 	"speeds":[
 		2.5, 1.5, 3.5, 2, 1.7,
 		2.5, 2.6, 2.5, 3, 2.5,
 		3, 2, 2.5, 2.5, 2,
 		1, 2.5, 2.5, 2.5, 2.5,
-		2.5, 2.5
+		2.5, 2.5, 2.5
 	],
 	"speed levels":[
 		0.03, 0.02, 0.04, 0.02, 0.02,
 		0.025, 0.03, 0.03, 0.035, 0.03,
 		0.03, 0.02, 0.03, 0.03, 0.03,
 		0.01, 0.03, 0.03, 0.03, 0.03,
-		0.03, 0.031
+		0.03, 0.031, 0.03
 	],
 	"death strings":[
 		"finished", "punished", "stopped", "beat", "gutted",
 		"robbed", "blinded", "planted", "spanked", "drained",
 		"tamed", "splintered", "skinned", "petrified", "befuddled",
 		"shattered", "silenced", "dispersed", "squished", "declawed",
-		"defeated", "smashed"
+		"defeated", "smashed", "divorced"
 	],
 	"pauses":[
 		30, 40, 30, 50, 50,
 		50, 30, 40, 20, 30,
 		20, 40, 40, 40, 60,
 		80, 40, 40, 40, 40,
-		50, 20
+		50, 20, 30
 	],
 	"knockbacks":[
 		0, 0, 0, 0.2, 0.2,
 		0, 0, 0, 0, 0,
 		0.3, 0.1, 0, 0, 0.3,
 		0.5, 0, 0, 0, 0,
-		0.5, 0
+		0.5, 0, 0
 	],
 	"stuns":[
 		0, 0, 0, 0.2, 0.01,
 		0, 0, 0, 0, 0,
 		0.01, 0.01, 0, 0, 0.01,
 		0.5, 0, 0, 0, 0,
-		0.3, 0
+		0.3, 0, 0
 	],
 	"endurances":[
 		0, 0, 0, 0.1, 0.05,
 		0, 0, 0, 0, 0,
 		0.05, 0.1, 0, 0, 0.05,
 		0.5, 0, 0, 0, 0.05,
-		0.4, 0
+		0.4, 0, 0
 	],
 	"braveries":[
 		1, 0.5, 0.5, 0.9, 0.9,
 		0.6, 0.9, 0.9, 0.3, 0.9,
 		1, 1, 0.9, 0.9, 1,
 		1, 1, 1, 1, 1,
-		1, 0.7
+		1, 0.7, 1
 	],
 	"undeads":[
 		0, 0, 0, 0, 0,
 		0, 0, 0, 0, 1,
 		0, 0, 0, 0, 0,
 		0, 1, 1, 0, 0,
-		0, 1
+		0, 1, 0
 	],
 	"widths":[
 		6, 6, 6, 6, 8,
 		6, 6, 6, 6, 6,
 		8, 6, 6, 6, 8,
 		8, 6, 6, 6, 8,
-		10, 6
+		10, 6, 6
 	],
 	"specials":[
 		"x2 backstab damage, superior search skill", "chaotic learner", "superior speed", "superior combat skills", "regenerates health",
 		"possible bonus chest items", "infravision", "damage reflection", "theft attack", "life steal, undead",
 		"infectious, insane", "form steal", "poison attack", "stupefy attack", "confuse attack",
 		"superior defence", "fear attack, undead", "wall walk, undead", "xp steal", "chaos attack",
-		"?", "poison immune, undead"
+		"superior combat skills, soul devourer", "poison immune, undead", "x2 backstab damage, superior search skill"
 	],
 	"descriptions":[
-		"widow to the rogue named @", "reptile goblinoid", "true goblin", "greater goblin", "goblin protector",
-		"hyena goblin", "cave elf", "cactus monster", "faerie theif", "undead leech human",
+		"widow to the rogue named @", "reptile goblin", "true goblin", "greater goblin", "goblin protector",
+		"hyena goblin", "cave elf", "cactus monster", "faerie thief", "undead leech human",
 		"transformation curse", "shapeshifter", "snake monster", "snake queen", "insectiod beast",
 		"animated stone", "wailing ghost", "creature from the river styx", "psychic cthuloid", "tiger wizard",
-		"demon", "the undead rogue named @"
+		"demon", "the undead rogue named @", "husband to the rogue named red"
 	],
 	"voices":[
 		[""], ["Kobold1", "Kobold2", "Kobold3"], ["Goblin1", "Goblin2", "Goblin3"], ["Orc1", "Orc2", "Orc3"], ["Troll1", "Troll2", "Troll3"],
 		["Gnoll1", "Gnoll2", "Gnoll3"], ["Drow1", "Drow2", "Drow3", "Drow4"], ["Cactuar1", "Cactuar2", "Cactuar3"], ["Nymph1", "Nymph2", "Nymph3"], ["Vampire1", "Vampire2", "Vampire3"],
 		["Werewolf1", "Werewolf2", "Werewolf3"], ["Mimic1", "Mimic2", "Mimic3"], ["Naga1", "Naga2", "Naga3"], ["Gorgon1", "Gorgon2", "Gorgon3"], ["UmberHulk1", "UmberHulk2", "UmberHulk3"],
 		["Golem1", "Golem2", "Golem3"], ["Banshee1", "Banshee2", "Banshee3"], ["Wraith1", "Wraith2", "Wraith3"], ["Mindflayer1", "Mindflayer2", "Mindflayer3"], ["Rakshasa1", "Rakshasa2", "Rakshasa3"],
-		["Balrog1", "Balrog2", "Balrog3"], [""]
+		["Balrog1", "Balrog2", "Balrog3"], [""], [""]
 	],
 	"groups":[
 		"human", "goblinoid", "goblinoid", "goblinoid", "goblinoid",
 		"goblinoid", "fae", "fae", "fae", "undead",
 		"fae", "hulk", "serpent", "serpent", "hulk",
 		"hulk", "undead", "undead", "mage", "mage",
-		"demon", "human"
+		"demon", "human", "human"
 	]
 }

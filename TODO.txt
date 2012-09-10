@@ -1,4 +1,4 @@
-Change log: heal rate for sleep lowered, dreams now dispensed per zone instead of per level, altars now appear in sewers onwards, debug menu hidden (reactivate by pressing control + shift + enter), fps hidden (visible by activating debug menu)
+Change log: fixed random seed input not updating correctly, camera is center locked on levels that aren't as wide as the screen (solves camera bugging out in this situation), camera y axis lookahead now smaller, camera y lookahead pans down when falling, added male rogue as an extra race, added rules for coloured male rogue on overworld
 
 Bug hunt
 	chaos wall colliders can child a character and pull it into a wall - how?
@@ -9,10 +9,6 @@ Bug hunt
 	minion weapon invisible after level change (arbalest and skull equipped)
 	investigate portals around level 20 plus and killing the balrog in the same area
 
-debug seed input option
-debug-menu password
-	hiding debug menu
-	unhiding debug menu
 
 Guide
 

@@ -87,7 +87,8 @@
 		public static const ENTER_DELAY:int = 30;
 		
 		public static const CAMERA_DISPLACE_SPEED:Number = 1;
-		public static const CAMERA_DISPLACEMENT:Number = 70;
+		public static const CAMERA_DISPLACEMENT_X:Number = 70;
+		public static const CAMERA_DISPLACEMENT_Y:Number = 55;
 		
 		public static const DEFAULT_UNIQUE_NAME_STR:String = "rogue";
 		public static const ASCENDED_UNIQUE_NAME_STR:String = "immortal";
@@ -303,12 +304,12 @@
 			
 			// camera control based on intent and movement
 			if(looking & RIGHT){
-				if(cameraDisplacement.x < CAMERA_DISPLACEMENT){
+				if(cameraDisplacement.x < CAMERA_DISPLACEMENT_X){
 					cameraDisplacement.x += CAMERA_DISPLACE_SPEED;
 					if(dir & RIGHT) cameraDisplacement.x += CAMERA_DISPLACE_SPEED;
 				}
 			} else if(looking & LEFT){
-				if(cameraDisplacement.x > -CAMERA_DISPLACEMENT){
+				if(cameraDisplacement.x > -CAMERA_DISPLACEMENT_X){
 					cameraDisplacement.x -= CAMERA_DISPLACE_SPEED;
 					if(dir & LEFT) cameraDisplacement.x -= CAMERA_DISPLACE_SPEED;
 				}
@@ -316,13 +317,13 @@
 				if(cameraDisplacement.x > CAMERA_DISPLACE_SPEED) cameraDisplacement.x -= CAMERA_DISPLACE_SPEED;
 				else if(cameraDisplacement.x < -CAMERA_DISPLACE_SPEED) cameraDisplacement.x += CAMERA_DISPLACE_SPEED;
 			}
-			if(looking & DOWN){
-				if(cameraDisplacement.y < CAMERA_DISPLACEMENT){
+			if((looking & DOWN) || collider.state == Collider.FALL){
+				if(cameraDisplacement.y < CAMERA_DISPLACEMENT_Y){
 					cameraDisplacement.y += CAMERA_DISPLACE_SPEED * 0.5;
-					if(dir & DOWN) cameraDisplacement.y += CAMERA_DISPLACE_SPEED * 0.5;
+					if((dir & DOWN) || collider.state == Collider.FALL) cameraDisplacement.y += CAMERA_DISPLACE_SPEED * 0.5;
 				}
 			} else if(looking & UP){
-				if(cameraDisplacement.y > -CAMERA_DISPLACEMENT){
+				if(cameraDisplacement.y > -CAMERA_DISPLACEMENT_Y){
 					cameraDisplacement.y -= CAMERA_DISPLACE_SPEED * 0.5;
 					if(dir & UP) cameraDisplacement.y -= CAMERA_DISPLACE_SPEED * 0.5;
 				}

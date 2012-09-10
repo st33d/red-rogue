@@ -48,14 +48,6 @@
 		public static const STAIRS:int = 0;
 		public static const PORTAL:int = 1;
 		public static const MONSTER:int = 2;
-		//public static const OVERWORLD:int = 1;
-		//public static const OVERWORLD_RETURN:int = 2;
-		//public static const ITEM:int = 3;
-		//public static const ITEM_RETURN:int = 4;
-		//public static const UNDERWORLD:int = 5;
-		//public static const UNDERWORLD_RETURN:int = 6;
-		
-		public static const GFX_CLASSES:Array = [, OverworldPortalMC, DungeonPortalMC, DungeonPortalMC, DungeonPortalMC, UnderworldPortalMC, DungeonPortalMC, MonsterPortalMC];
 		
 		public static const OPEN_CLOSE_DELAY:int = 8;
 		public static const SCALE_STEP:Number = 1.0 / OPEN_CLOSE_DELAY;

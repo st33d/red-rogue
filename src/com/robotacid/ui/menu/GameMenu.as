@@ -1013,8 +1013,9 @@
 		/* Callback for seed input */
 		private function seedInputCallback(inputList:MenuInputList):void{
 			Map.seed = uint(inputList.input);
-			trace("new seed: " + Map.random.seed);
-			game.console.print("create a new game to use seed");
+			trace("new seed: " + Map.seed);
+			if(game.console) game.console.print("create a new game to use seed");
+			inputList.option.name = "" + Map.seed;
 		}
 		
 		/* Teleport the player to a given portal */

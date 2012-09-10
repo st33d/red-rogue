@@ -74,10 +74,10 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 438;
+		public static const BUILD_NUM:int = 439;
 		
 		public static const TEST_BED_INIT:Boolean = false;
-		public static const ONLINE:Boolean = true;
+		public static const ONLINE:Boolean = false;
 		
 		public static var game:Game;
 		public static var renderer:Renderer;
@@ -809,11 +809,15 @@
 					if(player.name != Character.ROGUE){
 						console.print("rogue reverts to human form");
 					}
-					player.changeName(Character.ROGUE, new RogueColMC());
-					if(minion && minion.name != Character.SKELETON){
-						skinMc = game.library.getCharacterGfx(Character.SKELETON);
-						minion.changeName(Character.SKELETON, skinMc);
-						console.print("minion reverts to undead form");
+					player.changeName(Character.ROGUE, new RogueColMC);
+					if(minion){
+						if(minion.name == Character.HUSBAND){
+							minion.changeName(Character.HUSBAND, new AtColMC);
+							
+						} else if(minion.name != Character.SKELETON){
+							minion.changeName(Character.SKELETON);
+							console.print("minion reverts to undead form");
+						}
 					}
 					
 				} else if(level == Map.UNDERWORLD){
@@ -831,6 +835,12 @@
 				// revert to black and white rogue
 				if(Player.previousLevel == Map.OVERWORLD){
 					player.changeName(Character.ROGUE, new RogueMC);
+					// technically we wouldn't get here because of the ending triggering
+					if(minion){
+						if(minion.name == Character.HUSBAND){
+							minion.changeName(Character.HUSBAND, new AtMC);
+						}
+					}
 				}
 			}
 			

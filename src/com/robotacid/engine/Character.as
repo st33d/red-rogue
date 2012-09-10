@@ -135,6 +135,7 @@
 		public static const RAKSHASA:int = 19;
 		public static const BALROG:int = 20;
 		public static const SKELETON:int = 21;
+		public static const HUSBAND:int = 22;
 		
 		// states
 		public static const WALKING:int = 1;
@@ -755,7 +756,7 @@
 					hitDamage *= target.protectionModifier < MIN_PROTECTION_MODIFIER ? MIN_PROTECTION_MODIFIER : target.protectionModifier;
 				}
 				// rogue's backstab multiplier
-				if(name == ROGUE && (looking & (LEFT | RIGHT)) == (target.looking & (LEFT | RIGHT))){
+				if((name == ROGUE || name == HUSBAND) && (looking & (LEFT | RIGHT)) == (target.looking & (LEFT | RIGHT))){
 					hitDamage *= 2;
 					renderer.createDebrisRect(target.collider, (looking & (LEFT | RIGHT)) == RIGHT ? 8 : -8, 30, target.debrisType);
 				}
