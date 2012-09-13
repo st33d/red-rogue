@@ -1,4 +1,4 @@
-Change log: corrected "poison" references in Lore, balrog now equipped with random weapon, anubis now equipped with undead enchanted armour, added top edge interval tolerance to Collider map tests
+Change log: fix balrog weapon breaking new game, moved elite monster creation into gameState variable creation
 
 Bug hunt
 	chaos wall colliders can child a character and pull it into a wall - how?
@@ -9,6 +9,8 @@ Bug hunt
 	chaos walls frozen without graphics rendered and no walls beneath them (activated, not on chaos wall render list?)
 	minion weapon invisible after level change (arbalest and skull equipped)
 	investigate portals around level 20 plus and killing the balrog in the same area
+	
+	pocket dungeon causing issues
 
 Guide
 

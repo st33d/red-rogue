@@ -170,12 +170,6 @@
 				}
 				// introduce more mechanics at the beginning of the sewers
 				gameState.sewersFirstLevel = gameState.zoneSizes[0] + 1;
-				// introduce the balrog at the end of the caves
-				gameState.balrog.mapLevel = gameState.zoneSizes[0] + gameState.zoneSizes[1] + gameState.zoneSizes[2];
-				// create the balrog
-				gameState.balrog.xml = createBalrogXML();
-				if(UserData.settings.playerConsumed) gameState.balrog.mapLevel = 1;
-				//gameState.balrog.mapLevel = 1;
 			}
 			sewersFirstLevel = gameState.sewersFirstLevel;
 			
@@ -272,22 +266,29 @@
 						gameState.portalsByLevel[targetLevel].push(<portal type={Portal.PORTAL} targetLevel={i} targetType={Map.AREA} />);
 					}
 				}
-			}
+				
+				// introduce the balrog at the end of the caves
+				gameState.balrog.mapLevel = gameState.zoneSizes[0] + gameState.zoneSizes[1] + gameState.zoneSizes[2];
+				// create the balrog
+				gameState.balrog.xml = createBalrogXML();
+				if(UserData.settings.playerConsumed) gameState.balrog.mapLevel = 1;
+				//gameState.balrog.mapLevel = 1;
 			
-			// create the elite monsters
-			var zoneNum:int = 0;
-			if(!gameState.eliteNames){
-				gameState.eliteNames = {};
-				for(level = 1; level < TOTAL_LEVELS; level++){
-					if(level >= gameState.levelZones.length || zoneNum < gameState.levelZones[level - 1]){
-						zoneNum++;
-						gameState.monstersByLevel[level - 1].push(createEliteXML(level - 1, gameState.eliteNames));
-						if(zoneNum == Map.CHAOS) break;
+				// create the elite monsters
+				var zoneNum:int = 0;
+				if(!gameState.eliteNames){
+					gameState.eliteNames = {};
+					for(level = 1; level < TOTAL_LEVELS; level++){
+						if(level >= gameState.levelZones.length || zoneNum < gameState.levelZones[level - 1]){
+							zoneNum++;
+							gameState.monstersByLevel[level - 1].push(createEliteXML(level - 1, gameState.eliteNames));
+							if(zoneNum == Map.CHAOS) break;
+						}
 					}
 				}
+				
+				createUniqueItems();
 			}
-			
-			createUniqueItems();
 		}
 		
 		/* All unique items exist in Content as well as outside */

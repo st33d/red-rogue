@@ -74,7 +74,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 440;
+		public static const BUILD_NUM:int = 441;
 		
 		public static const TEST_BED_INIT:Boolean = false;
 		public static const ONLINE:Boolean = true;
@@ -865,7 +865,7 @@
 			}
 			
 			if(!player.active) consumedPlayerInit();
-			/*else {
+			else {
 				// end game checks
 				if(map.type == Map.AREA){
 					if(map.level == Map.UNDERWORLD){
@@ -889,7 +889,7 @@
 						}
 					}
 				}
-			}*/
+			}/**/
 			
 			changeMusic();
 			
