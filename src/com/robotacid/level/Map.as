@@ -470,7 +470,8 @@
 			)
 			
 			// create death
-			layers[ENTITIES][height - 2][UNDERWORLD_PORTAL_X - 3] = new Stone((UNDERWORLD_PORTAL_X - 3) * Game.SCALE, (height - 2) * Game.SCALE, Stone.DEATH);
+			var deathCharacter:Stone = new Stone((UNDERWORLD_PORTAL_X - 3) * Game.SCALE, (height - 2) * Game.SCALE, Stone.DEATH);
+			layers[ENTITIES][height - 2][UNDERWORLD_PORTAL_X - 3] = deathCharacter;
 		}
 		
 		/* Resolves what happens to entities that fall in the water in the Underworld */

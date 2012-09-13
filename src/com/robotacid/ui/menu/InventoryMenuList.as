@@ -391,6 +391,22 @@
 			menu.update();
 		}
 		
+		/* Return the first matching item */
+		public function getItem(name:int, type:int):Item{
+			var i:int, item:Item, list:MenuList;
+			if(type == Item.ARMOUR) list = armourList;
+			else if(type == Item.WEAPON) list = weaponsList;
+			else if(type == Item.RUNE) list = runesList;
+			else if(type == Item.HEART) list = heartsList;
+			if(list){
+				for(i = 0; i < list.options.length; i++){
+					item = list.options[i].userData as Item;
+					if(item.name == name) return item;
+				}
+			}
+			return null;
+		}
+		
 		/* Iterates through the runes in the inventory and identifies them */
 		public function identifyRunes():void{
 			var i:int, rune:Item;

@@ -29,6 +29,7 @@
 		private var minimapFeature:MinimapFX;
 		private var hits:int;
 		
+		// names
 		public static const SECRET_WALL:int = 0;
 		public static const HEAL:int = 1;
 		public static const GRIND:int = 2;
@@ -89,6 +90,11 @@
 					}
 				}
 			}
+		}
+		
+		/* This is used by the Death character during an end-game event */
+		override public function main():void {
+			//super.main();
 		}
 		
 		override public function createCollider(x:Number, y:Number, properties:int, ignoreProperties:int, state:int = 0, positionByBase:Boolean = true):void {

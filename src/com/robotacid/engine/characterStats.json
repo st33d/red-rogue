@@ -163,9 +163,9 @@
 	"specials":[
 		"x2 backstab damage, superior search skill", "chaotic learner", "superior speed", "superior combat skills", "regenerates health",
 		"possible bonus chest items", "infravision", "damage reflection", "theft attack", "life steal, undead",
-		"infectious, insane", "form steal", "poison attack", "stupefy attack", "confuse attack",
+		"infectious, insane", "form steal", "bleed attack", "stupefy attack", "confuse attack",
 		"superior defence", "fear attack, undead", "wall walk, undead", "xp steal", "chaos attack",
-		"superior combat skills, soul devourer", "poison immune, undead", "x2 backstab damage, superior search skill"
+		"superior combat skills, soul devourer", "bleed immune, undead", "x2 backstab damage, superior search skill"
 	],
 	"descriptions":[
 		"widow to the rogue named @", "reptile goblin", "true goblin", "greater goblin", "goblin protector",

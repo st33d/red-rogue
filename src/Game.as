@@ -74,10 +74,10 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 439;
+		public static const BUILD_NUM:int = 440;
 		
 		public static const TEST_BED_INIT:Boolean = false;
-		public static const ONLINE:Boolean = false;
+		public static const ONLINE:Boolean = true;
 		
 		public static var game:Game;
 		public static var renderer:Renderer;
@@ -160,6 +160,7 @@
 		public var livesAvailable:HiddenInt;
 		public var multiplayer:Boolean;
 		public var firstInstructions:Boolean;
+		public var endGameEvent:Boolean;
 		
 		// temp variables
 		private var i:int;
@@ -257,6 +258,7 @@
 			Menu.moveDelay = UserData.settings.menuMoveSpeed;
 			dogmaticMode = UserData.settings.dogmaticMode;
 			multiplayer = UserData.settings.multiplayer;
+			endGameEvent = false;
 			
 			firstInstructions = ONLINE;
 			state = (!ONLINE || UserData.settings.playerConsumed || TEST_BED_INIT) ? GAME : TITLE;
@@ -476,7 +478,7 @@
 				frameCount = 1;
 				deepestLevelReached = 1;
 				lives.value = 0;
-			
+				
 				// LISTS
 				
 				entities = new Vector.<Entity>();
@@ -863,6 +865,31 @@
 			}
 			
 			if(!player.active) consumedPlayerInit();
+			/*else {
+				// end game checks
+				if(map.type == Map.AREA){
+					if(map.level == Map.UNDERWORLD){
+						// check for yendor, activate death
+						if(gameMenu.inventoryList.getItem(Item.YENDOR, Item.ARMOUR)){
+							endGameEvent = true;
+							for(i = 0; i < entities.length; i++){
+								if(entities[i] is Stone && (entities[i] as Stone).name == Stone.DEATH){
+									(entities[i] as Stone).callMain = true;
+									break;
+								}
+							}
+						}
+					} else if(map.level == Map.OVERWORLD){
+						// check for yendor or husband
+						if(
+							gameMenu.inventoryList.getItem(Item.YENDOR, Item.ARMOUR) ||
+							(minion && minion.name == Character.HUSBAND)
+						){
+							endGameEvent = true;
+						}
+					}
+				}
+			}*/
 			
 			changeMusic();
 			

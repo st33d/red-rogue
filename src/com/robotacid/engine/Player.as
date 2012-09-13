@@ -359,17 +359,26 @@
 		/* Opens a confirmation dialog for exiting the level */
 		public function openExitDialog():void{
 			if(!Game.dialog){
-				Game.dialog = new Dialog(
-					"exit level",
-					"this level may not be the same when you return, are you sure?",
-					function():void{
-						// exit the level
-						exitLevel(portalContact);
-						disarmableTraps.length = 0;
-						game.gameMenu.update();
-					},
-					function():void{}
-				);
+				if(game.endGameEvent){
+					// let the player know the exit function isn't broken during the events
+					Game.dialog = new Dialog(
+						"hey",
+						"trying to tell a bit of story here.\ndo you mind waiting a moment?",
+						function():void{}
+					);
+				} else {
+					Game.dialog = new Dialog(
+						"exit level",
+						"this level may not be the same when you return, are you sure?",
+						function():void{
+							// exit the level
+							exitLevel(portalContact);
+							disarmableTraps.length = 0;
+							game.gameMenu.update();
+						},
+						function():void{}
+					);
+				}
 			}
 		}
 		

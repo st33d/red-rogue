@@ -319,7 +319,7 @@ package com.robotacid.phys {
 					minX = n != n >> 0 ? (n >> 0) + 1 : n >> 0;
 					if(minX >= world.width) minX = world.width - 1;
 					if(maxX >= world.width) maxX = world.width - 1;
-					minY = y * world.invScale;
+					minY = (y + INTERVAL_TOLERANCE) * world.invScale;
 					
 					scanForwards:
 					for(mapX = minX; mapX <= maxX; mapX++){
@@ -406,7 +406,7 @@ package com.robotacid.phys {
 					minX = n << 0;
 					if(minX < 0) minX = 0;
 					if(maxX < 0) maxX = 0;
-					minY = y * world.invScale;
+					minY = (y + INTERVAL_TOLERANCE) * world.invScale;
 					
 					scanBackwards:
 					for(mapX = minX; mapX >= maxX; mapX--){
@@ -534,7 +534,7 @@ package com.robotacid.phys {
 					minY = n != n >> 0 ? (n >> 0) + 1 : n >> 0;
 					if(minY >= world.height) minY = world.height - 1;
 					if(maxY >= world.height) maxY = world.height - 1;
-					minX = x * world.invScale;
+					minX = (x + INTERVAL_TOLERANCE) * world.invScale;
 					
 					scanForwards:
 					for(mapY = minY; mapY <= maxY; mapY++){
@@ -665,7 +665,7 @@ package com.robotacid.phys {
 					minY = n << 0;
 					if(minY < 0) minY = 0;
 					if(maxY < 0) maxY = 0;
-					minX = x * world.invScale;
+					minX = (x + INTERVAL_TOLERANCE) * world.invScale;
 					
 					scanBackwards:
 					for(mapY = minY; mapY >= maxY; mapY--){

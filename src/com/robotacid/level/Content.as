@@ -170,10 +170,10 @@
 				}
 				// introduce more mechanics at the beginning of the sewers
 				gameState.sewersFirstLevel = gameState.zoneSizes[0] + 1;
-				// create the balrog
-				gameState.balrog.xml = createBalrogXML();
 				// introduce the balrog at the end of the caves
 				gameState.balrog.mapLevel = gameState.zoneSizes[0] + gameState.zoneSizes[1] + gameState.zoneSizes[2];
+				// create the balrog
+				gameState.balrog.xml = createBalrogXML();
 				if(UserData.settings.playerConsumed) gameState.balrog.mapLevel = 1;
 				//gameState.balrog.mapLevel = 1;
 			}
@@ -1035,6 +1035,7 @@
 		public static function createEliteXML(mapLevel:int, eliteNames:Object):XML{
 			var name:int;
 			var level:int = mapLevel - 2;
+			var effectXML:XML;
 			if(level < -1) level = 0;
 			// pick a monster the player may not have seen, do not pick the same race twice
 			var nameRange:int = mapLevel + 1 > monsterNameDeck.length ? monsterNameDeck.length : mapLevel + 1;
@@ -1047,12 +1048,16 @@
 			// generate some powerful items
 			var weaponXML:XML = createItemXML(mapLevel, Item.WEAPON);
 			level = weaponXML.@level;
-			// the elite orc always has a bow
+			// the elite orc (Lurtz) always has a bow
 			if(name == Character.ORC){
 				weaponXML.@name = [Item.SHORT_BOW, Item.LONG_BOW, Item.ARBALEST][Map.random.rangeInt(3)];
-			// the elite rakshasa always has a blessed weapon
+			// the elite rakshasa (Baihu) always has a blessed weapon
 			} else if(name == Character.RAKSHASA){
 				weaponXML.@holyState = Item.BLESSED;
+			// the elite gnoll (Anubis) always has undead enchanted armour
+			} else if(name == Character.GNOLL){
+				effectXML = <effect name={Effect.UNDEAD} level={1 + Map.random.rangeInt(3)} />;
+				armourXML.appendChild(effectXML);
 			}
 			level += 1 + Map.random.rangeInt(3);
 			if(level > Game.MAX_LEVEL) level = Game.MAX_LEVEL;
@@ -1075,6 +1080,8 @@
 			var xml:XML =<character characterNum={-1} name={Character.BALROG} type={Character.MONSTER} level={1} rank={Character.ELITE} levelState={Balrog.STAIRS_DOWN_TAUNT} />;
 			var yendorXML:XML =<item name={Item.YENDOR} type={Item.ARMOUR} level={Game.MAX_LEVEL} />;
 			xml.appendChild(yendorXML);
+			var weaponXML:XML = createItemXML(UserData.gameState.balrog.mapLevel, Item.WEAPON);
+			xml.appendChild(weaponXML);
 			return xml;
 		}
 		
