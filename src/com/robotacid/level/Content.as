@@ -286,9 +286,9 @@
 						}
 					}
 				}
-				
-				createUniqueItems();
 			}
+			
+			createUniqueItems();
 		}
 		
 		/* All unique items exist in Content as well as outside */
@@ -1049,26 +1049,27 @@
 			// generate some powerful items
 			var weaponXML:XML = createItemXML(mapLevel, Item.WEAPON);
 			level = weaponXML.@level;
+			level += 1 + Map.random.rangeInt(3);
+			if(level > Game.MAX_LEVEL) level = Game.MAX_LEVEL;
+			weaponXML.@level = level;
 			// the elite orc (Lurtz) always has a bow
 			if(name == Character.ORC){
 				weaponXML.@name = [Item.SHORT_BOW, Item.LONG_BOW, Item.ARBALEST][Map.random.rangeInt(3)];
 			// the elite rakshasa (Baihu) always has a blessed weapon
 			} else if(name == Character.RAKSHASA){
 				weaponXML.@holyState = Item.BLESSED;
-			// the elite gnoll (Anubis) always has undead enchanted armour
-			} else if(name == Character.GNOLL){
-				effectXML = <effect name={Effect.UNDEAD} level={1 + Map.random.rangeInt(3)} />;
-				armourXML.appendChild(effectXML);
 			}
-			level += 1 + Map.random.rangeInt(3);
-			if(level > Game.MAX_LEVEL) level = Game.MAX_LEVEL;
 			
-			weaponXML.@level = level;
 			var armourXML:XML = createItemXML(mapLevel, Item.ARMOUR);
 			level = weaponXML.@level;
 			level += 1 + Map.random.rangeInt(3);
 			if(level > Game.MAX_LEVEL) level = Game.MAX_LEVEL;
 			armourXML.@level = level;
+			// the elite gnoll (Anubis) always has undead enchanted armour
+			if(name == Character.GNOLL){
+				effectXML = <effect name={Effect.UNDEAD} level={1 + Map.random.rangeInt(3)} />;
+				armourXML.appendChild(effectXML);
+			}
 			
 			xml.appendChild(weaponXML);
 			xml.appendChild(armourXML);

@@ -581,10 +581,23 @@
 					userName = xml.@user;
 					if(int(xml.@location) == Item.EQUIPPED){
 						equippedToThrowable = xml.@equippedToThrowable == "true";
+						// sanity checks to prevent stacked equipping
 						if(userName == playerName){
-							game.player.equip(item, equippedToThrowable);
+							if(
+								(item.type == Item.ARMOUR && !game.player.armour) ||
+								(item.type == Item.WEAPON && !equippedToThrowable && !game.player.weapon) ||
+								(item.type == Item.WEAPON && equippedToThrowable && !game.player.throwable)
+							){
+								game.player.equip(item, equippedToThrowable);
+							}
 						} else if(game.minion && userName == minionName){
-							game.minion.equip(item, equippedToThrowable);
+							if(
+								(item.type == Item.ARMOUR && !game.minion.armour) ||
+								(item.type == Item.WEAPON && !equippedToThrowable && !game.minion.weapon) ||
+								(item.type == Item.WEAPON && equippedToThrowable && !game.minion.throwable)
+							){
+								game.minion.equip(item, equippedToThrowable);
+							}
 						}
 					}
 				}

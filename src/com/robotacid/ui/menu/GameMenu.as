@@ -1,4 +1,5 @@
 ﻿package com.robotacid.ui.menu {
+	import com.adobe.serialization.json.JSON;
 	import com.robotacid.ai.Brain;
 	import com.robotacid.ai.PlayerBrain;
 	import com.robotacid.engine.Balrog;
@@ -92,6 +93,8 @@
 		public var changeMinionRaceOption:MenuOption;
 		public var portalTeleportOption:MenuOption;
 		public var giveDebugEquipmentOption:MenuOption;
+		public var saveSharedObjectOption:MenuOption;
+		public var loadSharedObjectOption:MenuOption;
 		
 		public var newGameOption:MenuOption;
 		public var resetOption:MenuOption;
@@ -192,6 +195,10 @@
 			portalTeleportOption.recordable = false;
 			giveDebugEquipmentOption = new MenuOption("give debug equipment");
 			giveDebugEquipmentOption.help = "gives items for investigating bugs.";
+			saveSharedObjectOption = new MenuOption("save state to file", null, false);
+			saveSharedObjectOption.help = "save game state to file.";
+			loadSharedObjectOption = new MenuOption("load state from file", null, false);
+			loadSharedObjectOption.help = "load game state from file. requires restarting the game.";
 			
 			stairsUpPortalOption = new MenuOption("stairs up");
 			stairsDownPortalOption = new MenuOption("stairs down");
@@ -307,6 +314,8 @@
 			debugList.options.push(changeRogueRaceOption);
 			debugList.options.push(changeMinionRaceOption);
 			debugList.options.push(portalTeleportOption);
+			debugList.options.push(saveSharedObjectOption);
+			debugList.options.push(loadSharedObjectOption);
 			debugList.options.push(giveDebugEquipmentOption);
 			
 			for(i = 0; i < Character.stats["names"].length; i++){
@@ -949,6 +958,12 @@
 			} else if(option == nateOption){
 				navigateToURL(new URLRequest("http://gallardosound.com"), "_blank");
 				
+			} else if(option == saveSharedObjectOption){
+				saveSharedObject();
+				
+			} else if(option == loadSharedObjectOption){
+				loadSharedObject();
+				
 			}
 			
 			// if the menu is open, force a renderer update so the player can see the changes,
@@ -967,6 +982,24 @@
 			update();
 			game.deathMenu.select(0);
 			game.menuCarousel.setCurrentMenu(game.deathMenu);
+		}
+		
+		public function saveSharedObject():void{
+			var obj:Object = {
+				settings:UserData.settings,
+				gameState:UserData.gameState
+			};
+			var json:String = JSON.encode(obj);
+			FileManager.save(json, "gamestate.json");
+		}
+		
+		public function loadSharedObject():void{
+			FileManager.load(loadSharedObjectComplete, null, [FileManager.JSON_FILTER]);
+		}
+		
+		private function loadSharedObjectComplete():void{
+			var json:String = FileManager.data.readUTFBytes(FileManager.data.length);
+			trace(json);
 		}
 		
 		/* Activates fullscreen mode */
