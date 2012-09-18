@@ -320,7 +320,7 @@
 			if((looking & DOWN) || collider.state == Collider.FALL){
 				if(cameraDisplacement.y < CAMERA_DISPLACEMENT_Y){
 					cameraDisplacement.y += CAMERA_DISPLACE_SPEED * 0.5;
-					if((dir & DOWN) || collider.state == Collider.FALL) cameraDisplacement.y += CAMERA_DISPLACE_SPEED * 0.5;
+					if((dir & DOWN) || (collider.state == Collider.FALL && collider.world)) cameraDisplacement.y += CAMERA_DISPLACE_SPEED * 0.5;
 				}
 			} else if(looking & UP){
 				if(cameraDisplacement.y > -CAMERA_DISPLACEMENT_Y){

@@ -341,6 +341,7 @@ package com.robotacid.engine {
 		
 		/* Destructor */
 		public function kill():void {
+			if(!active) return;
 			if(fuse){
 				if(chaosWalls[target.y][target.x]) chaosWalls[target.y][target.x].callMain = true;
 			}

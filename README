@@ -2,9 +2,9 @@ Red Rogue is a platformer-roguelike written in Flex and compiled with FlashDevel
 
 The game is played with arrow keys (or w,a,s,d) and the space bar.
 
-There is no jump. Landing on an opponent's head causes knockback-stun.
+There is no jump. Landing on an opponent causes knockback/stun.
 
-The space bar opens a menu, from there the inventory can be accessed to equip you and your minion, to cast spells, search for traps and other things like saving and loading.
+The space bar opens a menu, from there the inventory can be accessed to equip you and your minion, to cast spells, search for traps and other things.
 
 There's also default hot-key-bindings, go to the website and click on "instructions" to discover what they are.
 

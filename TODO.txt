@@ -1,4 +1,4 @@
-Change log: fixed game crashing when entering pocket dungeon (caused by content creation restructure), sanity checks to prevent stacked equipping from gameState implemented, fixed anubis armour creation crashing game
+Change log: brain.avoid altered to force a direction even if character positions are equal, death now converts the minion into a husband when presented with yendor, fixed camera dipping on stairs when entering
 
 Bug hunt
 	chaos wall colliders can child a character and pull it into a wall - how?
@@ -8,29 +8,25 @@ Bug hunt
 	balrog frozen after smite attack, stuck to wall - no further info (perhaps secret wall? or chaos wall?)
 	chaos walls frozen without graphics rendered and no walls beneath them (activated, not on chaos wall render list?)
 	minion weapon invisible after level change (arbalest and skull equipped)
-	investigate portals around level 20 plus and killing the balrog in the same area
 
 Guide
+
+Stun shockwave
+	roll to shockwave
+	experiment with secondary velocities on Colliders
 
 Add Balrog death and ending events to tracking
 
 endings
 	quest menu - picking up yendor
 		change to return to overworld
-	yendor in the underworld
-		transformation event
-			endGameEvent setting:
-				trigger conditions - entering with yendor
-					death collecting yendor
-						
-			minion must be non-consumed
-				set husband minion to face player instead of facing player's direction (awwww)
-			run whole scene as animation?
-				requires event management state
-				preamble would require characters to move into place
-				lock out player input
 				
 	yendor or At in the overworld
+	
+	husband clause: how do we resolve the husband getting polymorphed?
+	
 		new overworld backdrop? night?
 			entrance crumble anim
 				all rocks crumble, rise up?
+				blood, stone and cogs spewing out of dungeon?
+				earthquake whilst husband tag on UserData

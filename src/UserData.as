@@ -121,7 +121,8 @@ package {
 				runeNames:[],
 				storyCharCodes:[],
 				quests:[],
-				randomSeed:XorRandom.seedFromDate()
+				randomSeed:XorRandom.seedFromDate(),
+				husband:false
 			};
 			
 			initMinion();

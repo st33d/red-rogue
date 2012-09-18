@@ -28,6 +28,7 @@
 		
 		private var minimapFeature:MinimapFX;
 		private var hits:int;
+		private var endGameEventData:Object;
 		
 		// names
 		public static const SECRET_WALL:int = 0;
@@ -94,7 +95,98 @@
 		
 		/* This is used by the Death character during an end-game event */
 		override public function main():void {
-			//super.main();
+			var i:int, item:Item;
+			var mc:MovieClip = gfx as MovieClip;
+			if(!endGameEventData.gotYendor){
+				if(endGameEventData.count){
+					endGameEventData.count--;
+				} else {
+					endGameEventData.yendor = game.gameMenu.inventoryList.getItem(Item.YENDOR, Item.ARMOUR);
+					// player has yendor, take it manually
+					if(endGameEventData.yendor){
+						endGameEventData.playerX = game.player.collider.x + game.player.collider.width * 0.5
+						endGameEventData.deathX = collider.x + collider.width * 0.5
+						if(endGameEventData.deathX > endGameEventData.playerX){
+							dir = looking = LEFT;
+						} else {
+							dir = looking = RIGHT;
+						}
+						endGameEventData.charContact = null;
+						if(collider.leftContact) endGameEventData.charContact = collider.leftContact.userData as Character;
+						if(!endGameEventData.charContact && collider.rightContact) endGameEventData.charContact = collider.rightContact.userData as Character;
+						if(endGameEventData.charContact == game.player){
+							if(endGameEventData.yendor.user) endGameEventData.yendor = endGameEventData.yendor.user.unequip(endGameEventData.yendor);
+							game.gameMenu.inventoryList.removeItem(endGameEventData.yendor);
+							game.soundQueue.add("pickUp");
+							endGameEventData.gotYendor = true;
+						}
+					// player may have dropped yendor - teleport it (a cheeky player may try to drop it into the water)
+					} else {
+						for(i = 0; i < game.items.length; i++){
+							item = game.items[i];
+							if(item.name == Item.YENDOR && item.type == Item.ARMOUR){
+								if(item.mapX < mapX) dir = looking = LEFT;
+								else if(item.mapY > mapY) dir = looking = RIGHT;
+								if(collider.intersects(item.collider)){
+									item.destroyOnMap(true);
+									game.createDistSound(item.mapX, item.mapY, "teleportYendor", Effect.TELEPORT_SOUNDS);
+									endGameEventData.gotYendor = true;
+								}
+							}
+						}
+					}
+					move();
+					if(endGameEventData.gotYendor){
+						game.console.print("death takes yendor");
+						endGameEventData.count = 60;
+					}
+				}
+			} else if(!endGameEventData.transformedMinion){
+				if(collider.x > endGameEventData.startX){
+					dir = looking = LEFT;
+					move();
+				} else {
+					dir = 0;
+					if(game.minion.mapX < mapX){
+						looking = LEFT;
+					} else {
+						looking = RIGHT;
+					}
+					if(endGameEventData.count){
+						if(game.minion.state == Character.WALKING) endGameEventData.count--;
+						move();
+						if(endGameEventData.count == 0){
+							game.minion.quicken();
+						}
+					} else {
+						state = LUNGING;
+						p.x = mc.x + mc.weapon.x;
+						p.y = mc.y + mc.weapon.y;
+						if(weapon) p.x += weapon.gfx.getBounds(weapon.gfx).right;
+						for(i = 0; i < 3; i++){
+							game.lightning.strike(
+								renderer.lightningShape.graphics, game.world.map, p.x, p.y,
+								game.minion.collider.x + game.minion.collider.width * 0.5,
+								game.minion.collider.y + game.minion.collider.height * 0.5
+							);
+						}
+						if(game.minion.state == Character.WALKING){
+							game.endGameEvent = false;
+							state = WALKING;
+							callMain = false;
+							endGameEventData = null;
+							move();
+						} else if(game.minion.state == Character.QUICKENING){
+							if(game.minion.quickeningCount == 10){
+								var explosion:Explosion = new Explosion(0, game.minion.mapX, game.minion.mapY, 3, 0, game.player, null, game.player.missileIgnore);
+								game.minion.changeName(Character.HUSBAND);
+								game.console.print(game.minion.nameToString() + " became husband");
+								UserData.gameState.husband = true;
+							}
+						}
+					}
+				}
+			}
 		}
 		
 		override public function createCollider(x:Number, y:Number, properties:int, ignoreProperties:int, state:int = 0, positionByBase:Boolean = true):void {
@@ -187,6 +279,18 @@
 			minimapFeature = game.miniMap.addFeature(mapX, mapY, renderer.searchFeatureBlit, true);
 			gfx.visible = true;
 			revealed = true;
+		}
+		
+		/* Set up Death for the end game event of transforming the minion */
+		public function setEndGameEvent():void{
+			callMain = true;
+			endGameEventData = {
+				gotYendor:false,
+				transformedMinion:false,
+				startX:collider.x,
+				count:30,
+				charContact:null
+			}
 		}
 		
 		/* Called to make this object visible */

@@ -629,6 +629,7 @@
 			
 				if(targetX < charPos.x) char.actions |= RIGHT;
 				else if(targetX > charPos.x) char.actions |= LEFT;
+				else char.actions = game.random.coinFlip() ? RIGHT : LEFT;
 				if(target.collider.y >= char.collider.y + char.collider.height) char.actions |= UP;
 				if(altNode) altNode = null;
 				

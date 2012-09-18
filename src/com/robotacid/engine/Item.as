@@ -303,7 +303,8 @@
 				collider.x + collider.width > game.player.collider.x &&
 				game.player.collider.x + game.player.collider.width > collider.x &&
 				collider.y + collider.height > game.player.collider.y &&
-				game.player.collider.y + game.player.collider.height > collider.y
+				game.player.collider.y + game.player.collider.height > collider.y &&
+				active
 			){
 				if(type == KEY && game.player.keyItem){
 					// fires a warning once if a key is already carried
@@ -358,6 +359,19 @@
 				game.items.push(this);
 				game.world.restoreCollider(collider);
 			}
+		}
+		
+		/* Destroy a dropped item */
+		public function destroyOnMap(sparks:Boolean = false):void{
+			if(location == DROPPED){
+				collider.world.removeCollider(collider);
+				active = false;
+			}
+			location = UNASSIGNED;
+			gfx.filters = [];
+			gfx.visible = true;
+			gfx.scaleX = 1;
+			renderer.createSparkRect(collider, collider.width + collider.height);
 		}
 		
 		/* Increases current level of item and sets attributes accordingly */

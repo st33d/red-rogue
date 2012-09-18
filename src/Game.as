@@ -74,7 +74,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 442;
+		public static const BUILD_NUM:int = 443;
 		
 		public static const TEST_BED_INIT:Boolean = false;
 		public static const ONLINE:Boolean = true;
@@ -808,17 +808,18 @@
 					if(minion && minion.armour && minion.armour.name == Item.FACE) minion.unequip(minion.armour);
 					// change the rogue to a colour version and revert the minion if changed
 					skinMc = new RogueColMC();
-					if(player.name != Character.ROGUE){
-						console.print("rogue reverts to human form");
-					}
+					if(player.name != Character.ROGUE)
+						console.print(player.nameToString() + " reverts to human form");
 					player.changeName(Character.ROGUE, new RogueColMC);
 					if(minion){
-						if(minion.name == Character.HUSBAND){
+						if(minion.name == Character.HUSBAND || UserData.gameState.husband){
+							if(minion.name != Character.HUSBAND)
+								console.print(minion.nameToString() + " reverts to human form");
 							minion.changeName(Character.HUSBAND, new AtColMC);
 							
 						} else if(minion.name != Character.SKELETON){
 							minion.changeName(Character.SKELETON);
-							console.print("minion reverts to undead form");
+							console.print(minion.nameToString() + " reverts to undead form");
 						}
 					}
 					
@@ -867,17 +868,19 @@
 			endGameEvent = false;
 			
 			if(!player.active) consumedPlayerInit();
-			
-			/*else {
+			/**/else {
 				// end game checks
 				if(map.type == Map.AREA){
 					if(map.level == Map.UNDERWORLD){
-						// check for yendor, activate death
-						if(gameMenu.inventoryList.getItem(Item.YENDOR, Item.ARMOUR)){
+						// check for yendor (and debugging), activate death
+						if(
+							gameMenu.inventoryList.getItem(Item.YENDOR, Item.ARMOUR) &&
+							!(minion && minion.name == Character.HUSBAND)
+						){
 							endGameEvent = true;
 							for(i = 0; i < entities.length; i++){
 								if(entities[i] is Stone && (entities[i] as Stone).name == Stone.DEATH){
-									(entities[i] as Stone).callMain = true;
+									(entities[i] as Stone).setEndGameEvent();
 									break;
 								}
 							}
@@ -888,11 +891,11 @@
 							gameMenu.inventoryList.getItem(Item.YENDOR, Item.ARMOUR) ||
 							(minion && minion.name == Character.HUSBAND)
 						){
-							endGameEvent = true;
+							//endGameEvent = true;
 						}
 					}
 				}
-			}*/
+			}
 			
 			changeMusic();
 			

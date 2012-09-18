@@ -1342,6 +1342,7 @@
 					item.collect(this, false);
 					if(brain) brain.flee(target);
 					game.console.print(nameToString() + " stole " + item.nameToString());
+					game.createDistSound(mapX, mapY, "pickUp");
 				}
 				
 			// polymorph target into a werewolf

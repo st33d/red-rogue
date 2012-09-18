@@ -127,6 +127,7 @@
 			inventory.updateItem(item);
 			return item;
 		}
+		
 		/* Unselect item as equipped */
 		override public function unequip(item:Item):Item{
 			super.unequip(item);
@@ -150,6 +151,11 @@
 				game.console.print("your minion is in danger");
 				game.player.setAsleep(false);
 			}
+		}
+		
+		override public function finishQuicken():void {
+			// the minion's transformation event ends at the end of a quickening
+			super.finishQuicken();
 		}
 		
 		/* This pulls the minion to the vicinity of the player */
