@@ -1321,6 +1321,12 @@
 						point.x = x * Game.SCALE * 2;
 						point.y = y * Game.SCALE * 2;
 						bitmapData.copyPixels(source, source.rect, point);
+						
+						//debugging
+						//bitmapData.fillRect(new Rectangle(point.x, point.y, Game.SCALE, Game.SCALE), 0xFF000000 + game.random.rangeInt(uint.MAX_VALUE - 0xFF000000));
+						//bitmapData.fillRect(new Rectangle(point.x + Game.SCALE, point.y, Game.SCALE, Game.SCALE), 0xFF000000 + game.random.rangeInt(uint.MAX_VALUE - 0xFF000000));
+						//bitmapData.fillRect(new Rectangle(point.x, point.y + Game.SCALE, Game.SCALE, Game.SCALE), 0xFF000000 + game.random.rangeInt(uint.MAX_VALUE - 0xFF000000));
+						//bitmapData.fillRect(new Rectangle(point.x + Game.SCALE, point.y + Game.SCALE, Game.SCALE, Game.SCALE), 0xFF000000 + game.random.rangeInt(uint.MAX_VALUE - 0xFF000000));
 					}
 				}
 				if(zone == SEWERS) createPipes(bitmapData);

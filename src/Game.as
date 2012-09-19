@@ -74,10 +74,10 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 443;
+		public static const BUILD_NUM:int = 444;
 		
 		public static const TEST_BED_INIT:Boolean = false;
-		public static const ONLINE:Boolean = true;
+		public static const ONLINE:Boolean = false;
 		
 		public static var game:Game;
 		public static var renderer:Renderer;
@@ -893,6 +893,11 @@
 						){
 							//endGameEvent = true;
 						}
+					}
+				} else {
+					// the dungeon suffers quakes whilst the amulet of yendor is out of the enemy's hands
+					if(UserData.gameState.husband || gameMenu.inventoryList.getItem(Item.YENDOR, Item.ARMOUR)){
+						renderer.sceneManager.quakes = true;
 					}
 				}
 			}

@@ -1,5 +1,7 @@
 package com.robotacid.gfx {
+	import com.robotacid.engine.Item;
 	import com.robotacid.engine.Portal;
+	import com.robotacid.engine.Stone;
 	import com.robotacid.level.Map;
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
@@ -21,6 +23,8 @@ package com.robotacid.gfx {
 		public var mapType:int;
 		public var mapZone:int;
 		
+		public var quakes:Boolean;
+		
 		// utilities
 		private var i:int;
 		private var n:Number;
@@ -33,10 +37,23 @@ package com.robotacid.gfx {
 		private var matrix:Matrix = new Matrix();
 		private var point:Point = new Point();
 		private var auto:ChaosAutomata;
+		private var endingData:Object;
+		private var slideX:Number;
+		private var slideY:Number;
+		private var slideDist:Number;
+		private var slideRect:Rectangle;
+		private var slideBuffer:BitmapData;
+		private var count:int;
+		private var quakeCount:int;
+		private var quakeHits:int;
 		
 		public static const UNDERWORLD_NOVAS:int = 20;
 		public static const UNDERWORLD_NOVA_HEIGHT:int = 9;
 		public static const UNDERWORLD_WAVE_HEIGHT:int = 12;
+		public static const QUAKE_DELAY:int = 360;
+		public static const QUAKE_HITS:int = 4;
+		public static const CHAOS_SLIDE_DELAY:int = 90;
+		public static const CHAOS_SLIDE_SPEED:Number = 1;
 		public static const WAVE_SPEED:Number = 0.5;
 		public static const STAR_SOUNDS:Array = ["star1", "star2", "star3", "star4"];
 		
@@ -44,6 +61,7 @@ package com.robotacid.gfx {
 			this.mapLevel = mapLevel;
 			this.mapType = mapType;
 			mapZone = game.content.getLevelZone(mapLevel);
+			
 			if(mapLevel == Map.UNDERWORLD && mapType == Map.AREA){
 				fx = new Vector.<FX>();
 				for(i = 0; i < UNDERWORLD_NOVAS; i++){
@@ -60,7 +78,16 @@ package com.robotacid.gfx {
 				for(i = 0; i < 30; i++){
 					automata.push(new ChaosAutomata(i < 15));
 				}
+				count = CHAOS_SLIDE_DELAY + game.random.rangeInt(CHAOS_SLIDE_DELAY);
 			}
+			if(UserData.gameState.husband || game.gameMenu.inventoryList.getItem(Item.YENDOR, Item.ARMOUR)){
+				if(mapType != Map.AREA){
+					quakes = true;
+					quakeHits = QUAKE_HITS + game.random.rangeInt(QUAKE_HITS);
+					quakeCount = QUAKE_DELAY + game.random.rangeInt(QUAKE_DELAY);
+				}
+			}
+			
 			
 		}
 		
@@ -77,11 +104,57 @@ package com.robotacid.gfx {
 					}
 				}
 			} else if(mapZone == Map.CHAOS){
-				for(i = 0; i < automata.length; i++){
-					auto = automata[i];
-					auto.main();
+				if(count){
+					count--;
+					if(count == 0){
+						slideDist = (game.random.rangeInt(4) + 3) * Game.SCALE;
+						slideX = slideY = 0;
+						if(game.random.coinFlip()){
+							slideRect = new Rectangle(game.random.rangeInt(Map.BACKGROUND_WIDTH) * Game.SCALE, 0, Game.SCALE, Map.BACKGROUND_HEIGHT * Game.SCALE);
+							slideY = game.random.coinFlip() ? 1 : -1;
+						} else {
+							slideRect = new Rectangle(0, game.random.rangeInt(Map.BACKGROUND_HEIGHT) * Game.SCALE, Map.BACKGROUND_WIDTH * Game.SCALE, Game.SCALE);
+							slideX = game.random.coinFlip() ? 1 : -1;
+						}
+						slideBuffer = new BitmapData(slideRect.width, slideRect.height, true, 0x0);
+					}
+					for(i = 0; i < automata.length; i++){
+						auto = automata[i];
+						auto.main();
+					}
+					renderer.backgroundBitmapData.setVector(renderer.backgroundBitmapData.rect, ChaosAutomata.pixels);
+				} else {
+					// random sliding background
+					if(slideDist){
+						point.x = point.y = 0;
+						slideBuffer.copyPixels(renderer.backgroundBitmapData, slideRect, point);
+						point.x = slideRect.x + slideX * CHAOS_SLIDE_SPEED;
+						point.y = slideRect.y + slideY * CHAOS_SLIDE_SPEED;
+						renderer.backgroundBitmapData.copyPixels(slideBuffer, slideBuffer.rect, point);
+						point.x -= (slideRect.width) * slideX;
+						point.y -= (slideRect.height) * slideY;
+						renderer.backgroundBitmapData.copyPixels(slideBuffer, slideBuffer.rect, point);
+						slideDist -= CHAOS_SLIDE_SPEED;
+					} else {
+						count = CHAOS_SLIDE_DELAY + game.random.rangeInt(CHAOS_SLIDE_DELAY);
+						ChaosAutomata.pixels = renderer.backgroundBitmapData.getVector(renderer.backgroundBitmapData.rect);
+					}
 				}
-				renderer.backgroundBitmapData.setVector(renderer.backgroundBitmapData.rect, ChaosAutomata.pixels);
+			}
+			if(quakes){
+				if(quakeCount){
+					quakeCount--;
+					if(quakeCount == 0) game.soundQueue.addRandom("quake", Stone.DEATH_SOUNDS, 0.2);
+				} else {
+					renderer.createDebrisRect(new Rectangle(renderer.bitmap.x, renderer.bitmap.y, renderer.bitmap.width, renderer.bitmap.height), 0, 200, Renderer.STONE);
+					renderer.shake(0, 2 + game.random.rangeInt(4));
+					quakeCount = 5 + game.random.rangeInt(5);
+					if(quakeHits) quakeHits--;
+					else {
+						quakeHits = QUAKE_HITS + game.random.rangeInt(QUAKE_HITS);
+						quakeCount = QUAKE_DELAY + game.random.rangeInt(QUAKE_DELAY);
+					}
+				}
 			}
 		}
 		
@@ -119,7 +192,7 @@ package com.robotacid.gfx {
 					level = game.gameMenu.editorList.dungeonLevelList.selection
 				}
 				var zone:int = game.content.getLevelZone(level);
-				if(zone == Map.CHAOS){
+				if(zone == Map.CHAOS || UserData.gameState.husband || game.gameMenu.inventoryList.getItem(Item.YENDOR, Item.ARMOUR)){
 					return new SceneManager(level, type);
 				}
 			}

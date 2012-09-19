@@ -1,4 +1,4 @@
-Change log: brain.avoid altered to force a direction even if character positions are equal, death now converts the minion into a husband when presented with yendor, fixed camera dipping on stairs when entering
+Change log: chaos zone now has sliding sections of background, possession of yendor or a husband causes quakes (dungeon is powered by yendor)
 
 Bug hunt
 	chaos wall colliders can child a character and pull it into a wall - how?
@@ -8,12 +8,20 @@ Bug hunt
 	balrog frozen after smite attack, stuck to wall - no further info (perhaps secret wall? or chaos wall?)
 	chaos walls frozen without graphics rendered and no walls beneath them (activated, not on chaos wall render list?)
 	minion weapon invisible after level change (arbalest and skull equipped)
+	
+	protection reflected missiles faulty - test with gun leech
 
 Guide
+
+SceneManager
+	overworld dungeon destruction
+	earthquakes when in possession of yendor or husband (double strength for husband - yendor holds the dungeon together)
 
 Stun shockwave
 	roll to shockwave
 	experiment with secondary velocities on Colliders
+
+Drop stuff randomly and unequip stuff when confused?
 
 Add Balrog death and ending events to tracking
 
