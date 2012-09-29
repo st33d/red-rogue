@@ -1,6 +1,7 @@
 package com.robotacid.engine {
 	import com.robotacid.level.Content;
 	import com.robotacid.gfx.Renderer;
+	import com.robotacid.level.Map;
 	import com.robotacid.phys.Collider;
 	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
@@ -118,14 +119,16 @@ package com.robotacid.engine {
 				createCogCollider(x, y);
 				collider.dampingY = collider.dampingX;
 			}
+			count = delay;
+			callMain = true;
+			
 			if(name & COG){
 				if(game.random.value() < CHAOS_MISSILE_CHANCE){
 					chaosMissiles = 2 + game.random.rangeInt(4);
 					chaosMissileCount = CHAOS_MISSILE_DELAY + game.random.range(CHAOS_MISSILE_DELAY);
 				}
+				if(game.map.type == Map.AREA) count *= 3;
 			}
-			count = delay;
-			callMain = true;
 		}
 		
 		private function createCogCollider(x:Number, y:Number):void{
@@ -161,8 +164,13 @@ package com.robotacid.engine {
 					patrol();
 				} else (setPatrolArea(game.world.map));
 				if(count-- <= 0){
-					if(name & BAT && !(collider.pressure & UP)){
+					if((name & BAT) && !(collider.pressure & UP)){
 						dir = UP;
+						// kill cog critters in areas for game ending
+						if((name & COG) && game.map.type == Map.AREA){
+							kill();
+							return;
+						}
 						
 					} else {
 						count = delay + game.random.range(delay);

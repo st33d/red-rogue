@@ -74,7 +74,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 444;
+		public static const BUILD_NUM:int = 445;
 		
 		public static const TEST_BED_INIT:Boolean = false;
 		public static const ONLINE:Boolean = false;
@@ -498,6 +498,7 @@
 				content = new Content();
 				Writing.createStoryCharCodes(Map.random);
 				Sleep.initDreams();
+				Epilogue.initEpilogue();
 				
 				// LEVEL SPECIFIC INIT
 				// This stuff that follows requires the bones of a level to initialise
@@ -685,8 +686,6 @@
 			// collider debug
 			//world.debug = debug;
 			
-			renderer.sceneManager = SceneManager.getSceneManager(level, type);
-			
 			if(!lightMap) lightMap = new LightMap(world.map);
 			else {
 				lightMap.newMap(world.map);
@@ -847,6 +846,9 @@
 				}
 			}
 			
+			// some levels/areas require constant graphical effects
+			renderer.sceneManager = SceneManager.getSceneManager(level, type);
+			
 			// any targeted enemy is no longer on this level
 			if(enemyHealthBar.active) enemyHealthBar.deactivate();
 			
@@ -891,13 +893,8 @@
 							gameMenu.inventoryList.getItem(Item.YENDOR, Item.ARMOUR) ||
 							(minion && minion.name == Character.HUSBAND)
 						){
-							//endGameEvent = true;
+							endGameEvent = true;
 						}
-					}
-				} else {
-					// the dungeon suffers quakes whilst the amulet of yendor is out of the enemy's hands
-					if(UserData.gameState.husband || gameMenu.inventoryList.getItem(Item.YENDOR, Item.ARMOUR)){
-						renderer.sceneManager.quakes = true;
 					}
 				}
 			}

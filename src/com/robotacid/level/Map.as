@@ -92,6 +92,8 @@
 		public static const UNDERWORLD_BOAT_MIN:int = 8;
 		public static const UNDERWORLD_BOAT_MAX:int = 17;
 		public static const UNDERWORLD_PORTAL_X:int = 13;
+		public static const OVERWORLD_STAIRS_X:int = 12;
+		public static const OVERWORLD_PORTAL_X:int = 17;
 		
 		public static const LEVELS_PER_ZONE:int = 4;
 		public static const ZONE_TOTAL:int = 4;
@@ -422,10 +424,10 @@
 			if(portalXMLs.length){
 				// given that there can only be one type of portal on the overworld - the rogue's portal
 				// we create the rogue's portal here
-				setPortal(17, height - 2, portalXMLs[0]);
+				setPortal(OVERWORLD_PORTAL_X, height - 2, portalXMLs[0]);
 			}
 			
-			setStairsDown(12, height - 2);
+			setStairsDown(OVERWORLD_STAIRS_X, height - 2);
 			
 			// the player may have left content on the overworld as a sort of bank
 			game.content.populateLevel(type, OVERWORLD, bitmap, layers, random);

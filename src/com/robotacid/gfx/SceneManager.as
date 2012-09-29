@@ -1,10 +1,13 @@
 package com.robotacid.gfx {
+	import com.robotacid.engine.Explosion;
 	import com.robotacid.engine.Item;
+	import com.robotacid.engine.MapTileConverter;
 	import com.robotacid.engine.Portal;
 	import com.robotacid.engine.Stone;
 	import com.robotacid.level.Map;
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
+	import flash.display.MovieClip;
 	import flash.display.Shape;
 	import flash.geom.Matrix;
 	import flash.geom.Point;
@@ -50,7 +53,7 @@ package com.robotacid.gfx {
 		public static const UNDERWORLD_NOVAS:int = 20;
 		public static const UNDERWORLD_NOVA_HEIGHT:int = 9;
 		public static const UNDERWORLD_WAVE_HEIGHT:int = 12;
-		public static const QUAKE_DELAY:int = 360;
+		public static const QUAKE_DELAY:int = 300;
 		public static const QUAKE_HITS:int = 4;
 		public static const CHAOS_SLIDE_DELAY:int = 90;
 		public static const CHAOS_SLIDE_SPEED:Number = 1;
@@ -80,15 +83,23 @@ package com.robotacid.gfx {
 				}
 				count = CHAOS_SLIDE_DELAY + game.random.rangeInt(CHAOS_SLIDE_DELAY);
 			}
+			// the dungeon suffers quakes whilst the amulet of yendor is out of the enemy's hands
 			if(UserData.gameState.husband || game.gameMenu.inventoryList.getItem(Item.YENDOR, Item.ARMOUR)){
 				if(mapType != Map.AREA){
 					quakes = true;
 					quakeHits = QUAKE_HITS + game.random.rangeInt(QUAKE_HITS);
 					quakeCount = QUAKE_DELAY + game.random.rangeInt(QUAKE_DELAY);
+					
+				// prep for ending
+				} else if(mapLevel == Map.OVERWORLD){
+					endingData = {
+						firstDelay:45,
+						debrisDelay:240,
+						debrisRect:new Rectangle(Map.OVERWORLD_STAIRS_X * Game.SCALE, (game.map.height - 2) * Game.SCALE, Game.SCALE, Game.SCALE)
+					}
+					quakeCount = 1;
 				}
 			}
-			
-			
 		}
 		
 		public function renderBackground():void{
@@ -169,6 +180,39 @@ package com.robotacid.gfx {
 				}
 				
 			} else if(mapLevel == Map.OVERWORLD && mapType == Map.AREA){
+				
+				if(endingData){
+					if(endingData.firstDelay){
+						endingData.firstDelay--;
+						if(endingData.firstDelay == 0){
+							var portal:Portal;
+							for(i = 0; i < game.portals.length; i++){
+								portal = game.portals[i];
+								if(portal.type == Portal.STAIRS && portal.targetLevel == 1 && portal.targetType == Map.MAIN_DUNGEON){
+									endingData.stairs = portal;
+									break;
+								}
+							}
+							endingData.stairs.playerPortal = false;
+							(endingData.stairs.gfx as MovieClip).gotoAndStop("destroy");
+							var explosion:Explosion = new Explosion(0, Map.OVERWORLD_STAIRS_X, game.map.height - 2, 3, 0, game.player, null, game.player.missileIgnore);
+						}
+					} else {
+						if(quakeCount){
+							quakeCount--;
+							if(quakeCount == 0){
+								game.soundQueue.addRandom("quake", Stone.DEATH_SOUNDS, 0.2);
+								game.mapTileManager.converter.convertIndicesToObjects(Map.OVERWORLD_STAIRS_X, game.map.height - 2, MapTileConverter.COG_BAT);
+							}
+						} else {
+							renderer.shake(0, 2 + game.random.rangeInt(4));
+							quakeCount = 5 + game.random.rangeInt(5);
+						}
+						renderer.createDebrisRectDir(endingData.debrisRect, -5 + game.random.range(10), -game.random.range(50), 10, Renderer.STONE);
+						renderer.createDebrisRectDir(endingData.debrisRect, -3 + game.random.range(6), -game.random.range(20), 30, Renderer.STONE);
+						renderer.createDebrisRectDir(endingData.debrisRect, -1 + game.random.range(2), -game.random.range(10), 5, Renderer.BLOOD);
+					}
+				}
 				
 				// not sure I want to keep the following effect because the underworld is also an item warehouse
 				

@@ -1,4 +1,4 @@
-Change log: chaos zone now has sliding sections of background, possession of yendor or a husband causes quakes (dungeon is powered by yendor)
+Change log: overworld dungeon destruction started, new assets library (overworld segments, elite banners, stun fx and home portal)
 
 Bug hunt
 	chaos wall colliders can child a character and pull it into a wall - how?
@@ -11,30 +11,35 @@ Bug hunt
 	
 	protection reflected missiles faulty - test with gun leech
 
-Guide
-
 SceneManager
 	overworld dungeon destruction
-	earthquakes when in possession of yendor or husband (double strength for husband - yendor holds the dungeon together)
+		separate overworld layers
+		animate entrance destruction
+		ending event boolean not set
+		segue to epilogue
+		remove stairs
+
+endings
+	epilogue
+	quest menu - picking up yendor
+		change to return to overworld
+		
 
 Stun shockwave
+	standard stun anim
 	roll to shockwave
 	experiment with secondary velocities on Colliders
 
 Drop stuff randomly and unequip stuff when confused?
 
-Add Balrog death and ending events to tracking
+Elite monster banners
 
-endings
-	quest menu - picking up yendor
-		change to return to overworld
-				
-	yendor or At in the overworld
-	
-	husband clause: how do we resolve the husband getting polymorphed?
-	
-		new overworld backdrop? night?
-			entrance crumble anim
-				all rocks crumble, rise up?
-				blood, stone and cogs spewing out of dungeon?
-				earthquake whilst husband tag on UserData
+Guide
+
+Gnoll extra scavenging
+	extra butcher
+	chance to drop item on kill
+
+dungeon zone lit by torches
+
+Add Balrog death and ending events to tracking
