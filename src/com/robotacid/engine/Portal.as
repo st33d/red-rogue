@@ -48,6 +48,7 @@
 		public static const STAIRS:int = 0;
 		public static const PORTAL:int = 1;
 		public static const MONSTER:int = 2;
+		public static const ENDING:int = 3;
 		
 		public static const OPEN_CLOSE_DELAY:int = 8;
 		public static const SCALE_STEP:Number = 1.0 / OPEN_CLOSE_DELAY;
@@ -317,6 +318,9 @@
 			if(type == MONSTER){
 				mc.dest.gotoAndStop("monster");
 				mc.dir.visible = false;
+			} else if(type == ENDING){
+				mc.dest.gotoAndStop("home");
+				mc.dir.gotoAndStop("up");
 			} else {
 				if(targetType == Map.AREA){
 					if(targetLevel == Map.OVERWORLD){

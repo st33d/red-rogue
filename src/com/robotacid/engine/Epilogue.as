@@ -46,14 +46,10 @@ package com.robotacid.engine {
 			addChild(textBox);
 			graphics.beginFill(0);
 			graphics.drawRect(0, 0, Game.WIDTH, Game.HEIGHT);
-			alpha = 0;
 			textBox.text = currentStr;
 		}
 		
 		public function main():void{
-			if(alpha < 1){
-				alpha += 0.01;
-			}
 			if(state == IDLE){
 				if(Key.customDown(Game.MENU_KEY)){
 					if(index < lines.length){

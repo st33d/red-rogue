@@ -181,7 +181,10 @@ package com.robotacid.gfx {
 				
 			} else if(mapLevel == Map.OVERWORLD && mapType == Map.AREA){
 				
+				// THE SCRIPTED ENDING TO THE GAME ---------------------------------------------------------
+				
 				if(endingData){
+					// wait for it...
 					if(endingData.firstDelay){
 						endingData.firstDelay--;
 						if(endingData.firstDelay == 0){
@@ -194,23 +197,92 @@ package com.robotacid.gfx {
 								}
 							}
 							endingData.stairs.playerPortal = false;
-							(endingData.stairs.gfx as MovieClip).gotoAndStop("destroy");
 							var explosion:Explosion = new Explosion(0, Map.OVERWORLD_STAIRS_X, game.map.height - 2, 3, 0, game.player, null, game.player.missileIgnore);
+							game.console.print("chaos dungeon collapses");
 						}
 					} else {
-						if(quakeCount){
-							quakeCount--;
-							if(quakeCount == 0){
-								game.soundQueue.addRandom("quake", Stone.DEATH_SOUNDS, 0.2);
-								game.mapTileManager.converter.convertIndicesToObjects(Map.OVERWORLD_STAIRS_X, game.map.height - 2, MapTileConverter.COG_BAT);
+						// shower debris and cogs
+						if(endingData.debrisDelay){
+							endingData.debrisDelay--;
+							if(quakeCount){
+								quakeCount--;
+								if(quakeCount == 0){
+									game.soundQueue.addRandom("quake", Stone.DEATH_SOUNDS, 0.2);
+									game.mapTileManager.converter.convertIndicesToObjects(Map.OVERWORLD_STAIRS_X, game.map.height - 2, MapTileConverter.COG_BAT);
+								}
+							} else {
+								renderer.shake(0, 2 + game.random.rangeInt(4));
+								quakeCount = 5 + game.random.rangeInt(5);
+							}
+							if(endingData.debrisDelay == 0){
+								endingData.fxDeathDelay = 10 + game.random.rangeInt(10);
 							}
 						} else {
-							renderer.shake(0, 2 + game.random.rangeInt(4));
-							quakeCount = 5 + game.random.rangeInt(5);
+							// fragment entrance and rise up with a solitary cog
+							var blit:BlitSprite, item:FX;
+							if(endingData.debrisRect.width > 0){
+								endingData.debrisRect.width -= 0.2;
+								endingData.debrisRect.x += 0.1;
+							}
+							if(!endingData.fx){
+								(endingData.stairs.gfx as MovieClip).gotoAndStop("destroy");
+								endingData.blits = BlitSprite.getBlitSprites(endingData.stairs.gfx);
+								endingData.fx = new Vector.<FX>;
+								for(i = 0; i < endingData.blits.length; i++){
+									blit = endingData.blits[i];
+									item = renderer.addFX(blit.x + endingData.stairs.gfx.x, blit.y + endingData.stairs.gfx.y + 1, blit, new Point(0, game.random.range( -0.5)), 0, false, true);
+									renderer.createDebrisExplosion(new Rectangle(item.x, item.y, item.blit.width, item.blit.height), 2, item.blit.width, Renderer.STONE);
+									endingData.fx.push(item);
+								}
+								endingData.cog = renderer.addFX(endingData.stairs.gfx.x + Game.SCALE * 0.5, endingData.stairs.gfx.y + Game.SCALE * 0.5, renderer.cogBlit, new Point(0, -0.25), 0, false, true);
+								endingData.stairs.active = false;
+								if(game.portalHash[endingData.stairs.hashKey] == endingData.stairs){
+									delete game.portalHash[endingData.stairs.hashKey];
+								}
+							} else {
+								if(endingData.fx.length){
+									if(endingData.fxDeathDelay){
+										endingData.fxDeathDelay--;
+									} else {
+										i = game.random.rangeInt(endingData.fx.length);
+										item = endingData.fx[i];
+										renderer.createDebrisRect(new Rectangle(item.x, item.y, item.blit.width, item.blit.height), 0, item.blit.height, Renderer.STONE);
+										endingData.fx.splice(i, 1);
+										item.active = false;
+										game.soundQueue.addRandom("segmentDeath", Stone.DEATH_SOUNDS, 0.2);
+										endingData.fxDeathDelay = 5 + game.random.rangeInt(10);
+									}
+								} else if(!endingData.homePortal){
+									endingData.homePortalDelay = 10;
+									game.console.print("rng opens the way home");
+									endingData.homePortal = Portal.createPortal(Portal.ENDING, endingData.stairs.mapX, endingData.stairs.mapY, 1, Map.MAIN_DUNGEON, Map.OVERWORLD, Map.AREA);
+									endingData.homePortal.maskPortalBase(Map.OVERWORLD);
+								}
+								if(endingData.cog.dir.y){
+									if(endingData.cog.y < (game.map.height - 5) * Game.SCALE){
+										endingData.cog.dir.y = 0;
+									}
+								}
+							}
+							if(endingData.homePortalDelay){
+								endingData.homePortalDelay--;
+								for(i = 0; i < 4; i++){
+									game.lightning.strike(
+										renderer.lightningShape.graphics, game.world.map,
+										endingData.cog.x,
+										endingData.cog.y,
+										endingData.stairs.gfx.x + Game.SCALE * 0.5,
+										endingData.stairs.gfx.y + game.random.range(Game.SCALE)
+									);
+								}
+							}
+							
 						}
-						renderer.createDebrisRectDir(endingData.debrisRect, -5 + game.random.range(10), -game.random.range(50), 10, Renderer.STONE);
-						renderer.createDebrisRectDir(endingData.debrisRect, -3 + game.random.range(6), -game.random.range(20), 30, Renderer.STONE);
-						renderer.createDebrisRectDir(endingData.debrisRect, -1 + game.random.range(2), -game.random.range(10), 5, Renderer.BLOOD);
+						if(endingData.debrisRect.width > 0){
+							renderer.createDebrisRectDir(endingData.debrisRect, -5 + game.random.range(10), -game.random.range(50), 10, Renderer.STONE);
+							renderer.createDebrisRectDir(endingData.debrisRect, -3 + game.random.range(6), -game.random.range(20), 30, Renderer.STONE);
+							renderer.createDebrisRectDir(endingData.debrisRect, -1 + game.random.range(2), -game.random.range(10), 5, Renderer.BLOOD);
+						}
 					}
 				}
 				

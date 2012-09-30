@@ -1,4 +1,4 @@
-Change log: overworld dungeon destruction started, new assets library (overworld segments, elite banners, stun fx and home portal)
+Change log: coded the whole set piece ending and now at the epilogue, epilogue non functional but backing up now whilst I'm ahead
 
 Bug hunt
 	chaos wall colliders can child a character and pull it into a wall - how?
@@ -11,18 +11,11 @@ Bug hunt
 	
 	protection reflected missiles faulty - test with gun leech
 
-SceneManager
-	overworld dungeon destruction
-		separate overworld layers
-		animate entrance destruction
-		ending event boolean not set
-		segue to epilogue
-		remove stairs
-
 endings
 	epilogue
 	quest menu - picking up yendor
 		change to return to overworld
+		change to go home
 		
 
 Stun shockwave

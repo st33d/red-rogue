@@ -74,7 +74,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 445;
+		public static const BUILD_NUM:int = 446;
 		
 		public static const TEST_BED_INIT:Boolean = false;
 		public static const ONLINE:Boolean = false;
@@ -99,6 +99,7 @@
 		public var sleep:Sleep;
 		public var transition:Transition;
 		public var editor:Editor;
+		public var epilogue:Epilogue;
 		
 		// graphics
 		public var mapTileManager:MapTileManager;
@@ -177,7 +178,8 @@
 		public static const DIALOG:int = 2;
 		public static const TITLE:int = 3;
 		public static const INSTRUCTIONS:int = 4;
-		public static const UNFOCUSED:int = 5;
+		public static const EPILOGUE:int = 5;
+		public static const UNFOCUSED:int = 6;
 		
 		public static const WIDTH:Number = 320;
 		public static const HEIGHT:Number = 240;
@@ -1067,6 +1069,9 @@
 			} else if(state == TITLE){
 				if(transition.active) transition.main();
 				
+			} else if(state == EPILOGUE){
+				if(transition.active) transition.main();
+				
 			}
 			
 			menuCarousel.currentMenu.main();
@@ -1118,7 +1123,7 @@
 			var start:int;
 			var name:String;
 			if(SoundManager.soundLoops["underworldMusic2"]) SoundManager.fadeLoopSound("underworldMusic2", -SoundManager.DEFAULT_FADE_STEP);
-			if(state == UNFOCUSED || state == INSTRUCTIONS){
+			if(state == UNFOCUSED || state == INSTRUCTIONS || state == EPILOGUE){
 				if(SoundManager.currentMusic){
 					SoundManager.fadeMusic(SoundManager.currentMusic, -SoundManager.DEFAULT_FADE_STEP);
 				}
@@ -1279,6 +1284,14 @@
 			titleB.y = HEIGHT * 0.5 - titleB.height * 0.5;
 			titleB.scaleX = titleB.scaleY = 0.5;
 			return sprite;
+		}
+		
+		public function epilogueInit():void{
+			state = EPILOGUE;
+			var type:int = UserData.gameState.husband ? Epilogue.HUSBAND : Epilogue.YENDOR;
+			epilogue = new Epilogue(type, this, renderer);
+			instructionsHolder.addChild(epilogue);
+			changeMusic();
 		}
 		
 		public function consumedPlayerInit():void{

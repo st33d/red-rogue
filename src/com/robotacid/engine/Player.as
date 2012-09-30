@@ -233,24 +233,33 @@
 				//
 				if(!portal){
 					
-					// tell the player about the new level / area
-					game.console.print(Portal.usageMsg(portalType, portalTargetLevel, portalTargetType));
-					
-					var levelName:String = Map.getName(portalTargetLevel, portalTargetType);
-					if(!UserData.gameState.visitedHash[levelName]) UserData.gameState.visitedHash[levelName] = true;
-					else levelName = "";
-					
-					game.transition.init(function():void{
-						game.setLevel(portalTargetLevel, portalTargetType);
-						// warm up the renderer
-						renderer.main();
-						if(game.map.type != Map.AREA){
-							for(i = 0; i < 8; i++){
-								game.lightMap.main();
+					if(portalType != Portal.ENDING){
+						// tell the player about the new level / area
+						game.console.print(Portal.usageMsg(portalType, portalTargetLevel, portalTargetType));
+						
+						var levelName:String = Map.getName(portalTargetLevel, portalTargetType);
+						if(!UserData.gameState.visitedHash[levelName]) UserData.gameState.visitedHash[levelName] = true;
+						else levelName = "";
+						
+						game.transition.init(function():void{
+							game.setLevel(portalTargetLevel, portalTargetType);
+							// warm up the renderer
+							renderer.main();
+							if(game.map.type != Map.AREA){
+								for(i = 0; i < 8; i++){
+									game.lightMap.main();
+								}
+								game.miniMap.render();
 							}
-							game.miniMap.render();
-						}
-					}, null, levelName);
+						}, null, levelName);
+						
+					} else {
+						// GAME ENDING TRANSITION --------------------------------------------------
+						game.console.print(nameToString() + " ascended");
+						game.transition.init(function():void{
+							game.epilogueInit();
+						}, null, "epilogue");
+					}
 				}
 			} else if(state == ENTERING){
 				
@@ -360,12 +369,26 @@
 		public function openExitDialog():void{
 			if(!Game.dialog){
 				if(game.endGameEvent){
-					// let the player know the exit function isn't broken during the events
-					Game.dialog = new Dialog(
-						"hey",
-						"trying to tell a bit of story here.\ndo you mind waiting a moment?",
-						function():void{}
-					);
+					if(portalContact.type == Portal.ENDING){
+						Game.dialog = new Dialog(
+							"the end",
+							"you cannot take items through the portal.\n\nare you sure you want to leave right now?",
+							function():void{
+								// exit the level
+								exitLevel(portalContact);
+								disarmableTraps.length = 0;
+								game.gameMenu.update();
+							},
+							function():void{}
+						);
+					} else {
+						// let the player know the exit function isn't broken during the events
+						Game.dialog = new Dialog(
+							"hey",
+							"trying to tell a bit of story here.\ndo you mind waiting a moment?",
+							function():void{}
+						);
+					}
 				} else {
 					Game.dialog = new Dialog(
 						"exit level",

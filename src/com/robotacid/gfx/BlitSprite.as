@@ -3,6 +3,7 @@
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
 	import flash.display.DisplayObject;
+	import flash.display.DisplayObjectContainer;
 	import flash.display.MovieClip;
 	import flash.display.Sprite;
 	import flash.filters.BitmapFilter;
@@ -178,6 +179,20 @@
 		public function applyFilter(filter:BitmapFilter, start:int = 0, finish:int = int.MAX_VALUE):void{
 			p = new Point();
 			data.applyFilter(data, data.rect, p, filter);
+		}
+		
+		/* Get all the children in a DisplayObjectContainer and return as BlitSprites */
+		public static function getBlitSprites(gfx:DisplayObjectContainer):Vector.<BlitSprite> {
+			var i:int, item:DisplayObject, blit:BlitSprite;
+			var list:Vector.<BlitSprite> = new Vector.<BlitSprite>();
+			for(i = 0; i < gfx.numChildren; i++){
+				item = gfx.getChildAt(i);
+				blit = new BlitSprite(item);
+				blit.x = item.x;
+				blit.y = item.y;
+				list.push(blit);
+			}
+			return list;
 		}
 		
 	}
