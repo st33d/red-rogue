@@ -74,10 +74,10 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 446;
+		public static const BUILD_NUM:int = 447;
 		
 		public static const TEST_BED_INIT:Boolean = false;
-		public static const ONLINE:Boolean = false;
+		public static const ONLINE:Boolean = true;
 		
 		public static var game:Game;
 		public static var renderer:Renderer;
@@ -572,6 +572,7 @@
 				console.logLines = 0;
 			}
 			if(editor) editor.deactivate();
+			UserData.gameState.visitedHash = {};
 			init();
 		}
 		
@@ -1071,7 +1072,7 @@
 				
 			} else if(state == EPILOGUE){
 				if(transition.active) transition.main();
-				
+				if(epilogue) epilogue.main();
 			}
 			
 			menuCarousel.currentMenu.main();
@@ -1110,11 +1111,11 @@
 		}
 		
 		/* Play a sound at a volume based on the distance to the player */
-		public function createDistSound(mapX:int, mapY:int, name:String, names:Array = null):void{
+		public function createDistSound(mapX:int, mapY:int, name:String, names:Array = null, volume:Number = 1):void{
 			var dist:Number = Math.abs(player.mapX - mapX) * SOUND_HORIZ_DIST_MULTIPLIER + Math.abs(player.mapY - mapY);
 			if(dist < SOUND_DIST_MAX){
-				if(names) soundQueue.addRandom(name, names, (SOUND_DIST_MAX - dist) * INV_SOUND_DIST_MAX);
-				else if(name) soundQueue.add(name, (SOUND_DIST_MAX - dist) * INV_SOUND_DIST_MAX);
+				if(names) soundQueue.addRandom(name, names, (SOUND_DIST_MAX - dist) * INV_SOUND_DIST_MAX * volume);
+				else if(name) soundQueue.add(name, (SOUND_DIST_MAX - dist) * INV_SOUND_DIST_MAX * volume);
 			}
 		}
 		
@@ -1342,6 +1343,7 @@
 						menuCarousel.activate();
 						titlePressMenuText.visible = false;
 					}
+				} else if(state == EPILOGUE){
 				} else {
 					pauseGame();
 				}

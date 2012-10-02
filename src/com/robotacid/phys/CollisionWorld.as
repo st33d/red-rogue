@@ -14,6 +14,7 @@ package com.robotacid.phys{
 		public var invScale:Number;
 		public var bounds:Rectangle;
 		public var colliders:Vector.<Collider>;
+		public var forces:Vector.<Force>;
 		public var map:Vector.<Vector.<int>>;
 		public var width:int;
 		public var height:int;
@@ -42,11 +43,16 @@ package com.robotacid.phys{
 			}
 			bounds = new Rectangle(0, 0, width * scale, height * scale);
 			colliders = new Vector.<Collider>();
+			forces = new Vector.<Force>();
 		}
 		
 		public function main():void{
-			var collider:Collider;
-			
+			var collider:Collider, force:Force;
+			for(i = forces.length - 1; i > -1; i--){
+				force = forces[i];
+				if(force.active) force.main();
+				else forces.splice(i, 1);
+			}
 			for(i = 0; i < colliders.length; i++){
 				collider = colliders[i];
 				collider.pressure = 0;
@@ -156,6 +162,12 @@ package com.robotacid.phys{
 				}
 			}
 			return result;
+		}
+		
+		public function addForce(collider:Collider, x:Number = 0, y:Number = 0, dampingX:Number = 0.5, dampingY:Number = 0.5):Force{
+			var force:Force = new Force(collider, x, y, dampingX, dampingY);
+			forces.push(force);
+			return force;
 		}
 	}
 }

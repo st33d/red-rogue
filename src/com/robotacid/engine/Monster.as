@@ -42,6 +42,11 @@
 			mapInitialised = false;
 			
 			if(items) loot = items;
+			
+			if(rank == ELITE){
+				bannerGfx = new EliteMC();
+				(gfx as MovieClip).addChildAt(bannerGfx, 0);
+			}
 		}
 		
 		/* Called when the MapTileManager activates this monster for the first time */
@@ -120,8 +125,10 @@
 			if(aggressor && (aggressor == game.player || aggressor == game.minion)){
 				var surgeryChance:Number = (
 					(aggressor == game.player ? PLAYER_BUTCHER_CHANCE : MINION_BUTCHER_CHANCE) + 
-					(aggressor.weapon == null ? BARE_HANDED_BUTCHER_BONUS : aggressor.weapon.butcher)
+					(aggressor.weapon ? aggressor.weapon.butcher : BARE_HANDED_BUTCHER_BONUS)
 				);
+				// gnolls get a bonus to butchering
+				if(aggressor.name == GNOLL) surgeryChance += 0.1;
 				if(game.random.value() < surgeryChance){
 					var heartMc:Sprite = new HeartMC();
 					var heart:Item = new Item(heartMc, name, Item.HEART, 0);

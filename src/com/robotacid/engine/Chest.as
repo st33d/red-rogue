@@ -119,11 +119,15 @@
 				contents[i].collect(character);
 			}
 			// if the character is currently a gnoll they can roll for bonus treasure
-			if(character.name == Character.GNOLL && game.random.value() < GNOLL_SCAVENGER_RATE * character.level){
-				var type:int = [Item.WEAPON, Item.ARMOUR, Item.RUNE, Item.HEART][game.random.rangeInt(4)];
-				var item:Item = Content.XMLToEntity(0, 0, Content.createItemXML(game.map.level, type));
-				item.collect(character, false);
-				if(character is Player) game.console.print("scavenged " + item.nameToString());
+			if(character.name == Character.GNOLL){
+				if(game.random.value() < GNOLL_SCAVENGER_RATE * character.level){
+					var type:int = [Item.WEAPON, Item.ARMOUR, Item.RUNE, Item.HEART][game.random.rangeInt(4)];
+					var item:Item = Content.XMLToEntity(0, 0, Content.createItemXML(game.map.level, type));
+					item.collect(character, false);
+					if(character is Player) game.console.print("scavenged " + item.nameToString());
+				} else {
+					if(character is Player) game.console.print("scavenge failed");
+				}
 			}
 			game.soundQueue.add("chestOpen");
 			contents = null;

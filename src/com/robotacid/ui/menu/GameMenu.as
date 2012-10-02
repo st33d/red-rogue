@@ -1209,6 +1209,12 @@
 		public function reset(hard:Boolean = false):void{
 			if(hard) UserData.reset();
 			game.trackEvent("reset game");
+			if(listInBranch(inventoryList)){
+				while(branch.length > 1) stepLeft();
+				selectText.alpha = 0;
+			}
+			inventoryOption.active = false;
+			missileOption.active = false;
 			inventoryList.reset();
 			loreList.questsList.reset();
 			actionsOption.active = false;

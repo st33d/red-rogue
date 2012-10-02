@@ -140,7 +140,8 @@
 			collider.stackCallback = hitFloor;
 		}
 		
-		private function hitFloor():void{
+		override protected function hitFloor():void{
+			super.hitFloor();
 			game.soundQueue.add("thud");
 		}
 		

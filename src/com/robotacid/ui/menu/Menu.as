@@ -61,6 +61,7 @@
 		public var infoTextBox:TextBox;
 		public var capture:CaptureBitmap;
 		public var selectionCopyBitmap:Bitmap;
+		public var selectText:TextBox;
 		
 		public var selection:int;
 		public var hideChangeSelection:Boolean;
@@ -109,7 +110,6 @@
 		private var keysLocked:int;
 		private var keysHeldCount:int;
 		private var stackCount:int;
-		private var selectText:TextBox;
 		private var movementMovieClips:Vector.<MovieClip>;
 		private var movementGuideCount:int;
 		private var animatingSelection:Boolean;

@@ -7,6 +7,7 @@
 	import com.robotacid.level.Surface;
 	import com.robotacid.phys.Collider;
 	import com.robotacid.phys.FilterCollider;
+	import com.robotacid.phys.Force;
 	import com.robotacid.sound.SoundManager;
 	import com.robotacid.ui.menu.QuestMenuOption;
 	import com.robotacid.util.clips.localToLocal;
@@ -75,6 +76,8 @@
 		public var resurrect:Boolean;
 		public var lungeState:int;
 		public var twinkleCount:int;
+		public var bannerGfx:MovieClip;
+		public var stomping:Boolean;
 		
 		// stats
 		public var speed:Number;
@@ -204,7 +207,6 @@
 		public static const CRITICAL_MISS:Number = 0.05;
 		public static const QUICKENING_DELAY:int = 90;
 		public static const STUN_DECAY:Number = 1.0 / 90; // The denominator is maximum duration of stun in frames
-		public static const KNOCKBACK_DIST:Number = 16;
 		public static const SPECIAL_ATTACK_PER_LEVEL:Number = 1.0 / 40;
 		public static const MAX_SPEED_MODIFIER:Number = 2;
 		public static const MIN_SPEED_MODIFIER:Number = 0.5;
@@ -214,6 +216,8 @@
 		public static const SMITE_PER_LEVEL:Number = 0.05;
 		public static const QUICKENING_PER_LEVEL:Number = 0.5;
 		public static const JUMP_VELOCITY:Number = -7;
+		public static const KNOCKBACK_DAMPING:Number = 0.6;
+		public static const KNOCKBACK_DIST:Number = 16;
 		
 		public static const DEFAULT_COL:ColorTransform = new ColorTransform();
 		public static const INFRAVISION_COLS:Vector.<ColorTransform> = Vector.<ColorTransform>([DEFAULT_COL, new ColorTransform(1, 0, 0, 1, 255), new ColorTransform(1, 0.7, 0.7, 1, 50)]);
@@ -429,6 +433,15 @@
 			
 			if(!(type & STONE)){
 				collider.stompCallback = stompCallback;
+				collider.stackCallback = hitFloor;
+			}
+		}
+		
+		protected function hitFloor():void{
+			if(stomping){
+				renderer.addFX(collider.x + collider.width * 0.5, 1 + (collider.y + collider.height + 0.5) >> 0, renderer.stunShockBlit);
+				stomping = false;
+				game.createDistSound(mapX, mapY, "stunHit", SMITE_SOUNDS, 10);
 			}
 		}
 		
@@ -842,6 +855,10 @@
 			} else {
 				collider.vx += stomper.width + stomper.userData.knockback;
 			}
+			if(stomper.state == Collider.FALL){
+				var char:Character = stomper.userData as Character;
+				if(char) char.stomping = true;
+			}
 		}
 		
 		/* Kill the Character, printing a cause to the console and generating a Head object on decapitation */
@@ -1106,6 +1123,15 @@
 				if(throwable) mc.addChild(throwable.gfx);
 				if(weapon) mc.addChildAt(weapon.gfx, 0);
 			}
+			if(bannerGfx){
+				if(state == WALKING && collider.state == Collider.HOVER){
+					mc.addChild(bannerGfx);
+					bannerGfx.gotoAndStop("climb");
+				} else {
+					mc.addChildAt(bannerGfx, 0);
+					bannerGfx.gotoAndStop("idle");
+				}
+			}
 		}
 		
 		/* Drops an item from the Character's loot */
@@ -1247,7 +1273,7 @@
 			if(health <= 0){
 				death(source, critical, aggressor);
 			} else if(knockback){
-				collider.vx += knockback;
+				game.world.addForce(collider, knockback, 0, KNOCKBACK_DAMPING, 0);
 			}
 		}
 		
@@ -1597,7 +1623,7 @@
 				gfx.alpha += 0.1;
 			}
 			if(weapon){
-				if((gfx as MovieClip).weapon){
+				if(mc.weapon){
 					if(collider.state == Collider.HOVER) weapon.gfx.visible = false;
 					else {
 						weapon.gfx.visible = true;
@@ -1615,7 +1641,7 @@
 				}
 			}
 			if(throwable){
-				if((gfx as MovieClip).throwable){
+				if(mc.throwable){
 					if(collider.state == Collider.HOVER) throwable.gfx.visible = false;
 					else {
 						throwable.gfx.visible = true;
@@ -1633,7 +1659,7 @@
 				}
 			}
 			if(armour){
-				if((gfx as MovieClip).armour){
+				if(mc.armour){
 					if(armour.position == Item.HAT){
 						armour.gfx.x = mc.armour.x;
 						armour.gfx.y = mc.armour.y;
@@ -1641,6 +1667,21 @@
 				}
 				if(armour.gfx is ItemMovieClip){
 					(armour.gfx as ItemMovieClip).render(this, mc);
+				}
+			}
+			if(bannerGfx){
+				if(bannerGfx){
+					if(state == WALKING && collider.state == Collider.HOVER){
+						if(bannerGfx.currentLabel != "climb"){
+							mc.addChild(bannerGfx);
+							bannerGfx.gotoAndStop("climb");
+						}
+					} else {
+						if(bannerGfx.currentLabel != "idle"){
+							mc.addChildAt(bannerGfx, 0);
+							bannerGfx.gotoAndStop("idle");
+						}
+					}
 				}
 			}
 			// armour may render the gfx non-visible

@@ -21,6 +21,7 @@ package com.robotacid.engine {
 		public var currentStr:String;
 		public var lines:Array;
 		public var textBox:TextBox;
+		public var prompt:TextBox;
 		
 		// types
 		public static const YENDOR:int = 0;
@@ -41,9 +42,16 @@ package com.robotacid.engine {
 			lines = epilogue[type];
 			advance();
 			textBox = new TextBox(Game.WIDTH, Game.HEIGHT, 0x0, 0x0);
+			prompt = new TextBox(Game.WIDTH - 10, 11, 0x0);
 			textBox.align = "center";
 			textBox.alignVert = "center";
+			prompt.align = "center";
+			prompt.x = 5;
+			prompt.y = Game.HEIGHT - (prompt.height + 5);
+			prompt.text = "press menu key (" + Key.keyString(Key.custom[Game.MENU_KEY]) + ") to advance";
+			prompt.alpha = 0.7;
 			addChild(textBox);
+			addChild(prompt);
 			graphics.beginFill(0);
 			graphics.drawRect(0, 0, Game.WIDTH, Game.HEIGHT);
 			textBox.text = currentStr;
@@ -55,6 +63,14 @@ package com.robotacid.engine {
 					if(index < lines.length){
 						advance();
 						state = FADE_OUT;
+					} else {
+						// destructor
+						game.transition.init(function():void{
+							game.state = Game.GAME;
+							game.gameMenu.reset();
+							if(game.epilogue.parent) parent.removeChild(game.epilogue);
+							game.epilogue = null;
+						}, null, "dungeons");
 					}
 				}
 			} else if(state == FADE_OUT){
@@ -83,6 +99,7 @@ package com.robotacid.engine {
 			trace(strs);
 			currentStr = strs[game.random.rangeInt(strs.length)];
 			trace(currentStr);
+			index++;
 		}
 		
 		public static function initEpilogue():void{
