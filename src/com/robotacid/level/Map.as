@@ -5,6 +5,7 @@
 	import com.robotacid.engine.ColliderEntity;
 	import com.robotacid.engine.ColliderEntitySensor;
 	import com.robotacid.engine.Effect;
+	import com.robotacid.engine.FadeLight;
 	import com.robotacid.engine.Gate;
 	import com.robotacid.engine.Item;
 	import com.robotacid.engine.MapTileConverter;
@@ -384,6 +385,7 @@
 			// beyond the starting position of the underworld portal, the minion cannot have written anything
 			if(level <= Writing.story.length && type == MAIN_DUNGEON) createWritings(pixels);
 			createAltars(pixels);
+			if(zone == DUNGEONS) createTorches(pixels);
 			createDecor(pixels);
 			createChaosWalls(pixels);
 			createCritters();
@@ -971,6 +973,27 @@
 						Surface.removeSurface(surface.x, surface.y);
 					}
 				}
+			}
+		}
+		
+		/* Create lights in the dungeon */
+		public function createTorches(pixels:Vector.<uint>):void{
+			return;
+			var i:int, n:int, room:Room, surface:Surface, fadeLight:FadeLight;
+			for(i = 0; i < bitmap.rooms.length; i++){
+			trace(i);
+				//if(random.value() < 0.7){
+					room = bitmap.rooms[i];
+					if(room.surfaces.length){
+						surface = room.surfaces[random.rangeInt(room.surfaces.length)];
+						n = surface.x + surface.y * width;
+						//if(pixels[n] == MapBitmap.EMPTY){
+							fadeLight = new FadeLight(FadeLight.SLEEP, surface.x, surface.y);
+							Surface.removeSurface(surface.x, surface.y);
+							trace(surface.x, surface.y);
+						//}
+					}
+				//}
 			}
 		}
 		

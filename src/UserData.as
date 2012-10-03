@@ -133,6 +133,7 @@ package {
 			}
 			// the identify rune's name is already known (obviously)
 			gameState.runeNames[Item.IDENTIFY] = Item.stats["rune names"][Item.IDENTIFY];
+			
 		}
 		
 		public static function initMinion():void{

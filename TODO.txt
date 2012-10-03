@@ -1,4 +1,4 @@
-Change log: elite monsters now carry banners, stomp-stunning has a landing effect and sound, Force object created, knockback now applies a force to a character instead attempting to manually move them, gnolls now have a bonus to butchering, gnoll scavenge now gives failure message to teach mechanic
+Change log: Changed Content.as to not wipe memory of level content until recycling phase, added debugging light generation to editor, fixed teleport effect (again)
 
 Bug hunt
 	chaos wall colliders can child a character and pull it into a wall - how?
@@ -10,8 +10,8 @@ Bug hunt
 	minion weapon invisible after level change (arbalest and skull equipped)
 	
 	protection reflected missiles faulty - test with gun leech
-	new game is broken - calling new game in overworld erases overworld content
-		content stocks need to stop being emptied
+	yendor can be left in overworld at end game
+	resetting screwing with transition
 
 
 endings
@@ -27,6 +27,8 @@ dungeon zone lit by torches
 	test with death lights
 
 Add Balrog death and ending events to tracking
+
+Add multiplayer jump
 
 Sounds
 	stomp stun head contact

@@ -74,7 +74,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 447;
+		public static const BUILD_NUM:int = 448;
 		
 		public static const TEST_BED_INIT:Boolean = false;
 		public static const ONLINE:Boolean = true;
@@ -572,7 +572,6 @@
 				console.logLines = 0;
 			}
 			if(editor) editor.deactivate();
-			UserData.gameState.visitedHash = {};
 			init();
 		}
 		

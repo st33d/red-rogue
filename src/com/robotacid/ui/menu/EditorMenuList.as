@@ -1,5 +1,6 @@
 package com.robotacid.ui.menu {
 	import com.robotacid.engine.ChaosWall;
+	import com.robotacid.engine.FadeLight;
 	import com.robotacid.engine.Gate;
 	import com.robotacid.level.Content;
 	import com.robotacid.level.MapBitmap;
@@ -55,6 +56,7 @@ package com.robotacid.ui.menu {
 		public var teleportMinionOption:MenuOption;
 		public var teleportBalrogOption:MenuOption;
 		public var enterDungeonLevelOption:MenuOption;
+		public var debugLightOption:MenuOption;
 		public var chaosWallOption:MenuOption;
 		public var chaosWallInvasionOption:MenuOption;
 		
@@ -107,6 +109,7 @@ package com.robotacid.ui.menu {
 			var monsterOption:MenuOption = new MenuOption("monster", raceList);
 			var critterOption:MenuOption = new MenuOption("critter", critterList);
 			var gateOption:MenuOption = new MenuOption("gate", gateList);
+			debugLightOption = new MenuOption("debug light", null, false);
 			chaosWallOption = new MenuOption("chaos wall", null, false);
 			chaosWallInvasionOption = new MenuOption("chaos wall invasion", null, false);
 			
@@ -146,6 +149,7 @@ package com.robotacid.ui.menu {
 			createObjectList.options.push(monsterOption);
 			createObjectList.options.push(critterOption);
 			createObjectList.options.push(gateOption);
+			createObjectList.options.push(debugLightOption);
 			createObjectList.options.push(chaosWallOption);
 			createObjectList.options.push(chaosWallInvasionOption);
 			
@@ -270,6 +274,9 @@ package com.robotacid.ui.menu {
 							mapX, mapY, new ChaosWall(mapX, mapY)
 						);
 					}
+					
+				} else if(option == debugLightOption){
+					var fadeLight:FadeLight = new FadeLight(FadeLight.DEBUG, mapX, mapY);
 					
 				} else if(option == chaosWallInvasionOption){
 					ChaosWall.initInvasionSite(mapX, mapY);

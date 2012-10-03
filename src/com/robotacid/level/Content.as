@@ -570,17 +570,17 @@
 				for(i = roomList.length; i; j = random.rangeInt(i), room = roomList[--i], roomList[i] = roomList[j], roomList[j] = room){}
 				
 				// drop chests into rooms
-				while(chests.length){
+				for(i = 0; i < chests.length; i++){
 					room = roomList[random.rangeInt(roomList.length)];
 					if(room.surfaces.length){
 						surface = room.surfaces[random.rangeInt(room.surfaces.length)];
 						// seems to be really keen on putting chests on ladders - I'm not keen on this
 						if(surface.properties & Collider.LADDER) continue;
-						chest = XMLToEntity(surface.x, surface.y, chests.shift());
+						chest = XMLToEntity(surface.x, surface.y, chests[i]);
 						chest.mimicInit(mapType, mapLevel);
 						layers[Map.ENTITIES][surface.y][surface.x] = chest;
 						Surface.removeSurface(surface.x, surface.y);
-					}
+					} else i--;
 				}
 				
 				// sort monsters by racial group - packs of similar monsters look good
@@ -640,7 +640,7 @@
 					}
 				}
 				//trace("deployed", j);
-				monsters.length = 0;
+				//monsters.length = 0;
 				
 				if(questGems) dropQuestGems(questGems, layers, bitmap);
 				
@@ -656,8 +656,8 @@
 					r = bitmap.height - 3;
 				}
 				var areaContent:Array = UserData.settings.areaContent;
-				while(areaContent[mapLevel].chests.length){
-					var children:XMLList = areaContent[mapLevel].chests.shift().children();
+				for(i = 0; i < areaContent[mapLevel].chests.length; i++){
+					var children:XMLList = areaContent[mapLevel].chests[i].children();
 					for each(xml in children){
 						if(xml.hasOwnProperty("@mapX")){
 							c = xml.@mapX;
@@ -681,7 +681,6 @@
 					if(UserData.settings.specialItemChest){
 						chest = XMLToEntity(bitmap.width - 2, bitmap.height - 3, UserData.settings.specialItemChest, mapLevel, mapType);
 						layers[Map.ENTITIES][bitmap.height - 3][bitmap.width - 2] = chest;
-						UserData.settings.specialItemChest = null;
 					}
 				}
 			}
@@ -726,19 +725,16 @@
 			var list:Array = [];
 			if(mapType == Map.MAIN_DUNGEON){
 				if(level < gameState.portalsByLevel.length){
-					list = gameState.portalsByLevel[level].slice();;
-					gameState.portalsByLevel[level].length = 0;
+					list = gameState.portalsByLevel[level].slice();
 				} else {
-					gameState.portalsByLevel[level] = [];
+					gameState.portalsByLevel[level] = list;
 				}
 				
 			} else if(mapType == Map.ITEM_DUNGEON){
 				list = gameState.itemDungeonContent.portals.slice();
-				gameState.itemDungeonContent.portals.length = 0;
 				
 			} else if(mapType == Map.AREA){
 				list = UserData.settings.areaContent[level].portals.slice();
-				UserData.settings.areaContent[level].portals.length = 0;
 				
 			}
 			return list;
@@ -854,6 +850,17 @@
 					gameState.chestsByLevel.push([]);
 					gameState.portalsByLevel.push([]);
 				}
+				gameState.monstersByLevel[mapLevel].length = 0;
+				gameState.chestsByLevel[mapLevel].length = 0;
+				gameState.portalsByLevel[mapLevel].length = 0;
+			} else if(mapType == Map.ITEM_DUNGEON){
+				gameState.itemDungeonContent.monsters.length = 0;
+				gameState.itemDungeonContent.chests.length = 0;
+				gameState.itemDungeonContent.portals.length = 0;
+			} else if(mapType == Map.AREA){
+				UserData.settings.areaContent[mapLevel].monsters.length = 0;
+				UserData.settings.areaContent[mapLevel].chests.length = 0;
+				UserData.settings.areaContent[mapLevel].portals.length = 0;
 			}
 			// first we check the active list of entities
 			for(i = 0; i < game.entities.length; i++){
