@@ -1,5 +1,6 @@
 package com.robotacid.ui.menu {
 	import com.robotacid.engine.Character;
+	import com.robotacid.engine.Item;
 	import com.robotacid.level.Content;
 	/**
 	 * Describes a quest the player is currently undertaking
@@ -51,6 +52,45 @@ package com.robotacid.ui.menu {
 			num--;
 			name = "collect " + num + " gems";
 		}
+		
+		/*public function updateMacGuffin():void{
+			var floorYendor:Item = game.getFloorItem(Item.YENDOR, Item.ARMOUR);
+			var inventoryYendor:Item = game.gameMenu.inventoryList.getItem(Item.YENDOR, Item.ARMOUR);
+			
+			if(
+			"ascend" "get the amulet of yendor" "go home"
+			if(game.gameMenu.inventoryList.getItem(Item.YENDOR, Item.ARMOUR) || UserData.gameState.husband){
+				if(game.map.type == 
+				name = "ascend";
+				
+					if(
+						 &&
+						!(minion && minion.name == Character.HUSBAND)
+					){
+			}
+			// end game checks
+			if(map.type == Map.AREA){
+				if(map.level == Map.UNDERWORLD){
+					// check for yendor (and debugging), activate death
+						endGameEvent = true;
+						for(i = 0; i < entities.length; i++){
+							if(entities[i] is Stone && (entities[i] as Stone).name == Stone.DEATH){
+								(entities[i] as Stone).setEndGameEvent();
+								break;
+							}
+						}
+					}
+				} else if(map.level == Map.OVERWORLD){
+					// check for yendor or husband
+					if(
+						gameMenu.inventoryList.getItem(Item.YENDOR, Item.ARMOUR) ||
+						(minion && minion.name == Character.HUSBAND)
+					){
+						endGameEvent = true;
+					}
+				}
+			}
+		}*/
 		
 		public function toXML():XML{
 			return <quest name={name} type={type} num={num} commissioner={commissioner} xpReward={xpReward} />;

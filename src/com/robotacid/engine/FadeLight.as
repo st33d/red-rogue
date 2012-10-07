@@ -24,15 +24,12 @@ package com.robotacid.engine {
 		// types
 		public static const DEATH:int = 0;
 		public static const SLEEP:int = 1;
-		public static const TORCH:int = 2;
-		public static const DEBUG:int = 3;
+		public static const DEBUG:int = 2;
 		
 		public static const DEATH_LIGHT_DELAY:int = 6;
 		public static const DEATH_FADE_DELAY:int = 60;
 		public static const SLEEP_LIGHT_DELAY:int = 3;
 		public static const SLEEP_FADE_DELAY:int = 60;
-		public static const TORCH_LIGHT_DELAY:int = 4;
-		public static const TORCH_FADE_DELAY:int = 300;
 		public static const DEBUG_LIGHT_DELAY:int = 6;
 		public static const DEBUG_FADE_DELAY:int = int.MAX_VALUE;
 		
@@ -57,11 +54,6 @@ package com.robotacid.engine {
 				lightCount = SLEEP_LIGHT_DELAY;
 				fadeCount = fadeDelay = SLEEP_FADE_DELAY;
 				brightness = 255;
-				
-			} else if(type == TORCH){
-				lightCount = TORCH_LIGHT_DELAY;
-				fadeCount = fadeDelay = TORCH_FADE_DELAY;
-				brightness = 127;
 				
 			} else if(type == DEBUG){
 				lightCount = DEBUG_LIGHT_DELAY;

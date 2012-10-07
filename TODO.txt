@@ -1,4 +1,4 @@
-Change log: Changed Content.as to not wipe memory of level content until recycling phase, added debugging light generation to editor, fixed teleport effect (again)
+Change log: added torches to dungeons zone, fixed game breaker caused by no minion during husband transformation event, added multiplayer jump option
 
 Bug hunt
 	chaos wall colliders can child a character and pull it into a wall - how?
@@ -11,8 +11,8 @@ Bug hunt
 	
 	protection reflected missiles faulty - test with gun leech
 	yendor can be left in overworld at end game
+		3rd epilogue where rng takes yendor off the ground
 	resetting screwing with transition
-
 
 endings
 	epilogue
@@ -23,12 +23,7 @@ endings
 
 Guide
 
-dungeon zone lit by torches
-	test with death lights
-
 Add Balrog death and ending events to tracking
-
-Add multiplayer jump
 
 Sounds
 	stomp stun head contact

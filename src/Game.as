@@ -74,7 +74,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 448;
+		public static const BUILD_NUM:int = 449;
 		
 		public static const TEST_BED_INIT:Boolean = false;
 		public static const ONLINE:Boolean = true;
@@ -138,6 +138,7 @@
 		// lists
 		public var entities:Vector.<Entity>;
 		public var items:Array;
+		public var torches:Vector.<Torch>;
 		public var effects:Vector.<Effect>;
 		public var portals:Vector.<Portal>;
 		public var chaosWalls:Vector.<ChaosWall>;
@@ -486,6 +487,7 @@
 				entities = new Vector.<Entity>();
 				items = [];
 				effects = new Vector.<Effect>();
+				torches = new Vector.<Torch>();
 				portals = new Vector.<Portal>();
 				chaosWalls = new Vector.<ChaosWall>();
 				explosions = new Vector.<Explosion>();
@@ -646,6 +648,7 @@
 			// clear lists
 			entities.length = 0;
 			items.length = 0;
+			torches.length = 0;
 			renderer.fx.length = 0;
 			portals.length = 0;
 			chaosWalls.length = 0;
@@ -879,7 +882,8 @@
 						// check for yendor (and debugging), activate death
 						if(
 							gameMenu.inventoryList.getItem(Item.YENDOR, Item.ARMOUR) &&
-							!(minion && minion.name == Character.HUSBAND)
+							minion &&
+							minion.name != Character.HUSBAND
 						){
 							endGameEvent = true;
 							for(i = 0; i < entities.length; i++){
@@ -1192,6 +1196,18 @@
 			content.clearLevel(map.level, map.type);
 			game.soundQueue.add("ping");
 			miniMap.reveal();
+		}
+		
+		/* Return a greedy match for an item on the ground (for areas) */
+		public function getFloorItem(name:int, type:int):Item{
+			var i:int, item:Item;
+			for(i = 0; i < items.length; i++){
+				item = items[i] as Item;
+				if(item && item.name == name && item.type == type){
+					return item;
+				}
+			}
+			return null;
 		}
 		
 		/* Creates the instructions splash screen and switches to INSTRUCTIONS state*/

@@ -95,6 +95,15 @@
 		
 		/* This is used by the Death character during an end-game event */
 		override public function main():void {
+			// sanity check
+			if(!game.minion){
+				game.endGameEvent = false;
+				state = WALKING;
+				callMain = false;
+				endGameEventData = null;
+				move();
+			}
+			
 			var i:int, item:Item;
 			var mc:MovieClip = gfx as MovieClip;
 			if(!endGameEventData.gotYendor){
@@ -122,16 +131,14 @@
 						}
 					// player may have dropped yendor - teleport it (a cheeky player may try to drop it into the water)
 					} else {
-						for(i = 0; i < game.items.length; i++){
-							item = game.items[i];
-							if(item.name == Item.YENDOR && item.type == Item.ARMOUR){
-								if(item.mapX < mapX) dir = looking = LEFT;
-								else if(item.mapY > mapY) dir = looking = RIGHT;
-								if(collider.intersects(item.collider)){
-									item.destroyOnMap(true);
-									game.createDistSound(item.mapX, item.mapY, "teleportYendor", Effect.TELEPORT_SOUNDS);
-									endGameEventData.gotYendor = true;
-								}
+						item = game.getFloorItem(Item.YENDOR, Item.ARMOUR);
+						if(item){
+							if(item.mapX < mapX) dir = looking = LEFT;
+							else if(item.mapY > mapY) dir = looking = RIGHT;
+							if(collider.intersects(item.collider)){
+								item.destroyOnMap(true);
+								game.createDistSound(item.mapX, item.mapY, "teleportYendor", Effect.TELEPORT_SOUNDS);
+								endGameEventData.gotYendor = true;
 							}
 						}
 					}

@@ -77,6 +77,7 @@
 		public var jumpOption:MenuOption;
 		public var sleepOption:ToggleMenuOption;
 		public var minionMissileOption:ToggleMenuOption;
+		public var minionJumpOption:MenuOption;
 		public var saveGifOption:MenuOption;
 		public var creditsOption:MenuOption
 		public var steedOption:MenuOption;
@@ -221,6 +222,8 @@
 			minionMissileOption = new ToggleMenuOption(["minion shoot", "minion throw"], null, false);
 			minionMissileOption.help = "minion: shoot an equipped main missile weapon / throw a throwing weapon";
 			minionMissileOption.context = "minion missile";
+			minionJumpOption = new MenuOption("minion jump", null, false);
+			minionJumpOption.help = "makes the minion leap into the air";
 			saveGifOption = new MenuOption("save gif", null, false);
 			saveGifOption.help = "save out the last 4 seconds of action around the player. may crash the game.";
 			creditsOption = new MenuOption("credits", creditsList);
@@ -332,6 +335,7 @@
 			
 			multiplayerList.options.push(onOffOption);
 			multiplayerList.options.push(minionMissileOption);
+			multiplayerList.options.push(minionJumpOption);
 			
 			recordGifList.options.push(onOffOption);
 			recordGifList.options.push(saveGifOption);
@@ -860,6 +864,12 @@
 				if(game.minion){
 					if(game.minion.mapProperties & Collider.WALL) game.console.print("the stone around the minion resists...");
 					else game.minion.shoot(Missile.ITEM);
+				}
+			
+			// minion jump
+			} else if(option == minionJumpOption){
+				if(game.minion){
+					game.minion.jump();
 				}
 			
 			// jumping

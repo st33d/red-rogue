@@ -372,6 +372,9 @@
 					game.items.push(obj);
 				} else if(obj is Portal){
 					game.portals.push(obj);
+				} else if(obj is Torch){
+					obj.mapInit();
+					game.torches.push(obj);
 				} else if(obj is ColliderEntity){
 					game.world.restoreCollider(obj.collider);
 					if(obj is Character){

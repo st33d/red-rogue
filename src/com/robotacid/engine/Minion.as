@@ -122,6 +122,9 @@
 					if(game.gameMenu.minionMissileOption.active){
 						game.gameMenu.minionMissileOption.state = throwable ? GameMenu.THROW : GameMenu.SHOOT;
 					}
+				} else if(item.type == Item.ARMOUR){
+					// update the menu if jumping is unlocked
+					game.gameMenu.minionJumpOption.active = canJump;
 				}
 			}
 			inventory.updateItem(item);
@@ -131,6 +134,9 @@
 		/* Unselect item as equipped */
 		override public function unequip(item:Item):Item{
 			super.unequip(item);
+			if(game.multiplayer && item.type == Item.ARMOUR){
+				game.gameMenu.minionJumpOption.active = canJump;
+			}
 			inventory.updateItem(item);
 			return item;
 		}
@@ -198,9 +204,11 @@
 				brain = new PlayerBrain(this, game.player);
 				canMenuAction = attackCount >= 1;
 				if(canMenuAction) unlockMenuActions();
+				game.gameMenu.minionJumpOption.active = canJump;
 			} else {
 				brain = new Brain(this, Brain.PLAYER, game.player);
 				game.gameMenu.minionMissileOption.active = false;
+				game.gameMenu.minionJumpOption.active = false;
 			}
 		}
 		
