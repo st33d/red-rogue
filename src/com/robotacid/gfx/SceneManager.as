@@ -1,4 +1,5 @@
 package com.robotacid.gfx {
+	import com.robotacid.engine.Effect;
 	import com.robotacid.engine.Explosion;
 	import com.robotacid.engine.Item;
 	import com.robotacid.engine.MapTileConverter;
@@ -274,6 +275,15 @@ package com.robotacid.gfx {
 										endingData.stairs.gfx.x + Game.SCALE * 0.5,
 										endingData.stairs.gfx.y + game.random.range(Game.SCALE)
 									);
+								}
+							}
+							// if the player has left yendor on the floor - take it
+							if(endingData.homePortal && endingData.homePortal == game.player.portal){
+								var yendor:Item = game.getFloorItem(Item.YENDOR, Item.ARMOUR);
+								if(yendor){
+									yendor.destroyOnMap(true);
+									game.createDistSound(yendor.mapX, yendor.mapY, "teleportYendor", Effect.TELEPORT_SOUNDS);
+									game.console.print("rng takes yendor");
 								}
 							}
 							

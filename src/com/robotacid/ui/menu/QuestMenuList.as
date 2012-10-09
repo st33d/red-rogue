@@ -18,9 +18,6 @@ package com.robotacid.ui.menu {
 		private var menu:Menu;
 		
 		public function QuestMenuList(menu:Menu) {
-			super(Vector.<MenuOption>([
-				new QuestMenuOption(QuestMenuOption.MACGUFFIN, "@")
-			]));
 			this.menu = menu;
 		}
 		
@@ -104,10 +101,10 @@ package com.robotacid.ui.menu {
 		/* Queries the list of quests and tries to find a match for the conditions submitted */
 		public function questCheck(type:int, subject:Character = null):void{
 			var i:int = options.length, option:QuestMenuOption;
-			if(type == QuestMenuOption.COLLECT){
-				while(i--){
-					option = options[i] as QuestMenuOption;
-					if(option.type == QuestMenuOption.COLLECT){
+			while(i--){
+				option = options[i] as QuestMenuOption;
+				if(option.type == type){
+					if(type == QuestMenuOption.COLLECT){
 						option.collect();
 						if(--game.map.completionCount == 0) game.levelComplete();
 						if(option.num == 0){
@@ -115,17 +112,16 @@ package com.robotacid.ui.menu {
 							questComplete(option);
 						}
 						break;
-					}
-				}
-			} else if(type == QuestMenuOption.KILL){
-				while(i--){
-					option = options[i] as QuestMenuOption;
-					if(option.type == QuestMenuOption.KILL){
+					} else if(type == QuestMenuOption.KILL){
 						if(option.num == subject.characterNum){
 							options.splice(i, 1);
 							questComplete(option);
 							break;
 						}
+					} else if(type == QuestMenuOption.MACGUFFIN){
+						options.splice(i, 1);
+						questComplete(option);
+						break;
 					}
 				}
 			}
@@ -144,6 +140,10 @@ package com.robotacid.ui.menu {
 				str = "collect quest completed";
 			} else if(option.type == QuestMenuOption.KILL){
 				str = "kill quest completed";
+			} else if(option.type == QuestMenuOption.MACGUFFIN){
+				str = "you have the amulet of yendor\nnow you must ascend";
+				var option:QuestMenuOption = new QuestMenuOption(QuestMenuOption.ASCEND);
+				options.push(option);
 			}
 			game.console.print(str);
 			game.player.addXP(option.xpReward);
@@ -173,7 +173,7 @@ package com.robotacid.ui.menu {
 		}
 		
 		public function reset():void{
-			options = Vector.<MenuOption>([options[0]]);
+			options.length = 0;
 		}
 		
 		public function loadFromArray(list:Array):void{
@@ -185,7 +185,7 @@ package com.robotacid.ui.menu {
 		
 		public function saveToArray():Array{
 			var list:Array = [];
-			for(var i:int = 1; i < options.length; i++){
+			for(var i:int = 0; i < options.length; i++){
 				list.push((options[i] as QuestMenuOption).toXML());
 			}
 			return list;

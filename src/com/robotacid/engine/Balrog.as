@@ -2,6 +2,7 @@ package com.robotacid.engine {
 	import com.robotacid.ai.BalrogBrain;
 	import com.robotacid.ai.Brain;
 	import com.robotacid.geom.Pixel;
+	import com.robotacid.level.Map;
 	import com.robotacid.phys.Collider;
 	import com.robotacid.ui.MinimapFX;
 	import flash.display.DisplayObject;
@@ -273,6 +274,10 @@ package com.robotacid.engine {
 			minimapFX.active = false;
 			game.balrog = null;
 			UserData.gameState.balrog = false;
+			
+			var mapNameStr:String = Map.getName(game.map.level, game.map.type);
+			if(game.map.type == Map.MAIN_DUNGEON) mapNameStr += ":" + game.map.level;
+			game.trackEvent("balrog death", mapNameStr);
 		}
 		
 		public function snapCamera():void{

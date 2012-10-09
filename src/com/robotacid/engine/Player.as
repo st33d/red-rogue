@@ -327,7 +327,7 @@
 				if(cameraDisplacement.x > CAMERA_DISPLACE_SPEED) cameraDisplacement.x -= CAMERA_DISPLACE_SPEED;
 				else if(cameraDisplacement.x < -CAMERA_DISPLACE_SPEED) cameraDisplacement.x += CAMERA_DISPLACE_SPEED;
 			}
-			if((looking & DOWN) || collider.state == Collider.FALL){
+			if((looking & DOWN) || (collider.state == Collider.FALL && state == WALKING)){
 				if(cameraDisplacement.y < CAMERA_DISPLACEMENT_Y){
 					cameraDisplacement.y += CAMERA_DISPLACE_SPEED * 0.5;
 					if((dir & DOWN) || (collider.state == Collider.FALL && collider.world)) cameraDisplacement.y += CAMERA_DISPLACE_SPEED * 0.5;
@@ -569,6 +569,7 @@
 					var deathLight:FadeLight = new FadeLight(FadeLight.DEATH, mapX, mapY);
 					tidyUp();
 					UserData.gameState.dead = true;
+					UserData.settings.hasDied = true;
 					UserData.push();
 					var mapNameStr:String = Map.getName(game.map.type, game.map.level);
 					if(game.map.type == Map.MAIN_DUNGEON) mapNameStr += ":" + game.map.level;

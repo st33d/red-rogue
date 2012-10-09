@@ -9,6 +9,7 @@ package {
 	import com.robotacid.ui.Key;
 	import com.robotacid.ui.menu.Menu;
 	import com.robotacid.ui.menu.MenuOption;
+	import com.robotacid.ui.menu.QuestMenuOption;
 	import com.robotacid.util.XorRandom;
 	import flash.ui.Keyboard;
 	import flash.net.SharedObject;
@@ -120,7 +121,7 @@ package {
 				},
 				runeNames:[],
 				storyCharCodes:[],
-				quests:[],
+				quests:[<quest name={"get the amulet of yendor"} type={QuestMenuOption.MACGUFFIN} num={0} commissioner={"@"} xpReward={0} />],
 				randomSeed:XorRandom.seedFromDate(),
 				husband:false
 			};

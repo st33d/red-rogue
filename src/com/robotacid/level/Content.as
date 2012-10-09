@@ -575,7 +575,10 @@
 					if(room.surfaces.length){
 						surface = room.surfaces[random.rangeInt(room.surfaces.length)];
 						// seems to be really keen on putting chests on ladders - I'm not keen on this
-						if(surface.properties & Collider.LADDER) continue;
+						if(surface.properties & Collider.LADDER){
+							i--;
+							continue;
+						}
 						chest = XMLToEntity(surface.x, surface.y, chests[i]);
 						chest.mimicInit(mapType, mapLevel);
 						layers[Map.ENTITIES][surface.y][surface.x] = chest;

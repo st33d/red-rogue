@@ -74,7 +74,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 449;
+		public static const BUILD_NUM:int = 450;
 		
 		public static const TEST_BED_INIT:Boolean = false;
 		public static const ONLINE:Boolean = true;
@@ -502,7 +502,6 @@
 				content = new Content();
 				Writing.createStoryCharCodes(Map.random);
 				Sleep.initDreams();
-				Epilogue.initEpilogue();
 				
 				// LEVEL SPECIFIC INIT
 				// This stuff that follows requires the bones of a level to initialise
@@ -747,9 +746,9 @@
 								effect = new Effect(int(enchantment.@name), int(enchantment.@level), int(enchantment.@source), minion, int(enchantment.@count), false, false);
 							}
 						}
-						game.console.print("welcome back rogue (" + mapNameStr + ")");
+						game.console.print("welcome back " + player.nameToString() + " (" + mapNameStr + ")");
 					} else {
-						game.console.print("welcome rogue");
+						game.console.print("welcome " + player.nameToString());
 					}
 					player.snapCamera();
 				} else {
@@ -1281,6 +1280,7 @@
 				clickToPlayText.bitmapData.colorTransform(clickToPlayText.bitmapData.rect, RED_COL);
 			} else if(UserData.settings.ascended){
 				clickToPlayText.text = "click to play again";
+				buildText.text = "build " + BUILD_NUM;
 			}
 		}
 		
@@ -1304,7 +1304,19 @@
 		
 		public function epilogueInit():void{
 			state = EPILOGUE;
-			var type:int = UserData.gameState.husband ? Epilogue.HUSBAND : Epilogue.YENDOR;
+			var type:int;
+			var typeStr:String;
+			if(UserData.gameState.husband && minion){
+				type = Epilogue.HUSBAND;
+				typeStr = "husband epilogue";
+			} else if(gameMenu.inventoryList.getItem(Item.YENDOR, Item.ARMOUR)){
+				type = Epilogue.YENDOR;
+				typeStr = "yendor epilogue";
+			} else {
+				type = Epilogue.EMPTY_HANDED;
+				typeStr = "empty handed epilogue";
+			}
+			trackEvent(typeStr);
 			epilogue = new Epilogue(type, this, renderer);
 			instructionsHolder.addChild(epilogue);
 			changeMusic();

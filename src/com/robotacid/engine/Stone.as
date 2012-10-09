@@ -189,6 +189,10 @@
 								game.minion.changeName(Character.HUSBAND);
 								game.console.print(game.minion.nameToString() + " became husband");
 								UserData.gameState.husband = true;
+			
+								var mapNameStr:String = Map.getName(game.map.level, game.map.type);
+								if(game.map.type == Map.MAIN_DUNGEON) mapNameStr += ":" + game.map.level;
+								game.trackEvent("husband", mapNameStr);
 							}
 						}
 					}

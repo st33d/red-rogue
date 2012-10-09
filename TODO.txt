@@ -1,4 +1,4 @@
-Change log: added torches to dungeons zone, fixed game breaker caused by no minion during husband transformation event, added multiplayer jump option
+Change log: quest for yendor now completes when yendor is picked up and an ascend quest is issued, instantiation of the yendor quest is not a duty of the UserData gameState, epilogue 1st draft finished, fixed bug caused by avoiding chests on stairs (resulting in not placing a chest and making the level uncompletable), restricted fall-camera-pan-down to when in WALKING state
 
 Bug hunt
 	chaos wall colliders can child a character and pull it into a wall - how?
@@ -10,20 +10,7 @@ Bug hunt
 	minion weapon invisible after level change (arbalest and skull equipped)
 	
 	protection reflected missiles faulty - test with gun leech
-	yendor can be left in overworld at end game
-		3rd epilogue where rng takes yendor off the ground
 	resetting screwing with transition
-
-endings
-	epilogue
-		write endings
-	quest menu - picking up yendor
-		change to return to overworld
-		change to go home
-
-Guide
-
-Add Balrog death and ending events to tracking
 
 Sounds
 	stomp stun head contact

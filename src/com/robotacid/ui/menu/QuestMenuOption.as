@@ -26,6 +26,7 @@ package com.robotacid.ui.menu {
 		public static const COLLECT:int = 1;
 		public static const KILL:int = 2;
 		public static const MACGUFFIN:int = 3;
+		public static const ASCEND:int = 4;
 		
 		public function QuestMenuOption(type:int = 0, commissioner:String = "", subject:Character = null) {
 			this.type = type;
@@ -43,6 +44,10 @@ package com.robotacid.ui.menu {
 				
 			} else if(type == MACGUFFIN){
 				name = "get the amulet of yendor";
+				xpReward = 0;
+				
+			} else if(type == ASCEND){
+				name = "ascend";
 				xpReward = 0;
 			}
 			super(name, null, false);
