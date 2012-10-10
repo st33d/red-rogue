@@ -445,6 +445,7 @@
 				collider.properties |= target.brain.firingTeam;
 				collider.ignoreProperties &= ~sender.missileIgnore;
 				collider.ignoreProperties |= target.missileIgnore;
+				sender = target;
 			}
 		}
 		

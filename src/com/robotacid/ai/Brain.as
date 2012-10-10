@@ -57,6 +57,7 @@
 		public var prevCenter:Number;
 		public var confusedCount:int;
 		public var wallWalker:Boolean;
+		public var giveUpCount:int;
 		
 		public static var playerCharacters:Vector.<Character>;
 		public static var monsterCharacters:Vector.<Character>;
@@ -340,6 +341,12 @@
 						// commute allies to the target
 						if(charContact && target.active && !char.enemy(charContact) && charContact.brain) charContact.brain.copyState(this);
 					}
+					// get bored of chasing targets we can't see
+					if(target && !Cast.los(charPos, target.collider, new Point((char.looking & RIGHT) ? 1 : -1, 0), 0.5, game.world, ignore)){
+						if((giveUpCount--) <= 0) clear();
+					} else {
+						giveUpCount = delay * 2;
+					}
 				}
 				
 			} else if(state == FLEE){
@@ -392,6 +399,7 @@
 			state = ATTACK;
 			altNode = null;
 			count = 0;
+			giveUpCount = delay * 2;
 			this.target = target;
 		}
 		

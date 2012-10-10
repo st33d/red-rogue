@@ -1,22 +1,23 @@
-Change log: quest for yendor now completes when yendor is picked up and an ascend quest is issued, instantiation of the yendor quest is not a duty of the UserData gameState, epilogue 1st draft finished, fixed bug caused by avoiding chests on stairs (resulting in not placing a chest and making the level uncompletable), restricted fall-camera-pan-down to when in WALKING state
+Change log: fixed protection not changing ownership of reflected missiles, characters get bored of chasing targets that aren't in line of sight
 
 Bug hunt
-	chaos wall colliders can child a character and pull it into a wall - how?
-	null Monster collider.world spotted - why?
-	minion dither spotted - could not reach target above
-		perhaps implement line of sight checking to verify target is still accessible
 	balrog frozen after smite attack, stuck to wall - no further info (perhaps secret wall? or chaos wall?)
 	chaos walls frozen without graphics rendered and no walls beneath them (activated, not on chaos wall render list?)
-	minion weapon invisible after level change (arbalest and skull equipped)
-	
-	protection reflected missiles faulty - test with gun leech
-	resetting screwing with transition
+
+effect status anims (called at end of render):
+	tracking FX?
+	thorns spikes
+	protection
+
 
 Sounds
+	dry swallow (eat rune)
+	munch (eat heart)
 	stomp stun head contact
-	short search
+	holy/prayer sound
+	short search sound (half duration of standard search sound)
 	polymorph
-	dungeon death
+	dungeon death (preferably a group of samples that can be randomised)
 	balrog death?
-	polish
-	cheap osx tool for editing dead air out of samples
+	cheap osx tool for editing dead air out of samples (some samples need snipping like the teleport sounds and I can manage this myself)
+	polish - to be applied once all the samples are in (feedback on volumes of all sounds, general nitpicking)
