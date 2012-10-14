@@ -364,8 +364,8 @@
 						attackSpeedModifier += Effect.HASTE_PER_LEVEL * effect.level;
 						
 					} else if(effect.name == Effect.PROTECTION){
-						endurance += Effect.PROTECTION * effect.level;
-						protectionModifier -= Effect.PROTECTION * effect.level;
+						endurance += Effect.PROTECTION_PER_LEVEL * effect.level;
+						protectionModifier -= Effect.PROTECTION_PER_LEVEL * effect.level;
 						
 					// UNDEAD runs as an active effect only when undead
 					} else if(effect.name == Effect.UNDEAD){
@@ -1242,6 +1242,7 @@
 			}
 			missileMc.scaleX = (looking & RIGHT) ? 1 : -1;
 			var missile:Missile = new Missile(missileMc, collider.x + collider.width * 0.5, collider.y + collider.height * 0.5, type, this, (looking & RIGHT) ? 1 : -1, 0, 5, missileIgnore, effect, item, null, reflections, brain.firingTeam, alchemical);
+			if(asleep) setAsleep(false);
 		}
 		
 		/* Called by Missile to effect a throwing being caught by a character */
@@ -1373,10 +1374,12 @@
 				
 			// polymorph target into a werewolf
 			} else if(name == WEREWOLF){
+				// we target face wearing characters through their armour
 				if(rank != ELITE){
 					if(target.name != WEREWOLF){
 						game.console.print(target.nameToString() + " falls to the werewolf curse");
-						target.changeName(WEREWOLF);
+						if(target.armour && target.armour.name == Item.FACE) (target.armour as Face).previousName = WEREWOLF;
+						else target.changeName(WEREWOLF);
 					} else {
 						game.console.print(target.nameToString() + " is still a werewolf");
 					}
@@ -1384,13 +1387,16 @@
 					game.console.print(target.nameToString() + " falls to the " + uniqueNameStr + " curse");
 					var newName:int = target.name;
 					while(newName == target.name) newName = game.random.rangeInt(stats["names"].length);
-					target.changeName(newName);
+					if(target.armour && target.armour.name == Item.FACE) (target.armour as Face).previousName = newName;
+					else target.changeName(newName);
 				}
 				renderer.createSparkRect(target.collider, 20, 0, -1);
 			
 			// polymorph into target
 			} else if(name == MIMIC){
-				changeName(target.name);
+				if(armour && armour.name == Item.FACE) (armour as Face).previousName = target.name;
+				else changeName(target.name);
+				game.console.print("mimic stole " + target.nameToString() + " form");
 				renderer.createSparkRect(collider, 20, 0, -1);
 				
 			// bleed attack
@@ -1446,7 +1452,6 @@
 		/* Change the race of the character - involves resetting physics for the character as well as stats */
 		public function changeName(name:int, gfx:MovieClip = null):void{
 			if(this.name == name && !gfx) return;
-			
 			var previousName:int = this.name;
 			
 			// change gfx
@@ -1699,6 +1704,18 @@
 						renderer.stunBlit.x = -renderer.bitmap.x + gfx.x;
 						renderer.stunBlit.y = -renderer.bitmap.y + gfx.y - (collider.height + 2);
 						renderer.stunBlit.render(renderer.bitmapData, game.frameCount % renderer.stunBlit.totalFrames);
+					}
+					// render protection
+					if(protectionModifier < 1){
+						renderer.protectionBlit.x = -renderer.bitmap.x + gfx.x;
+						renderer.protectionBlit.y = -renderer.bitmap.y + gfx.y;
+						renderer.protectionBlit.render(renderer.bitmapData, game.frameCount % renderer.protectionBlit.totalFrames);
+					}
+					// render thorns
+					if(thorns > 0){
+						renderer.thornsBlit.x = -renderer.bitmap.x + gfx.x;
+						renderer.thornsBlit.y = -renderer.bitmap.y + gfx.y;
+						renderer.thornsBlit.render(renderer.bitmapData, (game.frameCount + renderer.thornsBlit.totalFrames * 0.5) % renderer.thornsBlit.totalFrames);
 					}
 				}
 				

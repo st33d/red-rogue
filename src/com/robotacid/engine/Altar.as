@@ -136,6 +136,7 @@
 			} else if(choice == "heal"){
 				// heal the target
 				target.applyHealth(target.totalHealth);
+				if(game.minion) game.minion.applyHealth(game.minion.totalHealth);
 				game.console.print("rng grants health");
 			} else if(choice == "overworldPortal"){
 				// open the overworld portal

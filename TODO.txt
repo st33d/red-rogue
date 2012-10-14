@@ -1,14 +1,8 @@
-Change log: fixed protection not changing ownership of reflected missiles, characters get bored of chasing targets that aren't in line of sight
+Change log: fixed being able to shoot whilst asleep, fixed protection modifier, protection and thorns are now rendered on characters, mimic form steal attack now works wearing a mimic face, werewolf attack now penetrates face armour (unless face armour is werewolf), healing boon from rng now heals minion if present
 
 Bug hunt
 	balrog frozen after smite attack, stuck to wall - no further info (perhaps secret wall? or chaos wall?)
 	chaos walls frozen without graphics rendered and no walls beneath them (activated, not on chaos wall render list?)
-
-effect status anims (called at end of render):
-	tracking FX?
-	thorns spikes
-	protection
-
 
 Sounds
 	dry swallow (eat rune)
