@@ -402,24 +402,29 @@
 					inventoryList.equipMainOption.active = (
 						(item.range & (Item.MELEE | Item.MISSILE)) &&
 						!(item.user && item.holyState == Item.CURSE_REVEALED && !item.user.undead) &&
-						!(game.player.weapon && game.player.weapon.holyState == Item.CURSE_REVEALED && !game.player.undead)
+						!(game.player.weapon && game.player.weapon.holyState == Item.CURSE_REVEALED && !game.player.undead) &&
+						!(game.player.throwable && game.player.throwable.holyState == Item.CURSE_REVEALED && item.range == Item.MISSILE && !game.player.undead)
 					);
 					inventoryList.equipThrowOption.active = (
 						(item.range & Item.THROWN) &&
 						!(item.user && item.holyState == Item.CURSE_REVEALED && !item.user.undead) &&
-						!(game.player.throwable && game.player.throwable.holyState == Item.CURSE_REVEALED && !game.player.undead)
+						!(game.player.throwable && game.player.throwable.holyState == Item.CURSE_REVEALED && !game.player.undead) &&
+						!(game.player.weapon && game.player.weapon.range == Item.MISSILE && game.player.weapon.holyState == Item.CURSE_REVEALED && !game.player.undead)
 					);
 					inventoryList.equipMinionMainOption.active = (
 						game.minion &&
 						(item.range & (Item.MELEE | Item.MISSILE)) &&
 						!(item.user && item.holyState == Item.CURSE_REVEALED && !item.user.undead) &&
-						!(game.minion.weapon && game.minion.weapon.holyState == Item.CURSE_REVEALED && !game.minion.undead)
+						!(game.minion.weapon && game.minion.weapon.holyState == Item.CURSE_REVEALED && !game.minion.undead) &&
+						!(game.minion.throwable && game.minion.throwable.holyState == Item.CURSE_REVEALED && item.range == Item.MISSILE && !game.minion.undead)
 					);
 					inventoryList.equipMinionThrowOption.active = (
 						game.minion &&
 						(item.range & Item.THROWN) &&
 						!(item.user && item.holyState == Item.CURSE_REVEALED && !item.user.undead) &&
-						!(game.minion.throwable && game.minion.throwable.holyState == Item.CURSE_REVEALED && !game.minion.undead)
+						!(game.minion.throwable && game.minion.throwable.holyState == Item.CURSE_REVEALED && !game.minion.undead) &&
+						!(game.minion.weapon && game.minion.weapon.range == Item.MISSILE && game.minion.weapon.holyState == Item.CURSE_REVEALED && !game.minion.undead)
+						
 					);
 					
 					inventoryList.dropOption.active = game.player.undead || item.holyState != Item.CURSE_REVEALED;

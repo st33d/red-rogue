@@ -38,7 +38,7 @@
 		public static const LIGHT:int = 4;
 		
 		public static const SECRET_XP_REWARD:Number = 1 / 30;
-		public static const GRIND_XP_RATE:Number = 1;
+		public static const GRIND_XP_RATE:Number = 0.5;
 		public static const DEATH_HITS:int = 3;
 		
 		public static const HEAL_STONE_HIT_SOUNDS:Array = ["healStoneHit1", "healStoneHit2", "healStoneHit3", "healStoneHit4"];

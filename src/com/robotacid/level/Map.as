@@ -97,7 +97,7 @@
 		public static const OVERWORLD_STAIRS_X:int = 12;
 		public static const OVERWORLD_PORTAL_X:int = 17;
 		
-		public static const LEVELS_PER_ZONE:int = 4;
+		public static const LEVELS_PER_ZONE:int = 3;
 		public static const ZONE_TOTAL:int = 4;
 		
 		public static const ZONE_NAMES:Vector.<String> = Vector.<String>(["dungeons", "sewers", "caves", "chaos"]);

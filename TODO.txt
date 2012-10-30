@@ -1,8 +1,11 @@
-Change log: fixed being able to shoot whilst asleep, fixed protection modifier, protection and thorns are now rendered on characters, mimic form steal attack now works wearing a mimic face, werewolf attack now penetrates face armour (unless face armour is werewolf), healing boon from rng now heals minion if present
+Change log: fixed being able to circumvent cursed items with throwing weapons and bow weapons, reduced number of levels (each zone up to chaos now has three levels - one of them reduced to 2 levels), grindstone xp reduced to 1/2 xp per hit, rewrote some story and dreams
 
 Bug hunt
 	balrog frozen after smite attack, stuck to wall - no further info (perhaps secret wall? or chaos wall?)
 	chaos walls frozen without graphics rendered and no walls beneath them (activated, not on chaos wall render list?)
+	
+
+allow areas to be used to hack the identification game by leaving identified runes there
 
 Sounds
 	dry swallow (eat rune)

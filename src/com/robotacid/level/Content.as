@@ -155,12 +155,11 @@
 						levelsInZone.push(i);
 					}
 					zoneLevels.push(levelsInZone);
-					pruneChoice.push(i);
+					if(i < 3) pruneChoice.push(i);
 				}
-				// prune a couple of levels (levels pruned in chaos won't be noticed, making the game length vary)
+				// prune one level from the zones leading to chaos to make zone length vary
 				randomiseArray(pruneChoice, Map.random);
 				zoneLevels[pruneChoice[0]].pop();
-				zoneLevels[pruneChoice[1]].pop();
 				for(i = 0; i < zoneLevels.length - 1; i++){
 					levelsInZone = zoneLevels[i];
 					for(j = 0; j < levelsInZone.length; j++){
@@ -173,7 +172,7 @@
 			}
 			sewersFirstLevel = gameState.sewersFirstLevel;
 			
-			//trace(zoneSizes);
+			trace(gameState.zoneSizes);
 			
 			//trace("xp table", xpTable.length, xpTable);
 			//trace("monster xp by level", monsterXpByLevel.length, monsterXpByLevel);
