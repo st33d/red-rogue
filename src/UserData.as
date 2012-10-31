@@ -101,6 +101,9 @@ package {
 		public static function initGameState():void{
 			var i:int, j:int, xml:XML;
 			
+			var runeNameBuffer:Array;
+			if(gameState) runeNameBuffer = gameState.runeNames.slice();
+			
 			gameState = {
 				player:{
 					previousLevel:Map.OVERWORLD,
@@ -129,12 +132,48 @@ package {
 			initMinion();
 			initBalrog();
 			
-			for(i = 0; i < Game.MAX_LEVEL; i++){
-				gameState.runeNames.push("?");
+			var total:int = Item.stats["rune names"].length;
+			for(i = 0; i < total; i++){
+				gameState.runeNames.push(Item.UNIDENTIFIED);
 			}
 			// the identify rune's name is already known (obviously)
 			gameState.runeNames[Item.IDENTIFY] = Item.stats["rune names"][Item.IDENTIFY];
-			
+		}
+		
+		/* Save the state of the identification game when identified runes are left in areas */
+		public static function saveRuneNamesFromFloor():void{
+			var i:int, j:int, k:int, children:XMLList, xml:XML, chests:Array;
+			var name:int, type:int;
+			var total:int = Item.stats["rune names"].length;
+			settings.savedRuneNames.length = 0.
+			for(i = 0; i < total; i++){
+				settings.savedRuneNames.push(Item.UNIDENTIFIED);
+			}
+			for(i = 0; i < settings.areaContent.length; i++){
+				chests = settings.areaContent[i].chests;
+				for(j = 0; j < chests.length; j++){
+					children = chests[j].children();
+					for each(xml in children){
+						name = xml.@name;
+						type = xml.@type;
+						if(type == Item.RUNE && gameState.runeNames[name] != Item.UNIDENTIFIED){
+							settings.savedRuneNames[name] = gameState.runeNames[name];
+						}
+					}
+				}
+			}
+		}
+		
+		/* Load the state of the identification game from the save */
+		public static function loadRuneNames():void{
+			var i:int, str:String;
+			var total:int = settings.savedRuneNames.length;
+			for(i = 0; i < total; i++){
+				str = settings.savedRuneNames[i];
+				if(str != Item.UNIDENTIFIED && gameState.runeNames[i] == Item.UNIDENTIFIED){
+					Item.revealName(i, game.gameMenu.inventoryList.runesList);
+				}
+			}
 		}
 		
 		public static function initMinion():void{
@@ -168,6 +207,7 @@ package {
 			}
 			gameState.inventory = game.gameMenu.inventoryList.saveToObject();
 			gameState.quests = game.gameMenu.loreList.questsList.saveToArray();
+			if(game.map.type == Map.AREA) saveRuneNamesFromFloor();
 		}
 		
 		/* Create the default settings object to initialise the game from */
@@ -218,7 +258,8 @@ package {
 				playerConsumed:false,
 				minionConsumed:false,
 				ascended:false,
-				areaContent:[]
+				areaContent:[],
+				savedRuneNames:[]
 			};
 			
 			settings.areaContent = [];

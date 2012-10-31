@@ -74,7 +74,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 453;
+		public static const BUILD_NUM:int = 454;
 		
 		public static const TEST_BED_INIT:Boolean = false;
 		public static const ONLINE:Boolean = true;
@@ -448,7 +448,6 @@
 			}
 			addChild(menuCarousel);
 			
-			
 			if(!focusPrompt){
 				createFocusPrompt();
 				stage.addEventListener(Event.DEACTIVATE, onFocusLost);
@@ -493,7 +492,9 @@
 				explosions = new Vector.<Explosion>();
 				portalHash = {};
 				
+				// load identified rune names from areas
 				Item.runeNames = UserData.gameState.runeNames;
+				UserData.loadRuneNames();
 				
 				Brain.initCharacterLists();
 				Brain.voiceCount = Brain.VOICE_DELAY + random.range(Brain.VOICE_DELAY);
@@ -616,8 +617,6 @@
 				content.recycleLevel(map.level, map.type);
 			
 				// capture gameState
-				
-				// save data here
 				UserData.saveSettings();
 				UserData.saveGameState(level, type);
 				UserData.push();

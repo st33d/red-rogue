@@ -173,6 +173,7 @@
 		public static const ITEM_MAX:int = 19;
 		public static const HEALTH_PER_HEART:Number = 0.333;
 		public static const TWINKLE_DELAY:int = 20;
+		public static const UNIDENTIFIED:String = "?";
 		
 		[Embed(source = "itemStats.json", mimeType = "application/octet-stream")] public static var statsData:Class;
 		public static var stats:Object;
@@ -570,7 +571,7 @@
 		}
 		
 		public static function revealName(n:int, runesList:MenuList):void{
-			if(runeNames[n] != "?" || n == CHAOS) return;
+			if(runeNames[n] != UNIDENTIFIED || n == CHAOS) return;
 			runeNames[n] = stats["rune names"][n];
 			var optionStack:MenuOptionStack;
 			var item:Item;
@@ -603,7 +604,7 @@
 			var str:String = "";
 			if(type == RUNE){
 				str += "this rune ";
-				if(runeNames[name] == "?"){
+				if(runeNames[name] == UNIDENTIFIED){
 					str += "is unknown\nuse it to discover its power";
 				} else {
 					str += stats["rune descriptions"][name];

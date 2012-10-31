@@ -85,7 +85,7 @@ package com.robotacid.ui.menu {
 			str += "runes identified: ";
 			var runesList:Array = [];
 			for(i = 0; i < Item.runeNames.length; i++){
-				if(Item.runeNames[i] != "?") runesList.push(Item.runeNames[i]);
+				if(Item.runeNames[i] != Item.UNIDENTIFIED) runesList.push(Item.runeNames[i]);
 			}
 			for(i = 0; i < runesList.length; i++){
 				str += runesList[i];

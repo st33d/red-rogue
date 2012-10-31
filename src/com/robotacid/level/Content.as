@@ -172,7 +172,7 @@
 			}
 			sewersFirstLevel = gameState.sewersFirstLevel;
 			
-			trace(gameState.zoneSizes);
+			//trace(gameState.zoneSizes);
 			
 			//trace("xp table", xpTable.length, xpTable);
 			//trace("monster xp by level", monsterXpByLevel.length, monsterXpByLevel);
