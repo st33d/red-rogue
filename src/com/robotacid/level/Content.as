@@ -149,9 +149,13 @@
 				var zoneLevels:Array = [];
 				var levelsInZone:Array;
 				var pruneChoice:Array = [];
+				var levelsPerZone:int;
 				for(i = 0; i < 4; i++){
 					levelsInZone = [];
-					for(j = 0; j < Map.LEVELS_PER_ZONE; j++){
+					levelsPerZone = Map.LEVELS_PER_ZONE;
+					// when the character is ascended the zones randomly become longer
+					if(UserData.settings.ascended && Map.random.coinFlip()) levelsPerZone++;
+					for(j = 0; j < levelsPerZone; j++){
 						levelsInZone.push(i);
 					}
 					zoneLevels.push(levelsInZone);
@@ -1033,6 +1037,8 @@
 		public static function createCharacterXML(mapLevel:int, characterType:int):XML{
 			var name:int;
 			var level:int = mapLevel - 3;
+			// monsters become harder when ascended
+			if(UserData.settings.ascended) level++;
 			if(level < -1) level = -1;
 			if(characterType == Character.MONSTER){
 				var nameRange:int = mapLevel > monsterNameDeck.length ? monsterNameDeck.length : mapLevel;
@@ -1047,6 +1053,8 @@
 			var level:int = mapLevel - 2;
 			var effectXML:XML;
 			if(level < -1) level = 0;
+			// monsters become harder when ascended
+			if(UserData.settings.ascended) level++;
 			// pick a monster the player may not have seen, do not pick the same race twice
 			var nameRange:int = mapLevel + 1 > monsterNameDeck.length ? monsterNameDeck.length : mapLevel + 1;
 			do{

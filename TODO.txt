@@ -1,4 +1,4 @@
-Change log: combat hints added to story, identified runes left in areas will leave part of the identification game complete when a new game is started
+Change log: zones are randomly longer when ascended, monsters are one level greater in experience when ascended
 
 Bug hunt
 	balrog frozen after smite attack, stuck to wall - no further info (perhaps secret wall? or chaos wall?)
