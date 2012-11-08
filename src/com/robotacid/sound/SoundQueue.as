@@ -43,6 +43,12 @@ package com.robotacid.sound {
 			add(groups[key], volume);
 		}
 		
+		/* Play a random sound immediately instead of waiting for the update */
+		public function playRandom(choices:Array, volume:Number = 1.0):void{
+			var key:String = choices[(Math.random() * choices.length) >> 0];
+			SoundManager.playSound(key);
+		}
+		
 		/* Play all buffered sounds calls, then clear the buffer */
 		public function play():void{
 			

@@ -636,9 +636,11 @@
 					if(item.name == Character.KOBOLD) health += Character.stats["health levels"][item.name] * game.player.level * game.random.value();
 					health *= Item.HEALTH_PER_HEART;
 					game.player.applyHealth(health);
+					game.soundQueue.playRandom(["Munch01", "Munch02", "Munch03"]);
 					
 				} else if(item.type == Item.RUNE){
 					effect = new Effect(item.name, 20, Effect.EATEN, game.player);
+					game.soundQueue.addRandom("swallow", ["Swallow01", "Swallow02", "Swallow03"]);
 				}
 				inventoryList.removeItem(item);
 			

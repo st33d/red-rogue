@@ -128,7 +128,7 @@ package com.robotacid.engine {
 				} else {
 					lines.push("she travelled aimlessly across the kingdom she had once abandonned");
 					str = "using the amulet of yendor she ";
-					deck = ["slew dragon of diahrmid pass", "defeated an army of ogres", "scaled the world's tallest mountain to retrieve the egg of the phoenix", "destroyed the ifrit of the barren wastes"];
+					deck = ["slew the dragon of diahrmid pass", "defeated an army of ogres", "scaled the world's tallest mountain to retrieve the egg of the phoenix", "destroyed the ifrit of the barren wastes"];
 					randomiseArray(deck, game.random);
 					str += deck[0] + " and " + deck[1];
 					lines.push(str);

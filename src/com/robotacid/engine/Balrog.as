@@ -266,6 +266,8 @@ package com.robotacid.engine {
 			// the balrog explodes on death
 			var explosion:Explosion = new Explosion(0, mapX, mapY, 5, totalHealth, game.player, null, game.player.missileIgnore);
 			
+			game.createDistSound(mapX, mapY, "balrogDeath", ["BalrogDeath1", "BalrogDeath2", "BalrogDeath3"]);
+			
 			game.enemyHealthBar.deactivate();
 			
 			Brain.monsterCharacters.splice(Brain.monsterCharacters.indexOf(this), 1);

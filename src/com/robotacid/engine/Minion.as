@@ -80,7 +80,7 @@
 				}
 			}
 			// summons check
-			if(state == WALKING && (queueSummons || !game.mapTileManager.intersects(collider, Game.SCALE * 2))){
+			if(state == WALKING && game.player.active && (queueSummons || !game.mapTileManager.intersects(collider, Game.SCALE * 2))){
 				teleportToPlayer();
 			}
 			tileCenter = (mapX + 0.5) * SCALE;

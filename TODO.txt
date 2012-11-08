@@ -1,24 +1,11 @@
-Change log: zones are randomly longer when ascended, monsters are one level greater in experience when ascended
+Change log: minion now checks for player being alive before teleporting to, added final batch of sounds
 
 Bug hunt
 	balrog frozen after smite attack, stuck to wall - no further info (perhaps secret wall? or chaos wall?)
 	chaos walls frozen without graphics rendered and no walls beneath them (activated, not on chaos wall render list?)
-	
+	sniper behaviour too cowardly
+	minion weapon disappearing
 
 trailer build with centre locked camera
 
 separate menu rendering to save the mental health of anyone who maintains this
-
-discontinue xml
-
-Sounds
-	dry swallow (eat rune)
-	munch (eat heart)
-	stomp stun head contact
-	holy/prayer sound
-	short search sound (half duration of standard search sound)
-	polymorph
-	dungeon death (preferably a group of samples that can be randomised)
-	balrog death?
-	cheap osx tool for editing dead air out of samples (some samples need snipping like the teleport sounds and I can manage this myself)
-	polish - to be applied once all the samples are in (feedback on volumes of all sounds, general nitpicking)

@@ -184,6 +184,7 @@
 		];
 		
 		public static const SMITE_SOUNDS:Array = ["star1", "star2", "star3", "star4"];
+		public static const STUN_SOUNDS:Array = ["stun1", "stun2", "stun3"];
 		
 		public static const FLOOR_STEP_SOUND:int = 0;
 		public static const LADDER_STEP_SOUND:int = 1;
@@ -249,6 +250,7 @@
 			moveCount = 0;
 			moveFrame = 0;
 			mapProperties = 0;
+			stunCount = 0;
 			callMain = true;
 			inTheDark = false;
 			quickenQueued = false;
@@ -1169,6 +1171,7 @@
 			if((type == STONE && name != Stone.DEATH) || type == GATE) return;
 			// exit the quickening state if already in it
 			if(state == QUICKENING) finishQuicken();
+			if(stunCount <= 0) game.createDistSound(mapX, mapY, "stun", STUN_SOUNDS);
 			stunCount = delay;
 			state = STUNNED;
 			if(lungeState != LUNGE_FORWARD){
@@ -1390,6 +1393,7 @@
 					if(target.armour && target.armour.name == Item.FACE) (target.armour as Face).previousName = newName;
 					else target.changeName(newName);
 				}
+				game.createDistSound(target.mapX, target.mapY, "Polymorph");
 				renderer.createSparkRect(target.collider, 20, 0, -1);
 			
 			// polymorph into target
@@ -1398,6 +1402,7 @@
 				else changeName(target.name);
 				game.console.print("mimic stole " + target.nameToString() + " form");
 				renderer.createSparkRect(collider, 20, 0, -1);
+				game.createDistSound(mapX, mapY, "Polymorph");
 				
 			// bleed attack
 			} else if(name == NAGA){
@@ -1623,7 +1628,6 @@
 			} else if(state == SMITED){
 				if(mc.currentLabel != "smited") mc.gotoAndStop("smited");
 			}
-			
 			if(gfx.alpha < 1){
 				gfx.alpha += 0.1;
 			}

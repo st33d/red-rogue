@@ -176,7 +176,7 @@
 			renderer.createSparkRect(new Rectangle(rect.x + 4, rect.y-2, 12, 12), 10, -1, -1);
 			renderer.createSparkRect(new Rectangle(rect.x + 4, rect.y-2, 12, 12), 10, 1, -1);
 			renderer.createSparkRect(new Rectangle(rect.x + 4, rect.y-2, 12, 12), 10, -1, 1);
-			game.createDistSound(mapX, mapY, "miracle", ["miracle"]);
+			game.createDistSound(mapX, mapY, "miracle", ["Prayer01", "Prayer02", "Prayer03"]);
 			kill();
 		}
 		

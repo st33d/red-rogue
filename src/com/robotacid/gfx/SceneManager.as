@@ -60,6 +60,7 @@ package com.robotacid.gfx {
 		public static const CHAOS_SLIDE_SPEED:Number = 1;
 		public static const WAVE_SPEED:Number = 0.5;
 		public static const STAR_SOUNDS:Array = ["star1", "star2", "star3", "star4"];
+		public static const DUNGEON_DEATH_SOUNDS:Array = ["Scream01", "Scream02", "Scream03", "Scream04", "Scream05", "Scream06", "Scream07", "Scream08", "Scream09"];
 		
 		public function SceneManager(mapLevel:int, mapType:int) {
 			this.mapLevel = mapLevel;
@@ -96,6 +97,7 @@ package com.robotacid.gfx {
 					endingData = {
 						firstDelay:45,
 						debrisDelay:240,
+						screamDelay:30,
 						debrisRect:new Rectangle(Map.OVERWORLD_STAIRS_X * Game.SCALE, (game.map.height - 2) * Game.SCALE, Game.SCALE, Game.SCALE)
 					}
 					quakeCount = 1;
@@ -200,11 +202,13 @@ package com.robotacid.gfx {
 							endingData.stairs.playerPortal = false;
 							var explosion:Explosion = new Explosion(0, Map.OVERWORLD_STAIRS_X, game.map.height - 2, 3, 0, game.player, null, game.player.missileIgnore);
 							game.console.print("chaos dungeon collapses");
+							game.soundQueue.playRandom(DUNGEON_DEATH_SOUNDS);
 						}
 					} else {
 						// shower debris and cogs
 						if(endingData.debrisDelay){
 							endingData.debrisDelay--;
+							endingData.screamDelay--;
 							if(quakeCount){
 								quakeCount--;
 								if(quakeCount == 0){
@@ -214,6 +218,10 @@ package com.robotacid.gfx {
 							} else {
 								renderer.shake(0, 2 + game.random.rangeInt(4));
 								quakeCount = 5 + game.random.rangeInt(5);
+							}
+							if(endingData.screamDelay == 0){
+								game.soundQueue.playRandom(DUNGEON_DEATH_SOUNDS);
+								endingData.screamDelay = 20 + game.random.rangeInt(60);
 							}
 							if(endingData.debrisDelay == 0){
 								endingData.fxDeathDelay = 10 + game.random.rangeInt(10);

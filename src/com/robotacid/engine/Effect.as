@@ -355,6 +355,7 @@
 				
 				// now we try putting it back in
 				if(inventoryList) inventoryList.addItem(item);
+				SoundManager.playSound("Polymorph");
 				return item;
 				
 			} else if(name == XP){
@@ -666,6 +667,7 @@
 						while(newName == target.name) newName = Content.monsterNameDeck[game.random.rangeInt(nameRange)];
 						target.changeName(newName);
 					}
+					game.createDistSound(target.mapX, target.mapY, "Polymorph");
 					return;
 				}
 				
@@ -1077,6 +1079,7 @@
 				if(game.random.coinFlip()) target.smite((target.looking & Collider.RIGHT) ? Collider.LEFT : Collider.RIGHT, target.totalHealth);
 				else var explosion:Explosion = new Explosion(0, target.mapX, target.mapY, 5, target.totalHealth, game.player, null, game.player.missileIgnore);
 			}
+			game.soundQueue.playRandom(["Prayer01", "Prayer02", "Prayer03"]);
 		}
 	}
 	

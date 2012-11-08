@@ -178,6 +178,31 @@ package com.robotacid.sound {
 		SoundManager.addSound(new MimicVocalisationSound003, "Mimic3", 0.6);
 		SoundManager.addSound(new MimicTransformSound01, "MimicTransform1", 0.4);
 		SoundManager.addSound(new MimicTransformSound02, "MimicTransform2", 0.4);
+		SoundManager.addSound(new BalrogDeathSound01, "BalrogDeath1", 1.0);
+		SoundManager.addSound(new BalrogDeathSound02, "BalrogDeath2", 1.0);
+		SoundManager.addSound(new BalrogDeathSound03, "BalrogDeath3", 1.0);
+		SoundManager.addSound(new MunchSound01, "Munch01", 1.0);
+		SoundManager.addSound(new MunchSound02, "Munch02", 1.0);
+		SoundManager.addSound(new MunchSound03, "Munch03", 1.0);
+		SoundManager.addSound(new PolymorphSound, "Polymorph", 1.0);
+		SoundManager.addSound(new PrayerSound01, "Prayer01", 1.0);
+		SoundManager.addSound(new PrayerSound02, "Prayer02", 1.0);
+		SoundManager.addSound(new PrayerSound03, "Prayer03", 1.0);
+		SoundManager.addSound(new ScreamSound01, "Scream01", 1.0);
+		SoundManager.addSound(new ScreamSound02, "Scream02", 1.0);
+		SoundManager.addSound(new ScreamSound03, "Scream03", 1.0);
+		SoundManager.addSound(new ScreamSound04, "Scream04", 1.0);
+		SoundManager.addSound(new ScreamSound05, "Scream05", 1.0);
+		SoundManager.addSound(new ScreamSound06, "Scream06", 1.0);
+		SoundManager.addSound(new ScreamSound07, "Scream07", 1.0);
+		SoundManager.addSound(new ScreamSound08, "Scream08", 1.0);
+		SoundManager.addSound(new ScreamSound09, "Scream09", 1.0);
+		SoundManager.addSound(new SwallowSound01, "Swallow01", 1.0);
+		SoundManager.addSound(new SwallowSound02, "Swallow02", 1.0);
+		SoundManager.addSound(new SwallowSound03, "Swallow03", 1.0);
+		SoundManager.addSound(new StunSound1, "stun1", 1.0);
+		SoundManager.addSound(new StunSound2, "stun2", 1.0);
+		SoundManager.addSound(new StunSound3, "stun3", 1.0);
 		
 		// music
 		SoundManager.addSound(new IntroMusicSound, "introMusic", 1.0);
