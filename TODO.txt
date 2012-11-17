@@ -1,4 +1,4 @@
-Change log: fixed swallow sound delay, minion now makes eating noises, xp rune now adds 1-3 levels when enchanting, settings can now be saved to a file from the debug menu, Balrog is now one level higher than normal after the player has ascended, tempCollider now nullified in Collider move functions to prevent references staying alive
+Change log: fixed security restriction error when saving settings
 
 Bug hunt
 	balrog frozen after smite attack, stuck to wall - no further info (perhaps secret wall? or chaos wall?)

@@ -978,7 +978,18 @@
 				navigateToURL(new URLRequest("http://gallardosound.com"), "_blank");
 				
 			} else if(option == saveSettingsFileOption){
-				UserData.saveSettingsFile();
+				if(Capabilities.playerType == "StandAlone"){
+					UserData.saveSettingsFile();
+				} else {
+					if(!Game.dialog){
+						Game.dialog = new Dialog(
+							"save settings",
+							"flash's security restrictions require you to press the menu key to continue\n",
+							UserData.saveSettingsFile
+						);
+					}
+				}
+				
 				
 			} else if(option == loadSettingsFileOption){
 				if(!Game.dialog){
