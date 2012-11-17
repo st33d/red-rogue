@@ -320,7 +320,7 @@
 		 */
 		public function enchant(item:Item, inventoryList:InventoryMenuList = null, user:Character = null):Item{
 			
-			var dest:Pixel, str:String;
+			var dest:Pixel, str:String, i:int;
 			var vx:Number, vy:Number, length:Number;
 			source = item.type;
 			
@@ -359,8 +359,11 @@
 				return item;
 				
 			} else if(name == XP){
-				// just raises the level of the item
-				while(level--) item.levelUp();
+				// raises the level of the item by 1-3 levels
+				while(level--){
+					i = game.random.rangeInt(3) + 1;
+					while(i--) item.levelUp();
+				}
 				if(inventoryList) inventoryList.updateItem(item);
 				return item;
 				

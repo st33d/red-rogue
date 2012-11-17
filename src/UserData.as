@@ -11,6 +11,7 @@ package {
 	import com.robotacid.ui.menu.MenuOption;
 	import com.robotacid.ui.menu.QuestMenuOption;
 	import com.robotacid.util.XorRandom;
+	import com.robotacid.ui.FileManager;
 	import flash.ui.Keyboard;
 	import flash.net.SharedObject;
 	import flash.utils.ByteArray;
@@ -33,6 +34,8 @@ package {
 		
 		public static var settingsBytes:ByteArray;
 		public static var gameStateBytes:ByteArray;
+		
+		private static var loadSettingsCallback:Function;
 		
 		public static var disabled:Boolean = false;
 		
@@ -320,6 +323,26 @@ package {
 			for(i = 0; i < options.length; i++){
 				record[i] = options[i].active;
 			}
+		}
+		
+		/* Saves the settings to a file */
+		public static function saveSettingsFile():void{
+			settingsBytes = new ByteArray();
+			settingsBytes.writeObject(settings);
+			FileManager.save(settingsBytes, "settings.dat");
+			settingsBytes = null;
+		}
+		
+		/* Loads settings and executes a callback when finished */
+		public static function loadSettingsFile(callback:Function = null):void{
+			loadSettingsCallback = callback;
+			FileManager.load(loadSettingsFileComplete, null, [FileManager.DAT_FILTER]);
+		}
+		private static function loadSettingsFileComplete():void{
+			settingsBytes = FileManager.data;
+			overwrite(settings, settingsBytes.readObject());
+			if(Boolean(loadSettingsCallback)) loadSettingsCallback();
+			loadSettingsCallback = null;
 		}
 		
 	}

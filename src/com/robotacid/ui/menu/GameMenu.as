@@ -94,8 +94,8 @@
 		public var changeMinionRaceOption:MenuOption;
 		public var portalTeleportOption:MenuOption;
 		public var giveDebugEquipmentOption:MenuOption;
-		public var saveSharedObjectOption:MenuOption;
-		public var loadSharedObjectOption:MenuOption;
+		public var saveSettingsFileOption:MenuOption;
+		public var loadSettingsFileOption:MenuOption;
 		
 		public var newGameOption:MenuOption;
 		public var resetOption:MenuOption;
@@ -196,10 +196,10 @@
 			portalTeleportOption.recordable = false;
 			giveDebugEquipmentOption = new MenuOption("give debug equipment");
 			giveDebugEquipmentOption.help = "gives items for investigating bugs.";
-			saveSharedObjectOption = new MenuOption("save state to file", null, false);
-			saveSharedObjectOption.help = "save game state to file.";
-			loadSharedObjectOption = new MenuOption("load state from file", null, false);
-			loadSharedObjectOption.help = "load game state from file. requires restarting the game.";
+			saveSettingsFileOption = new MenuOption("save state to file");
+			saveSettingsFileOption.help = "save settings to file.";
+			loadSettingsFileOption = new MenuOption("load state from file");
+			loadSettingsFileOption.help = "load settings from file. requires restarting the whole game.";
 			
 			stairsUpPortalOption = new MenuOption("stairs up");
 			stairsDownPortalOption = new MenuOption("stairs down");
@@ -317,8 +317,8 @@
 			debugList.options.push(changeRogueRaceOption);
 			debugList.options.push(changeMinionRaceOption);
 			debugList.options.push(portalTeleportOption);
-			debugList.options.push(saveSharedObjectOption);
-			debugList.options.push(loadSharedObjectOption);
+			debugList.options.push(saveSettingsFileOption);
+			debugList.options.push(loadSettingsFileOption);
 			debugList.options.push(giveDebugEquipmentOption);
 			
 			for(i = 0; i < Character.stats["names"].length; i++){
@@ -640,7 +640,7 @@
 					
 				} else if(item.type == Item.RUNE){
 					effect = new Effect(item.name, 20, Effect.EATEN, game.player);
-					game.soundQueue.addRandom("swallow", ["Swallow01", "Swallow02", "Swallow03"]);
+					game.soundQueue.playRandom(["Swallow01", "Swallow02", "Swallow03"]);
 				}
 				inventoryList.removeItem(item);
 			
@@ -655,9 +655,11 @@
 					if(item.name == Character.KOBOLD) health += Character.stats["health levels"][item.name] * game.minion.level * game.random.value();
 					health *= Item.HEALTH_PER_HEART;
 					game.minion.applyHealth(health);
+					game.soundQueue.playRandom(["Munch01", "Munch02", "Munch03"]);
 					
 				} else if(item.type == Item.RUNE){
 					effect = new Effect(item.name, 20, Effect.EATEN, game.minion);
+					game.soundQueue.playRandom(["Swallow01", "Swallow02", "Swallow03"]);
 				}
 				inventoryList.removeItem(item);
 			
@@ -975,12 +977,18 @@
 			} else if(option == nateOption){
 				navigateToURL(new URLRequest("http://gallardosound.com"), "_blank");
 				
-			} else if(option == saveSharedObjectOption){
-				saveSharedObject();
+			} else if(option == saveSettingsFileOption){
+				UserData.saveSettingsFile();
 				
-			} else if(option == loadSharedObjectOption){
-				loadSharedObject();
-				
+			} else if(option == loadSettingsFileOption){
+				if(!Game.dialog){
+					Game.dialog = new Dialog(
+						"warning",
+						"this will overwrite you current settings\nare you sure?",
+						loadSettings,
+						function():void{}
+					);
+				}
 			}
 			
 			// if the menu is open, force a renderer update so the player can see the changes,
@@ -999,24 +1007,6 @@
 			update();
 			game.deathMenu.select(0);
 			game.menuCarousel.setCurrentMenu(game.deathMenu);
-		}
-		
-		public function saveSharedObject():void{
-			var obj:Object = {
-				settings:UserData.settings,
-				gameState:UserData.gameState
-			};
-			var json:String = JSON.encode(obj);
-			FileManager.save(json, "gamestate.json");
-		}
-		
-		public function loadSharedObject():void{
-			FileManager.load(loadSharedObjectComplete, null, [FileManager.JSON_FILTER]);
-		}
-		
-		private function loadSharedObjectComplete():void{
-			var json:String = FileManager.data.readUTFBytes(FileManager.data.length);
-			trace(json);
 		}
 		
 		/* Activates fullscreen mode */
@@ -1219,6 +1209,21 @@
 				if(game.console){
 					game.console.print("debug menu active");
 				}
+			}
+		}
+		
+		public function loadSettings():void{
+			UserData.loadSettingsFile(restartPrompt);
+		}
+		
+		/* The menu needs to be completely loaded from scratch for the new settings to take hold */
+		private function restartPrompt():void{
+			UserData.push(true);
+			if(!Game.dialog){
+				Game.dialog = new Dialog(
+					"restart",
+					"please close the application and\nrun it again to properly load\nnew settings"
+				);
 			}
 		}
 		

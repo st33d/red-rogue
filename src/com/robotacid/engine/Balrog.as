@@ -60,8 +60,10 @@ package com.robotacid.engine {
 		/* Called on the balrog's first main() after all initialisation is done */
 		public function mapInit():void{
 			mapInitialised = true;
-			if(game.player.active) level = game.player.level;
-			else{
+			if(game.player.active){
+				level = game.player.level;
+				if(UserData.settings.ascended) level++;
+			} else{
 				levelState = RESURRECT;
 				brain.state = Brain.PATROL;
 			}

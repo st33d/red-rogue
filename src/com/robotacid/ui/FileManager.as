@@ -26,6 +26,7 @@ package com.robotacid.ui {
 		public static const XML_FILTER:FileFilter = new FileFilter("XML", "*.xml");
 		public static const PNG_FILTER:FileFilter = new FileFilter("Images", "*.png;");
 		public static const JSON_FILTER:FileFilter = new FileFilter("JSON", "*.json;");
+		public static const DAT_FILTER:FileFilter = new FileFilter("DAT", "*.dat;");
 		
 		/* Saves a file via FileReference */
 		public static function save(data:*, defaultFileName:String):void{

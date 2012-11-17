@@ -502,6 +502,7 @@ package com.robotacid.phys {
 				}
 			}
 			awake = AWAKE_DELAY;
+			tempCollider = null;
 			return vx;
 		}
 		
@@ -768,6 +769,7 @@ package com.robotacid.phys {
 				}
 			}
 			awake = AWAKE_DELAY;
+			tempCollider = null;
 			return vy;
 		}
 		
