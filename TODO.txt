@@ -1,11 +1,10 @@
-Change log: fixed security restriction error when saving settings
+Change log: fixed security restriction error when saving settings, revised sniping ai (discovered clause that makes snipers freeze when above targets, added defaulting to hand 2 hand combat when too close), added sanity check when destroying chaos walls (may not have solved invisible walls in Chaos), story tidied up post proof-reading
 
 Bug hunt
-	balrog frozen after smite attack, stuck to wall - no further info (perhaps secret wall? or chaos wall?)
-	chaos walls frozen without graphics rendered and no walls beneath them (activated, not on chaos wall render list?)
-	sniper behaviour too cowardly
 	weapon on player and minion disappearing
-	catastrophic ai faliure with sniper - if sniper is above target it can get in a multiple path loop
+		fuck knows
+	chaos walls frozen without graphics rendered and no walls beneath them (activated, not on chaos wall render list?)
+		added collider.world check on death - cannot reproduce this AT ALL
 
 website
 	banner
@@ -14,4 +13,5 @@ website
 	link to Windows
 	link to OSX.zip
 	link to swf.zip
+	FAQ
 	

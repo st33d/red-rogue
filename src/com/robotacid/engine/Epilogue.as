@@ -105,7 +105,7 @@ package com.robotacid.engine {
 			if(!UserData.settings.ascended){
 				lines = lines.concat([
 					"like her husband before her, red rogue was given a new name on her return",
-					"having heard of her use of the rune of time and her constant cheating of death, they named her...",
+					"hearing of her use of the rune of time and her constant cheating of death, they named her...",
 					"immortal"
 				]);
 				UserData.settings.ascended = true;
@@ -124,7 +124,7 @@ package com.robotacid.engine {
 					if(game.minion){
 						lines.push("offers of marriage were made to her, dying on their lips as they saw " + game.minion.nameToString() + " advance following her rebuttal");
 					}
-					lines.push("on her death bed her people were divided, those doubting her title rioting. those defending it becoming cruel vigilantes. it was not long before the kingdom was at war with neighbours who sought to take advantage.");
+					lines.push("on her death bed, her people were divided. those doubting her title rioting, those defending it becoming cruel vigilantes. it was not long before the kingdom was at war with its neighbours.");
 				} else {
 					lines.push("she travelled aimlessly across the kingdom she had once abandonned");
 					str = "using the amulet of yendor she ";
@@ -146,13 +146,13 @@ package com.robotacid.engine {
 				} else if(kids){
 					lines.push("they had " + kids + " children, whose lives were unremarkable, but gave joy to the married couple every day.");
 				} else {
-					lines.push("they chose not to have children. unsure of what would happen to them and this world when the rune of time finally pulled the immortal back to escape the chaos dungeon once again.");
+					lines.push("they had no children. their adventures had quelled any desire to grow a familiy.");
 				}
 				lines.push("thankful to merely have each other after being apart in flesh, they led simple lives until the end of their days. the immortal's husband was not fool enough to send his wife on yet another errand.");
 				
 			} else if(type == EMPTY_HANDED){
-				lines.push("returning empty handed she was able to survive a few days before the calamity struck.");
-				lines.push("rng, seizing the power that had once held him hostage let loose catastrophic chaos.");
+				lines.push("returning empty handed, she was able to survive a few days before the calamity struck.");
+				lines.push("rng, seizing the power that had once held him hostage, let loose catastrophic chaos.");
 				deck = [
 					"he turned the seas to oatmeal porridge.", "he replaced all the stars with candles, destroying all warmth and light in the universe.", "he made turned every man whose name began with an \"s\" to lead.", "he replaced the world's fish with birds and world's birds with fish, leaving most to drown.", "he turned great swathes of land to honey, its peoples buried or mired.", "he changed everyone's name to bob, which surprisingly wasn't that harmful.", "he made every blade of grass a sharp as a knife, crippling many.", "he turned all the sand in the world to sodium. the seas exploded."
 				];
@@ -169,7 +169,7 @@ package com.robotacid.engine {
 				}
 			}
 			lines = lines.concat([
-				"when the immortal died the rune of time she had consumed took effect" + (UserData.settings.hasDied ? " again as it had when she had died in the dungeon" : "") + ".\n\nperhaps the world continued without her, or perhaps it was erased as she was pulled back through time.",
+				"when the immortal died, the rune of time took effect" + (UserData.settings.hasDied ? " again as it had when she had died in the dungeon" : "") + ".\n\nperhaps the world continued without her, or perhaps it was erased as she was pulled back through time.",
 				"the immortal looked into eternity, and descended..."
 			]);
 		}

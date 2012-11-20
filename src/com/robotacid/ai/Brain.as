@@ -115,9 +115,11 @@
 		public static const FOLLOW_FLEE_EDGE_SQ:Number = FOLLOW_FLEE_EDGE * FOLLOW_FLEE_EDGE;
 		
 		public static const SNIPE_CHASE_EDGE:Number = Game.SCALE * 5;
-		public static const SNIPE_FLEE_EDGE:Number = Game.SCALE * 2;
+		public static const SNIPE_FLEE_EDGE:Number = Game.SCALE * 2.5;
+		public static const SNIPE_HAND_2_HAND_EDGE:Number = Game.SCALE * 1;
 		public static const SNIPE_CHASE_EDGE_SQ:Number = SNIPE_CHASE_EDGE * SNIPE_CHASE_EDGE;
 		public static const SNIPE_FLEE_EDGE_SQ:Number = SNIPE_FLEE_EDGE * SNIPE_FLEE_EDGE;
+		public static const SNIPE_HAND_2_HAND_SQ:Number = SNIPE_HAND_2_HAND_EDGE * SNIPE_HAND_2_HAND_EDGE;
 		
 		public static function initCharacterLists():void{
 			playerCharacters = new Vector.<Character>();
@@ -793,11 +795,13 @@
 			} else {
 				if(char.collider.state == Collider.HOVER){
 					avoid(target);
-				} else if(char.mapY >= target.mapY){
+				} else {
 					var vx:Number = targetX - charPos.x;
 					var vy:Number = targetY - charPos.y;
 					var distSq:Number = vx * vx + vy * vy;
-					if(distSq < SNIPE_FLEE_EDGE_SQ){
+					if(distSq < SNIPE_HAND_2_HAND_EDGE){
+						chase(target);
+					} else if(distSq < SNIPE_FLEE_EDGE_SQ){
 						avoid(target);
 					} else if(distSq > SNIPE_CHASE_EDGE_SQ){
 						chase(target);
@@ -812,10 +816,7 @@
 							shootWhenReady(target, 10, ignore);
 						}
 					}
-				} else {
-					clear();
 				}
-				
 			}
 		}
 		

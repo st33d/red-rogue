@@ -346,7 +346,7 @@ package com.robotacid.engine {
 				if(chaosWalls[target.y][target.x]) chaosWalls[target.y][target.x].callMain = true;
 			}
 			active = false;
-			collider.world.removeCollider(collider);
+			if(collider.world) collider.world.removeCollider(collider);
 		}
 		
 		override public function render():void {
