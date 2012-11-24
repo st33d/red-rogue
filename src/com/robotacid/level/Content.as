@@ -77,6 +77,7 @@
 		public static const XP_TABLE_SEED:Number = 10;
 		public static const XP_RATE:Number = 2;
 		public static const MONSTER_XP_BY_LEVEL_RATE:Number = 1.2;
+		public static const UNDERWORLD_PORTAL_LEVEL:int = 11;
 		
 		public static const MONSTER_ZONE_DECKS:Array = [
 			[Character.KOBOLD, Character.GOBLIN, Character.ORC, Character.TROLL, Character.GNOLL],
@@ -472,9 +473,9 @@
 			}
 			// repair the underworld portal if missing
 			if(areaContent[Map.UNDERWORLD].portals.length == 0){
-				// move back to level 15, or 16 if we're on 15
-				var targetLevel:int = 15;
-				if(game && game.map && game.map.level == 15) targetLevel++;
+				// move back to UNDERWORLD_PORTAL_LEVEL, or UNDERWORLD_PORTAL_LEVEL+1 if we're on it already
+				var targetLevel:int = UNDERWORLD_PORTAL_LEVEL;
+				if(game && game.map && game.map.level == UNDERWORLD_PORTAL_LEVEL) targetLevel++;
 				var portalXML:XML = <portal type={Portal.PORTAL} targetLevel={Map.UNDERWORLD} targetType={Map.AREA} />;
 				UserData.gameState.portalsByLevel[targetLevel].push(portalXML);
 				setUnderworldPortal(targetLevel, Map.MAIN_DUNGEON);

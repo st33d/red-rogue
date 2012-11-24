@@ -78,6 +78,7 @@
 		public var twinkleCount:int;
 		public var bannerGfx:MovieClip;
 		public var stomping:Boolean;
+		public var equipmentGfxLayerUpdateCount:int;
 		
 		// stats
 		public var speed:Number;
@@ -615,13 +616,13 @@
 					}
 					if(target){
 						lungeState = lungeState == LUNGE_FORWARD ? LUNGE_BACK : LUNGE_FORWARD;
-						setEquipmentLayers();
+						equipmentGfxLayerUpdateCount = game.frameCount;
 						meleeAttack(target);
 					} else {
 						state = WALKING;
 						if(lungeState != LUNGE_FORWARD){
 							lungeState = LUNGE_FORWARD;
-							setEquipmentLayers();
+							equipmentGfxLayerUpdateCount = game.frameCount;
 						}
 					}
 				}
@@ -841,7 +842,7 @@
 			} else {
 				if(lungeState != LUNGE_FORWARD){
 					lungeState = LUNGE_FORWARD;
-					setEquipmentLayers();
+					equipmentGfxLayerUpdateCount = game.frameCount;
 				}
 			}
 			victim = target;
@@ -951,10 +952,8 @@
 			quickeningCount = QUICKENING_DELAY;
 			stunCount = 0;
 			attackCount = 1;
-			if(lungeState != LUNGE_FORWARD){
-				lungeState = LUNGE_FORWARD;
-				setEquipmentLayers();
-			}
+			if(lungeState != LUNGE_FORWARD) lungeState = LUNGE_FORWARD;
+			equipmentGfxLayerUpdateCount = game.frameCount;
 			// since the minion and player quicken together, we try to avoid phased sound effects
 			if(!(this == game.minion && game.player.state == QUICKENING)){
 				game.soundQueue.addRandom("quickening", QUICKENING_SOUNDS);
@@ -1068,7 +1067,7 @@
 			}
 			
 			item.addBuff(this);
-			setEquipmentLayers();
+			equipmentGfxLayerUpdateCount = game.frameCount;
 			if(item.gfx is ItemMovieClip) (item.gfx as ItemMovieClip).setEquipRender();
 			return item;
 		}
@@ -1107,7 +1106,7 @@
 		}
 		
 		/* Juggles the graphics layers so that the items are on the right layers at the right time */
-		protected function setEquipmentLayers():void{
+		protected function setEquipmentGfxLayers():void{
 			var mc:MovieClip = gfx as MovieClip;
 			if(lungeState == LUNGE_FORWARD){
 				if(armour){
@@ -1174,10 +1173,8 @@
 			if(stunCount <= 0) game.createDistSound(mapX, mapY, "stun", STUN_SOUNDS);
 			stunCount = delay;
 			state = STUNNED;
-			if(lungeState != LUNGE_FORWARD){
-				lungeState = LUNGE_FORWARD;
-				setEquipmentLayers();
-			}
+			if(lungeState != LUNGE_FORWARD) lungeState = LUNGE_FORWARD;
+			equipmentGfxLayerUpdateCount = game.frameCount;
 			if(collider.state == Collider.HOVER){
 				collider.state = Collider.FALL;
 			}
@@ -1631,6 +1628,7 @@
 			if(gfx.alpha < 1){
 				gfx.alpha += 0.1;
 			}
+			if(gfx.visible && equipmentGfxLayerUpdateCount == game.frameCount) setEquipmentGfxLayers();
 			if(weapon){
 				if(mc.weapon){
 					if(collider.state == Collider.HOVER) weapon.gfx.visible = false;

@@ -277,7 +277,7 @@ package {
 			settings.specialItemChest = specialItemChest;
 			specialItemChest.appendChild(Content.SPECIAL_ITEMS[game.random.rangeInt(Content.SPECIAL_ITEMS.length)]);
 			if(settings.areaContent[Map.UNDERWORLD].portals.length == 0){
-				Content.setUnderworldPortal(15, Map.MAIN_DUNGEON);
+				Content.setUnderworldPortal(Content.UNDERWORLD_PORTAL_LEVEL, Map.MAIN_DUNGEON);
 			}
 		}
 		
@@ -293,6 +293,8 @@ package {
 			settings.dogmaticMode = game.dogmaticMode;
 			settings.multiplayer = game.multiplayer;
 			settings.livesAvailable = game.livesAvailable.value + game.lives.value;
+			// fix for previous error in livesAvailable code
+			if(settings.livesAvailable > 3) settings.livesAvailable = 3;
 			settings.hotKeyMaps = [];
 			settings.loreUnlocked = {
 				races:[],

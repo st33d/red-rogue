@@ -1,8 +1,8 @@
-Change log: fixed security restriction error when saving settings, revised sniping ai (discovered clause that makes snipers freeze when above targets, added defaulting to hand 2 hand combat when too close), added sanity check when destroying chaos walls (may not have solved invisible walls in Chaos), story tidied up post proof-reading
+Change log: fixed bug with lives available with konami cheat, moved underworld portal starting position back to level 11, reorganised wall writings, moved gfx updating of equipment to render function - layer updates are now called by setting the value of an update marker to the current game.frameCount (this should ensure that any graphics changes happen in an orderly sequence)
 
 Bug hunt
 	weapon on player and minion disappearing
-		fuck knows
+		possible fix applied
 	chaos walls frozen without graphics rendered and no walls beneath them (activated, not on chaos wall render list?)
 		added collider.world check on death - cannot reproduce this AT ALL
 

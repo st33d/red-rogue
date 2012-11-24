@@ -74,7 +74,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 460;
+		public static const BUILD_NUM:int = 461;
 		
 		public static const TEST_BED_INIT:Boolean = false;
 		public static const ONLINE:Boolean = true;
@@ -1170,6 +1170,7 @@
 				return;
 			}
 			lives.value++;
+			livesAvailable.value--;
 			console.print("1up");
 			soundQueue.add("jump");
 			livesPanel.visible = true;
