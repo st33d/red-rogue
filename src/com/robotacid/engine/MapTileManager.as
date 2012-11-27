@@ -200,6 +200,11 @@
 			return x < scrollBottomrightX && x >= scrollTopleftX && y < scrollBottomrightY && y >= scrollTopleftY;
 		}
 		
+		/* Return true if a tile position is inside the edge of the scrolling area */
+		public function containsTile(x:int, y:int, layer:int):Boolean{
+			return x >= topLeftLayers[layer].x && y >= topLeftLayers[layer].y && x < bottomRightLayers[layer].x && y < bottomRightLayers[layer].y;
+		}
+		
 		/* Return true if a rect intersects the scrolling area
 		 * 
 		 * - note the slight aggression on keeping within the open interval, leaving this in for now */

@@ -109,7 +109,7 @@
 				// the umber hulk elite can survive death by spending experience levels
 				if(name == UMBER_HULK && !active){
 					level -= 1 + game.random.rangeInt(3);
-					if(level > 0){
+					if(level >= 0){
 						xpReward *= 0.5
 						active = true;
 						game.world.restoreCollider(collider);

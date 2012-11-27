@@ -74,7 +74,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 461;
+		public static const BUILD_NUM:int = 462;
 		
 		public static const TEST_BED_INIT:Boolean = false;
 		public static const ONLINE:Boolean = true;
@@ -654,6 +654,10 @@
 			portalHash = {};
 			
 			Brain.monsterCharacters.length = 0;
+			Brain.playerCharacters.length = 0;
+			if(player) Brain.playerCharacters.push(player);
+			if(minion) Brain.playerCharacters.push(minion);
+			
 			Brain.voiceCount = Brain.VOICE_DELAY + random.range(Brain.VOICE_DELAY);
 			
 			map = new Map(level, type);
@@ -1378,6 +1382,10 @@
 			if(Key.isDown(Keyboard.CONTROL) && Key.isDown(Keyboard.SHIFT) && Key.isDown(Keyboard.ENTER)){
 				gameMenu.addDebugOption();
 				if(fpsText) fpsText.visible = true;
+			}
+			if(Key.isDown(Key.T)){
+				var portal:Portal = Portal.createPortal(Portal.MINION, game.player.mapX, game.player.mapY);
+				portal.setCloneTemplate();
 			}
 			/*
 			if(Key.isDown(Key.T)){

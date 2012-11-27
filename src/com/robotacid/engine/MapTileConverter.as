@@ -382,6 +382,8 @@
 						if(obj is Monster){
 							Brain.monsterCharacters.push(obj);
 							if(!obj.mapInitialised) obj.mapInit();
+						} else if(obj is MinionClone){
+							Brain.playerCharacters.push(obj);
 						}
 					} else if(obj is Item){
 						game.items.push(obj);

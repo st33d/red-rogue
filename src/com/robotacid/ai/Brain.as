@@ -58,6 +58,8 @@
 		public var confusedCount:int;
 		public var wallWalker:Boolean;
 		public var giveUpCount:int;
+		public var followChaseEdgeSq:Number;
+		public var followFleeEdgeSq:Number;
 		
 		public static var playerCharacters:Vector.<Character>;
 		public static var monsterCharacters:Vector.<Character>;
@@ -111,8 +113,6 @@
 		
 		public static const FOLLOW_CHASE_EDGE:Number = Game.SCALE * 1.7;
 		public static const FOLLOW_FLEE_EDGE:Number = Game.SCALE * 1;
-		public static const FOLLOW_CHASE_EDGE_SQ:Number = FOLLOW_CHASE_EDGE * FOLLOW_CHASE_EDGE;
-		public static const FOLLOW_FLEE_EDGE_SQ:Number = FOLLOW_FLEE_EDGE * FOLLOW_FLEE_EDGE;
 		
 		public static const SNIPE_CHASE_EDGE:Number = Game.SCALE * 5;
 		public static const SNIPE_FLEE_EDGE:Number = Game.SCALE * 2.5;
@@ -145,6 +145,8 @@
 			allyIndex = 0;
 			ignore = Collider.LEDGE | Collider.LADDER | Collider.HEAD | Collider.CORPSE | Collider.ITEM;
 			prevCenter = char.collider.x + char.collider.width * 0.5;
+			followChaseEdgeSq = FOLLOW_CHASE_EDGE * FOLLOW_CHASE_EDGE;
+			followFleeEdgeSq = FOLLOW_FLEE_EDGE * FOLLOW_FLEE_EDGE;
 			if(allegiance == PLAYER){
 				ignore |= Collider.MINION | Collider.PLAYER;
 				searchSteps = MINION_SEARCH_STEPS;
@@ -767,9 +769,9 @@
 			var vx:Number = targetX - charPos.x;
 			var vy:Number = targetY - charPos.y;
 			var distSq:Number = vx * vx + vy * vy;
-			if(distSq > FOLLOW_CHASE_EDGE_SQ){
+			if(distSq > followChaseEdgeSq){
 				chase(target, true);
-			} else if(distSq < FOLLOW_FLEE_EDGE_SQ){
+			} else if(distSq < followFleeEdgeSq){
 				avoid(target, true);
 			} else {
 				// face the same direction as the leader - this sets up a charging tactic against

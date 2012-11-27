@@ -70,7 +70,7 @@ package com.robotacid.engine {
 			this.mapY = mapY;
 			this.invading = invading;
 			mapZ = Map.ENTITIES;
-			free = false;
+			free = invading;
 			fuse = false;
 			callMain = true;
 			state = IDLE;
@@ -100,7 +100,7 @@ package com.robotacid.engine {
 		
 		/* Attempts to create a site that a wandering chaos wall will generate more chaos walls from */
 		public static function initInvasionSite(mapX:int, mapY:int, ignore:Collider = null):ChaosWall{
-			
+			//trace("initInvasionSite", mapX, mapY);
 			// don't instigate near the player, it causes loops
 			distX = game.player.mapX - mapX;
 			if(distX < 0) distX = -distX;
@@ -223,6 +223,7 @@ package com.robotacid.engine {
 		
 		/* Prepare the ChaosWall for movement, warm up the cog animation */
 		public function ready():void{
+			//trace("ready", mapX, mapY);
 			count = READY_DELAY;
 			state = READY;
 			if(!invading){
@@ -242,6 +243,7 @@ package com.robotacid.engine {
 		/* Begin moving the ChaosWall, activate all neighbouring ChaosWalls to create a resting place and
 		 * create cascading animations */
 		public function retreat():void{
+			//trace("retreat", mapX, mapY);
 			var pixels:Array = [];
 			// create shelter options
 			if(mapX > 0 && ((game.world.map[mapY][mapX - 1] & Collider.WALL) || chaosWalls[mapY][mapX - 1])) pixels.push(new Pixel(mapX - 1, mapY));
@@ -283,6 +285,7 @@ package com.robotacid.engine {
 		
 		/* Occupy a previously empty area */
 		public function invade():void{
+			//trace("invade", mapX, mapY);
 			state = MOVING;
 			collider.divorce();
 			if(target.y < mapY) collider.vy = -SPEED;
@@ -294,8 +297,10 @@ package com.robotacid.engine {
 		
 		/* Convert to IDLE state after invasion */
 		public function rest():void{
-			invading = false;
+			//trace("rest", mapX, mapY);
 			state = IDLE;
+			invading = false;
+			free = false;
 			mapX = target.x;
 			mapY = target.y;
 			game.world.map[mapY][mapX] = MapTileConverter.getMapProperties(MapTileConverter.WALL);
@@ -304,14 +309,18 @@ package com.robotacid.engine {
 			blit.x = mapX * Game.SCALE;
 			blit.y = mapY * Game.SCALE;
 			blit.render(renderer.blockBitmapData);
-			game.mapTileManager.mapLayers[MapTileManager.ENTITY_LAYER][mapY][mapX] = this;
 			chaosWalls[mapY][mapX] = this;
-			
+			if(game.mapTileManager.containsTile(mapX, mapY, MapTileManager.ENTITY_LAYER)){
+				game.mapTileManager.addTile(this, mapX, mapY, MapTileManager.ENTITY_LAYER);
+			} else {
+				remove();
+			}
 			initInvasionSite(mapX, mapY);
 		}
 		
 		/* The standard way for chaos walls to go in the Caves zone and occasionally in Chaos */
 		public function crumble():void{
+			//trace("crumble", mapX, mapY);
 			chaosWalls[mapY][mapX] = null;
 			// remove from map renderer
 			game.world.removeMapPosition(mapX, mapY);
@@ -342,6 +351,8 @@ package com.robotacid.engine {
 		/* Destructor */
 		public function kill():void {
 			if(!active) return;
+			//trace("kill", mapX, mapY);
+			state = DEAD;
 			if(fuse){
 				if(chaosWalls[target.y][target.x]) chaosWalls[target.y][target.x].callMain = true;
 			}
@@ -394,6 +405,7 @@ package com.robotacid.engine {
 		}
 		
 		override public function remove():void {
+			//trace("remove", mapX, mapY);
 			game.chaosWalls.splice(game.chaosWalls.indexOf(this), 1);
 			super.remove();
 		}

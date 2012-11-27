@@ -391,6 +391,8 @@
 					racialEffect = new Effect(Effect.HEAL, level, Effect.ARMOUR, this, 0, true, false);
 				} else if(name == MIMIC){
 					racialEffect = new Effect(Effect.TELEPORT, level, Effect.ARMOUR, this, 0, true, false);
+				} else if(name == BALROG){
+					racialEffect = new Effect(Effect.HEAL, UserData.settings.ascended ? 2 : 1, Effect.ARMOUR, this, 0, true, false);
 				}
 			} else {
 				racialEffect = null;

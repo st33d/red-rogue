@@ -1,17 +1,8 @@
-Change log: fixed bug with lives available with konami cheat, moved underworld portal starting position back to level 11, reorganised wall writings, moved gfx updating of equipment to render function - layer updates are now called by setting the value of an update marker to the current game.frameCount (this should ensure that any graphics changes happen in an orderly sequence)
+Change log: elite race now completely random (previous method never chose races from chaos zone), husband now opens overworld portal instead of underworld portal (after eating portal rune), fixed temporary portals erasing the background, added new altar blessing: clones, elite balrog now possesses 1 level of heal as racial effect (2 if player ascended), munch sound now played when soul consumed by balrog, fixed game breaking bug caused by invading chaos walls not integrating with the scrolling engine, umber hulk elite resurrection requirement lowered by one level
 
 Bug hunt
 	weapon on player and minion disappearing
 		possible fix applied
 	chaos walls frozen without graphics rendered and no walls beneath them (activated, not on chaos wall render list?)
-		added collider.world check on death - cannot reproduce this AT ALL
+		produced by chaos wall invasions not working with the map tile manager
 
-website
-	banner
-	tagline
-	link to Nate's soundtrack and site
-	link to Windows
-	link to OSX.zip
-	link to swf.zip
-	FAQ
-	

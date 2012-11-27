@@ -713,12 +713,16 @@
 					if(target is Player){
 						Portal.createPortal(Portal.PORTAL, target.mapX, target.mapY, Map.OVERWORLD, Map.AREA, game.map.level, game.map.type);
 					} else if(target is Minion){
-						portal = Portal.createPortal(Portal.PORTAL, target.mapX, target.mapY, Map.UNDERWORLD, Map.AREA, game.map.level, game.map.type);
+						if(target.name == Character.HUSBAND || UserData.gameState.husband){
+							portal = Portal.createPortal(Portal.PORTAL, target.mapX, target.mapY, Map.OVERWORLD, Map.AREA, game.map.level, game.map.type);
+						} else {
+							portal = Portal.createPortal(Portal.PORTAL, target.mapX, target.mapY, Map.UNDERWORLD, Map.AREA, game.map.level, game.map.type);
+						}
 					}
 				} else if(source == THROWN){
 					if(target is Monster){
 						portal = Portal.createPortal(Portal.MONSTER, target.mapX, target.mapY);
-						portal.setMonsterTemplate(target.toXML());
+						portal.setCloneTemplate(target.toXML());
 					}
 				}
 				return;

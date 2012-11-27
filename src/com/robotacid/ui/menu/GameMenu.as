@@ -1201,6 +1201,7 @@
 				if(character == game.player){
 					game.consumedPlayerInit();
 				}
+				game.soundQueue.playRandom(["Munch01", "Munch02", "Munch03"]);
 			} else {
 				// sanity check - will remove this line when confirmed stable
 				throw new Error("wearer of balrog face not determined");

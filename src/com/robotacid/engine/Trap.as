@@ -267,7 +267,7 @@
 				
 			} else if(type == MONSTER_PORTAL){
 				var portal:Portal = Portal.createPortal(Portal.MONSTER, mapX, mapY - 1, game.map.level);
-				portal.setMonsterTemplate(Content.createCharacterXML(game.map.level < Game.MAX_LEVEL ? game.map.level : Game.MAX_LEVEL, Character.MONSTER));
+				portal.setCloneTemplate(Content.createCharacterXML(game.map.level < Game.MAX_LEVEL ? game.map.level : Game.MAX_LEVEL, Character.MONSTER));
 				// monster portal traps are triggered once and then destroy themselves
 				active = false;
 				if(!minimapFX) game.miniMap.addFX(mapX, mapY, renderer.featureRevealedBlit);

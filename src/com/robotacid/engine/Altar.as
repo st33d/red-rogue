@@ -36,7 +36,7 @@
 		// later zones include the selection of miracles from the one before
 		public static const MIRACLE_ZONES:Array = [
 			["item", "explosion", "cog", "quest", "heal"],
-			["overworldPortal", "underworldPortal", "horror", "polymorph"],
+			["overworldPortal", "underworldPortal", "horror", "polymorph", "clones"],
 			["identify", "monsterPortal", "xp"],
 			["chaos"]
 		];
@@ -106,7 +106,7 @@
 		/* Here is where great Rng chooses the fate of those who call to it */
 		public function miracle():void{
 			
-			var effect:Effect;
+			var effect:Effect, portal:Portal;
 			var list:Array = [], i:int, choice:String;
 			for(i = 0; i < MIRACLE_ZONES.length; i++){
 				if(i <= game.map.zone) list = list.concat(MIRACLE_ZONES[i]);
@@ -160,8 +160,8 @@
 			} else if(choice == "monsterPortal"){
 				// open a monster portal
 				game.console.print("rng likes conflict");
-				var portal:Portal = Portal.createPortal(Portal.MONSTER, mapX, mapY);
-				portal.setMonsterTemplate(Content.createCharacterXML(game.map.level, Character.MONSTER));
+				portal = Portal.createPortal(Portal.MONSTER, mapX, mapY);
+				portal.setCloneTemplate(Content.createCharacterXML(game.map.level, Character.MONSTER));
 			} else if(choice == "xp"){
 				// quicken the target
 				if(target.level < Game.MAX_LEVEL) effect = new Effect(Effect.XP, target.level, Effect.EATEN, target);
@@ -171,6 +171,11 @@
 				// ?
 				game.console.print("rng grants chaos");
 				effect = new Effect(Effect.CHAOS, target.level, Effect.EATEN, target);
+			} else if(choice == "clones"){
+				// open a clone portal
+				game.console.print("rng likes minions");
+				portal = Portal.createPortal(Portal.MINION, game.player.mapX, game.player.mapY);
+				portal.setCloneTemplate();
 			}
 			renderer.createSparkRect(new Rectangle(rect.x + 4, rect.y-2, 12, 12), 10, 1, 1);
 			renderer.createSparkRect(new Rectangle(rect.x + 4, rect.y-2, 12, 12), 10, -1, -1);

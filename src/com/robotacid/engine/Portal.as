@@ -7,6 +7,7 @@
 	import com.robotacid.phys.Collider;
 	import com.robotacid.ui.MinimapFX;
 	import flash.display.Bitmap;
+	import flash.display.BitmapData;
 	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
 	import flash.display.Shape;
@@ -32,12 +33,13 @@
 		public var rect:Rectangle;
 		
 		private var count:int;
+		private var backgroundBuffer:BitmapData;
 		
 		private var minimapFX:MinimapFX;
-		private var monsterTemplate:XML;
-		private var monsterEntryCount:int;
-		private var monsterTotal:int;
-		private var monster:Monster;
+		private var cloneTemplate:XML;
+		private var cloneEntryCount:int;
+		private var cloneTotal:int;
+		private var clone:Character;
 		
 		// states
 		public static const OPEN:int = 0;
@@ -49,11 +51,12 @@
 		public static const PORTAL:int = 1;
 		public static const MONSTER:int = 2;
 		public static const ENDING:int = 3;
+		public static const MINION:int = 4;
 		
 		public static const OPEN_CLOSE_DELAY:int = 8;
 		public static const SCALE_STEP:Number = 1.0 / OPEN_CLOSE_DELAY;
 		public static const GFX_STEP:Number = (SCALE * 0.5) / OPEN_CLOSE_DELAY;
-		public static const MONSTERS_ENTRY_DELAY:int = 8;
+		public static const CLONE_ENTRY_DELAY:int = 8;
 		public static const UNDEAD_HEAL_RATE:Number = 0.05;
 		
 		public function Portal(gfx:DisplayObject, rect:Rectangle, type:int, targetLevel:int, targetType:int, state:int = OPEN, active:Boolean = true){
@@ -64,7 +67,7 @@
 			this.targetType = targetType;
 			this.state = state;
 			this.active = active;
-			playerPortal = type != MONSTER;
+			playerPortal = type != MONSTER && type != MINION;
 			hashKey = "type" + type + "targetLevel" + targetLevel + "targetType" + targetType;
 			callMain = true;
 			seen = false;
@@ -79,8 +82,8 @@
 		}
 		
 		override public function main():void {
+			var eraseRect:Rectangle;
 			if(state == OPENING){
-				var eraseRect:Rectangle;
 				if(count){
 					count--;
 					gfx.scaleX += SCALE_STEP;
@@ -103,20 +106,24 @@
 				if(!seen && game.lightMap.darkImage.getPixel32(mapX, mapY) != 0xFF000000){
 					reveal();
 				}
-				// shit out monsters
-				if(type == MONSTER){
-					if(monsterEntryCount) monsterEntryCount--;
+				// shit out clones
+				if(type == MONSTER || type == MINION){
+					if(cloneEntryCount) cloneEntryCount--;
 					else{
-						if(monster){
-							if(monster.state != Character.ENTERING) monster = null;
+						if(clone){
+							if(clone.state != Character.ENTERING) clone = null;
 						} else {
-							if(monsterTotal){
-								monsterTotal--;
-								monster = Content.XMLToEntity(mapX, mapY, monsterTemplate);
-								game.entities.push(monster);
-								Brain.monsterCharacters.push(monster);
-								monster.enterLevel(this);
-								monsterEntryCount = MONSTERS_ENTRY_DELAY;
+							if(cloneTotal){
+								cloneTotal--;
+								if(type == MINION){
+									clone = new MinionClone(game.library.getCharacterGfx(Character.SKELETON), (mapX + 0.5) * Game.SCALE, (mapY + 1) * Game.SCALE, Character.SKELETON, Character.MINION, game.random.rangeInt(game.player.level));
+								} else if(type == MONSTER){
+									clone = Content.XMLToEntity(mapX, mapY, cloneTemplate);
+									Brain.monsterCharacters.push(clone);
+								}
+								game.entities.push(clone);
+								clone.enterLevel(this);
+								cloneEntryCount = CLONE_ENTRY_DELAY;
 							} else {
 								close();
 							}
@@ -171,7 +178,17 @@
 					gfx.scaleY -= SCALE_STEP;
 					gfx.x += GFX_STEP;
 					gfx.y += GFX_STEP;
+					// paint and erase
+					if(backgroundBuffer){
+						renderer.blockBitmapData.copyPixels(backgroundBuffer, backgroundBuffer.rect, new Point(mapX * SCALE, mapY * SCALE));
+						// erase the background
+						eraseRect = new Rectangle((mapX + 0.5) * SCALE - count, (mapY + 0.5) * SCALE - count, count * 2, count * 2);
+						renderer.blockBitmapData.fillRect(eraseRect, 0x0);
+					}
 				} else {
+					if(backgroundBuffer){
+						renderer.blockBitmapData.copyPixels(backgroundBuffer, backgroundBuffer.rect, new Point(mapX * SCALE, mapY * SCALE));
+					}
 					active = false;
 					if(game.portalHash[hashKey] == this){
 						delete game.portalHash[hashKey];
@@ -229,15 +246,17 @@
 		}
 		
 		/* Creates the type of monster that will pour out of the portal */
-		public function setMonsterTemplate(xml:XML):void{
-			monsterTemplate = xml;
-			monsterTemplate.@characterNum = -1;
-			// strip the monster of items - this is not an item farming spell
-			delete monsterTemplate.item;
-			monsterTotal = 1 + game.map.zone;
-			game.map.completionCount += monsterTotal;
-			game.map.completionTotal += monsterTotal;
-			monsterEntryCount = MONSTERS_ENTRY_DELAY;
+		public function setCloneTemplate(xml:XML = null):void{
+			if(xml){
+				cloneTemplate = xml;
+				cloneTemplate.@characterNum = -1;
+				// strip the monster of items - this is not an item farm
+				delete cloneTemplate.item;
+				game.map.completionCount += cloneTotal;
+				game.map.completionTotal += cloneTotal;
+			}
+			cloneTotal = 1 + game.map.zone;
+			cloneEntryCount = CLONE_ENTRY_DELAY;
 		}
 		
 		override public function remove():void {
@@ -277,11 +296,14 @@
 					break;
 				}
 			}
+			var rect:Rectangle = new Rectangle(mapX * SCALE, mapY * SCALE, SCALE, SCALE);
 			var mc:MovieClip = getPortalGfx(type, mapX, mapY, targetLevel, targetType, fromLevel, fromType);
-			portal = new Portal(mc, new Rectangle(mapX * SCALE, mapY * SCALE, SCALE, SCALE), type, targetLevel, targetType, OPENING);
+			portal = new Portal(mc, rect, type, targetLevel, targetType, OPENING);
 			portal.mapX = mapX;
 			portal.mapY = mapY;
 			portal.mapZ = Map.ENTITIES;
+			portal.backgroundBuffer = new BitmapData(SCALE, SCALE, true, 0x0);
+			portal.backgroundBuffer.copyPixels(renderer.blockBitmapData, rect, new Point);
 			
 			// the portal may have been generated outside of the mapRenderer zone
 			if(!game.mapTileManager.intersects(portal.rect)){
@@ -317,6 +339,9 @@
 			mc.y = mapY * SCALE;
 			if(type == MONSTER){
 				mc.dest.gotoAndStop("monster");
+				mc.dir.visible = false;
+			} else if(type == MINION){
+				mc.dest.gotoAndStop("underworld");
 				mc.dir.visible = false;
 			} else if(type == ENDING){
 				mc.dest.gotoAndStop("home");

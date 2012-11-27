@@ -1056,10 +1056,9 @@
 			if(level < -1) level = 0;
 			// monsters become harder when ascended
 			if(UserData.settings.ascended) level++;
-			// pick a monster the player may not have seen, do not pick the same race twice
-			var nameRange:int = mapLevel + 1 > monsterNameDeck.length ? monsterNameDeck.length : mapLevel + 1;
+			// pick a random race, do not pick the same race twice
 			do{
-				name = monsterNameDeck[Map.random.rangeInt(nameRange)];
+				name = monsterNameDeck[Map.random.rangeInt(monsterNameDeck.length)];
 			} while(eliteNames[name]);
 			eliteNames[name] = true;
 			var xml:XML =<character characterNum={(Character.characterNumCount++)} name={name} type={Character.MONSTER} level={level} rank={Character.ELITE} />;
