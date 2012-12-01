@@ -3,8 +3,6 @@ package com.robotacid.ui.menu {
 	import com.robotacid.sound.SoundManager;
 	import com.robotacid.ui.Dialog;
 	import flash.display.StageScaleMode;
-	import flash.net.navigateToURL;
-	import flash.net.URLRequest;
 	import flash.system.Capabilities;
 	/**
 	 * A menu for the title screen
@@ -54,7 +52,7 @@ package com.robotacid.ui.menu {
 			// link direct to game menu objects - easier to keep consistent
 			optionsList.options.push(gameMenu.soundOption);
 			optionsList.options.push(gameMenu.fullScreenOption);
-			optionsList.options.push(gameMenu.seedOption);
+			optionsList.options.push(gameMenu.rngSeedOption);
 			optionsList.options.push(gameMenu.resetOption);
 			
 			newGameList.options.push(actionRPGOption);
@@ -111,7 +109,7 @@ package com.robotacid.ui.menu {
 							"reset",
 							"are you sure you want to reset all of your settings? this cannot be undone.",
 							function():void{gameMenu.reset(true)},
-							function():void{}
+							Dialog.emptyCallback
 						);
 					}
 				}
@@ -154,10 +152,12 @@ package com.robotacid.ui.menu {
 					}
 				}
 			} else if(option == gameMenu.steedOption){
-				navigateToURL(new URLRequest("http://robotacid.com"), "_blank");
+				gameMenu.url = "http://robotacid.com";
+				gameMenu.openURL();
 				
 			} else if(option == gameMenu.nateOption){
-				navigateToURL(new URLRequest("http://gallardosound.com"), "_blank");
+				gameMenu.url = "http://gallardosound.com";
+				gameMenu.openURL();
 			
 			} else if(option == continueOption){
 				launchGame(false, game.dogmaticMode);
@@ -169,7 +169,7 @@ package com.robotacid.ui.menu {
 							"new game",
 							"you have a game in progress\nare you sure you want to start from level 1?",
 							function():void{launchGame(true, false);},
-							function():void{}
+							Dialog.emptyCallback
 						);
 					}
 				} else launchGame(true, false);
@@ -181,10 +181,14 @@ package com.robotacid.ui.menu {
 							"new game",
 							"you have a game in progress\nare you sure you want to start from level 1?",
 							function():void{launchGame(true, true);},
-							function():void{}
+							Dialog.emptyCallback
 						);
 					}
 				} else launchGame(true, true);
+				
+			} else if(option == gameMenu.copySeedOption){
+				gameMenu.copyRngSeed();
+				
 			}
 		}
 		

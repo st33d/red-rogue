@@ -175,6 +175,11 @@ package com.robotacid.ui {
 			cancelTextBox.backgroundCol = ROLL_OUT_COL;
 			cancelTextBox.draw();
 		}
+		
+		/* Fills in for all the empty callbacks fed to the Dialog */
+		public static function emptyCallback():void{
+			//
+		}
 	}
 
 }

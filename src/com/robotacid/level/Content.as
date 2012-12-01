@@ -271,8 +271,8 @@
 					}
 				}
 				
-				// introduce the balrog at the end of the caves
-				gameState.balrog.mapLevel = gameState.zoneSizes[0] + gameState.zoneSizes[1] + gameState.zoneSizes[2];
+				// introduce the balrog in the first level of chaos
+				gameState.balrog.mapLevel = gameState.zoneSizes[0] + gameState.zoneSizes[1] + gameState.zoneSizes[2] + 1 + (UserData.settings.ascended ? Map.random.rangeInt(2) : 0);
 				// create the balrog
 				gameState.balrog.xml = createBalrogXML();
 				if(UserData.settings.playerConsumed) gameState.balrog.mapLevel = 1;

@@ -696,6 +696,7 @@
 					if(!inputKeyPressed){
 						newKey = Key.keyLog[Key.KEY_LOG_LENGTH - 1];
 						if(inputList.newLineFinish && newKey == Keyboard.ENTER) inputList.finish();
+						else if(newKey == Keyboard.DELETE || newKey == Keyboard.BACKSPACE) inputList.removeChar();
 						else inputList.addChar(Key.keyString(newKey));
 						inputKeyPressed = true;
 						renderMenu();
@@ -709,15 +710,20 @@
 			// if the keyChanger is active, listen for keys to change the current key set
 			if(!keyLock && currentMenuList == keyChanger){
 				if(Key.keysPressed){
-					newKey = Key.keyLog[Key.KEY_LOG_LENGTH - 1];
-					Key.custom[previousMenuList.selection] = newKey;
-					// change the menu names of the affected keys
-					changeKeyName(changeKeysOption.target.options[previousMenuList.selection], newKey);
-					if(previousMenuList.selection >= HOT_KEY_OFFSET){
-						changeKeyName(hotKeyOption.target.options[previousMenuList.selection - HOT_KEY_OFFSET], newKey);
+					// ignore cursor keys - some idiot will try to brick the menu for themselves
+					if(!(Key.isDown(Keyboard.UP) || Key.isDown(Keyboard.RIGHT) || Key.isDown(Keyboard.DOWN) || Key.isDown(Keyboard.LEFT))){
+						newKey = Key.keyLog[Key.KEY_LOG_LENGTH - 1];
+						Key.custom[previousMenuList.selection] = newKey;
+						// change the menu names of the affected keys
+						changeKeyName(changeKeysOption.target.options[previousMenuList.selection], newKey);
+						if(previousMenuList.selection >= HOT_KEY_OFFSET){
+							changeKeyName(hotKeyOption.target.options[previousMenuList.selection - HOT_KEY_OFFSET], newKey);
+						}
+						keyLock = true;
+						stepLeft();
+					} else {
+						game.console.print("that would potentially break the menu");
 					}
-					keyLock = true;
-					stepLeft();
 				}
 			}
 			// track hot keys so they can instantly perform menu actions

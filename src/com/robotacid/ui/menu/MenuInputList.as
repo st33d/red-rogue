@@ -46,6 +46,13 @@ package com.robotacid.ui.menu {
 			}
 		}
 		
+		public function removeChar():void{
+			if(input.length){
+				input = input.substr(0, input.length - 1);
+				option.name = input;
+			}
+		}
+		
 		public function finish():void{
 			inputCallback(this);
 			done = true;

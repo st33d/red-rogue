@@ -57,6 +57,7 @@
 	import flash.net.SharedObject;
 	import flash.text.TextField;
 	import flash.ui.Keyboard;
+	import flash.ui.Mouse;
 	import flash.utils.ByteArray;
 	import flash.utils.getTimer;
 	
@@ -74,7 +75,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const BUILD_NUM:int = 462;
+		public static const VERSION_NUM:Number = 1.0;
 		
 		public static const TEST_BED_INIT:Boolean = false;
 		public static const ONLINE:Boolean = true;
@@ -105,6 +106,7 @@
 		public var mapTileManager:MapTileManager;
 		public var lightMap:LightMap;
 		public var lightning:Lightning;
+		private var buildText:TextBox;
 		
 		// ui
 		public var gameMenu:GameMenu;
@@ -164,6 +166,8 @@
 		public var firstInstructions:Boolean;
 		public var endGameEvent:Boolean;
 		
+		private var hideMouseFrames:int;
+		
 		// temp variables
 		private var i:int;
 		public static var point:Point = new Point();
@@ -200,6 +204,7 @@
 		public static const DISABLED_BAR_COL:uint = 0xFFAA0000;
 		public static const GLOW_BAR_COL:uint = 0xAA0000;
 		public static const RED_COL:ColorTransform = new ColorTransform(1, 0, 0, 1, -85);
+		public static const HIDE_MOUSE_FRAMES:int = 45;
 		
 		public static const SOUND_DIST_MAX:int = 12;
 		public static const INV_SOUND_DIST_MAX:Number = 1.0 / SOUND_DIST_MAX;
@@ -531,7 +536,7 @@
 					if(firstInstructions){
 						transition.init(initInstructions, null, "", true);
 					} else {
-						transition.init(function():void{}, null, levelName, true);
+						transition.init(Dialog.emptyCallback, null, levelName, true);
 					}
 				}
 			}
@@ -553,6 +558,7 @@
 			stage.removeEventListener(KeyboardEvent.KEY_DOWN, keyPressed);
 			stage.removeEventListener(Event.DEACTIVATE, onFocusLost);
 			stage.removeEventListener(Event.ACTIVATE, onFocus);
+			stage.removeEventListener(MouseEvent.MOUSE_MOVE, mouseMove);
 			while(numChildren > 0){
 				removeChildAt(0);
 			}
@@ -915,6 +921,7 @@
 		private function addListeners():void{
 			stage.addEventListener(Event.DEACTIVATE, onFocusLost);
 			stage.addEventListener(Event.ACTIVATE, onFocus);
+			stage.addEventListener(MouseEvent.MOUSE_MOVE, mouseMove);
 			addEventListener(MouseEvent.MOUSE_DOWN, mouseDown);
 			addEventListener(MouseEvent.MOUSE_UP, mouseUp);
 			stage.addEventListener(KeyboardEvent.KEY_DOWN, keyPressed);
@@ -927,7 +934,7 @@
 		
 		private function main(e:Event):void {
 			
-			if(fpsText) fpsText.text = "fps:" + FPS.value;
+			if(fpsText && fpsText.visible) fpsText.text = "fps:" + FPS.value;
 			
 			// copy out these debug tools when needed
 			//var t:int = getTimer();
@@ -1078,9 +1085,20 @@
 			} else if(state == EPILOGUE){
 				if(transition.active) transition.main();
 				if(epilogue) epilogue.main();
+				
+			} else if(state == UNFOCUSED){
+				buildText.visible = mouseY >= buildText.y && mouseY < buildText.y + buildText.height;
 			}
 			
 			menuCarousel.currentMenu.main();
+			
+			// hide the mouse when not in use
+			if(hideMouseFrames < HIDE_MOUSE_FRAMES){
+				hideMouseFrames++;
+				if(hideMouseFrames >= HIDE_MOUSE_FRAMES){
+					Mouse.hide();
+				}
+			}
 		}
 		
 		/* Pause the game and make the inventory screen visible */
@@ -1271,20 +1289,21 @@
 			focusPrompt.addChild(clickToPlayText);
 			clickToPlayText.y = (HEIGHT * 0.5) + 10;
 			
-			var buildText:TextBox = new TextBox(100, 12, 0x0, 0x0);
+			buildText = new TextBox(100, 12, 0x0, 0x0);
 			buildText.align = "center";
-			buildText.text = "build " + BUILD_NUM;
+			buildText.text = "v " + VERSION_NUM.toFixed(2);
 			buildText.bitmapData.colorTransform(buildText.bitmapData.rect, RED_COL);
 			focusPrompt.addChild(buildText);
 			buildText.x = (WIDTH * 0.5) - 50;
 			buildText.y = HEIGHT - 14;
+			buildText.visible = false;
 			
 			if(UserData.settings.playerConsumed){
 				clickToPlayText.text = "click to not play";
 				clickToPlayText.bitmapData.colorTransform(clickToPlayText.bitmapData.rect, RED_COL);
 			} else if(UserData.settings.ascended){
 				clickToPlayText.text = "click to play again";
-				buildText.text = "build " + BUILD_NUM;
+				buildText.text = "build " + VERSION_NUM;
 			}
 		}
 		
@@ -1362,6 +1381,11 @@
 		
 		private function mouseUp(e:MouseEvent):void{
 			mousePressed = false;
+		}
+		
+		private function mouseMove(e:MouseEvent):void{
+			if(hideMouseFrames >= HIDE_MOUSE_FRAMES) Mouse.show();
+			hideMouseFrames = 0;
 		}
 		
 		private function keyPressed(e:KeyboardEvent):void{

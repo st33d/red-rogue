@@ -1,8 +1,6 @@
-Change log: elite race now completely random (previous method never chose races from chaos zone), husband now opens overworld portal instead of underworld portal (after eating portal rune), fixed temporary portals erasing the background, added new altar blessing: clones, elite balrog now possesses 1 level of heal as racial effect (2 if player ascended), munch sound now played when soul consumed by balrog, fixed game breaking bug caused by invading chaos walls not integrating with the scrolling engine, umber hulk elite resurrection requirement lowered by one level
+Change log: key changer prevented from choosing cursor keys (thus bricking the menu), balrog starting level increased to first level of chaos, mouse cursor set to hide itself when not moving, created a standard empty callback function for the Dialog class, added new option to copy rng seed to clipboard, added try/catch wrapper to navigateToURL calls, build number now hides itself unless rollover, locked out inventory and actions when entering a level with the editor menu, switched to version numbers, added the ability to delete characters to MenuInputList, beta finished - this is Red Rogue v 1.0.0
 
 Bug hunt
 	weapon on player and minion disappearing
 		possible fix applied
-	chaos walls frozen without graphics rendered and no walls beneath them (activated, not on chaos wall render list?)
-		produced by chaos wall invasions not working with the map tile manager
-
+ 

@@ -380,14 +380,14 @@
 								disarmableTraps.length = 0;
 								game.gameMenu.update();
 							},
-							function():void{}
+							Dialog.emptyCallback
 						);
 					} else {
 						// let the player know the exit function isn't broken during the events
 						Game.dialog = new Dialog(
 							"hey",
 							"trying to tell a bit of story here.\ndo you mind waiting a moment?",
-							function():void{}
+							Dialog.emptyCallback
 						);
 					}
 				} else {
@@ -400,7 +400,7 @@
 							disarmableTraps.length = 0;
 							game.gameMenu.update();
 						},
-						function():void{}
+						Dialog.emptyCallback
 					);
 				}
 			}

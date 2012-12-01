@@ -32,6 +32,7 @@
 	import flash.net.navigateToURL;
 	import flash.net.URLRequest;
 	import flash.system.Capabilities;
+	import flash.system.System;
 	
 	/**
 	 * This is a situ-specific menu specially for this game
@@ -59,6 +60,7 @@
 		public var sureList:MenuList;
 		public var soundList:MenuList;
 		public var menuMoveList:MenuList;
+		public var rngSeedList:MenuList;
 		public var seedInputList:MenuInputList;
 		public var upDownList:MenuList;
 		public var onOffList:MenuList;
@@ -82,6 +84,7 @@
 		public var creditsOption:MenuOption
 		public var steedOption:MenuOption;
 		public var nateOption:MenuOption;
+		public var copySeedOption:MenuOption;
 		
 		public var instructionsOption:MenuOption;
 		public var saveSettingsOption:MenuOption;
@@ -105,6 +108,7 @@
 		public var soundOption:MenuOption;
 		public var fullScreenOption:MenuOption;
 		public var menuMoveOption:MenuOption;
+		public var rngSeedOption:MenuOption;
 		
 		public var stairsUpPortalOption:MenuOption;
 		public var stairsDownPortalOption:MenuOption;
@@ -113,6 +117,9 @@
 		
 		public var onOffOption:ToggleMenuOption;
 		public var upDownOption:ToggleMenuOption;
+		
+		// temp
+		public var url:String;
 		
 		public static const SHOOT:int = 0;
 		public static const THROW:int = 1;
@@ -145,6 +152,7 @@
 			]));
 			sureList.options[YES].selectionStep = MenuOption.EXIT_MENU;
 			upDownList = new MenuList();
+			rngSeedList = new MenuList();
 			seedInputList = new MenuInputList("" + Map.random.seed,/[0-9]/, String(uint.MAX_VALUE).length, seedInputCallback);
 			seedInputList.promptName = "enter number";
 			multiplayerList = new MenuList();
@@ -256,6 +264,10 @@
 			recordGifOption.help = "record a 4 second animation of action around the player.";
 			saveLogOption = new MenuOption("save log");
 			saveLogOption.help = "open a filebrowser to save this game's log to the desktop.";
+			rngSeedOption = new MenuOption("rng seed", rngSeedList);
+			rngSeedOption.help = "copying and setting the magic number that generates all of a single play's content.";
+			copySeedOption = new MenuOption("copy rng seed");
+			copySeedOption.help = "copies the rng seed to the system clipboard as text";
 			seedOption = new MenuOption("set rng seed", seedInputList);
 			seedOption.help = "set the current random seed value used to generate levels and content.\nenter no value for a random seed value.";
 			dogmaticOption = new MenuOption("dogmatic mode", onOffList);
@@ -304,7 +316,7 @@
 			optionsList.options.push(consoleDirOption);
 			optionsList.options.push(changeKeysOption);
 			optionsList.options.push(hotKeyOption);
-			optionsList.options.push(seedOption);
+			optionsList.options.push(rngSeedOption);
 			optionsList.options.push(dogmaticOption);
 			optionsList.options.push(multiplayerOption);
 			optionsList.options.push(newGameOption);
@@ -332,6 +344,9 @@
 			
 			soundList.options.push(sfxOption);
 			soundList.options.push(musicOption);
+			
+			rngSeedList.options.push(copySeedOption);
+			rngSeedList.options.push(seedOption);
 			
 			multiplayerList.options.push(onOffOption);
 			multiplayerList.options.push(minionMissileOption);
@@ -673,7 +688,7 @@
 							"reset",
 							"are you sure you want to reset all of your settings? this cannot be undone.",
 							function():void{reset(true)},
-							function():void{}
+							Dialog.emptyCallback
 						);
 					}
 				// erasing the shared object
@@ -686,7 +701,7 @@
 								game.state = Game.TITLE;
 								game.reset(false);
 							},
-							function():void{}
+							Dialog.emptyCallback
 						);
 					}
 				// new game
@@ -792,7 +807,7 @@
 						"warning",
 						"this will cause the game to freeze for a long time and may crash the game entirely.\nare you sure you want to do this?",
 						Game.renderer.gifBuffer.save,
-						function():void{}
+						Dialog.emptyCallback
 					);
 				}
 			
@@ -952,6 +967,11 @@
 				
 			// entering a given dungeon level
 			} else if(option == editorList.enterDungeonLevelOption){
+				if(game.player.collider.world) game.world.removeCollider(game.player.collider);
+				// the player must be denied the opportunity to dick about whilst exiting a level
+				game.gameMenu.actionsOption.active = false;
+				game.gameMenu.inventoryOption.active = false;
+				game.gameMenu.update();
 				Player.previousLevel = editorList.dungeonLevelList.selection;
 				Player.previousPortalType = Portal.STAIRS;
 				Player.previousMapType = Map.MAIN_DUNGEON;
@@ -972,10 +992,12 @@
 				}
 				
 			} else if(option == steedOption){
-				navigateToURL(new URLRequest("http://robotacid.com"), "_blank");
+				url = "http://robotacid.com";
+				openURL();
 				
 			} else if(option == nateOption){
-				navigateToURL(new URLRequest("http://gallardosound.com"), "_blank");
+				url = "http://gallardosound.com";
+				openURL();
 				
 			} else if(option == saveSettingsFileOption){
 				if(Capabilities.playerType == "StandAlone"){
@@ -997,10 +1019,13 @@
 						"warning",
 						"this will overwrite you current settings\nare you sure?",
 						loadSettings,
-						function():void{}
+						Dialog.emptyCallback
 					);
 				}
-			}
+			} else if(option == copySeedOption){
+				copyRngSeed();
+				
+			} 
 			
 			// if the menu is open, force a renderer update so the player can see the changes,
 			// unless the dialog is open - they may be taking a screenshot
@@ -1067,6 +1092,24 @@
 			trace("new seed: " + Map.seed);
 			if(game.console) game.console.print("create a new game to use seed");
 			inputList.option.name = "" + Map.seed;
+		}
+		
+		/* Copying seed to clipboard */
+		public function copyRngSeed():void{
+			if(Capabilities.playerType == "StandAlone"){
+				seedCopyCallback();
+			} else {
+				Game.dialog = new Dialog(
+					"copy the seed",
+					"accept to copy the rng seed\nto the clipboard",
+					seedCopyCallback,
+					Dialog.emptyCallback
+				);
+			}
+		}
+		private function seedCopyCallback():void{
+			System.setClipboard(String(Map.random.seed));
+			if(game.console) game.console.print("copied seed " + String(Map.random.seed));
 		}
 		
 		/* Teleport the player to a given portal */
@@ -1253,6 +1296,22 @@
 			loreList.questsList.reset();
 			actionsOption.active = false;
 			game.reset();
+		}
+		
+		/* Requires public variable "url" to be set before calling */
+		public function openURL():void{
+			try{
+				navigateToURL(new URLRequest(url), "_blank");
+			} catch(e:Error){
+				if(!Game.dialog){
+					Game.dialog = new Dialog(
+						"marvelous",
+						"can't open a bloody link.\n\naccept to copy the url.",
+						function():void{System.setClipboard(url);},
+						Dialog.emptyCallback
+					);
+				}
+			}
 		}
 		
 	}
