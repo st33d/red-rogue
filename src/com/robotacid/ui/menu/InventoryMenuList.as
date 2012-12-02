@@ -99,7 +99,7 @@
 			autoSortOption = new MenuOption("auto-sort", (menu as GameMenu).onOffList);
 			autoSortOption.selectionStep = 1;
 			autoSortOption.recordable = false;
-			autoSortOption.help = "auto-sort sorts weapons and armour according to the combat highest stats. does not consider special abilities or enchantments.";
+			autoSortOption.help = "auto-sort sorts weapons and armour according to the highest combat stats. does not consider special abilities or enchantments.";
 			
 			enchantOption = new MenuOption("enchant", enchantableList, false);
 			enchantableWeaponsOption = new MenuOption("weapons", enchantableWeaponsList, false);

@@ -38,6 +38,8 @@ package com.robotacid.ui.menu {
 			continueOption.help = "resume a game you have left. the game will auto-save entering a new area. play resumes only from the entrance to a level.";
 			optionsOption = new MenuOption("options", optionsList);
 			optionsOption.help = "configure settings.";
+			var versionOption:MenuOption = new MenuOption("v " + Game.versionToString(), null, false);
+			optionsOption.help = "current version.";
 			
 			actionRPGOption = new MenuOption("action rpg");
 			actionRPGOption.help = "standard play mode. preferable to those who like action role playing games.";
@@ -48,6 +50,7 @@ package com.robotacid.ui.menu {
 			trunk.options.push(continueOption);
 			trunk.options.push(optionsOption);
 			trunk.options.push(gameMenu.creditsOption);
+			trunk.options.push(versionOption);
 			
 			// link direct to game menu objects - easier to keep consistent
 			optionsList.options.push(gameMenu.soundOption);
@@ -157,6 +160,10 @@ package com.robotacid.ui.menu {
 				
 			} else if(option == gameMenu.nateOption){
 				gameMenu.url = "http://gallardosound.com";
+				gameMenu.openURL();
+			
+			} else if(option == gameMenu.redRogueOption){
+				gameMenu.url = "http://redrogue.net";
 				gameMenu.openURL();
 			
 			} else if(option == continueOption){

@@ -75,7 +75,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const VERSION_NUM:Number = 1.0;
+		public static const VERSION_NUM:Number = 1.01;
 		
 		public static const TEST_BED_INIT:Boolean = false;
 		public static const ONLINE:Boolean = true;
@@ -106,7 +106,6 @@
 		public var mapTileManager:MapTileManager;
 		public var lightMap:LightMap;
 		public var lightning:Lightning;
-		private var buildText:TextBox;
 		
 		// ui
 		public var gameMenu:GameMenu;
@@ -425,7 +424,7 @@
 				titlePressMenuText = new TextBox(Menu.LIST_WIDTH * 2, 12, Dialog.ROLL_OUT_COL);
 				titlePressMenuText.align = "center";
 				titlePressMenuText.text = "press menu key (" + Key.keyString(Key.custom[MENU_KEY]) + ") to begin";
-				titlePressMenuText.bitmapData.colorTransform(titlePressMenuText.bitmapData.rect, RED_COL);
+				if(!UserData.settings.ascended) titlePressMenuText.bitmapData.colorTransform(titlePressMenuText.bitmapData.rect, RED_COL);
 				titlePressMenuText.x = (WIDTH * 0.5 - titlePressMenuText.width * 0.5) >> 0;
 				titlePressMenuText.y = (HEIGHT * 0.5) + 10;
 				addChild(titlePressMenuText);
@@ -450,6 +449,8 @@
 				if(Map.seed == 0) gameMenu.seedInputList.option.name = "" + Map.random.seed;
 				titleMenu.continueOption.active = Boolean(UserData.gameState.player.xml);
 				titleMenu.update();
+				// load quests
+				gameMenu.loreList.questsList.loadFromArray(UserData.gameState.quests);
 			}
 			addChild(menuCarousel);
 			
@@ -1086,8 +1087,6 @@
 				if(transition.active) transition.main();
 				if(epilogue) epilogue.main();
 				
-			} else if(state == UNFOCUSED){
-				buildText.visible = mouseY >= buildText.y && mouseY < buildText.y + buildText.height;
 			}
 			
 			menuCarousel.currentMenu.main();
@@ -1289,21 +1288,11 @@
 			focusPrompt.addChild(clickToPlayText);
 			clickToPlayText.y = (HEIGHT * 0.5) + 10;
 			
-			buildText = new TextBox(100, 12, 0x0, 0x0);
-			buildText.align = "center";
-			buildText.text = "v " + VERSION_NUM.toFixed(2);
-			buildText.bitmapData.colorTransform(buildText.bitmapData.rect, RED_COL);
-			focusPrompt.addChild(buildText);
-			buildText.x = (WIDTH * 0.5) - 50;
-			buildText.y = HEIGHT - 14;
-			buildText.visible = false;
-			
 			if(UserData.settings.playerConsumed){
 				clickToPlayText.text = "click to not play";
 				clickToPlayText.bitmapData.colorTransform(clickToPlayText.bitmapData.rect, RED_COL);
 			} else if(UserData.settings.ascended){
 				clickToPlayText.text = "click to play again";
-				buildText.text = "build " + VERSION_NUM;
 			}
 		}
 		
@@ -1465,6 +1454,11 @@
 				ExternalInterface.call("_gaq.push", params);
 			}
 			trace(params);
+		}
+		
+		public static function versionToString():String{
+			var str:String = "" + VERSION_NUM;
+			return str.substr(0, str.length - 1) + "." + str.charAt(str.length - 1);
 		}
 	}
 	

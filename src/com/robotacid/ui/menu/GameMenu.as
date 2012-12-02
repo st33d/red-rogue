@@ -84,6 +84,7 @@
 		public var creditsOption:MenuOption
 		public var steedOption:MenuOption;
 		public var nateOption:MenuOption;
+		public var redRogueOption:MenuOption;
 		public var copySeedOption:MenuOption;
 		
 		public var instructionsOption:MenuOption;
@@ -240,6 +241,8 @@
 			steedOption.help = "opens a window to aaron steed's site - robotacid.com";
 			nateOption = new MenuOption("nathan gallardo - sound/music");
 			nateOption.help = "opens a window to nathan gallardo's site (where this game's OST is available)";
+			redRogueOption = new MenuOption("red rogue website");
+			redRogueOption.help = "opens a window to redrogue.net, where the game can be downloaded.";
 			
 			initChangeKeysMenuOption();
 			changeKeysOption.help = "change the movement keys, menu key and hot keys"
@@ -357,6 +360,7 @@
 			
 			creditsList.options.push(steedOption);
 			creditsList.options.push(nateOption);
+			creditsList.options.push(redRogueOption);
 			
 			onOffList.options.push(onOffOption);
 			
@@ -997,6 +1001,10 @@
 				
 			} else if(option == nateOption){
 				url = "http://gallardosound.com";
+				openURL();
+				
+			} else if(option == redRogueOption){
+				url = "http://redrogue.net";
 				openURL();
 				
 			} else if(option == saveSettingsFileOption){

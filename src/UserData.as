@@ -12,6 +12,8 @@ package {
 	import com.robotacid.ui.menu.QuestMenuOption;
 	import com.robotacid.util.XorRandom;
 	import com.robotacid.ui.FileManager;
+	import flash.net.navigateToURL;
+	import flash.net.URLRequest;
 	import flash.ui.Keyboard;
 	import flash.net.SharedObject;
 	import flash.utils.ByteArray;
@@ -61,8 +63,13 @@ package {
 			}
 			settingsBytes = null;
 			gameStateBytes = null;
-			sharedObject.flush();
-			sharedObject.close();
+			// wrapper to send users to manage their shared object settings if blocked
+			try{
+				sharedObject.flush();
+				sharedObject.close();
+			} catch(e:Error){
+				navigateToURL(new URLRequest("http://www.macromedia.com/support/documentation/en/flashplayer/help/settings_manager03.html"));
+			}
 		}
 		
 		public static function pull():void{
@@ -83,8 +90,13 @@ package {
 			}/**/
 			settingsBytes = null;
 			gameStateBytes = null;
-			sharedObject.flush();
-			sharedObject.close();
+			// wrapper to send users to manage their shared object settings if blocked
+			try{
+				sharedObject.flush();
+				sharedObject.close();
+			} catch(e:Error){
+				navigateToURL(new URLRequest("http://www.macromedia.com/support/documentation/en/flashplayer/help/settings_manager03.html"));
+			}
 		}
 		
 		public static function reset():void{
