@@ -74,24 +74,24 @@ package com.robotacid.engine {
 			collider.userData = this;
 			mapX = (collider.x + collider.width * 0.5) * Game.INV_SCALE;
 			mapY = (collider.y + collider.height * 0.5) * Game.INV_SCALE;
-			collider.ignoreProperties |= Collider.CHARACTER | Collider.MONSTER_MISSILE | Collider.PLAYER_MISSILE | Collider.HORROR;
+			collider.ignoreProperties |= Collider.CHARACTER | Collider.MONSTER_MISSILE | Collider.PLAYER_MISSILE | Collider.HORROR | Collider.GATE | Collider.MISSILE;
 			collider.properties |= Collider.HORROR;
 		}
 		
 		override public function main():void {
 			
 			tileCenter = (mapX + 0.5) * SCALE;
-			if(state == WALKING) brain.main();
+			if(state == WALKING && brain.target) brain.main();
 			
 			super.main();
 			
-			renderer.addDripFX(spawnRect, 3, debrisType);
+			renderer.createDrips(spawnRect, 3, debrisType);
 			if(!victim.indifferent && spawnRect.intersects(victim.collider)){
 				victim.applyDamage(damage, "horror", 0, false, this, false);
 				renderer.createDebrisRect(victim.collider, 0, 2, victim.debrisType);
 			}
 			
-			if(!victim.active){
+			if(!victim.active || !brain.target){
 				count = 0;
 				if(state == SPAWNING) state = WALKING;
 			}
@@ -113,9 +113,17 @@ package com.robotacid.engine {
 			
 		}
 		
+		/* Just in case */
+		override public function applyStun(delay:Number):void {
+			return;
+		}
+		override public function applyWeaponEffects(item:Item):void {
+			return;
+		}
+		
 		override public function death(cause:String = "crushing", decapitation:Boolean = false, aggressor:Character = null):void{
 			active = false;
-			renderer.addDripFX(spawnRect, 40, debrisType);
+			renderer.createDrips(spawnRect, 40, debrisType);
 			if(!active && collider.world) collider.world.removeCollider(collider);
 		}
 		

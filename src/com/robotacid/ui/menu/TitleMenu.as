@@ -39,7 +39,7 @@ package com.robotacid.ui.menu {
 			optionsOption = new MenuOption("options", optionsList);
 			optionsOption.help = "configure settings.";
 			var versionOption:MenuOption = new MenuOption("v " + Game.versionToString(), null, false);
-			optionsOption.help = "current version.";
+			versionOption.help = "current version.";
 			
 			actionRPGOption = new MenuOption("action rpg");
 			actionRPGOption.help = "standard play mode. preferable to those who like action role playing games.";

@@ -660,7 +660,10 @@
 						ty = node.collider.y + node.collider.height * 0.5;
 					}
 					if(game.lightning.strike(renderer.lightningShape.graphics, game.world.map, p.x, p.y, tx, ty) && node && enemy(node.collider.userData)){
-						node.applyDamage(game.random.value() * QUICKENING_PER_LEVEL * level, "quickening");
+						node.applyDamage(
+							game.random.value() * QUICKENING_PER_LEVEL * level * (node.name == BALROG ? 0.5 : 1),
+							"quickening"
+						);
 						if(node.brain) node.brain.flee(this);
 						renderer.createDebrisSpurt(tx, ty, 5, 5, node.debrisType);
 					}
@@ -686,7 +689,10 @@
 						ty = node.collider.y + node.collider.height * 0.5;
 					}
 					if(game.lightning.strike(renderer.lightningShape.graphics, game.world.map, p.x, p.y, tx, ty) && node && enemy(node.collider.userData)){
-						node.applyDamage(game.random.value() * QUICKENING_PER_LEVEL * level, "quickening");
+						node.applyDamage(
+							game.random.value() * QUICKENING_PER_LEVEL * level * (node.name == BALROG ? 0.5 : 1),
+							"quickening"
+						);
 						if(node.brain) node.brain.flee(this);
 						renderer.createDebrisSpurt(tx, ty, -5, 5, node.debrisType);
 					}
@@ -966,7 +972,10 @@
 		public function finishQuicken():void{
 			state = WALKING;
 			gfx.transform.colorTransform = new ColorTransform();
-			if(this is Player) game.console.print("welcome to level " + level + " " + nameToString());
+			if(this is Player) {
+				if(level < Game.MAX_LEVEL) game.console.print("welcome to level " + level + " " + nameToString());
+				else game.console.print(nameToString() + " has reached maximum level");
+			}
 		}
 		
 		/* Used to auto-center when climbing */
@@ -1144,10 +1153,10 @@
 		}
 		
 		/* Determine if we have hit another character */
-		public function hit(character:Character, range:int):int{
+		public function hit(character:Character, range:int, item:Item = null):int{
 			if(indifferent) return MISS;
 			var attackRoll:Number = game.random.value();
-			var item:Item = lungeState == LUNGE_FORWARD ? weapon : throwable;
+			if(!item) item = lungeState == LUNGE_FORWARD ? weapon : throwable;
 			if(attackRoll >= CRITICAL_HIT)
 				return CRITICAL | STUN;
 			else if(attackRoll <= CRITICAL_MISS)

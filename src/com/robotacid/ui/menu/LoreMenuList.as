@@ -138,6 +138,27 @@ package com.robotacid.ui.menu {
 			}
 		}
 		
+		/* Locks all of the Lore (called on a hard reset) */
+		public function reset():void {
+			// note that the rogue's lore stays unlocked
+			var option:MenuOption, i:int, unlocked:Boolean;
+			for(i = 1; i < racesList.options.length; i++){
+				option = racesList.options[i];
+				option.hidden = true;
+				option.active = false;
+			}
+			for(i = 0; i < weaponsList.options.length; i++){
+				option = weaponsList.options[i];
+				option.hidden = true;
+				option.active = false;
+			}
+			for(i = 0; i < armourList.options.length; i++){
+				option = armourList.options[i];
+				option.hidden = true;
+				option.active = false;
+			}
+		}
+		
 		/* Callback for mapInfo rendering */
 		private function renderMap():void{
 			var textBuffer:BitmapData;

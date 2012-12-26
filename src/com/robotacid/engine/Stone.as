@@ -216,7 +216,7 @@
 				if(!revealed){
 					// give experience for not using search skill
 					game.player.addXP(SECRET_XP_REWARD * Content.getLevelXp(game.map.level));
-					game.console.print("secret expertly discovered");
+					game.console.print("secret expertly discovered +xp");
 					reveal();
 				}
 				super.applyDamage(n, source, 0, critical, aggressor, defaultSound);
@@ -253,7 +253,7 @@
 			if(!active) return;
 			active = false;
 			renderer.createDebrisRect(collider, 0, 100, debrisType);
-			game.console.print("secret revealed");
+			game.console.print("secret revealed +xp");
 			renderer.shake(0, 3);
 			game.soundQueue.addRandom("stoneDeath", DEATH_SOUNDS);
 			game.player.addXP(SECRET_XP_REWARD * Content.getLevelXp(game.map.level));

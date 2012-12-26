@@ -131,7 +131,8 @@
 						dismiss();
 					}
 				}
-			} else if(name == HEAL){
+			} else if(name == HEAL) {
+				if((game.frameCount & 1) == 0) renderer.createSparkRect(target.collider, 1, 0, -1, target.debrisType);
 				if(source == EATEN || source == THROWN || source == WEAPON){
 					if(count){
 						count--;
@@ -305,9 +306,13 @@
 				// chaos armour is similar to teleport armour in that casts chaos on the target periodically
 				if(count) count--;
 				else {
-					if(target.state == Character.WALKING){
-						var effect:Effect = new Effect(CHAOS, game.random.rangeInt(Game.MAX_LEVEL), EATEN, target);
+					if(target.state == Character.WALKING) {
 						count = (20 - game.random.rangeInt(level)) * ARMOUR_COUNTDOWN_STEP;
+						
+						// we can't risk banned area effects being called in areas, so chaos armour will do nothing there
+						if(game.map && game.map.type == Map.AREA) return;
+						
+						var effect:Effect = new Effect(CHAOS, game.random.rangeInt(Game.MAX_LEVEL), EATEN, target);
 					}
 				}
 			}
@@ -660,6 +665,7 @@
 					var newName:int;
 					// limit change by exploration - no infinite loop to catch here, there are two options from the start
 					var nameRange:int = game.deepestLevelReached + 1;
+					if(nameRange > Content.monsterNameDeck.length) nameRange = Content.monsterNameDeck.length;
 					if(target.armour && target.armour.name == Item.FACE){
 						// when the character is wearing face armour, we only need change the race underneath
 						newName = (target.armour as Face).previousName;
@@ -676,10 +682,14 @@
 				
 			} else if(name == XP){
 				// all characters except the player will get a level up, the player gets xp to their next level
-				if(target is Player){
-					(target as Player).addXP(1 + (Content.xpTable[(target as Player).level] - (target as Player).xp));
+				if(target.level < Game.MAX_LEVEL){
+					if(target is Player){
+						(target as Player).addXP(1 + (Content.xpTable[(target as Player).level] - (target as Player).xp));
+					} else {
+						target.levelUp();
+					}
 				} else {
-					target.levelUp();
+					target.quicken();
 				}
 				return;
 				
@@ -1083,8 +1093,8 @@
 				}
 			} else {
 				// obliterate the target
-				if(game.random.coinFlip()) target.smite((target.looking & Collider.RIGHT) ? Collider.LEFT : Collider.RIGHT, target.totalHealth);
-				else var explosion:Explosion = new Explosion(0, target.mapX, target.mapY, 5, target.totalHealth, game.player, null, game.player.missileIgnore);
+				if(game.random.coinFlip()) target.smite((target.looking & Collider.RIGHT) ? Collider.LEFT : Collider.RIGHT, target.totalHealth * (target.rank == Character.ELITE ? 0.5 : 1));
+				else var explosion:Explosion = new Explosion(0, target.mapX, target.mapY, 5, target.totalHealth * 0.5 * (target.rank == Character.ELITE ? 0.5 : 1), game.player, null, game.player.missileIgnore);
 			}
 			game.soundQueue.playRandom(["Prayer01", "Prayer02", "Prayer03"]);
 		}

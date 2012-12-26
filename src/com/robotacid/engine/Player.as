@@ -725,9 +725,15 @@
 				for(var i:int = 0; i < disarmableTraps.length; i++){
 					trap = disarmableTraps[i];
 					var expertise:String = "";
-					if(disarmTrapCount) expertise = "poorly";
-					else if(!trap.revealed) expertise = "expertly";
-					game.console.print(Trap.getName(trap.type) + " trap " + expertise + " disarmed");
+					var xpBonus:String = " +xp";
+					if(disarmTrapCount){
+						expertise = "poorly";
+						xpBonus = "";
+					} else if(!trap.revealed){
+						expertise = "expertly";
+						xpBonus = " ++xp";
+					}
+					game.console.print(Trap.getName(trap.type) + " trap " + expertise + " disarmed" + xpBonus);
 					disarmableTraps[i].disarm();
 				}
 				disarmableTraps.length = 0;

@@ -342,6 +342,10 @@ package com.robotacid.engine {
 				game.mapTileManager.converter.convertIndicesToObjects(mapX, mapY, monster);
 				renderer.createDebrisExplosion(collider, 10, 80, Renderer.STONE);
 				renderer.createDebrisRect(collider, 0, 60, Renderer.STONE);
+				if(game.map.completionCount){
+					game.map.completionCount++;
+					game.map.completionTotal++;
+				}
 			} else {
 				renderer.createDebrisRect(collider, 0, 100, Renderer.STONE);
 			}

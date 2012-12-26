@@ -1,5 +1,6 @@
 ﻿package com.robotacid.engine {
 	import com.robotacid.ai.Brain;
+	import com.robotacid.geom.Pixel;
 	import com.robotacid.level.Map;
 	import com.robotacid.engine.Entity;
 	import com.robotacid.gfx.ItemMovieClip;
@@ -362,6 +363,15 @@
 			if(active){
 				game.items.push(this);
 				game.world.restoreCollider(collider);
+				// resolve being dropped inside a wall by teleporting out
+				if(game.world.map[mapY][mapX] & Collider.WALL){
+					renderer.createSparkRect(collider, 20, 0, -1);
+					var dest:Pixel = Effect.getTeleportTarget(mapX, mapY, game.world.map, game.mapTileManager.mapRect, Boolean(Surface.fragmentationMap));
+					collider.x = (dest.x + 0.5) * Game.SCALE;
+					collider.y = (dest.y + 1) * Game.SCALE;
+					renderer.createSparkRect(collider, 20, 0, -1);
+					game.console.print("the " + nameToString() + " became displaced");
+				}
 			}
 		}
 		

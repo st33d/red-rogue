@@ -205,9 +205,9 @@
 			portalTeleportOption.recordable = false;
 			giveDebugEquipmentOption = new MenuOption("give debug equipment");
 			giveDebugEquipmentOption.help = "gives items for investigating bugs.";
-			saveSettingsFileOption = new MenuOption("save state to file");
+			saveSettingsFileOption = new MenuOption("save settings to file");
 			saveSettingsFileOption.help = "save settings to file.";
-			loadSettingsFileOption = new MenuOption("load state from file");
+			loadSettingsFileOption = new MenuOption("load settings from file");
 			loadSettingsFileOption.help = "load settings from file. requires restarting the whole game.";
 			
 			stairsUpPortalOption = new MenuOption("stairs up");
@@ -484,22 +484,15 @@
 					else inventoryList.eatOption.active = true;
 					if(!hotKeyMapRecord) inventoryList.feedMinionOption.active = Boolean(game.minion) && game.minion.health < game.minion.totalHealth;
 					else inventoryList.feedMinionOption.active = true;
+					inventoryList.dropOption.active = true;
 					
 				} else if(item.type == Item.RUNE){
 					inventoryList.throwRuneOption.active = game.player.canMenuAction;
 					inventoryList.eatOption.active = true;
 					inventoryList.feedMinionOption.active = Boolean(game.minion);
-					if(item.name == Effect.XP){
-						if(game.minion) inventoryList.feedMinionOption.active = game.minion.level < Game.MAX_LEVEL;
-						inventoryList.eatOption.active = game.player.level < Game.MAX_LEVEL;
-					} else if(item.name == Effect.PORTAL){
+					inventoryList.dropOption.active = true;
+					if(item.name == Effect.PORTAL || item.name == Effect.POLYMORPH || item.name == Effect.IDENTIFY || item.name == Effect.CHAOS){
 						inventoryList.eatOption.active = game.map.type != Map.AREA;
-						if(game.minion) inventoryList.feedMinionOption.active = inventoryList.eatOption.active;
-					} else if(item.name == Effect.POLYMORPH){
-						inventoryList.eatOption.active = !(game.map.type == Map.AREA && game.map.level == Map.OVERWORLD);
-						if(game.minion) inventoryList.feedMinionOption.active = inventoryList.eatOption.active;
-					} else if(item.name == Effect.IDENTIFY){
-						inventoryList.eatOption.active = (game.map.type != Map.AREA);
 						if(game.minion) inventoryList.feedMinionOption.active = inventoryList.eatOption.active;
 					}
 				}
@@ -655,6 +648,7 @@
 					if(item.name == Character.KOBOLD) health += Character.stats["health levels"][item.name] * game.player.level * game.random.value();
 					health *= Item.HEALTH_PER_HEART;
 					game.player.applyHealth(health);
+					Game.renderer.createSparkRect(game.player.collider, 20, 0, -1, game.player.debrisType);
 					game.soundQueue.playRandom(["Munch01", "Munch02", "Munch03"]);
 					
 				} else if(item.type == Item.RUNE){
@@ -674,6 +668,7 @@
 					if(item.name == Character.KOBOLD) health += Character.stats["health levels"][item.name] * game.minion.level * game.random.value();
 					health *= Item.HEALTH_PER_HEART;
 					game.minion.applyHealth(health);
+					Game.renderer.createSparkRect(game.minion.collider, 20, 0, -1, game.minion.debrisType);
 					game.soundQueue.playRandom(["Munch01", "Munch02", "Munch03"]);
 					
 				} else if(item.type == Item.RUNE){
@@ -703,7 +698,7 @@
 							"you will lose all progress since you entered the level. are you sure.",
 							function():void{
 								game.state = Game.TITLE;
-								game.reset(false);
+								reset(false, false);
 							},
 							Dialog.emptyCallback
 						);
@@ -1291,8 +1286,11 @@
 		}
 		
 		/* Resets the game and the GameMenu for a new play session */
-		public function reset(hard:Boolean = false):void{
-			if(hard) UserData.reset();
+		public function reset(hard:Boolean = false, newGame:Boolean = true):void{
+			if(hard) {
+				loreList.reset();
+				UserData.reset();
+			}
 			game.trackEvent("reset game");
 			if(listInBranch(inventoryList)){
 				while(branch.length > 1) stepLeft();
@@ -1303,7 +1301,7 @@
 			inventoryList.reset();
 			loreList.questsList.reset();
 			actionsOption.active = false;
-			game.reset();
+			game.reset(newGame);
 		}
 		
 		/* Requires public variable "url" to be set before calling */

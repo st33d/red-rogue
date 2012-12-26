@@ -89,7 +89,7 @@
 		}
 		
 		override public function createCollider(x:Number, y:Number, properties:int, ignoreProperties:int, state:int = 0, positionByBase:Boolean = true):void {
-			collider = new Collider(x, y, Game.SCALE, Game.SCALE, Game.SCALE, Collider.CHARACTER | Collider.SOLID | Collider.GATE, Collider.CORPSE | Collider.ITEM | Collider.WALL | Collider.CHAOS | Collider.GATE, Collider.HOVER);
+			collider = new Collider(x, y, Game.SCALE, Game.SCALE, Game.SCALE, Collider.CHARACTER | Collider.SOLID | Collider.GATE, Collider.CORPSE | Collider.ITEM | Collider.WALL | Collider.CHAOS | Collider.GATE | Collider.HORROR, Collider.HOVER);
 			collider.userData = this;
 			collider.pushDamping = 0;
 			collider.dampingX = collider.dampingY = 1;
@@ -224,6 +224,14 @@
 			if(!minimapFeature){
 				minimapFeature = game.miniMap.addFeature(mapX, mapY, renderer.gateFeatureBlit, true);
 			} else return;
+		}
+		
+		/* Just in case */
+		override public function applyStun(delay:Number):void {
+			return;
+		}
+		override public function applyWeaponEffects(item:Item):void {
+			return;
 		}
 		
 		public function open():void{

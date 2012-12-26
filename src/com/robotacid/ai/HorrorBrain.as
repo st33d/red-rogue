@@ -1,5 +1,6 @@
 package com.robotacid.ai {
 	import com.robotacid.engine.Character;
+	import com.robotacid.phys.Collider;
 	
 	/**
 	 * Mind state object for Horror characters
@@ -38,6 +39,16 @@ package com.robotacid.ai {
 			if(horrorVoiceCount <= 0){
 				game.createDistSound(char.mapX, char.mapY, "horror", char.voice);
 				horrorVoiceCount = HORROR_VOICE_DELAY;
+			}
+		}
+		
+		/* Standard Brain clearing nulls the target - causing a crash */
+		override public function clear():void {
+			altNode = null;
+			// drop from ladder
+			if(char.collider.state == Collider.HOVER){
+				char.collider.state = Collider.FALL;
+				char.collider.divorce();
 			}
 		}
 		

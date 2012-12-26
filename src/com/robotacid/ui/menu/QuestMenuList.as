@@ -90,6 +90,7 @@ package com.robotacid.ui.menu {
 				game.map.completionCount += option.num;
 				game.map.completionTotal += option.num;
 			}
+			game.gameMenu.loreList.questsOption.visited = false;
 			if(!Game.dialog){
 				Game.dialog = new Dialog(
 					"new quest",
@@ -133,8 +134,9 @@ package com.robotacid.ui.menu {
 			// menu may be sitting on this option, resolve
 			if(menu.currentMenuList == this){
 				menu.stepLeft();
-				selection = 0;
 			}
+			selection = 0;
+			menu.update();
 			var str:String;
 			if(option.type == QuestMenuOption.COLLECT){
 				str = "collect quest completed";
@@ -147,10 +149,11 @@ package com.robotacid.ui.menu {
 			}
 			game.console.print(str);
 			game.player.addXP(option.xpReward);
+			trace(option.xpReward);
 			if(!Game.dialog){
-				var completionMsg:String = "\n@'s love for you is justified";
+				var completionMsg:String = "\n@'s love for you is justified\n+xp";
 				if(option.commissioner == "rng"){
-					completionMsg = "\nrng is pleased with this pointless errand";
+					completionMsg = "\nrng is pleased with this pointless errand\n+xp";
 				}
 				Game.dialog = new Dialog(
 					"quest complete",

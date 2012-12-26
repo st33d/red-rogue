@@ -25,9 +25,9 @@ package com.robotacid.gfx {
 		
 		public var gfx:DisplayObject;
 		public var buffer:BitmapData;
+		public var bitmapData:BitmapData;
 		private var bufferLoaded:Boolean;
 		
-		public static var bitmapData:BitmapData;
 		public static var characterMask:BitmapData;
 		public static var point:Point = new Point();
 		public static var rect:Rectangle;
@@ -72,6 +72,7 @@ package com.robotacid.gfx {
 					addChild(gfx);
 				} else if(name == Item.INVISIBILITY){
 					buffer = new BitmapData(CAPTURE_WIDTH, CAPTURE_HEIGHT, true, 0x0);
+					bitmapData = new BitmapData(CAPTURE_WIDTH, CAPTURE_HEIGHT, true, 0x0);
 					bufferLoaded = false;
 				} else if(name == Item.INDIFFERENCE){
 					gfx = new IndifferenceMC();
@@ -110,7 +111,6 @@ package com.robotacid.gfx {
 		
 		public static function init():void{
 			characterMask = new BitmapData(CAPTURE_WIDTH, CAPTURE_HEIGHT, true, 0x0);
-			bitmapData = new BitmapData(CAPTURE_WIDTH, CAPTURE_HEIGHT, true, 0x0);
 			rect = new Rectangle(0, 0, CAPTURE_WIDTH, CAPTURE_HEIGHT);
 			dx = -CAPTURE_WIDTH * 0.5;
 			dy = -CAPTURE_HEIGHT + 1;
@@ -175,6 +175,8 @@ package com.robotacid.gfx {
 		
 		/* Called by the wielding Character.render() to apply the special animations the item requires */
 		public function render(character:Character, characterMc:MovieClip):void{
+			if(!parent || (gfx && !gfx.parent)) return;
+			
 			var mc:MovieClip = gfx as MovieClip;
 			
 			if(_type == Item.ARMOUR){

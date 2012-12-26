@@ -75,7 +75,7 @@
 	
 	public class Game extends Sprite {
 		
-		public static const VERSION_NUM:Number = 1.01;
+		public static const VERSION_NUM:Number = 1.03;
 		
 		public static const TEST_BED_INIT:Boolean = false;
 		public static const ONLINE:Boolean = true;
@@ -485,6 +485,7 @@
 				
 				frameCount = 1;
 				deepestLevelReached = 1;
+				livesAvailable = new HiddenInt(UserData.settings.livesAvailable);
 				lives.value = 0;
 				
 				// LISTS
@@ -571,6 +572,8 @@
 			world = null;
 			lightMap = null;
 			mapTileManager = null;
+			livesAvailable.value += lives.value;
+			lives.value = 0;
 			if(newGame){
 				UserData.initGameState();
 				UserData.push();
@@ -825,7 +828,7 @@
 						console.print(player.nameToString() + " reverts to human form");
 					player.changeName(Character.ROGUE, new RogueColMC);
 					if(minion){
-						if(minion.name == Character.HUSBAND || UserData.gameState.husband){
+						if(UserData.gameState.husband){
 							if(minion.name != Character.HUSBAND)
 								console.print(minion.nameToString() + " reverts to human form");
 							minion.changeName(Character.HUSBAND, new AtColMC);
@@ -851,7 +854,8 @@
 				// revert to black and white rogue
 				if(Player.previousLevel == Map.OVERWORLD){
 					player.changeName(Character.ROGUE, new RogueMC);
-					// technically we wouldn't get here because of the ending triggering
+					// technically we wouldn't get here because of the ending triggering,
+					// this code is here to keep things consistent during debugging if the ending is disabled
 					if(minion){
 						if(minion.name == Character.HUSBAND){
 							minion.changeName(Character.HUSBAND, new AtMC);
@@ -892,7 +896,7 @@
 						if(
 							gameMenu.inventoryList.getItem(Item.YENDOR, Item.ARMOUR) &&
 							minion &&
-							minion.name != Character.HUSBAND
+							!UserData.settings.husband
 						){
 							endGameEvent = true;
 							for(i = 0; i < entities.length; i++){
@@ -906,7 +910,7 @@
 						// check for yendor or husband
 						if(
 							gameMenu.inventoryList.getItem(Item.YENDOR, Item.ARMOUR) ||
-							(minion && minion.name == Character.HUSBAND)
+							(minion && UserData.settings.husband)
 						){
 							endGameEvent = true;
 						}
@@ -1396,11 +1400,11 @@
 				gameMenu.addDebugOption();
 				if(fpsText) fpsText.visible = true;
 			}
+			/*
 			if(Key.isDown(Key.T)){
 				var portal:Portal = Portal.createPortal(Portal.MINION, game.player.mapX, game.player.mapY);
 				portal.setCloneTemplate();
 			}
-			/*
 			if(Key.isDown(Key.T)){
 				if(balrog) balrog.death();
 			}

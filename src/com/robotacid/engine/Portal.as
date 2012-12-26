@@ -120,6 +120,10 @@
 								} else if(type == MONSTER){
 									clone = Content.XMLToEntity(mapX, mapY, cloneTemplate);
 									Brain.monsterCharacters.push(clone);
+									if(game.map.completionCount){
+										game.map.completionCount++;
+										game.map.completionTotal++;
+									}
 								}
 								game.entities.push(clone);
 								clone.enterLevel(this);
@@ -140,7 +144,7 @@
 						rect.y + rect.height > game.player.collider.y
 					){
 						game.player.applyHealth(game.player.totalHealth * UNDEAD_HEAL_RATE);
-						renderer.createSparkRect(game.player.collider, 5, 0, -1);
+						renderer.createSparkRect(game.player.collider, 5, 0, -1, character.debrisType);
 					}
 					var character:Character;
 					for(var i:int = 0; i < game.entities.length; i++){
@@ -155,7 +159,7 @@
 							rect.y + rect.height > character.collider.y
 						){
 							character.applyHealth(character.totalHealth * UNDEAD_HEAL_RATE);
-							renderer.createSparkRect(character.collider, 5);
+							renderer.createSparkRect(character.collider, 5, 0, -1, character.debrisType);
 						}
 					}
 					// resurrect the minion if dead
@@ -252,8 +256,6 @@
 				cloneTemplate.@characterNum = -1;
 				// strip the monster of items - this is not an item farm
 				delete cloneTemplate.item;
-				game.map.completionCount += cloneTotal;
-				game.map.completionTotal += cloneTotal;
 			}
 			cloneTotal = 1 + game.map.zone;
 			cloneEntryCount = CLONE_ENTRY_DELAY;

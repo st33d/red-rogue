@@ -783,7 +783,10 @@ package com.robotacid.phys {
 		}
 		
 		/* Pushes a collider out of any map surfaces it overlaps - used to resolve changing a collider's shape */
-		public function resolveMapInsertion():void{
+		public function resolveMapInsertion(world:CollisionWorld = null):void{
+			world = world || this.world;
+			if(!world) return;
+			
 			var mapX:int, mapY:int;
 			
 			mapY = (y + height * 0.5) * world.invScale;

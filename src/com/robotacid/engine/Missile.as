@@ -50,6 +50,9 @@
 		public static const DART:int = 3;
 		public static const CHAOS:int = 4;
 		
+		// debris types
+		public static const DRIP:int = 3;
+		
 		public static const LIGHTNING_SOUNDS:Array = ["lightning1", "lightning2", "lightning3", "lightning4"];
 		
 		public function Missile(
@@ -127,6 +130,10 @@
 				else if(effectName == Item.BLEED){
 					debris = true;
 					debrisType = Renderer.BLOOD;
+				} else if(effectName == Item.FEAR){
+					gfx.transform.colorTransform = new ColorTransform(0, 0, 0);
+					debris = true;
+					debrisType = -1;
 				}
 			}
 			
@@ -183,7 +190,7 @@
 								){
 									reflect(target); 
 								} else {
-									var hitResult:int = sender.hit(target, Item.MISSILE | Item.THROWN);
+									var hitResult:int = sender.hit(target, Item.MISSILE | Item.THROWN, item);
 									if(hitResult){
 										hitCharacter(target, hitResult);
 									} else {
@@ -232,7 +239,10 @@
 				collider.ignoreProperties &= ~(Collider.SOLID);
 				
 				// debris?
-				if(debris) renderer.createDebrisRect(collider, -dx, 2, debrisType);
+				if(debris) {
+					if(debrisType < 0) renderer.createDrips(collider, 1, Renderer.STONE);
+					else renderer.createDebrisRect(collider, -dx, 2, debrisType);
+				}
 				
 				if(sender && sender.active){
 					// lightning and xp runes cast quickening lightning
@@ -349,7 +359,7 @@
 				// would help if the player can see what they're doing to the target
 				if(sender is Player) sender.victim = character;
 				if(hitResult & Character.CRITICAL) renderer.shake(0, 5);
-				if(item.effects && character.active && !(character.type & Character.STONE)){
+				if(item.effects && character.active && !(character.type & (Character.STONE | Character.GATE))){
 					character.applyWeaponEffects(item);
 				}
 				// knockback
@@ -542,7 +552,7 @@
 					ty = node.collider.y + node.collider.height * 0.5;
 				}
 				if(game.lightning.strike(renderer.lightningShape.graphics, game.world.map, p.x, p.y, tx, ty) && node && sender.enemy(node.collider.userData)){
-					node.applyDamage(game.random.value() * LIGHTNING_DAMAGE_RATIO * item.damage, "lightning");
+					node.applyDamage(game.random.value() * LIGHTNING_DAMAGE_RATIO * item.damage * (node.name == Character.BALROG ? 0.5 : 1), "lightning");
 					renderer.createDebrisSpurt(tx, ty, 5, i == 0 ? -5 : 5, node.debrisType);
 				}
 			}
