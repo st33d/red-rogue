@@ -54,6 +54,7 @@
 		public static const DRIP:int = 3;
 		
 		public static const LIGHTNING_SOUNDS:Array = ["lightning1", "lightning2", "lightning3", "lightning4"];
+		public static const PIERCE_SOUNDS:Array = ["pierce1", "pierce2"];
 		
 		public function Missile(
 			mc:DisplayObject, x:Number, y:Number, type:int, sender:Character, dx:Number, dy:Number, speed:Number,
@@ -153,8 +154,6 @@
 				}
 			}
 			
-			
-			
 			// set graphic offset
 			var bounds:Rectangle = gfx.getBounds(gfx);
 			offsetX = -bounds.left;
@@ -193,6 +192,7 @@
 									var hitResult:int = sender.hit(target, Item.MISSILE | Item.THROWN, item);
 									if(hitResult){
 										hitCharacter(target, hitResult);
+										kill();
 									} else {
 										if(target is Stone || target is Gate){
 											kill();
@@ -208,8 +208,7 @@
 												item = null;
 												kill();
 											} else {
-												// pass through next simulation frame
-												collider.ignoreProperties |= Collider.SOLID;
+												passThru(target.collider);
 											}
 										}
 									}
@@ -221,8 +220,10 @@
 									game.random.value() > (target.protectionModifier < Character.MIN_PROTECTION_MODIFIER ? Character.MIN_PROTECTION_MODIFIER : target.protectionModifier)
 								){
 									reflect(target);
+								} else {
+									hitCharacter(target);
+									kill();
 								}
-								else hitCharacter(target);
 							}
 						}
 					} else {
@@ -291,6 +292,14 @@
 				game.world.getCollidersIn(rect, collider).length == 0 &&
 				!game.mapTileManager.mapLayers[MapTileManager.ENTITY_LAYER][mapY][mapX]
 			)
+		}
+		
+		public function passThru(target:Collider):void{
+			if(dx > 0){
+				collider.x = (target.x + target.width) - (collider.width + 1);
+			} else if(dx < 0){
+				collider.x = target.x + 1;
+			}
 		}
 		
 		/* Converts a wall */
@@ -402,7 +411,6 @@
 				
 			} else if(type == RUNE){
 				if(character.type & (Character.STONE | Character.GATE)){
-					kill();
 					return;
 				}
 				Item.revealName(effect.name, game.gameMenu.inventoryList.runesList);
@@ -413,7 +421,6 @@
 				
 			} else if(type == DART){
 				if(character.type & (Character.STONE | Character.GATE)){
-					kill();
 					return;
 				}
 				game.console.print(effect.nameToString() + " dart hits " + character.nameToString());
@@ -422,14 +429,12 @@
 				
 			} else if(type == CHAOS){
 				if(character.type & (Character.STONE | Character.GATE)){
-					kill();
 					return;
 				}
 				game.console.print("? hits " + character.nameToString());
 				effect.apply(character);
 				game.soundQueue.add("runeHit");
 			}
-			kill();
 		}
 		
 		/* Bounces the missile and sends it in the opposite direction */

@@ -115,6 +115,7 @@
 		public static const GUN_LEECH:int = 20;
 		public static const COG:int = 21;
 		public static const HARPOON:int = 22;
+		public static const SARKEESIAN:int = 23;
 		
 		// armour
 		public static const FLIES:int = 0;
@@ -160,6 +161,8 @@
 		public static const LEECH_RUNE:int = 17;
 		public static const XP:int = 18;
 		public static const CHAOS:int = 19;
+		// there is no rune for this effect
+		public static const FEMALE_POLYMORPH:int = 20;
 		
 		// holy states
 		public static const NO_CURSE:int = 0;

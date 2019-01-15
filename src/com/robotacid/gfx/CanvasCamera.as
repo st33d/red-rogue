@@ -34,6 +34,7 @@
 		public static const DEFAULT_INTERPOLATION:Number = 0.2;
 		public static const INTERFACE_BORDER_TOP:Number = 30;
 		public static const INTERFACE_BORDER_BOTTOM:Number = 20;
+		public static var INTERFACE_BORDER_SIDES:Number = 0;
 		
 		public static const UP:int = 1;
 		public static const RIGHT:int = 2;
@@ -55,8 +56,8 @@
 		public function setTarget(x:Number, y:Number):void{
 			
 			targetPos.x = int( -x + viewWidth * 0.5);
-			if(targetPos.x > -mapRect.x) targetPos.x = -mapRect.x;
-			else if(targetPos.x < viewWidth - (mapRect.x + mapRect.width)) targetPos.x = viewWidth - (mapRect.x + mapRect.width);
+			if(targetPos.x > -(mapRect.x - INTERFACE_BORDER_SIDES)) targetPos.x = -(mapRect.x - INTERFACE_BORDER_SIDES);
+			else if(targetPos.x < viewWidth - (mapRect.x + mapRect.width + INTERFACE_BORDER_SIDES)) targetPos.x = viewWidth - (mapRect.x + mapRect.width + INTERFACE_BORDER_SIDES);
 			
 			targetPos.y = int( -y + viewHeight * 0.5);
 			if(targetPos.y > INTERFACE_BORDER_TOP) targetPos.y = INTERFACE_BORDER_TOP;

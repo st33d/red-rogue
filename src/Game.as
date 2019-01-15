@@ -21,8 +21,11 @@
 	import com.robotacid.ui.menu.DeathMenu;
 	import com.robotacid.ui.menu.EditorMenuList;
 	import com.robotacid.ui.menu.GameMenu;
+	import com.robotacid.ui.menu.IconButton;
 	import com.robotacid.ui.menu.Menu;
+	import com.robotacid.ui.menu.MenuButton;
 	import com.robotacid.ui.menu.MenuCarousel;
+	import com.robotacid.ui.menu.MissileButton;
 	import com.robotacid.ui.menu.PlayerConsumedMenu;
 	import com.robotacid.ui.menu.QuestMenuList;
 	import com.robotacid.ui.menu.QuestMenuOption;
@@ -38,7 +41,7 @@
 	import com.robotacid.util.misc.onScreen;
 	import com.robotacid.util.LZW;
 	import com.robotacid.util.RLE;
-	import com.robotacid.util.XorRandom;
+	import com.robotacid.util.Rng;
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
 	import flash.display.Graphics;
@@ -75,10 +78,12 @@
 	
 	public class Game extends Sprite {
 		
-		public static const VERSION_NUM:Number = 1.03;
+		public static const VERSION_NUM:Number = 1.10;
 		
 		public static const TEST_BED_INIT:Boolean = false;
 		public static const ONLINE:Boolean = true;
+		public static const CLEAR_SAVE:Boolean = false;
+		public static var MOBILE:Boolean = false;
 		
 		public static var game:Game;
 		public static var renderer:Renderer;
@@ -95,7 +100,7 @@
 		public var content:Content;
 		public var entrance:Portal;
 		public var world:CollisionWorld;
-		public var random:XorRandom;
+		public var random:Rng;
 		public var soundQueue:SoundQueue;
 		public var sleep:Sleep;
 		public var transition:Transition;
@@ -112,6 +117,10 @@
 		public var deathMenu:DeathMenu;
 		public var playerConsumedMenu:PlayerConsumedMenu;
 		public var titleMenu:TitleMenu;
+		public var menuButton:MenuButton;
+		public var missileButton:MissileButton;
+		public var searchButton:IconButton;
+		public var disarmButton:IconButton;
 		
 		public var focusPrompt:Sprite;
 		public var titleGfx:Sprite;
@@ -150,8 +159,7 @@
 		public var focusPreviousState:int;
 		public var instructionsPreviousState:int;
 		public var frameCount:int;
-		public var mousePressedCount:int;
-		public var mousePressed:Boolean;
+		public var actualFrameCount:int;
 		public var paused:Boolean;
 		public var shakeDirX:int;
 		public var shakeDirY:int;
@@ -159,13 +167,30 @@
 		public var forceFocus:Boolean = true;
 		public var portalHash:Object;
 		public var dogmaticMode:Boolean;
+		public var playerSelectedMusic:String;
 		public var lives:HiddenInt;
 		public var livesAvailable:HiddenInt;
 		public var multiplayer:Boolean;
 		public var firstInstructions:Boolean;
 		public var endGameEvent:Boolean;
 		
+		// mouse tracking
+		public var mousePressed:Boolean;
+		public var mousePressedCount:int;
+		public var mouseReleasedCount:int;
+		public var mouseVx:Number;
+		public var mouseVy:Number;
+		public var mouseSwipeSent:int;
+		public var mouseSwipeCount:int;
+		public var mouseSwipeDelay:int;
+		private var lastMouseX:Number;
+		private var lastMouseY:Number;
+		private var mouseDownX:Number;
+		private var mouseDownY:Number;
 		private var hideMouseFrames:int;
+		
+		public static const MOUSE_SWIPE_DELAY_DEFAULT:int = 4;
+		public static const MOUSE_SWIPE_SEGMENT:Number = 32 / (Math.PI * 2);
 		
 		// temp variables
 		private var i:int;
@@ -232,6 +257,10 @@
 			Dialog.game = this;
 			EditorMenuList.game = this;
 			Menu.game = this;
+			MenuButton.game = this;
+			MissileButton.game = this;
+			IconButton.game = this;
+			actualFrameCount = 1;
 			
 			// detect allowScriptAccess for tracking
 			allowScriptAccess = ExternalInterface.available;
@@ -243,20 +272,21 @@
 				}
 			}
 			
-			random = new XorRandom();
+			random = new Rng();
 			
 			var byteArray:ByteArray;
 			
 			byteArray = new Character.statsData();
-			Character.stats = JSON.decode(byteArray.readUTFBytes(byteArray.length));
+			Character.stats = com.adobe.serialization.json.JSON.decode(byteArray.readUTFBytes(byteArray.length));
 			
 			byteArray = new Item.statsData();
-			Item.stats = JSON.decode(byteArray.readUTFBytes(byteArray.length));
+			Item.stats = com.adobe.serialization.json.JSON.decode(byteArray.readUTFBytes(byteArray.length));
 			
 			// init UserData
 			UserData.initSettings();
 			UserData.initGameState();
 			UserData.pull();
+			if(CLEAR_SAVE) UserData.gameState.dead = true;
 			// check the game is alive
 			if(UserData.gameState.dead) UserData.initGameState();
 			
@@ -265,6 +295,7 @@
 			Menu.moveDelay = UserData.settings.menuMoveSpeed;
 			dogmaticMode = UserData.settings.dogmaticMode;
 			multiplayer = UserData.settings.multiplayer;
+			
 			endGameEvent = false;
 			
 			firstInstructions = ONLINE;
@@ -287,6 +318,7 @@
 			Effect.BANNED_RANDOM_ENCHANTMENTS[Effect.CHAOS] = true;
 			Effect.BANNED_RANDOM_ENCHANTMENTS[Effect.IDENTIFY] = true;
 			Effect.BANNED_RANDOM_ENCHANTMENTS[Effect.HOLY] = true;
+			Effect.BANNED_RANDOM_ENCHANTMENTS[Effect.FEMALE_POLYMORPH] = true;
 			
 			TextBox.init();
 			MapTileConverter.init();
@@ -341,7 +373,7 @@
 			// settings seed has priority over gameState
 			var randomSeed:uint = Map.seed ? Map.seed : uint(UserData.gameState.randomSeed);
 			
-			Map.random = new XorRandom(randomSeed);
+			Map.random = new Rng(randomSeed);
 			
 			// GAME GFX AND UI INIT
 			if(state == GAME || state == MENU){
@@ -423,7 +455,7 @@
 				addChild(getTitleGfx());
 				titlePressMenuText = new TextBox(Menu.LIST_WIDTH * 2, 12, Dialog.ROLL_OUT_COL);
 				titlePressMenuText.align = "center";
-				titlePressMenuText.text = "press menu key (" + Key.keyString(Key.custom[MENU_KEY]) + ") to begin";
+				titlePressMenuText.text = "press menu " + (Game.MOBILE ? "button" : "key (" + Key.keyString(Key.custom[MENU_KEY]) + ")") + " to begin";
 				if(!UserData.settings.ascended) titlePressMenuText.bitmapData.colorTransform(titlePressMenuText.bitmapData.rect, RED_COL);
 				titlePressMenuText.x = (WIDTH * 0.5 - titlePressMenuText.width * 0.5) >> 0;
 				titlePressMenuText.y = (HEIGHT * 0.5) + 10;
@@ -453,6 +485,40 @@
 				gameMenu.loreList.questsList.loadFromArray(UserData.gameState.quests);
 			}
 			addChild(menuCarousel);
+			
+			if(MOBILE){
+				menuButton = new MenuButton();
+				addChild(menuButton);
+				missileButton = new MissileButton();
+				addChild(missileButton);
+				missileButton.initHotKey(gameMenu);
+				searchButton = new IconButton();
+				searchButton.setId(IconButton.SEARCH);
+				addChild(searchButton);
+				searchButton.initHotKey(gameMenu);
+				disarmButton = new IconButton();
+				disarmButton.setId(IconButton.DISARM);
+				addChild(disarmButton);
+				disarmButton.initHotKey(gameMenu);
+				var w:int = menuButton.width;
+				var h:int = menuButton.height;
+				var buttons:Array = [menuButton, disarmButton, searchButton, missileButton];
+				for (var j:int = 0; j < buttons.length; j++) {
+					var b:MovieClip = buttons[j];
+					b.x = WIDTH - w;
+					b.y = j * (5 + h);
+				}
+				if(!(state == GAME || state == MENU)){
+					disarmButton.visible = searchButton.visible = false;
+				}
+				missileButton.x = 4;
+				missileButton.y = CONSOLE_Y - (h + 24);
+				CanvasCamera.INTERFACE_BORDER_SIDES = 16;
+				transition.buttons = buttons;
+				// ========================================== DEBUG
+				//gameMenu.addDebugOption();
+				//if(fpsText) fpsText.visible = true;
+			}
 			
 			if(!focusPrompt){
 				createFocusPrompt();
@@ -527,6 +593,7 @@
 			} else if(state == TITLE){
 				menuCarousel.setCurrentMenu(titleMenu);
 				titlePressMenuText.visible = !menuCarousel.active;
+				if(menuButton) menuButton.alert();
 			}
 			
 			// fire up listeners
@@ -550,17 +617,22 @@
 			} else {
 				changeMusic();
 			}
+			
 		}
 		
 		/* Pedantically clear all memory and re-init the project */
 		public function reset(newGame:Boolean = true):void{
-			removeEventListener(MouseEvent.MOUSE_DOWN, mouseDown);
-			removeEventListener(MouseEvent.MOUSE_UP, mouseUp);
+			stage.removeEventListener(MouseEvent.MOUSE_DOWN, mouseDown);
+			stage.removeEventListener(MouseEvent.MOUSE_UP, mouseUp);
 			removeEventListener(Event.ENTER_FRAME, main);
 			stage.removeEventListener(KeyboardEvent.KEY_DOWN, keyPressed);
 			stage.removeEventListener(Event.DEACTIVATE, onFocusLost);
 			stage.removeEventListener(Event.ACTIVATE, onFocus);
 			stage.removeEventListener(MouseEvent.MOUSE_MOVE, mouseMove);
+			if(menuButton) menuButton.destroy();
+			if(missileButton) missileButton.destroy();
+			if(searchButton) searchButton.destroy();
+			if(disarmButton) disarmButton.destroy();
 			while(numChildren > 0){
 				removeChildAt(0);
 			}
@@ -718,7 +790,9 @@
 			} else {
 				miniMap.newMap(world.map);
 			}
-			if(map.type != Map.AREA && map.cleared) miniMap.reveal();
+			if(map.type != Map.AREA && map.cleared){
+				miniMap.reveal();
+			}
 			
 			if(!player){
 				var playerMc:MovieClip = new RogueMC();
@@ -927,8 +1001,8 @@
 			stage.addEventListener(Event.DEACTIVATE, onFocusLost);
 			stage.addEventListener(Event.ACTIVATE, onFocus);
 			stage.addEventListener(MouseEvent.MOUSE_MOVE, mouseMove);
-			addEventListener(MouseEvent.MOUSE_DOWN, mouseDown);
-			addEventListener(MouseEvent.MOUSE_UP, mouseUp);
+			stage.addEventListener(MouseEvent.MOUSE_DOWN, mouseDown);
+			stage.addEventListener(MouseEvent.MOUSE_UP, mouseUp);
 			stage.addEventListener(KeyboardEvent.KEY_DOWN, keyPressed);
 			addEventListener(Event.ENTER_FRAME, main);
 		}
@@ -950,7 +1024,14 @@
 				
 				var advance:Boolean = true;
 				if(dogmaticMode){
-					if(!player.asleep && player.searchRadius == -1 && player.state == Character.WALKING && Key.keysPressed == 0) advance = false;
+					if(
+						!player.asleep &&
+						player.searchRadius == -1 &&
+						player.state == Character.WALKING &&
+						!(
+							Key.keysPressed  || (mousePressed && getMouseSwipe())
+						)
+					) advance = false;
 				}
 				
 				if(transition.active) transition.main();
@@ -1095,6 +1176,12 @@
 			
 			menuCarousel.currentMenu.main();
 			
+			mouseVx = mouseX - lastMouseX;
+			mouseVy = mouseY - lastMouseY;
+			lastMouseX = mouseX;
+			lastMouseY = mouseY;
+			actualFrameCount++;
+			
 			// hide the mouse when not in use
 			if(hideMouseFrames < HIDE_MOUSE_FRAMES){
 				hideMouseFrames++;
@@ -1102,6 +1189,11 @@
 					Mouse.hide();
 				}
 			}
+			//if(Key.isDown(Key.G)){
+				//var crash:Object = {};
+				//trace(crash.test.thing);
+			//}
+			
 		}
 		
 		/* Pause the game and make the inventory screen visible */
@@ -1150,13 +1242,14 @@
 			var start:int;
 			var name:String;
 			if(SoundManager.soundLoops["underworldMusic2"]) SoundManager.fadeLoopSound("underworldMusic2", -SoundManager.DEFAULT_FADE_STEP);
-			if(state == UNFOCUSED || state == INSTRUCTIONS || state == EPILOGUE){
+			if(playerSelectedMusic){
+				if(SoundManager.music && SoundManager.currentMusic != playerSelectedMusic) SoundManager.fadeMusic(playerSelectedMusic);
+			} else if(state == UNFOCUSED || state == INSTRUCTIONS || state == EPILOGUE){
 				if(SoundManager.currentMusic){
 					SoundManager.fadeMusic(SoundManager.currentMusic, -SoundManager.DEFAULT_FADE_STEP);
 				}
 			} else if(state == TITLE){
 				if(SoundManager.music && SoundManager.currentMusic != "introMusic") SoundManager.fadeMusic("introMusic", SoundManager.DEFAULT_FADE_STEP, 0, true);
-				
 			} else {
 				if(player && player.asleep){
 					name = "sleepMusic";
@@ -1254,29 +1347,33 @@
 			combatText.y = mc.combat.y;
 			var collectText:TextBox = new TextBox(215, 62, 0x0, 0x0);
 			collectText.alignVert = "center";
-			collectText.text = "press up to collect and to read";
+			collectText.text = (MOBILE ? "swipe" : "press") + " up to collect and to read";
 			mc.addChild(collectText);
 			collectText.x = mc.collect.x + mc.collect.width + 3;
 			collectText.y = mc.collect.y;
 			var exitText:TextBox = new TextBox(215, 62, 0x0, 0x0);
 			exitText.alignVert = "center";
-			exitText.text = "press down to exit a level";
+			exitText.text = (MOBILE ? "swipe" : "press") + " down to exit a level";
 			mc.addChild(exitText);
 			exitText.x = mc.exit.x + mc.exit.width + 3;
 			exitText.y = mc.exit.y;
 			var menuText:TextBox = new TextBox(WIDTH, 12, 0x0, 0x0);
 			menuText.align = "center";
-			menuText.text = "use the menu key (" + Key.keyString(Key.custom[MENU_KEY]) + ") for items and skills";
+			menuText.text = "use the menu " + (MOBILE ? "button" : "key (" + Key.keyString(Key.custom[MENU_KEY]) + ")") + " for items and skills";
 			mc.addChild(menuText);
 			var pressMenuText:TextBox = new TextBox(Menu.LIST_WIDTH * 2, 12, Dialog.ROLL_OUT_COL);
 			pressMenuText.align = "center";
-			pressMenuText.text = "press menu key " + (firstInstructions ? "to play" : "to resume");
+			pressMenuText.text = "press menu " + (MOBILE ? "button" : "key") + (firstInstructions ? " to play" : " to resume");
 			mc.addChild(pressMenuText);
 			pressMenuText.x = (WIDTH * 0.5 - pressMenuText.width * 0.5) >> 0;
 			pressMenuText.y = HEIGHT - (pressMenuText.height + 2);
 			menuText.y = pressMenuText.y - (menuText.height + 5);
 			instructions = mc;
 			instructionsHolder.addChild(instructions);
+			
+			if(missileButton) missileButton.alpha = 0;
+			if(searchButton) searchButton.alpha = 0;
+			if(disarmButton) disarmButton.alpha = 0;
 			
 			changeMusic();
 		}
@@ -1287,16 +1384,16 @@
 			
 			var clickToPlayText:TextBox = new TextBox(320, 12, 0x0, 0x0);
 			clickToPlayText.align = "center";
-			clickToPlayText.text = "click to play";
+			clickToPlayText.text = (MOBILE ? "tap" : "click") + " to play";
 			clickToPlayText.bitmapData.colorTransform(clickToPlayText.bitmapData.rect, RED_COL);
 			focusPrompt.addChild(clickToPlayText);
 			clickToPlayText.y = (HEIGHT * 0.5) + 10;
 			
 			if(UserData.settings.playerConsumed){
-				clickToPlayText.text = "click to not play";
+				clickToPlayText.text = (MOBILE ? "tap" : "click") + " to not play";
 				clickToPlayText.bitmapData.colorTransform(clickToPlayText.bitmapData.rect, RED_COL);
 			} else if(UserData.settings.ascended){
-				clickToPlayText.text = "click to play again";
+				clickToPlayText.text = (MOBILE ? "tap" : "click") + " to play again";
 			}
 		}
 		
@@ -1322,9 +1419,14 @@
 			state = EPILOGUE;
 			var type:int;
 			var typeStr:String;
-			if(UserData.gameState.husband && minion){
-				type = Epilogue.HUSBAND;
-				typeStr = "husband epilogue";
+			if(UserData.gameState.husband){
+				if(minion){
+					type = Epilogue.HUSBAND;
+					typeStr = "husband epilogue";
+				} else {
+					type = Epilogue.NO_HUSBAND ;
+					typeStr = "no husband epilogue";
+				}
 			} else if(gameMenu.inventoryList.getItem(Item.YENDOR, Item.ARMOUR)){
 				type = Epilogue.YENDOR;
 				typeStr = "yendor epilogue";
@@ -1346,6 +1448,8 @@
 			miniMap.visible = false;
 			keyItemStatus.visible = false;
 			playerActionBar.visible = false;
+			searchButton.visible = false;
+			disarmButton.visible = false;
 			playerConsumedMenu.select(0);
 			menuCarousel.setCurrentMenu(playerConsumedMenu);
 		}
@@ -1364,16 +1468,83 @@
 					menuCarousel.activate();
 				}
 				changeMusic();
+				
+				if(missileButton) missileButton.alpha = 1;
+				if(searchButton) searchButton.alpha = 1;
+				if(disarmButton) disarmButton.alpha = 1;
 			}, null, levelName, false, instructionsPreviousState == MENU);
 		}
 		
-		private function mouseDown(e:MouseEvent):void{
+		private function mouseDown(e:MouseEvent = null):void{
+			// ignore the first click returning to the game
+			//if(!MOBILE){
+				//if(regainedFocus){
+					//regainedFocus = false;
+					//return;
+				//}
+			//}
+			mouseSwipeSent = 0;
 			mousePressed = true;
-			mousePressedCount = frameCount;
+			lastMouseX = mouseDownX = mouseX;
+			lastMouseY = mouseDownY = mouseY;
+			
+			mousePressedCount = actualFrameCount;
 		}
 		
-		private function mouseUp(e:MouseEvent):void{
+		private function mouseUp(e:MouseEvent = null):void{
 			mousePressed = false;
+			mouseReleasedCount = actualFrameCount;
+			// this is how you bypass security restrictions on method calls that require a MouseEvent to validate
+			//if(Boolean(UIManager.mousePressedCallback)){
+				//UIManager.mousePressedCallback();
+				//UIManager.mousePressedCallback = null;
+			//}
+		}
+		public function getMouseSwipe(diagonals:Boolean = false):int{
+			var vx:Number = mouseX - mouseDownX;
+			var vy:Number = mouseY - mouseDownY;
+			var len:Number = Math.sqrt(vx * vx + vy * vy);
+			if(len > 5){
+				if(diagonals){
+					var r:Number = Math.atan2(vy, vx);
+					// get one of 8 segments (we use 32 to get small corners)
+					var n:int = (int)((r + Math.PI) * MOUSE_SWIPE_SEGMENT);
+					if(n >= 29 || n <= 2){
+						mouseSwipeSent = Collider.LEFT;
+					} else if(n <= 28 && n >= 27){
+						mouseSwipeSent = Collider.LEFT | Collider.DOWN;
+					} else if(n <= 26 && n >= 21){
+						mouseSwipeSent = Collider.DOWN;
+					} else if(n <= 20 && n >= 19){
+						mouseSwipeSent = Collider.DOWN | Collider.RIGHT;
+					} else if(n <= 18 && n >= 13){
+						mouseSwipeSent = Collider.RIGHT;
+					} else if(n <= 12 && n >= 11){
+						mouseSwipeSent = Collider.RIGHT | Collider.UP;
+					} else if(n <= 10 && n >= 5){
+						mouseSwipeSent = Collider.UP;
+					} else if(n <= 4 && n >= 3){
+						mouseSwipeSent = Collider.UP | Collider.LEFT;
+					}
+					return mouseSwipeSent;
+				} else {
+					if(Math.abs(vy) > Math.abs(vx)){
+						if(vy > 0){
+							mouseSwipeSent = Collider.DOWN;
+						} else {
+							mouseSwipeSent = Collider.UP;
+						}
+					} else {
+						if(vx > 0){
+							mouseSwipeSent = Collider.RIGHT;
+						} else {
+							mouseSwipeSent = Collider.LEFT;
+						}
+					}
+					return mouseSwipeSent;
+				}
+			}
+			return 0;
 		}
 		
 		private function mouseMove(e:MouseEvent):void{
@@ -1381,22 +1552,27 @@
 			hideMouseFrames = 0;
 		}
 		
+		public function menuToggle():void{
+			if(state == INSTRUCTIONS){
+				clearInstructions();
+			} else if(state == TITLE){
+				if(!menuCarousel.active){
+					menuCarousel.activate();
+					titlePressMenuText.visible = false;
+				}
+			} else if(state == EPILOGUE){
+			} else {
+				pauseGame();
+			}
+		}
+		
 		private function keyPressed(e:KeyboardEvent):void{
+			mouseSwipeSent = 0;
 			if(Key.lockOut) return;
 			if(Key.customDown(MENU_KEY) && !Game.dialog){
-				if(state == INSTRUCTIONS){
-					clearInstructions();
-				} else if(state == TITLE){
-					if(!menuCarousel.active){
-						menuCarousel.activate();
-						titlePressMenuText.visible = false;
-					}
-				} else if(state == EPILOGUE){
-				} else {
-					pauseGame();
-				}
+				menuToggle();
 			}
-			if(Key.isDown(Keyboard.CONTROL) && Key.isDown(Keyboard.SHIFT) && Key.isDown(Keyboard.ENTER)){
+			if(Key.isDown(Keyboard.BACKSPACE)){
 				gameMenu.addDebugOption();
 				if(fpsText) fpsText.visible = true;
 			}
@@ -1462,6 +1638,7 @@
 		
 		public static function versionToString():String{
 			var str:String = "" + VERSION_NUM;
+			if(str.length < 4) str += "0";
 			return str.substr(0, str.length - 1) + "." + str.charAt(str.length - 1);
 		}
 	}

@@ -94,7 +94,7 @@ package com.robotacid.gfx {
 				} else if(name == Item.WHIP){
 					gfx = new WhipMC();
 					addChild(gfx);
-				} else if(name == Item.CHAKRAM){
+				} else if(name == Item.CHAKRAM || name == Item.SARKEESIAN){
 					gfx = new ChakramMC();
 					(gfx as MovieClip).stop();
 					addChild(gfx);
@@ -144,7 +144,7 @@ package com.robotacid.gfx {
 				){
 					if(mc.currentLabel != "idle") mc.gotoAndStop("idle");
 					
-				} else if(_name == Item.CHAKRAM){
+				} else if(_name == Item.CHAKRAM || _name == Item.SARKEESIAN){
 					mc.gotoAndStop(1);
 				}
 			}
@@ -157,7 +157,7 @@ package com.robotacid.gfx {
 					bufferLoaded = false;
 				}
 			} else if(_type == Item.WEAPON){
-				if(_name == Item.CHAKRAM){
+				if(_name == Item.CHAKRAM || _name == Item.SARKEESIAN){
 					(gfx as MovieClip).gotoAndStop(1);
 				}
 			}
@@ -166,7 +166,7 @@ package com.robotacid.gfx {
 		/* Called before throwing the item */
 		public function setThrowRender():void{
 			// it is assumed: _type = Item.WEAPON
-			if(_name == Item.CHAKRAM){
+			if(_name == Item.CHAKRAM || _name == Item.SARKEESIAN){
 				(gfx as MovieClip).gotoAndPlay(1);
 			} else if(_name == Item.LEECH_WEAPON){
 				(gfx as MovieClip).gotoAndStop("lunge");

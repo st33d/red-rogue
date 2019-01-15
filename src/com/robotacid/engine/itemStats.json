@@ -4,7 +4,7 @@
 		"whip", "sword", "arbalest", "spear", "chakram",
 		"staff", "bomb", "arquebus", "hammer", "long bow",
 		"gun blade", "scythe", "chaos wand", "lightning", "leech",
-		"gun leech", "cog", "harpoon"
+		"gun leech", "cog", "harpoon", "sarkeesian"
 	],
 	"armour names":[
 		"flies", "tiara", "fedora", "top hat", "fire flies",
@@ -17,7 +17,7 @@
 		["athame", "first"], ["godhand", "grip"], ["sting", "carnwennan", "werewindle"] , ["plus one"], ["cupid's bow", "pinaka"],
 		["vampire killer", "spelunker's friend"], ["excalibur", "kladenets", "grayswandir", "skofnung", "tyrfing"], ["penetrator", "piercer"] , ["gungnir", "gae bulg", "lugh", "rhongomiant"], ["xena's friend", "ouroboros"],
 		["jo", "ruyi jingu bang", "grid's rod"], ["boom", "surprise", "smithereens"], ["sarah-jane", "boom-stick"] , ["mjolnir"], ["bullseye", "brahmastra", "saranga", "gandiva"],
-		["dyrnwyn", "bayonetta"], ["reaver"], ["blackthorn", "stallion", "swirl"] , ["oh kath ra", "shocker", "thunder", "nova", "zeus", "vajra"], ["licker", "kiss", "sarlak", "fang"], ["gallardo", "nate"], ["mokesmoe", "error"], ["fishbane", "droqen"]
+		["dyrnwyn", "bayonetta"], ["reaver"], ["blackthorn", "stallion", "swirl"] , ["oh kath ra", "shocker", "thunder", "nova", "zeus", "vajra"], ["licker", "kiss", "sarlak", "fang"], ["gallardo", "nate"], ["mokesmoe", "error"], ["fishbane", "droqen"], ["anita", "sjw"]
 	],
 	"unique armour names":[
 		["swarm", "buzz"], ["brisingamen"], ["indy", "spelunker's hat", "archaeologist's hat"] , ["gentleman's pride"], ["apollo", "shimmer"],
@@ -29,7 +29,7 @@
 		"light", "heal", "bleed", "identify", "undead",
 		"teleport", "thorns", "null", "portal", "slow",
 		"haste", "holy", "protection", "stun", "polymorph",
-		"confusion", "fear", "leech", "xp", "?"
+		"confusion", "fear", "leech", "xp", "?", "balance"
 	],
 	"rune descriptions":[
 		"glows brightly", "makes you feel better", "makes you sweat blood", "grants knowledge undiscovered", "is connected to the underworld",
@@ -42,56 +42,63 @@
 		1, 1, 2, 5, 5,
 		1, 4, 2, 1, 2,
 		3, 1, 2, 5, 5,
-		3, 5, 5
+		3, 5, 5, 5
 	],
 	"weapon damages":[
 		0.15, 0.2, 0.25, 0.4, 0.2,
 		0.5, 0.7, 0.7, 0.9, 0.7,
 		1, 2, 1, 1.3, 1.3,
 		1.3, 1.5, 0, 2, 2.5,
-		2.5, 0.15, 0.9
+		2.5, 0.15, 0.9, 0.7
 	],
 	"weapon damage levels":[
 		0.05, 0.05, 0.05, 0.1, 0.1,
 		0.1, 0.1, 0.15, 0.15, 0.15,
 		0.15, 0.2, 0.16, 0.17, 0.17,
 		0.17, 0.2, 0.0, 0.3, 0.4,
-		0.4, 0.05, 0.15
+		0.4, 0.05, 0.15, 0.15
 	],
 	"weapon attacks":[
 		0.01, 0.01, 0.02, 0.02, 0.03,
 		0.02, 0.03, 0.02, 0.03, 0.03,
 		0.04, 0.02, 0.04, 0.05, 0.05,
 		0.05, 0.06, 0.0, 0.08, 0.08,
-		0.08, 0.01, 0.03
+		0.08, 0.01, 0.03, 0.03
 	],
 	"weapon attack levels":[
 		0.01, 0.01, 0.01, 0.01, 0.01,
 		0.02, 0.02, 0.02, 0.02, 0.02,
 		0.03, 0.02, 0.03, 0.03, 0.04,
 		0.04, 0.04, 0.0, 0.06, 0.06,
-		0.06, 0.01, 0.02
+		0.06, 0.01, 0.02, 0.02
+	],
+	"weapon impacts":[
+		2, 1, 2, 1, 4,
+		0, 2, 4, 6, 2,
+		1, 1, 1, 1, 4,
+		3, 2, 0, 0, 1,
+		3, 2, 6, 6
 	],
 	"weapon knockbacks":[
 		0, 0.1, 0, 0.15, 0,
 		0, 0.1, 0.15, 0.15, 0,
 		0.15, 0.5, 0.2, 0.2, 0.2,
 		0.2, 0.2, 0, 0.2, 0,
-		0, 0, 0.15
+		0, 0, 0.15, 0
 	],
 	"weapon stuns":[
 		0, 0.1, 0, 0.15, 0,
-		0, 0, 0.1, 0, 0,
+		0.2, 0, 0.1, 0, 0,
 		0.15, 0.6, 0.2, 0.2, 0.2,
 		0.2, 0.2, 0, 0.3, 0.3,
-		0.3, 0.2, 0
+		0.3, 0.2, 0, 0.1
 	],
 	"weapon butchers":[
 		0.1, 0, 0.1, 0, 0,
 		0, 0.05, 0, 0.01, 0,
 		0, 0, 0, 0, 0,
 		0.05, 0.05, 0, 0, 0.15,
-		0.15, 0.15, 0.01
+		0.15, 0.15, 0.01, 0
 	],
 	"armour positions":[
 		1, 0, 0, 0, 1,
@@ -126,7 +133,7 @@
 		"none", "none", "none", "none", "bounces off walls",
 		"none", "explodes", "none", "none", "none",
 		"none", "none", "shoots chaos runes", "emits quickening", "life steal",
-		"life steal, shoots blood", "?", "free rides"
+		"life steal, shoots blood", "?", "free rides", "penetrating equality"
 	],
 	"armour specials":[
 		"none", "none", "none", "none", "light enchanted",
@@ -140,7 +147,7 @@
 		"tapered leather cord", "long blade", "large crossbow, fires bolts", "pointed stick", "sharp ring",
 		"long stick", "explosive grenade", "rifle, fires bullets", "punctuated stick", "fires large arrows",
 		"long blade, fires bullets", "gardening tool", "magic stick", "electric stick", "blood demon",
-		"crafted blood demon", "?", "flat top spear"
+		"crafted blood demon", "?", "flat top spear", "anita's earring"
 	],
 	"armour descriptions":[
 		"distracting insects", "pretty adornment", "sweet hat", "gentleman's hat", "glowing insects",

@@ -38,11 +38,14 @@ package com.robotacid.ai {
 				if(confusedCount == 0) clear();
 			}
 			
+			// capture swipe input
+			var swipe:int = 0;
+			if(game.mousePressed) swipe = game.getMouseSwipe(true);
 			// capture input state
 			if(char == game.player){
 				if(
-					((!game.multiplayer && Key.isDown(Keyboard.UP)) || Key.customDown(Game.UP_KEY)) &&
-					!((!game.multiplayer && Key.isDown(Keyboard.DOWN)) || Key.customDown(Game.DOWN_KEY))
+					((!game.multiplayer && Key.isDown(Keyboard.UP)) || Key.customDown(Game.UP_KEY) || (swipe & UP)) &&
+					!((!game.multiplayer && Key.isDown(Keyboard.DOWN)) || Key.customDown(Game.DOWN_KEY) || (swipe & DOWN))
 				){
 					char.actions |= UP;
 					char.looking |= UP;
@@ -52,8 +55,8 @@ package com.robotacid.ai {
 					char.looking &= ~UP;
 				}
 				if(
-					((!game.multiplayer && Key.isDown(Keyboard.LEFT)) || Key.customDown(Game.LEFT_KEY)) &&
-					!((!game.multiplayer && Key.isDown(Keyboard.RIGHT)) || Key.customDown(Game.RIGHT_KEY))
+					((!game.multiplayer && Key.isDown(Keyboard.LEFT)) || Key.customDown(Game.LEFT_KEY) || (swipe & LEFT)) &&
+					!((!game.multiplayer && Key.isDown(Keyboard.RIGHT)) || Key.customDown(Game.RIGHT_KEY) || (swipe & RIGHT))
 				){
 					char.actions |= LEFT;
 					char.looking |= LEFT;
@@ -62,8 +65,8 @@ package com.robotacid.ai {
 					char.actions &= ~LEFT;
 				}
 				if(
-					((!game.multiplayer && Key.isDown(Keyboard.RIGHT)) || Key.customDown(Game.RIGHT_KEY)) &&
-					!((!game.multiplayer && Key.isDown(Keyboard.LEFT)) || Key.customDown(Game.LEFT_KEY))
+					((!game.multiplayer && Key.isDown(Keyboard.RIGHT)) || Key.customDown(Game.RIGHT_KEY) || (swipe & RIGHT)) &&
+					!((!game.multiplayer && Key.isDown(Keyboard.LEFT)) || Key.customDown(Game.LEFT_KEY) || (swipe & LEFT))
 				){
 					char.actions |= RIGHT;
 					char.looking |= RIGHT;
@@ -72,8 +75,8 @@ package com.robotacid.ai {
 					char.actions &= ~RIGHT;
 				}
 				if (
-					((!game.multiplayer && Key.isDown(Keyboard.DOWN)) || Key.customDown(Game.DOWN_KEY)) &&
-					!((!game.multiplayer && Key.isDown(Keyboard.UP)) || Key.customDown(Game.UP_KEY))
+					((!game.multiplayer && Key.isDown(Keyboard.DOWN)) || Key.customDown(Game.DOWN_KEY) || (swipe & DOWN)) &&
+					!((!game.multiplayer && Key.isDown(Keyboard.UP)) || Key.customDown(Game.UP_KEY) || (swipe & UP))
 				){
 					char.actions |= DOWN;
 					char.looking |= DOWN;

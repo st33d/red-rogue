@@ -1,7 +1,7 @@
 package com.robotacid.ai {
 	import com.robotacid.level.MapBitmap;
 	import com.robotacid.geom.Pixel;
-	import com.robotacid.util.XorRandom;
+	import com.robotacid.util.Rng;
 	import flash.display.Graphics;
 	/**
 	 * Provides a searchable graph for the Brain object
@@ -417,7 +417,7 @@ package com.robotacid.ai {
 		}
 		
 		/* Chooses a node at random in the hope that it might lead somewhere */
-		public function getRandomNode(start:Node, random:XorRandom):Node{
+		public function getRandomNode(start:Node, random:Rng):Node{
 			if(start.connections.length == 1) return start.connections[0];
 			else if(start.connections.length == 0) return null;
 			return start.connections[random.rangeInt(start.connections.length)];

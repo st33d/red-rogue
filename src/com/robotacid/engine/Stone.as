@@ -129,13 +129,15 @@
 							game.soundQueue.add("pickUp");
 							endGameEventData.gotYendor = true;
 						}
-					// player may have dropped yendor - teleport it (a cheeky player may try to drop it into the water)
+					// player may have dropped yendor
 					} else {
 						item = game.getFloorItem(Item.YENDOR, Item.ARMOUR);
 						if(item){
 							if(item.mapX < mapX) dir = looking = LEFT;
 							else if(item.mapY > mapY) dir = looking = RIGHT;
-							if(collider.intersects(item.collider)){
+							// teleport it after a delay (a cheeky player may try to drop it into the water)
+							endGameEventData.itemPickupCount--;
+							if(collider.intersects(item.collider) || endGameEventData.itemPickupCount < 0){
 								item.destroyOnMap(true);
 								game.createDistSound(item.mapX, item.mapY, "teleportYendor", Effect.TELEPORT_SOUNDS);
 								endGameEventData.gotYendor = true;
@@ -300,7 +302,8 @@
 				transformedMinion:false,
 				startX:collider.x,
 				count:30,
-				charContact:null
+				charContact:null,
+				itemPickupCount:90
 			}
 		}
 		

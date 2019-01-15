@@ -77,7 +77,7 @@ package com.robotacid.ui {
 			
 			if(!Boolean(cancelCallback)){
 				// create singular okay button
-				okayTextBox.text = "press menu key";
+				okayTextBox.text = Game.MOBILE ? "okay" : "press menu key";
 				okayButton.y = background.y + background.height - (okayTextBox.height + 2);
 				okayButton.x = -(okayTextBox.width * 0.5) >> 0;
 				
@@ -93,8 +93,8 @@ package com.robotacid.ui {
 				cancelButton.addEventListener(MouseEvent.ROLL_OUT, cancelOut, false, 0, true);
 				game.stage.addEventListener(KeyboardEvent.KEY_DOWN, cancel);
 				
-				okayTextBox.text = "right to accept";
-				cancelTextBox.text = "left to cancel";
+				okayTextBox.text = (!Game.MOBILE ? "right to " : "") + "accept";
+				cancelTextBox.text = (!Game.MOBILE ? "left to " : "") + "cancel";
 				
 				okayButton.y = background.y + background.height - (okayTextBox.height + 2);
 				okayButton.x = 1;

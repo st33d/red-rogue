@@ -10,7 +10,7 @@ package {
 	import com.robotacid.ui.menu.Menu;
 	import com.robotacid.ui.menu.MenuOption;
 	import com.robotacid.ui.menu.QuestMenuOption;
-	import com.robotacid.util.XorRandom;
+	import com.robotacid.util.Rng;
 	import com.robotacid.ui.FileManager;
 	import flash.net.navigateToURL;
 	import flash.net.URLRequest;
@@ -90,12 +90,11 @@ package {
 			}/**/
 			settingsBytes = null;
 			gameStateBytes = null;
-			// wrapper to send users to manage their shared object settings if blocked
 			try{
 				sharedObject.flush();
 				sharedObject.close();
 			} catch(e:Error){
-				navigateToURL(new URLRequest("http://www.macromedia.com/support/documentation/en/flashplayer/help/settings_manager03.html"));
+				
 			}
 		}
 		
@@ -140,7 +139,7 @@ package {
 				runeNames:[],
 				storyCharCodes:[],
 				quests:[<quest name={"get the amulet of yendor"} type={QuestMenuOption.MACGUFFIN} num={0} commissioner={"@"} xpReward={0} />],
-				randomSeed:XorRandom.seedFromDate(),
+				randomSeed:Rng.seedFromDate(),
 				husband:false
 			};
 			
@@ -231,6 +230,7 @@ package {
 				customKeys:[Key.W, Key.S, Key.A, Key.D, Keyboard.SPACE, Key.F, Key.Z, Key.X, Key.C, Key.V, Key.M, Key.NUMBER_1, Key.NUMBER_2, Key.NUMBER_3, Key.NUMBER_4],
 				sfx:true,
 				music:true,
+				screenshakeOff:false,
 				autoSortInventory:true,
 				menuMoveSpeed:4,
 				consoleScrollDir: -1,
@@ -304,6 +304,7 @@ package {
 			settings.randomSeed = Map.seed;
 			settings.dogmaticMode = game.dogmaticMode;
 			settings.multiplayer = game.multiplayer;
+			settings.screenshakeOff = renderer.screenshakeOff;
 			settings.livesAvailable = game.livesAvailable.value + game.lives.value;
 			// fix for previous error in livesAvailable code
 			if(settings.livesAvailable > 3) settings.livesAvailable = 3;

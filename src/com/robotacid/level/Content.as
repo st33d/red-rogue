@@ -16,7 +16,7 @@
 	import com.robotacid.gfx.Renderer;
 	import com.robotacid.phys.Collider;
 	import com.robotacid.util.array.randomiseArray;
-	import com.robotacid.util.XorRandom;
+	import com.robotacid.util.Rng;
 	import flash.display.DisplayObject;
 	import flash.geom.Rectangle;
 	/**
@@ -85,6 +85,9 @@
 			[Character.MIMIC, Character.NAGA, Character.GORGON, Character.UMBER_HULK, Character.GOLEM],
 			[Character.BANSHEE, Character.WRAITH, Character.MIND_FLAYER, Character.RAKSHASA]
 		];
+		public static const FEM_DECK:Array = [
+			Character.PLAYER, Character.NYMPH, Character.VAMPIRE, Character.GORGON, Character.BANSHEE
+		];
 		public static const WEAPON_ZONE_DECKS:Array = [
 			[Item.KNIFE, Item.GAUNTLET, Item.DAGGER, Item.MACE, Item.SHORT_BOW],
 			[Item.WHIP, Item.SWORD, Item.ARBALEST, Item.SPEAR, Item.CHAKRAM],
@@ -115,6 +118,9 @@
 				<effect name={Item.CONFUSION} level={2} />
 				<effect name={Item.UNDEAD} level={2} />
 				<effect name={Item.HEAL} level={2} />
+			</item>,
+			<item name={Item.SARKEESIAN} type={Item.WEAPON} level={1} location={Item.UNASSIGNED} holyState={Item.NO_CURSE}>
+				<effect name={Item.FEMALE_POLYMORPH} level={1} />
 			</item>
 		];
 		
@@ -424,7 +430,7 @@
 		/* Return the pre-generated seed value for creating a given level */
 		public function getSeed(level:int, type:int):uint{
 			if(type == Map.MAIN_DUNGEON){
-				while(level >= gameState.seedsByLevel.length) gameState.seedsByLevel.push(XorRandom.seedFromDate());
+				while(level >= gameState.seedsByLevel.length) gameState.seedsByLevel.push(Rng.seedFromDate());
 				return gameState.seedsByLevel[level];
 			} else if(type == Map.ITEM_DUNGEON){
 				return gameState.itemDungeonContent.seed;
@@ -442,7 +448,7 @@
 			gameState.itemDungeonContent.portals = [<portal type={Portal.PORTAL} targetLevel={level} targetType={type} />];
 			gameState.itemDungeonContent.secrets = 2;
 			gameState.itemDungeonContent.traps = trapQuantityPerLevel(level);
-			gameState.itemDungeonContent.seed = XorRandom.seedFromDate();
+			gameState.itemDungeonContent.seed = Rng.seedFromDate();
 			gameState.itemDungeonContent.questGems = 0;
 			gameState.itemDungeonContent.altars = game.random.rangeInt(3);
 			gameState.itemDungeonContent.monsterXp = getLevelXp(level);
@@ -485,7 +491,7 @@
 		/* Distributes content across a level
 		 * 
 		 * Portals we leave alone for the Map to request when it needs to create access points */
-		public function populateLevel(mapType:int, mapLevel:int, bitmap:MapBitmap, layers:Array, random:XorRandom):int{
+		public function populateLevel(mapType:int, mapLevel:int, bitmap:MapBitmap, layers:Array, random:Rng):int{
 			var r:int, c:int;
 			var i:int, j:int, n:int;
 			var chest:Chest;
@@ -749,11 +755,12 @@
 		
 		/* Search the levels for a given portal type and remove it - this prevents multiples of the same portal */
 		public function removePortal(targetLevel:int, targetType:int):void{
+			// NB: the item dungeon portal can have varying targetLevels, hence we prune all item-dungeons when requested
 			var i:int, j:int, xml:XML;
 			for(i = 0; i < gameState.portalsByLevel.length; i++){
 				for(j = 0; j < gameState.portalsByLevel[i].length; j++){
 					xml = gameState.portalsByLevel[i][j];
-					if(int(xml.@targetLevel) == targetLevel && int(xml.@targetType) == targetType){
+					if(int(xml.@targetType) == targetType && (targetType == Map.ITEM_DUNGEON || int(xml.@targetLevel) == targetLevel)){
 						gameState.portalsByLevel[i].splice(j, 1);
 						return;
 					}
@@ -763,7 +770,7 @@
 			if(gameState.itemDungeonContent){
 				for(i = 0; i < gameState.itemDungeonContent.portals.length; i++){
 					xml = gameState.itemDungeonContent.portals[i];
-					if(int(xml.@targetLevel) == targetLevel && int(xml.@targetType) == targetType){
+					if(int(xml.@targetType) == targetType && (targetType == Map.ITEM_DUNGEON || int(xml.@targetLevel) == targetLevel)){
 						gameState.itemDungeonContent.portals.splice(i, 1);
 						return;
 					}

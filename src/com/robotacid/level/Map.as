@@ -22,7 +22,7 @@
 	import com.robotacid.gfx.Renderer;
 	import com.robotacid.phys.Collider;
 	import com.robotacid.util.array.randomiseArray;
-	import com.robotacid.util.XorRandom;
+	import com.robotacid.util.Rng;
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
 	import flash.display.Sprite;
@@ -44,7 +44,7 @@
 		
 		public static var game:Game;
 		public static var renderer:Renderer;
-		public static var random:XorRandom;
+		public static var random:Rng;
 		public static var seed:uint = 0;
 		
 		public var level:int;

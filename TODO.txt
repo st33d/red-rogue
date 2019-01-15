@@ -1,8 +1,14 @@
-Change log: fixed rendering crashes when enchanting (caused by optimisation to rendering equipment layers), new quest marks quest menu as unvisited, quest completion walks out of quest menu and sets selection to 0, fixed teleported Horror crashing game, Horror now unaffected by gates, fixed potential error in polymorph effect, fixed potential error from use of xp effect via chaos rune, bricked eating chaos runes in areas, fixed drop option becoming locked after viewing cursed item, bricked chaos armour activity in areas, healing creates blood-type coloured sparks that rise up, fixed multiple invisible armours eating each other's image buffers, items dropped inside a wall are teleported out to a random location (a message is printed in the console), xp rune can now be used at level 20 to simply effect a quickening (previously unusable at level 20), added sanity checks to Horror AI to avoid null-target bugs, overridden applyDamage and applyStun on Gate and Horror - just in case, Gates no longer allow enchantment from missile weapons, konami code lives now reset on full reset, fixed inventory duplication when quitting to title screen, Lore unlocked now cleared on hard reset, end game checks for the husband now depend purely on UserData.settings.husband instead of checking against the minion's current form (which could have been polymorphed somehow), completion count only raised by spawning golems when the level is not completed, fixed throwing weapon stats not being applied when thrown, balrog now takes half damage from quickening, elite monsters now take half damage from holy runes, holy explosions now deal half the health of the target as the initial damage instead of full, fear enchanted missiles now black and drop crawling drips
+Change log: fixed random enchant from targeting banned enchantments, removed fx pooling for fx throttling - will hopefully solve object pooling bugs by not bothering with object pooling
 
-Bug hunt
-	pocket dungeon errors
-		unreproducible
-		re-entering: setLevel() 709, init() 519, reset() 584, TitleMenu.launchGame() 205
+	
+Bug huntTypeError:
+	balrog ai escape issues with ladders and ledges - not sure how to fix
+	
+	enchanting _ with light bug? - check TIGSource thread
+		didn't I fix this?
+	
+	When binding a hotkey to the "Multiplayer mode ON/OFF" menu option, the hotkey (#) tooltip also appears on the "Full Screen ON/OFF" option.
+
 	portal opened by chaos spell is broken - reported as opened by altar
 		unreproducible
+		

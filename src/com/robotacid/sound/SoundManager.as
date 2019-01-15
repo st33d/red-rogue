@@ -40,6 +40,13 @@
 		
 		public static const DEFAULT_FADE_STEP:Number = 0.1;
 		
+		public static const MUSIC_NAMES:Array = [
+			"introMusic", "dungeonsMusic", "cavesMusic", "chaosMusic", "sewersMusic", "sleepMusic"
+		];
+		public static const TRACK_NAMES:Array = [
+			"Slid", "Chant", "Cellar", "Strung", "Ulcer", "coinsect"
+		];
+		
 		public function SoundManager(){
 			
 		}

@@ -34,6 +34,18 @@
 			active = true;
 		}
 		
+		public function recycle(x:Number, y:Number, blit:BlitRect, bitmapData:BitmapData, bitmap:DisplayObject, dir:Point = null, delay:int = 0, looped:Boolean = false):void {
+			this.x = x;
+			this.y = y;
+			this.blit = blit;
+			this.bitmapData = bitmapData;
+			this.bitmap = bitmap;
+			this.dir = dir;
+			this.looped = looped;
+			frame = 0 - delay;
+			active = true;
+		}
+		
 		public function main():void {
 			if(frame > -1){
 				blit.x = ( -bitmap.x) + x;

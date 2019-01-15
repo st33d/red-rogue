@@ -243,9 +243,9 @@ package com.robotacid.engine {
 		public static function initDreams():void{
 			var byteArray:ByteArray;
 			byteArray = new dreamsData();
-			dreams = JSON.decode(byteArray.readUTFBytes(byteArray.length));
+			dreams = com.adobe.serialization.json.JSON.decode(byteArray.readUTFBytes(byteArray.length));
 			byteArray = new nightmaresData();
-			nightmares = JSON.decode(byteArray.readUTFBytes(byteArray.length));
+			nightmares = com.adobe.serialization.json.JSON.decode(byteArray.readUTFBytes(byteArray.length));
 		}
 		
 	}

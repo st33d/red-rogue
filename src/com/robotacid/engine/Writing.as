@@ -3,7 +3,7 @@ package com.robotacid.engine {
 	import com.robotacid.ai.Brain;
 	import com.robotacid.gfx.WritingBlit;
 	import com.robotacid.phys.Collider;
-	import com.robotacid.util.XorRandom;
+	import com.robotacid.util.Rng;
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
 	import flash.display.DisplayObject;
@@ -120,10 +120,10 @@ package com.robotacid.engine {
 			}
 		}
 		
-		public static function createStoryCharCodes(random:XorRandom):void{
+		public static function createStoryCharCodes(random:Rng):void{
 			
 			var byteArray:ByteArray = new storyData();
-			story = JSON.decode(byteArray.readUTFBytes(byteArray.length));
+			story = com.adobe.serialization.json.JSON.decode(byteArray.readUTFBytes(byteArray.length));
 			
 			var i:int, j:int, k:int, m:int;
 			var typeArray:Array, levelArray:Array;
@@ -141,7 +141,7 @@ package com.robotacid.engine {
 		}
 		
 		/* Create a random sequence of shapes - a set code for "elbereth" is predetermined */
-		public static function getCode(random:XorRandom, str:String = ""):String{
+		public static function getCode(random:Rng, str:String = ""):String{
 			if(str == "elbereth") return elberethCode;
 			var i:int;
 			var code:String = code = "";

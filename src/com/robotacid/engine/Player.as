@@ -63,6 +63,7 @@
 		private var searchRevealCount:int;
 		
 		private var exitKeyPressReady:Boolean;
+		private var exitSwipeReady:Boolean;
 		private var keyWarning:Boolean;
 		
 		private var i:int, j:int;
@@ -274,6 +275,7 @@
 					}
 					if(
 						state != Character.WALKING ||
+						portalContact.mapY != mapY ||
 						!(
 							portalContact.rect.x + portalContact.rect.width > collider.x &&
 							collider.x + collider.width > portalContact.rect.x &&
@@ -284,7 +286,13 @@
 						portalContact = null;
 					} else {
 						// Cave Story style doorway access - clean down press
-						if(dir == DOWN && exitKeyPressReady){
+						if(
+							dir == DOWN &&
+							(
+								(exitKeyPressReady && Key.keysPressed > 0) ||
+								(exitSwipeReady && game.mousePressed)
+							)
+						){
 							openExitDialog();
 						}
 					}
@@ -352,6 +360,7 @@
 			
 			// exiting and warning about keys requires a clean key press
 			exitKeyPressReady = Key.keysPressed == 0 || (game.dogmaticMode && !(dir & DOWN));
+			exitSwipeReady = (dir == 0 || (game.dogmaticMode && !(dir & DOWN))) && state == WALKING;
 			if(keyWarning && (Key.keysPressed == 0 || (game.dogmaticMode && !(dir & UP)))) keyWarning = false;
 			
 			if(disarmTrapCount){
@@ -529,6 +538,7 @@
 						(throwable && !(throwable.holyState == Item.CURSE_REVEALED && !undead))
 					)
 				);
+				if(game.missileButton) game.missileButton.visible = game.gameMenu.missileOption.active;
 				if(game.gameMenu.missileOption.active){
 					game.gameMenu.missileOption.state = throwable ? GameMenu.THROW : GameMenu.SHOOT;
 				}
@@ -542,7 +552,10 @@
 		
 		/* Unselect item as equipped */
 		override public function unequip(item:Item):Item{
-			if(item == throwable || (item.type == Item.WEAPON && item.range & Item.MISSILE)) game.gameMenu.missileOption.active = false;
+			if(item == throwable || (item.type == Item.WEAPON && item.range & Item.MISSILE)){
+				game.gameMenu.missileOption.active = false;
+				if(game.missileButton) game.missileButton.visible = false;
+			}
 			super.unequip(item);
 			if(item.type == Item.ARMOUR){
 				game.gameMenu.jumpOption.active = canJump;
@@ -640,6 +653,18 @@
 		public function lockMenuActions():void{
 			canMenuAction = false;
 			game.gameMenu.inventoryList.throwRuneOption.active = false;
+			if(game.missileButton){
+				if(
+				!indifferent &&
+				(
+					(weapon && weapon.range & Item.MISSILE) ||
+					(throwable && !(throwable.holyState == Item.CURSE_REVEALED && !undead))
+				)){
+					game.missileButton.setDisabled(true);
+				} else {
+					game.missileButton.visible = false;
+				}
+			}
 			game.gameMenu.missileOption.active = false;
 			game.playerActionBar.setValue(attackCount, 1);
 			game.gameMenu.update();
@@ -655,6 +680,10 @@
 					(throwable && !(throwable.holyState == Item.CURSE_REVEALED && !undead))
 				)
 			);
+			if(game.missileButton){
+				game.missileButton.visible = game.gameMenu.missileOption.active;
+				game.missileButton.setDisabled(false);
+			}
 			game.gameMenu.inventoryList.throwRuneOption.active = true;
 			game.gameMenu.update();
 			game.playerActionBar.barCol = Game.DEFAULT_BAR_COL;

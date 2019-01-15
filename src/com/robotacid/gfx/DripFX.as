@@ -39,13 +39,29 @@ package com.robotacid.gfx {
 			this.print = print;
 			count = DELAY + game.random.range(DELAY);
 			speed = 0.05 + game.random.value();
+			py = y;
 			if(rect){
 				offsetX = x - rect.x;
 				offsetY = y - rect.y;
 				surface = true;
 			} else {
 				surface = false;
-				py = y;
+			}
+		}
+		
+		public function recycleDrip(x:Number, y:Number, blit:BlitRect, bitmapData:BitmapData, bitmap:DisplayObject, print:BlitRect, rect:Rectangle = null):void {
+			recycle(x, y, blit, bitmapData, bitmap, null, 0, true);
+			this.rect = rect;
+			this.print = print;
+			count = DELAY + game.random.range(DELAY);
+			speed = 0.05 + game.random.value();
+			py = y;
+			if(rect){
+				offsetX = x - rect.x;
+				offsetY = y - rect.y;
+				surface = true;
+			} else {
+				surface = false;
 			}
 		}
 	

@@ -59,6 +59,7 @@
 		
 		public var sureList:MenuList;
 		public var soundList:MenuList;
+		public var selectMusicList:MenuList;
 		public var menuMoveList:MenuList;
 		public var rngSeedList:MenuList;
 		public var seedInputList:MenuInputList;
@@ -86,6 +87,7 @@
 		public var nateOption:MenuOption;
 		public var redRogueOption:MenuOption;
 		public var copySeedOption:MenuOption;
+		public var addDebugMenuOption:MenuOption;
 		
 		public var instructionsOption:MenuOption;
 		public var saveSettingsOption:MenuOption;
@@ -165,6 +167,13 @@
 			changeRaceList = new MenuList();
 			portalTeleportList = new MenuList();
 			soundList = new MenuList();
+			selectMusicList = new MenuList(Vector.<MenuOption>([
+				new MenuOption("default")
+			]));
+			for(i = 0; i < SoundManager.TRACK_NAMES.length; i++){
+				selectMusicList.options.push(new MenuOption(SoundManager.TRACK_NAMES[i]));
+			}
+			selectMusicList.options.push(new MenuOption("playing: default", null, false));
 			menuMoveList = new MenuList(Vector.<MenuOption>([
 				new MenuOption("1", null, false),
 				new MenuOption("2", null, false),
@@ -259,6 +268,7 @@
 			soundOption.help = "toggle sound";
 			var sfxOption:MenuOption = new MenuOption("sfx", onOffList);
 			var musicOption:MenuOption = new MenuOption("music", onOffList);
+			var selectMusicOption:MenuOption = new MenuOption("select music", selectMusicList);
 			fullScreenOption = new MenuOption("fullscreen", onOffList);
 			fullScreenOption.help = "toggle fullscreen.\nthe flash player only allows use of the cursor keys and space when fullscreen in a browser.";
 			screenshotOption = new MenuOption("screenshot");
@@ -267,6 +277,7 @@
 			recordGifOption.help = "record a 4 second animation of action around the player.";
 			saveLogOption = new MenuOption("save log");
 			saveLogOption.help = "open a filebrowser to save this game's log to the desktop.";
+			var screenshakeOption:MenuOption = new MenuOption("screenshake", onOffList);
 			rngSeedOption = new MenuOption("rng seed", rngSeedList);
 			rngSeedOption.help = "copying and setting the magic number that generates all of a single play's content.";
 			copySeedOption = new MenuOption("copy rng seed");
@@ -287,6 +298,8 @@
 			resetOption = new MenuOption("reset saved data", sureList);
 			resetOption.recordable = false;
 			resetOption.help = "erases all saved data. this cannot be undone.";
+			addDebugMenuOption = new MenuOption("debug start");
+			addDebugMenuOption.help = "adds debug menu to in-game menu. it's for me when I try to fix bugs, it's not how you win."
 			
 			onOffOption = new ToggleMenuOption(["turn off", "turn on"]);
 			onOffOption.selectionStep = 1;
@@ -320,12 +333,14 @@
 			optionsList.options.push(changeKeysOption);
 			optionsList.options.push(hotKeyOption);
 			optionsList.options.push(rngSeedOption);
+			optionsList.options.push(screenshakeOption);
 			optionsList.options.push(dogmaticOption);
 			optionsList.options.push(multiplayerOption);
 			optionsList.options.push(newGameOption);
 			optionsList.options.push(resetOption);
 			optionsList.options.push(quitOption);
 			optionsList.options.push(creditsOption);
+			optionsList.options.push(addDebugMenuOption);
 			
 			debugList.options.push(editorOption);
 			debugList.options.push(giveItemOption);
@@ -347,6 +362,7 @@
 			
 			soundList.options.push(sfxOption);
 			soundList.options.push(musicOption);
+			soundList.options.push(selectMusicOption);
 			
 			rngSeedList.options.push(copySeedOption);
 			rngSeedList.options.push(seedOption);
@@ -509,6 +525,10 @@
 				
 			} else if(option.name == "music"){
 				onOffOption.state = SoundManager.music ? 0 : 1;
+				renderMenu();
+				
+			} else if(option.name == "screenshake"){
+				onOffOption.state = UserData.settings.screenshakeOff ? 1 : 0;
 				renderMenu();
 				
 			} else if(nextMenuList && nextMenuList == sureList){
@@ -739,10 +759,15 @@
 						if(SoundManager.soundLoops["underworldMusic2"]) SoundManager.stopSound("underworldMusic2");
 					} else {
 						SoundManager.turnOnMusic();
-						if(game.map.type == Map.AREA && game.map.level == Map.UNDERWORLD){
+						if(!game.playerSelectedMusic && game.map.type == Map.AREA && game.map.level == Map.UNDERWORLD){
 							SoundManager.fadeLoopSound("underworldMusic2");
 						}
 					}
+				
+				// turning off screenshake
+				} else if(previousMenuList.options[previousMenuList.selection].name == "screenshake"){
+					UserData.settings.screenshakeOff = onOffOption.state == 0;
+					Game.renderer.screenshakeOff = UserData.settings.screenshakeOff;
 					
 				// toggle fullscreen
 				} else if(previousMenuList.options[previousMenuList.selection].name == "fullscreen"){
@@ -995,7 +1020,7 @@
 				openURL();
 				
 			} else if(option == nateOption){
-				url = "http://gallardosound.com";
+				url = "https://www.nategallardo.co";
 				openURL();
 				
 			} else if(option == redRogueOption){
@@ -1028,7 +1053,25 @@
 			} else if(option == copySeedOption){
 				copyRngSeed();
 				
-			} 
+			} else if(option == addDebugMenuOption){
+				addDebugMenuOption.active = false;
+				addDebugOption();
+				
+			// choose what music to play
+			} else if(currentMenuList == selectMusicList){
+				if(currentMenuList.selection == 0){
+					if(game.playerSelectedMusic){
+						game.playerSelectedMusic = null;
+						game.changeMusic();
+					}
+				} else {
+					if(game.playerSelectedMusic != SoundManager.MUSIC_NAMES[currentMenuList.selection - 1]){
+						game.playerSelectedMusic = SoundManager.MUSIC_NAMES[currentMenuList.selection - 1];
+						game.changeMusic();
+					}
+				}
+				currentMenuList.options[currentMenuList.options.length - 1].name = "playing: " + option.name;
+			}
 			
 			// if the menu is open, force a renderer update so the player can see the changes,
 			// unless the dialog is open - they may be taking a screenshot
@@ -1043,6 +1086,9 @@
 			if(listInBranch(inventoryList)) while(branch.length > 1) stepLeft();
 			inventoryOption.active = false;
 			missileOption.active = false;
+			if(game.missileButton) game.missileButton.hide();
+			if(game.searchButton) game.searchButton.hide();
+			if(game.disarmButton) game.disarmButton.hide();
 			update();
 			game.deathMenu.select(0);
 			game.menuCarousel.setCurrentMenu(game.deathMenu);
@@ -1267,6 +1313,7 @@
 				if(game.console){
 					game.console.print("debug menu active");
 				}
+				if(game.fpsText) game.fpsText.visible = true;
 			}
 		}
 		
@@ -1298,6 +1345,7 @@
 			}
 			inventoryOption.active = false;
 			missileOption.active = false;
+			if(game.missileButton) game.missileButton.hide();
 			inventoryList.reset();
 			loreList.questsList.reset();
 			actionsOption.active = false;

@@ -105,6 +105,7 @@
 		public var bravery:Number;
 		public var smiteDamage:Number;
 		public var rank:int;
+		public var sex:int;
 		
 		private var hitResult:int;
 		
@@ -140,6 +141,11 @@
 		public static const BALROG:int = 20;
 		public static const SKELETON:int = 21;
 		public static const HUSBAND:int = 22;
+		
+		// sexes
+		public static const ASEXUAL:int = 0;
+		public static const MALE:int = 1;
+		public static const FEMALE:int = 2;
 		
 		// states
 		public static const WALKING:int = 1;
@@ -186,6 +192,7 @@
 		
 		public static const SMITE_SOUNDS:Array = ["star1", "star2", "star3", "star4"];
 		public static const STUN_SOUNDS:Array = ["stun1", "stun2", "stun3"];
+		public static const SLASH_SOUNDS:Array = ["slash1", "slash2"];
 		
 		public static const FLOOR_STEP_SOUND:int = 0;
 		public static const LADDER_STEP_SOUND:int = 1;
@@ -304,6 +311,8 @@
 			speedModifier = 1;
 			attackSpeedModifier = 1;
 			protectionModifier = 1;
+			sex = stats["sex"][name];
+			
 			
 			// this is calculated by the Content class or the object generating the monster
 			xpReward = 0;
@@ -750,6 +759,7 @@
 		protected function meleeAttack(target:Character):void{
 			attackCount = 0;
 			hitResult = hit(target, Item.MELEE);
+			var dir:int = this.looking;
 			if(hitResult){
 				var mc:MovieClip = gfx as MovieClip;
 				var item:Item = lungeState == LUNGE_FORWARD ? weapon : throwable;
@@ -804,7 +814,7 @@
 						)
 					)
 				){
-					target.smite(looking, hitDamage * 0.5);
+					target.smite(dir, hitDamage * 0.5);
 					// half of hitDamage is transferred to the smite state
 					hitDamage *= 0.5;
 				}
@@ -856,6 +866,22 @@
 			victim = target;
 		}
 		
+		public function slashSwap(target:Collider):void{
+			var min:Number = Math.min(collider.x, target.x);
+			var max:Number = Math.max(collider.x + collider.width, target.x + target.width);
+			collider.divorce();
+			target.divorce();
+			if(collider.x < target.x) {
+				target.x = min;
+				collider.x = max - collider.width;
+			} else {
+				collider.x = min;
+				target.x = max - target.width;
+			}
+			game.createDistSound(mapX, mapY, "slash", SLASH_SOUNDS);
+			renderer.addFX((max - min) * 0.5 + min, collider.y + collider.height * 0.5, renderer.slashBlit);
+		}
+		
 		protected function stompCallback(stomper:Collider):void{
 			if(state == QUICKENING || state == SMITED || !active) return;
 			applyStun(0.5);
@@ -890,7 +916,7 @@
 			game.console.print(nameToString() + " " + method + " by " + cause);
 			if(questVictim) game.gameMenu.loreList.questsList.questCheck(QuestMenuOption.KILL, this);
 			renderer.shake(0, 3);
-			game.soundQueue.add("kill");
+			game.createDistSound(mapX, mapY, "kill");
 			if(type == MONSTER){
 				var xp:Number = xpReward;
 				if(rank == CHAMPION) xp *= 2;
@@ -989,7 +1015,7 @@
 		public function smite(dir:int, damage:Number):void{
 			// blessed armour resists smiting - also cancelling damage
 			if(armour && armour.holyState == Item.BLESSED){
-				game.soundQueue.addRandom("smite", SMITE_SOUNDS, 10);
+				game.createDistSound(mapX, mapY, "smite", SMITE_SOUNDS, 10);
 				renderer.createSparks(
 					collider.x + ((dir & RIGHT) ? 0 : collider.width),
 					collider.y + collider.height * 0.5,
@@ -1015,7 +1041,7 @@
 				looking = RIGHT;
 				renderer.addFX(collider.x + collider.width, collider.y + collider.height * 0.5, renderer.smiteLeftBlit, new Point(-1, 0));
 			}
-			game.soundQueue.addRandom("smite", SMITE_SOUNDS, 20);
+			game.createDistSound(mapX, mapY, "smite", SMITE_SOUNDS, 20);
 		}
 		
 		/* The logic to validate climbing is pretty convoluted so it resides in another method,
@@ -1177,7 +1203,7 @@
 		
 		/* Effect stun state on this character */
 		public function applyStun(delay:Number):void{
-			// inanimate objects can't be stunned
+			// inanimate objects can't be stunned (except Death, it's funny)
 			if((type == STONE && name != Stone.DEATH) || type == GATE) return;
 			// exit the quickening state if already in it
 			if(state == QUICKENING) finishQuicken();
@@ -1226,7 +1252,7 @@
 					item.gfx.visible = true;
 					item.autoEquip = this.type;
 					if(item.gfx is ItemMovieClip) (item.gfx as ItemMovieClip).setThrowRender();
-					if(item.name == Item.CHAKRAM){
+					if(item.name == Item.CHAKRAM || item.name == Item.SARKEESIAN){
 						reflections = Missile.CHAKRAM_REFLECTIONS;
 					}
 				// we can only get here if the main weapon is a missile weapon
@@ -1641,6 +1667,11 @@
 			}
 			if(gfx.visible && equipmentGfxLayerUpdateCount == game.frameCount) setEquipmentGfxLayers();
 			if(weapon){
+				if(!mc.weapon){
+					// where the hell did the weapon go?
+					// some odd behaviour hiding weapons at times - this should patch it
+					setEquipmentGfxLayers();
+				}
 				if(mc.weapon){
 					if(collider.state == Collider.HOVER) weapon.gfx.visible = false;
 					else {
@@ -1663,7 +1694,7 @@
 					if(collider.state == Collider.HOVER) throwable.gfx.visible = false;
 					else {
 						throwable.gfx.visible = true;
-						if(state == LUNGING && lungeState == LUNGE_BACK){
+						if(state == LUNGING && lungeState == LUNGE_BACK && mc.weapon){
 							throwable.gfx.x = mc.weapon.x;
 							throwable.gfx.y = mc.weapon.y;
 						} else {

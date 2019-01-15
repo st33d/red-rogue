@@ -59,10 +59,12 @@
 		public static const LEECH:int = Item.LEECH_RUNE;
 		public static const XP:int = Item.XP;
 		public static const CHAOS:int = Item.CHAOS;
+		// there is no rune for this effect
+		public static const FEMALE_POLYMORPH:int = Item.FEMALE_POLYMORPH;
 		
 		public static var BANNED_RANDOM_ENCHANTMENTS:Object = {};
 		
-		public static const FAVOURABLE_WEAPON_ENCHANTMENTS:Array = [BLEED, TELEPORT, SLOW, STUN, CONFUSION, FEAR, LEECH];
+		public static const FAVOURABLE_WEAPON_ENCHANTMENTS:Array = [BLEED, SLOW, STUN, CONFUSION, FEAR, LEECH];
 		public static const FAVOURABLE_ARMOUR_ENCHANTMENTS:Array = [LIGHT, HEAL, UNDEAD, THORNS, HASTE, PROTECTION];
 		
 		public static const WEAPON:int = Item.WEAPON;
@@ -547,6 +549,8 @@
 		public function apply(target:Character, count:int = 0, racial:Boolean = false):void{
 			
 			var callMain:Boolean = false;
+			var newName:int;
+			var nameRange:int;
 			var i:int;
 			this.count = 0;
 			
@@ -662,9 +666,8 @@
 				
 			} else if(name == POLYMORPH){
 				if(source == EATEN || source == THROWN){
-					var newName:int;
 					// limit change by exploration - no infinite loop to catch here, there are two options from the start
-					var nameRange:int = game.deepestLevelReached + 1;
+					nameRange = game.deepestLevelReached + 1;
 					if(nameRange > Content.monsterNameDeck.length) nameRange = Content.monsterNameDeck.length;
 					if(target.armour && target.armour.name == Item.FACE){
 						// when the character is wearing face armour, we only need change the race underneath
@@ -679,6 +682,25 @@
 					game.createDistSound(target.mapX, target.mapY, "Polymorph");
 					return;
 				}
+				
+			} else if(name == FEMALE_POLYMORPH){
+				// check target is female
+				if(target.sex != Character.FEMALE){
+					nameRange = Content.FEM_DECK.length;
+					if(target.armour && target.armour.name == Item.FACE){
+						// when the character is wearing face armour, we only need change the race underneath
+						newName = (target.armour as Face).previousName;
+						while(newName == (target.armour as Face).previousName) newName = Content.FEM_DECK[game.random.rangeInt(nameRange)];
+						(target.armour as Face).previousName = newName;
+					} else {
+						newName = target.name
+						while(newName == target.name) newName = Content.FEM_DECK[game.random.rangeInt(nameRange)];
+						target.changeName(newName);
+					}
+					game.createDistSound(target.mapX, target.mapY, "Polymorph");
+					
+				}
+				return;
 				
 			} else if(name == XP){
 				// all characters except the player will get a level up, the player gets xp to their next level
@@ -1020,11 +1042,18 @@
 			var name:int, i:int;
 			var nameRange:int;
 			var enchantments:int = 2 + game.random.range(level * 0.2);
+			level = 25;
 			// bucket sort selection process, probably faster than a hash at this scale, can be arsed to verify
 			var bucket:Vector.<int> = new Vector.<int>(Game.MAX_LEVEL);
 			var index:int;
 			if(existingEffectOnly){
-				if(item.effects) index = game.random.range(item.effects.length);
+				if(item.effects){
+					var breaker:int = 20;
+					do{
+						index = game.random.range(item.effects.length);
+						if(breaker-- < 1) return item;
+					} while(Effect.BANNED_RANDOM_ENCHANTMENTS[item.effects[index].name]);
+				}
 				else return item;
 			}
 			while(enchantments--){

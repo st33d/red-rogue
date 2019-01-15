@@ -96,18 +96,22 @@ package com.robotacid.sound {
 		SoundManager.addSound(new StarSound2, "star2", 0.05);
 		SoundManager.addSound(new StarSound3, "star3", 0.05);
 		SoundManager.addSound(new StarSound4, "star4", 0.05);
-		SoundManager.addSound(new HorrorSound01, "horror1", 0.5);
-		SoundManager.addSound(new HorrorSound02, "horror2", 0.5);
-		SoundManager.addSound(new HorrorSound03, "horror3", 0.5);
-		SoundManager.addSound(new HorrorSound04, "horror4", 0.5);
-		SoundManager.addSound(new HorrorSound05, "horror5", 0.5);
-		SoundManager.addSound(new HorrorSound06, "horror6", 0.5);
+		SoundManager.addSound(new HorrorSound01, "horror1", 0.4);
+		SoundManager.addSound(new HorrorSound02, "horror2", 0.4);
+		SoundManager.addSound(new HorrorSound03, "horror3", 0.4);
+		SoundManager.addSound(new HorrorSound04, "horror4", 0.4);
+		SoundManager.addSound(new HorrorSound05, "horror5", 0.4);
+		SoundManager.addSound(new HorrorSound06, "horror6", 0.4);
 		SoundManager.addSound(new HorrorSound1, "fury1", 0.4);
 		SoundManager.addSound(new HorrorSound2, "fury2", 0.4);
 		SoundManager.addSound(new HorrorSound3, "fury3", 0.4);
 		SoundManager.addSound(new HorrorSound4, "fury4", 0.4);
 		SoundManager.addSound(new HorrorSound5, "fury5", 0.4);
 		SoundManager.addSound(new HorrorSound6, "fury6", 0.4);
+		SoundManager.addSound(new PierceSound1, "pierce1", 0.5);
+		SoundManager.addSound(new PierceSound2, "pierce2", 0.5);
+		SoundManager.addSound(new SlashSound1, "slash1", 0.3);
+		SoundManager.addSound(new SlashSound2, "slash2", 0.3);
 		
 		// voices
 		SoundManager.addSound(new BalrogSound1, "Balrog1", 0.5);

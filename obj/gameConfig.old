@@ -16,7 +16,7 @@
     </define>
     <define append="true">
       <name>CONFIG::timeStamp</name>
-      <value>'26/12/2012'</value>
+      <value>'09/11/2017'</value>
     </define>
     <define append="true">
       <name>CONFIG::air</name>
@@ -32,17 +32,17 @@
     </define>
     <verbose-stacktraces>true</verbose-stacktraces>
     <source-path append="true">
-      <path-element>C:\Users\st33d\Documents\rogue\1.0.3\src</path-element>
-      <path-element>C:\Program Files (x86)\FlashDevelop\Library\AS3\classes</path-element>
+      <path-element>D:\flash\redrogue\1.1.0\src</path-element>
+      <path-element>D:\Program Files\FlashDevelop\Library\AS3\classes</path-element>
     </source-path>
     <include-libraries>
-      <library>C:\Users\st33d\Documents\rogue\1.0.3\src\assets\assets.swc</library>
+      <library>D:\flash\redrogue\1.1.0\src\assets\assets.swc</library>
     </include-libraries>
   </compiler>
   <file-specs>
-    <path-element>C:\Users\st33d\Documents\rogue\1.0.3\src\Preloader.as</path-element>
+    <path-element>D:\flash\redrogue\1.1.0\src\Preloader.as</path-element>
   </file-specs>
-  <default-background-color>#FFFFFF</default-background-color>
+  <default-background-color>#000000</default-background-color>
   <default-frame-rate>30</default-frame-rate>
   <default-size>
     <width>800</width>

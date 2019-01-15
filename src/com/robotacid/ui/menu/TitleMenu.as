@@ -159,7 +159,7 @@ package com.robotacid.ui.menu {
 				gameMenu.openURL();
 				
 			} else if(option == gameMenu.nateOption){
-				gameMenu.url = "http://gallardosound.com";
+				gameMenu.url = "https://www.nategallardo.co";
 				gameMenu.openURL();
 			
 			} else if(option == gameMenu.redRogueOption){
@@ -196,6 +196,20 @@ package com.robotacid.ui.menu {
 			} else if(option == gameMenu.copySeedOption){
 				gameMenu.copyRngSeed();
 				
+			// choose what music to play
+			} else if(currentMenuList == gameMenu.selectMusicList){
+				if(currentMenuList.selection == 0){
+					if(game.playerSelectedMusic){
+						game.playerSelectedMusic = null;
+						game.changeMusic();
+					}
+				} else {
+					if(game.playerSelectedMusic != SoundManager.MUSIC_NAMES[currentMenuList.selection - 1]){
+						game.playerSelectedMusic = SoundManager.MUSIC_NAMES[currentMenuList.selection - 1];
+						game.changeMusic();
+					}
+				}
+				currentMenuList.options[currentMenuList.options.length - 1].name = "playing: " + option.name;
 			}
 		}
 		

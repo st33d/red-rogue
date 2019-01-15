@@ -63,7 +63,7 @@ package com.robotacid.ui {
 			if(mapY < 1) mapY = 1;
 			if(mapX > game.map.width - 2) mapX = game.map.width - 2;
 			if(mapY > game.map.height - 2) mapY = game.map.height - 2;
-			if(game.mousePressedCount == game.frameCount){
+			if(game.mousePressedCount == game.actualFrameCount){
 				menuList.applySelection(mapX, mapY, EditorMenuList.MOUSE_CLICK);
 			} else if(game.mousePressed){
 				menuList.applySelection(mapX, mapY, EditorMenuList.MOUSE_HELD);

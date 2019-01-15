@@ -39,6 +39,18 @@
 			py = y;
 		}
 		
+		public function recycleDebris(x:Number, y:Number, blit:BlitRect, bitmapData:BitmapData, bitmap:DisplayObject, print:BlitRect = null, smear:Boolean = false, map:Boolean = true):void {
+			recycle(x, y, blit, bitmapData, bitmap);
+			this.print = print;
+			this.smear = smear;
+			this.map = map;
+			looped = true;
+			mapX = x * Game.INV_SCALE;
+			mapY = y * Game.INV_SCALE;
+			px = x;
+			py = y;
+		}
+		
 		override public function main():void{
 			// inlined verlet routine
 			tempX = x;

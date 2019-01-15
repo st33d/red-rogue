@@ -1,4 +1,6 @@
 ﻿package com.robotacid.gfx {
+	import com.robotacid.engine.Effect;
+	import com.robotacid.engine.Horror;
 	import com.robotacid.level.Map;
 	import com.robotacid.engine.Character;
 	import com.robotacid.engine.Entity;
@@ -36,7 +38,6 @@
 		public var wallRect:Rectangle;
 		public var width:int;
 		public var height:int;
-		
 		
 		public static const EDGE_COL:uint = 0xFFDDDDDD;
 		public static const EDGE_OFFSET:Number = 14;
@@ -76,19 +77,21 @@
 		public static const INV_SCALE:Number = Game.INV_SCALE;
 		
 		public function LightMap(blockMap:Vector.<Vector.<int>>) {
-			this.blockMap = blockMap;
-			width = blockMap[0].length;
-			height = blockMap.length;
-			rect = new Rectangle(0, 0, game.mapTileManager.tilesWidth + game.mapTileManager.borderX[game.mapTileManager.masterLayer] * 2, game.mapTileManager.tilesHeight + game.mapTileManager.borderY[game.mapTileManager.masterLayer] * 2);
-			darkImage = new BitmapData(width, height, true, 0xFF000000);
-			fadeImage = new BitmapData(rect.width, rect.height, true, FADE_STEP);
-			entities = new Vector.<Entity>();
 			getTables(MAX_RADIUS);
 			vertEdge = new Rectangle(0, 0, 2, 16);
 			horizEdge = new Rectangle(0, 0, 16, 2);
 			wallRect = new Rectangle(0, 0, 16, 16);
 			edgeImage = renderer.bitmapData;
-			renderer.lightBitmap.bitmapData = darkImage;
+			newMap(blockMap);
+			
+			//entities = new Vector.<Entity>();
+			//this.blockMap = blockMap;
+			//width = blockMap[0].length;
+			//height = blockMap.length;
+			//rect = new Rectangle(0, 0, game.mapTileManager.tilesWidth + game.mapTileManager.borderX[game.mapTileManager.masterLayer] * 2, game.mapTileManager.tilesHeight + game.mapTileManager.borderY[game.mapTileManager.masterLayer] * 2);
+			//darkImage = new BitmapData(width, height, true, 0xFF000000);
+			//renderer.lightBitmap.bitmapData = darkImage;
+			//fadeImage = new BitmapData(rect.width, rect.height, true, FADE_STEP);
 		}
 		
 		/* A new collision map from the physics engine is used start the basis for the next level's lighting engine */
@@ -100,6 +103,7 @@
 			rect = new Rectangle(0, 0, game.mapTileManager.tilesWidth + game.mapTileManager.borderX[game.mapTileManager.masterLayer] * 2, game.mapTileManager.tilesHeight + game.mapTileManager.borderY[game.mapTileManager.masterLayer] * 2);
 			renderer.lightBitmap.bitmapData = darkImage = new BitmapData(width, height, true, 0xFF000000);
 			fadeImage = new BitmapData(rect.width, rect.height, true, FADE_STEP);
+			
 		}
 		
 		public function main():void{
@@ -187,7 +191,7 @@
 			var mapX:int, mapY:int;
 			var dist:int;
 			var lSlope:Number, rSlope:Number;
-			var col:uint;
+			var col:uint, mapCol:uint;
 
 			if(start < end) return;
 
@@ -250,8 +254,9 @@
 									}
 									
 									if(updateMinimap){
-										if(!(blockMap[mapY][mapX] & WALL)) game.miniMap.bitmapData.setPixel32(mapX, mapY, MINIMAP_EMPTY_COL);
-										else if(blockMap[mapY][mapX] & WALL) game.miniMap.bitmapData.setPixel32(mapX, mapY, MINIMAP_WALL_COL);
+										if(!(blockMap[mapY][mapX] & WALL)){
+											game.miniMap.bitmapData.setPixel32(mapX, mapY, MINIMAP_EMPTY_COL);
+										} else if(blockMap[mapY][mapX] & WALL) game.miniMap.bitmapData.setPixel32(mapX, mapY, MINIMAP_WALL_COL);
 									}
 								}
 								

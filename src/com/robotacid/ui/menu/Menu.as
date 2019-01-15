@@ -190,7 +190,8 @@
 			maskShape.graphics.endFill();
 			mask = maskShape;
 			
-			help = new TextBox(320, 36, BACKGROUND_COL, BORDER_COL);
+			var helpWidth:Number = Game.WIDTH - (Game.MOBILE ? 32 : 0);
+			help = new TextBox(helpWidth, 36, BACKGROUND_COL, BORDER_COL);
 			
 			// create TextBoxes to render the current state of the menu
 			textHolder = new Sprite();
@@ -747,14 +748,16 @@
 			// load key inputs into a single variable
 			var lastKeysDown:int = keysDown;
 			keysDown = 0;
-			if(Key.keysPressed){
+			if(Key.keysPressed || game.mousePressed){
 				// bypass reading keys if the menu is not on the display list
 				if(parent){
 					if(!keyLock){
+						// capture swipe input
+						var swipe:int = game.mousePressed ? game.getMouseSwipe() : 0;
 						
 						if(
-							((!game.multiplayer && Key.isDown(Keyboard.UP)) || Key.customDown(Game.UP_KEY)) &&
-							!((!game.multiplayer && Key.isDown(Keyboard.DOWN)) || Key.customDown(Game.DOWN_KEY))
+							((!game.multiplayer && Key.isDown(Keyboard.UP)) || Key.customDown(Game.UP_KEY) || swipe == UP) &&
+							!((!game.multiplayer && Key.isDown(Keyboard.DOWN)) || Key.customDown(Game.DOWN_KEY) || swipe == DOWN)
 						){
 							keysDown |= UP;
 							keysDown &= ~DOWN;
@@ -762,8 +765,8 @@
 							keysLocked &= ~UP;
 						}
 						if (
-							((!game.multiplayer && Key.isDown(Keyboard.DOWN)) || Key.customDown(Game.DOWN_KEY)) &&
-							!((!game.multiplayer && Key.isDown(Keyboard.UP)) || Key.customDown(Game.UP_KEY))
+							((!game.multiplayer && Key.isDown(Keyboard.DOWN)) || Key.customDown(Game.DOWN_KEY) || swipe == DOWN) &&
+							!((!game.multiplayer && Key.isDown(Keyboard.UP)) || Key.customDown(Game.UP_KEY) || swipe == UP)
 						){
 							keysDown |= DOWN;
 							keysDown &= ~UP;
@@ -771,8 +774,8 @@
 							keysLocked &= ~DOWN;
 						}
 						if(
-							((!game.multiplayer && Key.isDown(Keyboard.LEFT)) || Key.customDown(Game.LEFT_KEY)) &&
-							!((!game.multiplayer && Key.isDown(Keyboard.RIGHT)) || Key.customDown(Game.RIGHT_KEY))
+							((!game.multiplayer && Key.isDown(Keyboard.LEFT)) || Key.customDown(Game.LEFT_KEY) || swipe == LEFT) &&
+							!((!game.multiplayer && Key.isDown(Keyboard.RIGHT)) || Key.customDown(Game.RIGHT_KEY) || swipe == RIGHT)
 						){
 							keysDown |= LEFT;
 							keysDown &= ~RIGHT;
@@ -780,8 +783,8 @@
 							keysLocked &= ~LEFT;
 						}
 						if(
-							((!game.multiplayer && Key.isDown(Keyboard.RIGHT)) || Key.customDown(Game.RIGHT_KEY)) &&
-							!((!game.multiplayer && Key.isDown(Keyboard.LEFT)) || Key.customDown(Game.LEFT_KEY))
+							((!game.multiplayer && Key.isDown(Keyboard.RIGHT)) || Key.customDown(Game.RIGHT_KEY) || swipe == RIGHT) &&
+							!((!game.multiplayer && Key.isDown(Keyboard.LEFT)) || Key.customDown(Game.LEFT_KEY) || swipe == LEFT)
 						){
 							keysDown |= RIGHT;
 							keysDown &= ~LEFT;

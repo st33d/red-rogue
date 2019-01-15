@@ -27,8 +27,9 @@ package com.robotacid.engine {
 		
 		// types
 		public static const YENDOR:int = 0;
-		public static const HUSBAND:int = 1;
-		public static const EMPTY_HANDED:int = 2;
+		public static const NO_HUSBAND:int = 1;
+		public static const HUSBAND:int = 2;
+		public static const EMPTY_HANDED:int = 3;
 		
 		// states
 		public static const IDLE:int = 0;
@@ -116,18 +117,18 @@ package com.robotacid.engine {
 			}
 			// three stories, depending on what happened to yendor
 			var deck:Array, str:String;
-			if(type == YENDOR){
-				if(game.random.value() < 0.5){
+			if(type == YENDOR || type == NO_HUSBAND){
+				if(type == NO_HUSBAND || game.random.value() < 0.5){
 					lines.push("she returned to rule the kingdom she had once abandoned");
-					lines.push("for " + (20 + game.random.rangeInt(20)) + " years she ruled in peace. no one dared question or make war with one who travelled through time and wielded the power of yendor.");
+					lines.push("for " + (20 + game.random.rangeInt(20)) + " years she ruled in peace. no one dared question or make war with one who travelled through time and had wielded the power of yendor.");
 					lines.push("she took no prince and gave her people no heirs. her quest for vengeance of her dead husband had brought no solace.");
 					if(game.minion){
 						lines.push("offers of marriage were made to her, dying on their lips as they saw " + game.minion.nameToString() + " advance following her rebuttal");
 					}
 					lines.push("on her death bed, her people were divided. those doubting her title rioting, those defending it becoming cruel vigilantes. it was not long before the kingdom was at war with its neighbours.");
 				} else {
-					lines.push("she travelled aimlessly across the kingdom she had once abandonned");
-					str = "using the amulet of yendor she ";
+					lines.push("she travelled aimlessly across the kingdom she had once abandoned");
+					str = "she ";
 					deck = ["slew the dragon of diahrmid pass", "defeated an army of ogres", "scaled the world's tallest mountain to retrieve the egg of the phoenix", "destroyed the ifrit of the barren wastes"];
 					randomiseArray(deck, game.random);
 					str += deck[0] + " and " + deck[1];

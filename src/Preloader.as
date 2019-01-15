@@ -30,8 +30,8 @@
 			focusPrompt = true;
 			stage.addEventListener(Event.ACTIVATE, onFocus);
 			loaderInfo.addEventListener(ProgressEvent.PROGRESS, progress);
-            stage.scaleMode = StageScaleMode.NO_SCALE;
-			stage.align = StageAlign.TOP_LEFT;
+            //stage.scaleMode = StageScaleMode.NO_SCALE;
+			//stage.align = StageAlign.TOP_LEFT;
 			// show loader
 			bar = new ProgressBar(0, 0, 100, 10);
 			bar.barCol = 0xFFAA0000;

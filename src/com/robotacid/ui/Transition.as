@@ -1,4 +1,5 @@
 package com.robotacid.ui {
+	import flash.display.MovieClip;
 	import flash.display.Sprite;
 	/**
 	 * A simple fade to segue between scenes with optional text inbetween
@@ -12,6 +13,8 @@ package com.robotacid.ui {
 		public var completeCallback:Function;
 		public var dir:int;
 		public var forceComplete:Boolean;
+		public var buttons:Array;
+		public var buttonsVisible:Array;
 		
 		private var textBox:TextBox;
 		private var textCount:int;
@@ -28,6 +31,7 @@ package com.robotacid.ui {
 			textBox.alignVert = "center";
 			textBox.align = "center";
 			textBox.visible = false;
+			buttons = [];
 			addChild(textBox);
 		}
 		
@@ -67,7 +71,11 @@ package com.robotacid.ui {
 						active = false;
 						graphics.clear();
 						changeOverCallback = null;
-						completeCallback = null;
+						completeCallback = null;						
+						for (var i:int = 0; i < buttons.length; i++) {
+							var b:MovieClip = buttons[i];
+							b.visible = buttonsVisible[i];
+						}
 						if(Boolean(completeCallback)) completeCallback();
 					}
 				}
@@ -96,6 +104,12 @@ package com.robotacid.ui {
 				textBox.text = text;
 				textBox.visible = true;
 				textBox.alpha = 0;
+			}
+			buttonsVisible = [];
+			for (var i:int = 0; i < buttons.length; i++) {
+				var b:MovieClip = buttons[i];
+				buttonsVisible[i] = b.visible;
+				b.visible = false;
 			}
 		}
 		
